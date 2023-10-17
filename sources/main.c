@@ -13,6 +13,7 @@ const Vector2 originalTeaPosition = {600, 250};
 
 bool DragAndDrop(Texture2D* object, Vector2* objectPosition, const Rectangle* dropArea, Vector2 originalPosition) {
     static bool isObjectBeingDragged = false;
+    static Texture2D* current_dragging = NULL;
     static float offsetX = 0;
     static float offsetY = 0;
 
@@ -22,7 +23,7 @@ bool DragAndDrop(Texture2D* object, Vector2* objectPosition, const Rectangle* dr
 
     if (IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {
         // printf("MOUSE DOWN");
-        if (CheckCollisionPointRec(GetMousePosition(), objectBounds)) {
+        if (CheckCollisionPointRec(GetMousePosition(), objectBounds) && (current_dragging == NULL || current_dragging == object)) {
             printf("SEND HELP");
             isObjectBeingDragged = true;  
             offsetX = object->width /2;
@@ -30,12 +31,14 @@ bool DragAndDrop(Texture2D* object, Vector2* objectPosition, const Rectangle* dr
             
             objectPosition->x = GetMouseX() - offsetX;
             objectPosition->y = GetMouseY() - offsetY;
+            current_dragging = object;
             return true;
         }
     }
 
     if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
         isObjectBeingDragged = false;
+        current_dragging = NULL;
 
         if (CheckCollisionRecs(objectBounds, *dropArea)) {
             // Object is inside the drop area, snap it to the center of the area
@@ -68,26 +71,13 @@ int main(void)
     Vector2 platePosition = { 1000, 300 };
     Rectangle plateArea = { platePosition.x, platePosition.y, 200, 200 };
     bool dragging = false;
-    Texture2D* current_dragging = NULL;
+
 
     while (!WindowShouldClose())
     {   
-        if(current_dragging == NULL || current_dragging == &cat ){
             dragging = DragAndDrop(&cat, &catPosition, &plateArea, originalCatPosition);
-            if(dragging){
-                current_dragging = &cat;
-            }else{
-                current_dragging = NULL;
-            }
-        }
-        if(current_dragging == NULL || current_dragging == &tea ){
+
             dragging = DragAndDrop(&tea, &teaPosition, &plateArea, originalTeaPosition);
-            if(dragging){
-                current_dragging = &tea;
-            }else{
-                current_dragging = NULL;
-            }
-        }
         
 
         BeginDrawing();
