@@ -29,7 +29,7 @@ Texture2D* DragAndDropPop(Texture2D* object, Vector2* objectPosition, Texture2D*
     if (IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {
         // printf("MOUSE DOWN");
         if ((CheckCollisionPointRec(GetMousePosition(), objectBounds) || CheckCollisionPointRec(GetMousePosition(), startobjectBonds)) && (current_dragging == NULL || current_dragging == object)) {
-            printf("SEND HELP");
+            // printf("SEND HELP");
             isObjectBeingDragged = true;  
             offsetX = object->width /2;
             offsetY = object->height /2;
@@ -72,7 +72,7 @@ Texture2D* DragAndDrop(Texture2D* object, Vector2* objectPosition, const Rectang
     if (IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {
         // printf("MOUSE DOWN");
         if (CheckCollisionPointRec(GetMousePosition(), objectBounds) && (current_dragging == NULL || current_dragging == object)) {
-            printf("SEND HELP");
+            // printf("SEND HELP");
             isObjectBeingDragged = true;  
             offsetX = object->width /2;
             offsetY = object->height /2;
