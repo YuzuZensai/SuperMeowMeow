@@ -6,14 +6,18 @@
 
 #define WINDOW_TITLE "Window title"
 
-void DragAndDrop(Texture2D* object, Vector2* objectPosition) {
+const Vector2 originalCatPosition = {100, 100};
+const Vector2 originalTeaPosition = {600, 250};
 
+void DragAndDrop(Texture2D* object, Vector2* objectPosition, const Rectangle* dropArea, Vector2 originalPosition) {
     static bool isObjectBeingDragged = false;
     static float offsetX = 0;
     static float offsetY = 0;
 
+
+    Rectangle objectBounds = { objectPosition->x, objectPosition->y, (float)object->width, (float)object->height };
+
     if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-        Rectangle objectBounds = { objectPosition->x, objectPosition->y, (float)object->width, (float)object->height };
         if (CheckCollisionPointRec(GetMousePosition(), objectBounds)) {
             isObjectBeingDragged = true;
             offsetX = objectPosition->x - GetMouseX();
@@ -23,6 +27,16 @@ void DragAndDrop(Texture2D* object, Vector2* objectPosition) {
 
     if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
         isObjectBeingDragged = false;
+
+        if (CheckCollisionRecs(objectBounds, *dropArea)) {
+            // Object is inside the drop area, snap it to the center of the area
+            objectPosition->x = dropArea->x + dropArea->width / 2 - object->width / 2;
+            objectPosition->y = dropArea->y + dropArea->height / 2 - object->height / 2;
+        } else {
+            // Object is not inside the drop area, return it to the original position
+            objectPosition->x = originalPosition.x;
+            objectPosition->y = originalPosition.y;
+        }
     }
 
     if (isObjectBeingDragged) {
@@ -31,22 +45,27 @@ void DragAndDrop(Texture2D* object, Vector2* objectPosition) {
     }
 }
 
+
 int main(void)
 {
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, WINDOW_TITLE);
     SetTargetFPS(TARGET_FPS);
 
     Texture2D texture = LoadTexture(ASSETS_PATH"test.png");
+
     Texture2D cat = LoadTexture(ASSETS_PATH"cat.png");
-    Vector2 catPosition = {500,500};   
+    Vector2 catPosition = {100,100};
 
-    
+    Texture2D tea = LoadTexture(ASSETS_PATH"tea.png");
+    Vector2 teaPosition = {600,250};
 
-    bool isObjectBeingDragged = false;
+    Vector2 platePosition = { 1000, 300 };
+    Rectangle plateArea = { platePosition.x, platePosition.y, 200, 200 };
 
     while (!WindowShouldClose())
     {   
-        DragAndDrop(&cat, &catPosition);
+        DragAndDrop(&cat, &catPosition, &plateArea, originalCatPosition);
+        DragAndDrop(&tea, &teaPosition, &plateArea, originalTeaPosition);
 
         BeginDrawing();
 
@@ -55,8 +74,13 @@ int main(void)
         const int texture_x = SCREEN_WIDTH / 2 - texture.width / 2;
         const int texture_y = SCREEN_HEIGHT / 2 - texture.height / 2;
         DrawTexture(texture, texture_x, texture_y, WHITE);
+
         DrawTexture(cat, catPosition.x ,catPosition.y, WHITE);
+        DrawTexture(tea, teaPosition.x ,teaPosition.y, WHITE);
+        
         DrawRectangleLines((int)catPosition.x, (int)catPosition.y, cat.width, cat.height, RED);
+
+        DrawRectangle(platePosition.x, platePosition.y, 200 ,200, RED);
 
         const char* text = "It works :3";
         const Vector2 text_size = MeasureTextEx(GetFontDefault(), text, 20, 1);
@@ -69,3 +93,4 @@ int main(void)
 
     return 0;
 }
+
