@@ -1,4 +1,6 @@
 #include "raylib.h"
+#include <stdio.h>
+
 
 #define SCREEN_WIDTH (1280)
 #define SCREEN_HEIGHT (720)
@@ -9,19 +11,26 @@
 const Vector2 originalCatPosition = {100, 100};
 const Vector2 originalTeaPosition = {600, 250};
 
-void DragAndDrop(Texture2D* object, Vector2* objectPosition, const Rectangle* dropArea, Vector2 originalPosition) {
+bool DragAndDrop(Texture2D* object, Vector2* objectPosition, const Rectangle* dropArea, Vector2 originalPosition) {
     static bool isObjectBeingDragged = false;
     static float offsetX = 0;
     static float offsetY = 0;
 
 
     Rectangle objectBounds = { objectPosition->x, objectPosition->y, (float)object->width, (float)object->height };
+    
 
-    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+    if (IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {
+        // printf("MOUSE DOWN");
         if (CheckCollisionPointRec(GetMousePosition(), objectBounds)) {
-            isObjectBeingDragged = true;
-            offsetX = objectPosition->x - GetMouseX();
-            offsetY = objectPosition->y - GetMouseY();
+            printf("SEND HELP");
+            isObjectBeingDragged = true;  
+            offsetX = object->width /2;
+            offsetY = object->height /2;
+            
+            objectPosition->x = GetMouseX() - offsetX;
+            objectPosition->y = GetMouseY() - offsetY;
+            return true;
         }
     }
 
@@ -39,10 +48,7 @@ void DragAndDrop(Texture2D* object, Vector2* objectPosition, const Rectangle* dr
         }
     }
 
-    if (isObjectBeingDragged) {
-        objectPosition->x = GetMouseX() + offsetX;
-        objectPosition->y = GetMouseY() + offsetY;
-    }
+    return false;
 }
 
 
@@ -61,11 +67,28 @@ int main(void)
 
     Vector2 platePosition = { 1000, 300 };
     Rectangle plateArea = { platePosition.x, platePosition.y, 200, 200 };
+    bool dragging = false;
+    Texture2D* current_dragging = NULL;
 
     while (!WindowShouldClose())
     {   
-        DragAndDrop(&cat, &catPosition, &plateArea, originalCatPosition);
-        DragAndDrop(&tea, &teaPosition, &plateArea, originalTeaPosition);
+        if(current_dragging == NULL || current_dragging == &cat ){
+            dragging = DragAndDrop(&cat, &catPosition, &plateArea, originalCatPosition);
+            if(dragging){
+                current_dragging = &cat;
+            }else{
+                current_dragging = NULL;
+            }
+        }
+        if(current_dragging == NULL || current_dragging == &tea ){
+            dragging = DragAndDrop(&tea, &teaPosition, &plateArea, originalTeaPosition);
+            if(dragging){
+                current_dragging = &tea;
+            }else{
+                current_dragging = NULL;
+            }
+        }
+        
 
         BeginDrawing();
 
@@ -81,7 +104,7 @@ int main(void)
         DrawRectangleLines((int)catPosition.x, (int)catPosition.y, cat.width, cat.height, RED);
 
         DrawRectangle(platePosition.x, platePosition.y, 200 ,200, RED);
-
+        
         const char* text = "It works :3";
         const Vector2 text_size = MeasureTextEx(GetFontDefault(), text, 20, 1);
         DrawText(text, SCREEN_WIDTH / 2 - text_size.x / 2, texture_y + texture.height + text_size.y + 10, 20, BLACK);
