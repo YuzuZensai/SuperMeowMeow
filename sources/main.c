@@ -5,14 +5,6 @@
 #define baseScreenWidth 1920
 #define baseScreenHeight 1080
 
-typedef struct {
-    Vector2 position;
-    Vector2 speed;
-    Color color;
-    float radius;
-} Ball;
-
-
 const float targetAspectRatio = (float)baseScreenWidth / (float)baseScreenHeight;
 
 void setRuntimeResolution(Camera2D *camera, int screenWidth, int screenHeight)
@@ -28,10 +20,6 @@ void setRuntimeResolution(Camera2D *camera, int screenWidth, int screenHeight)
 
 int main()
 {
-    int frameCounter = 0;
-    int fps = 0;
-    double previousTime = GetTime();
-
     float baseX = - (baseScreenWidth / 2);
     float baseY = - (baseScreenHeight / 2);
 
@@ -52,22 +40,13 @@ int main()
     Vector2 circlePosition = { 100, 50 };
     bool isDragging = false;
 
-    SetTargetFPS(420);
+    SetTargetFPS(60);
 
     Texture2D backgroundTexture = LoadTexture(ASSETS_PATH"Background.png");
 
+    setRuntimeResolution(&camera, 1280, 720);
 
     float willGoFullscreenNextFrame = true;
-
-    Ball balls[20];
-    for (int i = 0; i < 20; i++) {
-        balls[i].position = (Vector2){ GetRandomValue(baseX, baseScreenWidth), GetRandomValue(baseY, baseScreenHeight) };
-        balls[i].speed = (Vector2){ GetRandomValue(-5, 5), GetRandomValue(-5, 5) };
-        balls[i].color = (Color){ GetRandomValue(50, 255), GetRandomValue(50, 255), GetRandomValue(50, 255), 255 };
-        balls[i].radius = 30.0f;
-    }
-
-    setRuntimeResolution(&camera, 1280, 720);
 
     while (!WindowShouldClose())
     {
@@ -123,20 +102,6 @@ int main()
             circlePosition.y = (circlePosition.y - GetScreenHeight() / 2.0f) / camera.zoom + camera.target.y;
         }
 
-        // Update balls' positions
-        for (int i = 0; i < 20; i++) {
-            balls[i].position.x += balls[i].speed.x;
-            balls[i].position.y += balls[i].speed.y;
-
-            // Bounce off the walls
-            if ((balls[i].position.x + balls[i].radius) >= baseScreenWidth || (balls[i].position.x - balls[i].radius) <= 0)
-                balls[i].speed.x *= -1;
-
-            if ((balls[i].position.y + balls[i].radius) >= baseScreenHeight || (balls[i].position.y - balls[i].radius) <= 0)
-                balls[i].speed.y *= -1;
-        }
-
-
         // Draw
 
         BeginDrawing();
@@ -155,30 +120,12 @@ int main()
         // Draw the background with the scaled dimensions
         DrawTextureEx(backgroundTexture, (Vector2) { baseX, baseY }, 0.0f, fmax(scaleX, scaleY), WHITE);
 
-        // Draw balls
-        for (int i = 0; i < 20; i++) {
-            DrawCircleV(balls[i].position, balls[i].radius, balls[i].color);
-        }
-
 
         // Draw circle
         DrawCircleV(circlePosition, circleRadius, BLUE);
 
-        // Calculate FPS
-        frameCounter++;
-        double currentTime = GetTime();
-        if (currentTime - previousTime >= 1.0)
-        {
-            fps = frameCounter;
-            frameCounter = 0;
-            previousTime = currentTime;
-        }
-
         // Text
-        char fpsText[20];
-        sprintf(fpsText, "FPS: %d", fps);
-
-        DrawTextEx(GetFontDefault(), fpsText, (Vector2) { baseX + 20, baseY + 20 }, 20, 2, WHITE);
+        DrawTextEx(GetFontDefault(), "Hello, Test!", (Vector2) { baseX + 20, baseY + 20 }, 20, 2, WHITE);
 
         EndMode2D();
 
