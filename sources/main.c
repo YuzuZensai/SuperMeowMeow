@@ -143,6 +143,47 @@ int main(void)
     Vector2 caramelPosition = {600,200};
     Texture2D chocolate = LoadTexture(ASSETS_PATH"chocolate.png");
     Vector2 chocolatePosition = {900,300};
+
+    Texture2D MilkTea = LoadTexture(ASSETS_PATH"milktea.png");
+    Texture2D MilkCocoa = LoadTexture(ASSETS_PATH"milkcocoa.png");
+    Texture2D CTea = LoadTexture(ASSETS_PATH"milktea.png");
+    Texture2D CCocoa = LoadTexture(ASSETS_PATH"milkcocoa.png");
+   
+
+    Texture2D WhipMilkTea = LoadTexture(ASSETS_PATH"whippedteamilk.png");
+    Texture2D WhipMilkCocoa = LoadTexture(ASSETS_PATH"whippedchoc.png");
+    Texture2D WhipCTea = LoadTexture(ASSETS_PATH"whippedteamilk2.png");
+    Texture2D WhipCCocoa = LoadTexture(ASSETS_PATH"whippedchoc2.png");
+
+
+    Texture2D MarshMilkTea = LoadTexture(ASSETS_PATH"marshmellowmilktea.png");
+    Texture2D MarshMilkCocoa = LoadTexture(ASSETS_PATH"marshmellowchoc.png");
+    Texture2D MarshCTea = LoadTexture(ASSETS_PATH"whippedteamilk2.png");
+    Texture2D MarshCCocoa = LoadTexture(ASSETS_PATH"marshmellowmilktea2.png");
+
+
+    Texture2D CrmWhipMilkTea = LoadTexture(ASSETS_PATH"caramelwhiptea.png");
+    Texture2D CrmWhipMilkCocoa = LoadTexture(ASSETS_PATH"caramelwhipchoc.png");
+    Texture2D CrmWhipCTea = LoadTexture(ASSETS_PATH"caramelwhiptea2.png");
+    Texture2D CrmWhipCCocoa = LoadTexture(ASSETS_PATH"caramelwhipchoc2.png");
+
+
+    Texture2D CrmMarshMilkTea = LoadTexture(ASSETS_PATH"caramelmarshtea.png");
+    Texture2D CrmMarshMilkCocoa = LoadTexture(ASSETS_PATH"caramelmarshchoc.png");
+    Texture2D CrmMarshCTea = LoadTexture(ASSETS_PATH"caramelmarshtea2.png");
+    Texture2D CrmMarshCCocoa = LoadTexture(ASSETS_PATH"caramelmarshchoc2.png");
+
+
+    Texture2D ChocWhipMilkTea = LoadTexture(ASSETS_PATH"chocwhippedtea.png");
+    Texture2D ChocWhipMilkCocoa = LoadTexture(ASSETS_PATH"chocwhippedchoc.png");
+    Texture2D ChocWhipCTea = LoadTexture(ASSETS_PATH"chocwhippedtea2.png");
+    Texture2D ChocWhipCCocoa = LoadTexture(ASSETS_PATH"chocwhippedchoc2.png");
+
+    Texture2D ChocMarshMilkTea = LoadTexture(ASSETS_PATH"chocmarshtea.png");
+    Texture2D ChocMarshMilkCocoa = LoadTexture(ASSETS_PATH"chocmarshchoc.png");
+    Texture2D ChocMarshCTea = LoadTexture(ASSETS_PATH"chocmarshtea2.png");
+    Texture2D ChocMarshCCocoa = LoadTexture(ASSETS_PATH"chocmarshchoc2.png");
+
     
     
     // Texture2D cat = LoadTexture(ASSETS_PATH"cat.png");
@@ -215,9 +256,42 @@ int main(void)
         DrawTexture(caramel, caramelPosition.x, caramelPosition.y, WHITE);
         DrawTexture(chocolate, chocolatePosition.x, chocolatePosition.y, WHITE);
 
+    
+        DrawTexture(MilkTea, hiddenPosition.x, hiddenPosition.y, WHITE);
+        DrawTexture(MilkCocoa, hiddenPosition.x, hiddenPosition.y, WHITE);
+        DrawTexture(CTea, hiddenPosition.x, hiddenPosition.y, WHITE);
+        DrawTexture(CCocoa, hiddenPosition.x, hiddenPosition.y, WHITE);
 
+        DrawTexture(WhipMilkTea, hiddenPosition.x, hiddenPosition.y, WHITE);
+        DrawTexture(WhipMilkCocoa, hiddenPosition.x, hiddenPosition.y, WHITE);
+        DrawTexture(WhipCTea, hiddenPosition.x, hiddenPosition.y, WHITE);
+        DrawTexture(WhipCCocoa, hiddenPosition.x, hiddenPosition.y, WHITE);
+
+        DrawTexture(MarshMilkTea, hiddenPosition.x, hiddenPosition.y, WHITE);
+        DrawTexture(MarshMilkCocoa, hiddenPosition.x, hiddenPosition.y, WHITE);
+        DrawTexture(MarshCTea, hiddenPosition.x, hiddenPosition.y, WHITE);
+        DrawTexture(MarshCCocoa, hiddenPosition.x, hiddenPosition.y, WHITE);
         
-        
+        DrawTexture(CrmWhipMilkTea, hiddenPosition.x, hiddenPosition.y, WHITE);
+        DrawTexture(CrmWhipMilkCocoa, hiddenPosition.x, hiddenPosition.y, WHITE);
+        DrawTexture(CrmWhipCTea, hiddenPosition.x, hiddenPosition.y, WHITE);
+        DrawTexture(CrmWhipCCocoa, hiddenPosition.x, hiddenPosition.y, WHITE);
+
+        DrawTexture(CrmMarshMilkTea, hiddenPosition.x, hiddenPosition.y, WHITE);
+        DrawTexture(CrmMarshMilkCocoa, hiddenPosition.x, hiddenPosition.y, WHITE);
+        DrawTexture(CrmMarshCTea, hiddenPosition.x, hiddenPosition.y, WHITE);
+        DrawTexture(CrmMarshCCocoa, hiddenPosition.x, hiddenPosition.y, WHITE);
+
+        DrawTexture(ChocWhipMilkTea, hiddenPosition.x, hiddenPosition.y, WHITE);
+        DrawTexture(ChocWhipMilkCocoa, hiddenPosition.x, hiddenPosition.y, WHITE);
+        DrawTexture(ChocWhipCTea, hiddenPosition.x, hiddenPosition.y, WHITE);
+        DrawTexture(ChocWhipCCocoa, hiddenPosition.x, hiddenPosition.y, WHITE);
+
+        DrawTexture(ChocMarshMilkTea, hiddenPosition.x, hiddenPosition.y, WHITE);
+        DrawTexture(ChocMarshMilkCocoa, hiddenPosition.x, hiddenPosition.y, WHITE);
+        DrawTexture(ChocMarshCTea, hiddenPosition.x, hiddenPosition.y, WHITE);
+        DrawTexture(ChocMarshCCocoa, hiddenPosition.x, hiddenPosition.y, WHITE);
+            
         const char* text = "It works :3";
         const Vector2 text_size = MeasureTextEx(GetFontDefault(), text, 20, 1);
         DrawText(text, SCREEN_WIDTH / 2 - text_size.x / 2, texture_y + texture.height + text_size.y + 10, 20, BLACK);
