@@ -21,7 +21,7 @@ const Vector2 oricaramelPosition = {600,200};
 const Vector2 orichocolatePosition = {900,300};
 
 
-const Vector2 hiddenPosition = {-2000, -2000};
+const Vector2 hiddenPosition = {-3000, -3000};
 
 
 
