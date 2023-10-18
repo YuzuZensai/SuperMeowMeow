@@ -50,8 +50,8 @@ Texture2D* DragAndDropPop(Texture2D* object, Vector2* objectPosition, Texture2D*
             return object;
         }
     }
-
-    if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
+    
+    else if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
         isObjectBeingDragged = false;
         current_dragging = NULL;
 
@@ -71,7 +71,6 @@ Texture2D* DragAndDropPop(Texture2D* object, Vector2* objectPosition, Texture2D*
 
 Texture2D* DragAndDrop(Texture2D* object, Vector2* objectPosition, const Rectangle* dropArea, Vector2 originalPosition) {
     static bool isObjectBeingDragged = false;
-    static Texture2D* current_dragging = NULL;
     static float offsetX = 0;
     static float offsetY = 0;
 
@@ -81,7 +80,7 @@ Texture2D* DragAndDrop(Texture2D* object, Vector2* objectPosition, const Rectang
 
     if (IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {
         // printf("MOUSE DOWN");
-        if (CheckCollisionPointRec(GetMousePosition(), objectBounds) && (current_dragging == NULL || current_dragging == object)) {
+        if (CheckCollisionPointRec(GetMousePosition(), objectBounds)) {
             // printf("SEND HELP");
             isObjectBeingDragged = true;  
             offsetX = object->width /2;
@@ -89,14 +88,14 @@ Texture2D* DragAndDrop(Texture2D* object, Vector2* objectPosition, const Rectang
             
             objectPosition->x = GetMouseX() - offsetX;
             objectPosition->y = GetMouseY() - offsetY;
-            current_dragging = object;
+            // current_dragging = object;
             return object;
         }
     }
 
     if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
         isObjectBeingDragged = false;
-        current_dragging = NULL;
+        // current_dragging = NULL;
 
         if (CheckCollisionRecs(objectBounds, *dropArea)) {
             // Object is inside the drop area, snap it to the center of the area
