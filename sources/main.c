@@ -2,7 +2,7 @@
 #include "raymath.h"
 #include <math.h>
 
-#define DEBUG_FASTLOAD true
+#define DEBUG_FASTLOAD false
 #define baseScreenWidth 1920
 #define baseScreenHeight 1080
 
@@ -89,7 +89,7 @@ void WindowUpdate(Camera2D* camera)
 
 void LoadGlobalTextures()
 {
-    backgroundTexture = LoadTexture(ASSETS_PATH"Background.png");
+    backgroundTexture = LoadTexture(ASSETS_PATH"image/backgrounds/main.png");
 }
 
 void UnloadGlobalTextures()
@@ -191,7 +191,7 @@ void OptionsUpdate(Camera2D* camera)
             }
             else if (isBackSelected) {
 				// Go back to main menu
-				MainMenuUpdate(camera);
+				MainMenuUpdate(camera, false);
 				break;
 			}
         }
@@ -421,6 +421,7 @@ void MainMenuUpdate(Camera2D *camera, bool playFade)
     CloseWindow();
 }
 
+
 void SplashUpdate(Camera2D* camera)
 {
 #if DEBUG_FASTLOAD
@@ -573,9 +574,9 @@ int main()
     SetTargetFPS(options->targetFps);
     SetRuntimeResolution(&camera, options->resolution.x, options->resolution.y);
 
-    logoTexture = LoadTexture(ASSETS_PATH"Logo.png");
-    splashBackgroundTexture = LoadTexture(ASSETS_PATH"Splash_Background.png");
-    splashOverlayTexture = LoadTexture(ASSETS_PATH"Splash_Overlay.png");
+    logoTexture = LoadTexture(ASSETS_PATH"image/studio_logo.png");
+    splashBackgroundTexture = LoadTexture(ASSETS_PATH"image/backgrounds/splash.png");
+    splashOverlayTexture = LoadTexture(ASSETS_PATH"image/backgrounds/splash_overlay.png");
 
     SplashUpdate(&camera);
     return 0;
