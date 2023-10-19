@@ -21,7 +21,7 @@ typedef enum {
     HARD
 } Difficulty;
 
-static inline char* StringFromDifficultyEnum(enum Difficulty difficulty)
+static inline char* StringFromDifficultyEnum(Difficulty difficulty)
 {
     static const char* strings[] = { "Easy", "Medium", "Hard" };
     return strings[difficulty];
@@ -401,6 +401,7 @@ void SplashUpdate(Camera2D* camera)
     const double stayDuration = 3.0;
     const double fadeOutDuration = 1.0;
     const double afterEnd = 2.0;
+    const Sound systemLoad = LoadSound(ASSETS_PATH"audio/Meow1.mp3");
 
     double startTime = GetTime();
     double currentTime = 0;
@@ -431,7 +432,7 @@ void SplashUpdate(Camera2D* camera)
 
     // Reset time
     startTime = GetTime();
-
+PlaySound(systemLoad);
     while (currentTime < splashDuration)
     {
         WindowUpdate(camera);
@@ -463,8 +464,11 @@ void SplashUpdate(Camera2D* camera)
         EndDrawing();
     }
 
+    
+
     // Reset time
     startTime = GetTime();
+
 
     while (currentTime < afterEnd)
     {
@@ -480,6 +484,8 @@ void SplashUpdate(Camera2D* camera)
         EndDrawing();
     }
 
+    // UnloadSound(systemLoad);
+
     MainMenuUpdate(camera);
 }
 
@@ -489,10 +495,11 @@ void SplashUpdate(Camera2D* camera)
 
 int main()
 {
+    
     SetConfigFlags(FLAG_WINDOW_RESIZABLE);
 
     InitWindow(baseScreenWidth, baseScreenHeight, "SuperMeowMeow");
-
+    InitAudioDevice();
     // Center of screen
     SetWindowPosition(200, 200);
 
