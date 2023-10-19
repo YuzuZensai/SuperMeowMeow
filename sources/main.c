@@ -95,7 +95,7 @@ void LoadGlobalAssets()
 {
     backgroundTexture = LoadTexture(ASSETS_PATH"image/backgrounds/main.png");
     pawTexture = LoadTexture(ASSETS_PATH"image/elements/paw.png");
-    meowFont = LoadFontEx(ASSETS_PATH"font/Meows-VGWjy.ttf", 128, 0, 250);
+    meowFont = LoadFontEx(ASSETS_PATH"font/Meows-VGWjy.ttf", 256, 0, 250);
 
     hover = LoadSound(ASSETS_PATH"audio/hover.wav");
     select = LoadSound(ASSETS_PATH"audio/select.wav");
@@ -339,7 +339,7 @@ void MainMenuUpdate(Camera2D *camera, bool playFade)
 {
     // Button positions and dimensions
     Rectangle startButtonRect = { baseX + 100, baseY + 60, 400, 100 };
-    Rectangle optionsButtonRect = { baseX + 100, baseY + 150, 400, 100 };
+    Rectangle optionsButtonRect = { baseX + 100, baseY + 160, 400, 100 };
     Rectangle exitButtonRect = { baseX + 100, baseY + 350, 400, 100 };
 
     float fadeOutDuration = 1.0f;
