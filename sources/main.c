@@ -99,7 +99,7 @@ void create_customer(Customer *customer, int position, int patience, char *order
 }
 
 //create customer image at either position 1 2 3 or 4 
-void slot_customer(Customer *customer, int position) {
+void render_customer(Customer *customer, int position) {
 	if (position == 1) {
 		DrawTextureEx(customerTexture, (Vector2) { baseX + 100, baseY + 100 }, 0.0f, 1.0f, WHITE);
 	}
@@ -118,6 +118,17 @@ void slot_customer(Customer *customer, int position) {
 void remove_customers(Customer *customer, int position)
 {
 	customer->visible = 0;
+}
+
+void Tick(Customer *customer, int position) {
+	if (customer->visible == 1) {
+		if (customer->orderTime == 0) {
+			remove_customers(customer, position);
+		}
+		else {
+			customer->orderTime -= 1;
+		}
+	}
 }
 
 
