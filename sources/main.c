@@ -2,6 +2,7 @@
 #include "raymath.h"
 #include <math.h>
 
+#define DEBUG_FASTLOAD true
 #define baseScreenWidth 1920
 #define baseScreenHeight 1080
 
@@ -395,12 +396,21 @@ void MainMenuUpdate(Camera2D *camera)
 
 void SplashUpdate(Camera2D* camera)
 {
+#if DEBUG_FASTLOAD
+    const double beforeStart = 0;
+    const double splashDuration = 0;
+    const double fadeInDuration = 0;
+    const double stayDuration = 0;
+    const double fadeOutDuration = 0;
+    const double afterEnd = 0;
+#else
     const double beforeStart = 1.0;
     const double splashDuration = 6.0;
     const double fadeInDuration = 1.0;
     const double stayDuration = 3.0;
     const double fadeOutDuration = 1.0;
     const double afterEnd = 2.0;
+#endif
     const Sound systemLoad = LoadSound(ASSETS_PATH"audio/Meow1.mp3");
 
     double startTime = GetTime();
@@ -432,7 +442,9 @@ void SplashUpdate(Camera2D* camera)
 
     // Reset time
     startTime = GetTime();
-PlaySound(systemLoad);
+#if !DEBUG_FASTLOAD
+    PlaySound(systemLoad);
+#endif
     while (currentTime < splashDuration)
     {
         WindowUpdate(camera);
