@@ -15,6 +15,10 @@ Texture2D logoTexture;
 Texture2D splashBackgroundTexture;
 Texture2D splashOverlayTexture;
 Texture2D backgroundTexture;
+Texture2D pawTexture;
+Font meowFont;
+Sound select;
+Sound hover;
 
 typedef enum {
     EASY,
@@ -87,19 +91,24 @@ void WindowUpdate(Camera2D* camera)
     }
 }
 
-void LoadGlobalTextures()
+void LoadGlobalAssets()
 {
     backgroundTexture = LoadTexture(ASSETS_PATH"image/backgrounds/main.png");
+    pawTexture = LoadTexture(ASSETS_PATH"image/elements/paw.png");
+    meowFont = LoadFontEx(ASSETS_PATH"font/Meows-VGWjy.ttf", 128, 0, 250);
+
+    hover = LoadSound(ASSETS_PATH"audio/hover.wav");
+    select = LoadSound(ASSETS_PATH"audio/select.wav");
 }
 
-void UnloadGlobalTextures()
+void UnloadGlobalAssets()
 {
     UnloadTexture(backgroundTexture);
 }
 
 void ExitApplication()
 {
-    UnloadGlobalTextures();
+    UnloadGlobalAssets();
     
     // Exit with exit code 0
     exit(0);
@@ -329,9 +338,9 @@ void GameUpdate(Camera2D *camera)
 void MainMenuUpdate(Camera2D *camera, bool playFade)
 {
     // Button positions and dimensions
-    Rectangle startButtonRect = { baseX + 100, baseY + 30, 200, 50 };
-    Rectangle optionsButtonRect = { baseX + 100, baseY + 120, 200, 50 };
-    Rectangle exitButtonRect = { baseX + 100, baseY + 320, 200, 50 };
+    Rectangle startButtonRect = { baseX + 100, baseY + 60, 400, 100 };
+    Rectangle optionsButtonRect = { baseX + 100, baseY + 150, 400, 100 };
+    Rectangle exitButtonRect = { baseX + 100, baseY + 350, 400, 100 };
 
     float fadeOutDuration = 1.0f;
     double currentTime = 0;
@@ -344,6 +353,10 @@ void MainMenuUpdate(Camera2D *camera, bool playFade)
 
     bool isFadeOutDone = false;
 
+
+    Rectangle buttons[] = { startButtonRect, optionsButtonRect, exitButtonRect };
+    int currentHoveredButton = NULL;
+    bool isHovering = false;
 
     while (!WindowShouldClose())
     {
@@ -364,11 +377,13 @@ void MainMenuUpdate(Camera2D *camera, bool playFade)
         {
             if (isStartButtonHovered)
             {
+                PlaySound(select);
                 GameUpdate(camera);
                 break;
             }
             else if (isOptionsButtonHovered)
             {
+                PlaySound(select);
                 OptionsUpdate(camera);
                 break;
             }
@@ -377,6 +392,41 @@ void MainMenuUpdate(Camera2D *camera, bool playFade)
                 ExitApplication();
             }
         }
+
+        // Play sound when hovering over a button, but only once
+        if (isStartButtonHovered)
+        {    
+            if (!isHovering || currentHoveredButton != 0)
+			{
+				PlaySound(hover);
+				isHovering = true;
+			}
+            currentHoveredButton = 0;
+		}
+		else if (isOptionsButtonHovered)
+		{
+            if (!isHovering || currentHoveredButton != 1)
+			{
+                PlaySound(hover);
+				isHovering = true;
+            }
+            currentHoveredButton = 1;
+		}
+        else if (isExitButtonHovered)
+		{
+            if (!isHovering || currentHoveredButton != 2)
+			{
+                PlaySound(hover);
+				isHovering = true;
+            }
+            currentHoveredButton = 2;
+		}
+        else
+		{
+            currentHoveredButton = NULL;
+            isHovering = false;
+		}
+
 
         // Draw
 
@@ -394,14 +444,16 @@ void MainMenuUpdate(Camera2D *camera, bool playFade)
         DrawTextureEx(backgroundTexture, (Vector2) { baseX, baseY }, 0.0f, fmax(scaleX, scaleY), WHITE);
 
         // Draw buttons
+        /*
         DrawRectangleRec(startButtonRect, isStartButtonHovered ? SKYBLUE : BLUE);
         DrawRectangleRec(optionsButtonRect, isOptionsButtonHovered ? SKYBLUE : BLUE);
         DrawRectangleRec(exitButtonRect, isExitButtonHovered ? SKYBLUE : BLUE);
+        */
 
         // Draw button labels
-        DrawText("Start Game", (int)(startButtonRect.x + 40), (int)(startButtonRect.y + 15), 20, WHITE);
-        DrawText("Options", (int)(optionsButtonRect.x + 60), (int)(optionsButtonRect.y + 15), 20, WHITE);
-        DrawText("Exit Game", (int)(exitButtonRect.x + 40), (int)(exitButtonRect.y + 15), 20, WHITE);
+        DrawTextEx(meowFont, "Start Game", (Vector2) { (int)(startButtonRect.x + 40), (int)(startButtonRect.y + 15)}, 60, 2, isStartButtonHovered ? BLACK : WHITE);
+        DrawTextEx(meowFont, "Options", (Vector2) { (int)(optionsButtonRect.x + 40), (int)(optionsButtonRect.y + 15) }, 60, 2, isOptionsButtonHovered ? BLACK : WHITE);
+        DrawTextEx(meowFont, "Exit", (Vector2) { (int)(exitButtonRect.x + 40), (int)(exitButtonRect.y + 15) }, 60, 2, isExitButtonHovered ? BLACK : WHITE);
 
         // Calculate alpha based on the current time
         if (playFade)
@@ -480,7 +532,7 @@ void SplashUpdate(Camera2D* camera)
     PlaySound(systemLoad);
 #endif
 
-    LoadGlobalTextures();
+    LoadGlobalAssets();
 
     // Reset time
     startTime = GetTime();
@@ -574,7 +626,7 @@ int main()
     SetTargetFPS(options->targetFps);
     SetRuntimeResolution(&camera, options->resolution.x, options->resolution.y);
 
-    logoTexture = LoadTexture(ASSETS_PATH"image/studio_logo.png");
+    logoTexture = LoadTexture(ASSETS_PATH"image/elements/studio_logo.png");
     splashBackgroundTexture = LoadTexture(ASSETS_PATH"image/backgrounds/splash.png");
     splashOverlayTexture = LoadTexture(ASSETS_PATH"image/backgrounds/splash_overlay.png");
 
