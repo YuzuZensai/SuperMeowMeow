@@ -87,6 +87,11 @@ void WindowUpdate(Camera2D* camera)
     }
 }
 
+void LoadGlobalTextures()
+{
+    backgroundTexture = LoadTexture(ASSETS_PATH"Background.png");
+}
+
 void UnloadGlobalTextures()
 {
     UnloadTexture(backgroundTexture);
@@ -327,8 +332,23 @@ void MainMenuUpdate(Camera2D *camera)
     Rectangle optionsButtonRect = { baseX + 100, baseY + 120, 200, 50 };
     Rectangle exitButtonRect = { baseX + 100, baseY + 320, 200, 50 };
 
+    float fadeOutDuration = 1.0f;
+    double currentTime = 0;
+
+    int splashBackgroundImageWidth = splashBackgroundTexture.width;
+    int splashBackgroundImageHeight = splashBackgroundTexture.height;
+
+    float splashBackgroundScaleX = (float)baseScreenWidth / splashBackgroundImageWidth;
+    float splashBackgroundScaleY = (float)baseScreenHeight / splashBackgroundImageHeight;
+
+    bool isFadeOutDone = false;
+
+
     while (!WindowShouldClose())
     {
+        if(!isFadeOutDone)
+            currentTime += GetFrameTime();
+
         WindowUpdate(camera);
 
         // Convert mouse position from screen space to world space
@@ -360,11 +380,8 @@ void MainMenuUpdate(Camera2D *camera)
         // Draw
 
         BeginDrawing();
-        ClearBackground(BLACK);
-
-
         BeginMode2D(*camera);
-
+        ClearBackground(RAYWHITE);
 
         int imageWidth = backgroundTexture.width;
         int imageHeight = backgroundTexture.height;
@@ -385,6 +402,12 @@ void MainMenuUpdate(Camera2D *camera)
         DrawText("Options", (int)(optionsButtonRect.x + 60), (int)(optionsButtonRect.y + 15), 20, WHITE);
         DrawText("Exit Game", (int)(exitButtonRect.x + 40), (int)(exitButtonRect.y + 15), 20, WHITE);
 
+        // Calculate alpha based on the current time
+        float alpha = (float)(255.0 * (1.0 - fmin(currentTime / fadeOutDuration, 1.0)));
+        if(!isFadeOutDone && alpha != 0)
+            DrawTextureEx(splashBackgroundTexture, (Vector2) { baseX, baseY }, 0.0f, fmax(splashBackgroundScaleX, splashBackgroundScaleY), (Color) { 255, 255, 255, alpha });
+        else
+            isFadeOutDone = true;
 
         EndMode2D();
         EndDrawing();
@@ -405,13 +428,12 @@ void SplashUpdate(Camera2D* camera)
     const double afterEnd = 0;
 #else
     const double beforeStart = 1.0;
-    const double splashDuration = 6.0;
-    const double fadeInDuration = 1.0;
+    const double splashDuration = 8.0;
+    const double fadeInDuration = 2.0;
     const double stayDuration = 3.0;
-    const double fadeOutDuration = 1.0;
+    const double fadeOutDuration = 2.0;
     const double afterEnd = 2.0;
 #endif
-    const Sound systemLoad = LoadSound(ASSETS_PATH"audio/Meow1.mp3");
 
     double startTime = GetTime();
     double currentTime = 0;
@@ -427,6 +449,12 @@ void SplashUpdate(Camera2D* camera)
     float scaleLogoX = (float)baseScreenWidth / imageLogoWidth / 2.5;
     float scaleLogoY = (float)baseScreenHeight / imageLogoHeight / 2.5;
 
+    BeginDrawing();
+    BeginMode2D(*camera);
+    ClearBackground(RAYWHITE);
+    EndMode2D();
+    EndDrawing();
+
     while (currentTime < beforeStart)
     {
         WindowUpdate(camera);
@@ -434,17 +462,24 @@ void SplashUpdate(Camera2D* camera)
 
         BeginDrawing();
         BeginMode2D(*camera);
-        ClearBackground(RAYWHITE);
+        float alpha = (float)(255.0 * (1.0 - fmin(currentTime / beforeStart, 1.0)));
+
         DrawTextureEx(splashBackgroundTexture, (Vector2) { baseX, baseY }, 0.0f, fmax(scaleX, scaleY), WHITE);
+        DrawRectangle(baseX, baseY, baseScreenWidth, baseScreenHeight, (Color) { 255, 255, 255, alpha });
         EndMode2D();
         EndDrawing();
     }
 
-    // Reset time
-    startTime = GetTime();
 #if !DEBUG_FASTLOAD
+    const Sound systemLoad = LoadSound(ASSETS_PATH"audio/Meow1.mp3");
     PlaySound(systemLoad);
 #endif
+
+    LoadGlobalTextures();
+
+    // Reset time
+    startTime = GetTime();
+
     while (currentTime < splashDuration)
     {
         WindowUpdate(camera);
@@ -537,7 +572,6 @@ int main()
     logoTexture = LoadTexture(ASSETS_PATH"Logo.png");
     splashBackgroundTexture = LoadTexture(ASSETS_PATH"Splash_Background.png");
     splashOverlayTexture = LoadTexture(ASSETS_PATH"Splash_Overlay.png");
-    backgroundTexture = LoadTexture(ASSETS_PATH"Background.png");
 
     SplashUpdate(&camera);
     return 0;
