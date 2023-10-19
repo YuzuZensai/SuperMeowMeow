@@ -18,6 +18,7 @@ Texture2D splashBackgroundTexture;
 Texture2D splashOverlayTexture;
 Texture2D backgroundTexture;
 Texture2D pawTexture;
+Texture2D customerTexture;
 Font meowFont;
 Sound select;
 Sound hover;
@@ -72,11 +73,55 @@ void OptionsUpdate(Camera2D* camera);
 
 typedef struct Customer {
 	int position;
-	int patience;
-	int order;
+	int patience; //multiplier for difficulty defaulted to 1.0
+	int state;
+	int visible;
+	char *order;
 	int orderTime;
 	int orderEnd;
 } Customer;
+
+typedef struct Customers {
+	Customer customer1;
+	Customer customer2;
+	Customer customer3;
+	Customer customer4;
+} Customers;
+
+
+void create_customer(Customer *customer, int position, int patience, char *order, int orderTime, int orderEnd) {
+	customer->position = position;
+	customer->patience = patience; //multiplier for orderEnd
+	customer->visible = 1;
+	customer->order = order;
+	customer->orderTime = orderTime;
+	customer->orderEnd = orderEnd;
+}
+
+//create customer image at either position 1 2 3 or 4 
+void slot_customer(Customer *customer, int position) {
+	if (position == 1) {
+		DrawTextureEx(customerTexture, (Vector2) { baseX + 100, baseY + 100 }, 0.0f, 1.0f, WHITE);
+	}
+	else if (position == 2) {
+		DrawTextureEx(customerTexture, (Vector2) { baseX + 100, baseY + 100 }, 0.0f, 1.0f, WHITE);
+	}
+	else if (position == 3) {
+		DrawTextureEx(customerTexture, (Vector2) { baseX + 100, baseY + 100 }, 0.0f, 1.0f, WHITE);
+	}
+	else if (position == 4) {
+		DrawTextureEx(customerTexture, (Vector2) { baseX + 100, baseY + 100 }, 0.0f, 1.0f, WHITE);
+	}
+}
+
+//remove customer image at either position 1 2 3 or 4
+void remove_customers(Customer *customer, int position)
+{
+	customer->visible = 0;
+}
+
+
+/* Definitions terminates*/
 
 
 
@@ -112,6 +157,7 @@ void LoadGlobalAssets()
     backgroundTexture = LoadTexture(ASSETS_PATH"image/backgrounds/main.png");
     pawTexture = LoadTexture(ASSETS_PATH"image/elements/paw.png");
     meowFont = LoadFontEx(ASSETS_PATH"font/Meows-VGWjy.ttf", 256, 0, 250);
+	customerTexture = LoadTexture(ASSETS_PATH"image/elements/customer.png");
 
     hover = LoadSound(ASSETS_PATH"audio/hover.wav");
     select = LoadSound(ASSETS_PATH"audio/select.wav");
