@@ -1,6 +1,8 @@
 #include "raylib.h"
 #include "raymath.h"
 #include <math.h>
+#include <stdio.h>
+#include <stddef.h>
 
 #define DEBUG_FASTLOAD false
 #define baseScreenWidth 1920
@@ -64,6 +66,20 @@ void SetRuntimeResolution(Camera2D *camera, int screenWidth, int screenHeight)
 // Function prototype
 void MainMenuUpdate(Camera2D* camera, bool playFade);
 void OptionsUpdate(Camera2D* camera);
+
+/* Definitions of this branch */
+
+
+typedef struct Customer {
+	int position;
+	int patience;
+	int order;
+	int orderTime;
+	int orderEnd;
+} Customer;
+
+
+
 
 void WindowUpdate(Camera2D* camera)
 {
