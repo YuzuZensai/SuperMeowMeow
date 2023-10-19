@@ -10,6 +10,9 @@ const float baseY = -(baseScreenHeight / 2);
 const float targetAspectRatio = (float)baseScreenWidth / (float)baseScreenHeight;
 const int targetFps = 300;
 
+Texture2D logoTexture;
+Texture2D splashBackgroundTexture;
+Texture2D splashOverlayTexture;
 Texture2D backgroundTexture;
 
 typedef enum {
@@ -390,6 +393,100 @@ void MainMenuUpdate(Camera2D *camera)
     CloseWindow();
 }
 
+void SplashUpdate(Camera2D* camera)
+{
+    const double beforeStart = 1.0;
+    const double splashDuration = 6.0;
+    const double fadeInDuration = 1.0;
+    const double stayDuration = 3.0;
+    const double fadeOutDuration = 1.0;
+    const double afterEnd = 2.0;
+
+    double startTime = GetTime();
+    double currentTime = 0;
+
+    int imageWidth = splashBackgroundTexture.width;
+    int imageHeight = splashBackgroundTexture.height;
+
+    float scaleX = (float)baseScreenWidth / imageWidth;
+    float scaleY = (float)baseScreenHeight / imageHeight;
+
+    int imageLogoWidth = logoTexture.width;
+    int imageLogoHeight = logoTexture.height;
+    float scaleLogoX = (float)baseScreenWidth / imageLogoWidth / 2.5;
+    float scaleLogoY = (float)baseScreenHeight / imageLogoHeight / 2.5;
+
+    while (currentTime < beforeStart)
+    {
+        WindowUpdate(camera);
+        currentTime = GetTime() - startTime;
+
+        BeginDrawing();
+        BeginMode2D(*camera);
+        ClearBackground(RAYWHITE);
+        DrawTextureEx(splashBackgroundTexture, (Vector2) { baseX, baseY }, 0.0f, fmax(scaleX, scaleY), WHITE);
+        EndMode2D();
+        EndDrawing();
+    }
+
+    // Reset time
+    startTime = GetTime();
+
+    while (currentTime < splashDuration)
+    {
+        WindowUpdate(camera);
+        currentTime = GetTime() - startTime;
+
+        int alpha = 0;
+
+        // Calculate alpha based on the current time
+        if (currentTime < fadeInDuration) {
+            // Fading in
+            alpha = (int)(255.0 * (currentTime / fadeInDuration));
+        }
+        else if (currentTime < fadeInDuration + stayDuration) {
+            // Fully visible (staying)
+            alpha = 255;
+        }
+        else {
+            // Fading out
+            alpha = (int)(255.0 * (1.0 - fmin((currentTime - fadeInDuration - stayDuration) / fadeOutDuration, 1.0)));
+        }
+
+        BeginDrawing();
+        BeginMode2D(*camera);
+        ClearBackground(RAYWHITE);
+        DrawTextureEx(splashBackgroundTexture, (Vector2) { baseX, baseY }, 0.0f, fmax(scaleX, scaleY), WHITE);
+        DrawTextureEx(splashOverlayTexture, (Vector2) { baseX, baseY }, 0.0f, fmax(scaleX, scaleY), (Color) { 255, 255, 255, alpha });
+        //DrawTextureEx(logoTexture, (Vector2) { baseX + (imageLogoWidth * scaleLogoX) - 180, baseY }, 0.0f, fmax(scaleLogoX, scaleLogoY), (Color) { 255, 255, 255, alpha });
+        EndMode2D();
+        EndDrawing();
+    }
+
+    // Reset time
+    startTime = GetTime();
+
+    while (currentTime < afterEnd)
+    {
+        WindowUpdate(camera);
+        currentTime = GetTime() - startTime;
+
+        BeginDrawing();
+        BeginMode2D(*camera);
+        ClearBackground(RAYWHITE);
+        DrawTextureEx(splashBackgroundTexture, (Vector2) { baseX, baseY }, 0.0f, fmax(scaleX, scaleY), WHITE);
+        DrawTextureEx(splashOverlayTexture, (Vector2) { baseX, baseY }, 0.0f, fmax(scaleX, scaleY), WHITE);
+        EndMode2D();
+        EndDrawing();
+    }
+
+    MainMenuUpdate(camera);
+}
+
+
+
+
+
 int main()
 {
     SetConfigFlags(FLAG_WINDOW_RESIZABLE);
@@ -418,8 +515,11 @@ int main()
     SetTargetFPS(options->targetFps);
     SetRuntimeResolution(&camera, options->resolution.x, options->resolution.y);
 
+    logoTexture = LoadTexture(ASSETS_PATH"Logo.png");
+    splashBackgroundTexture = LoadTexture(ASSETS_PATH"Splash_Background.png");
+    splashOverlayTexture = LoadTexture(ASSETS_PATH"Splash_Overlay.png");
     backgroundTexture = LoadTexture(ASSETS_PATH"Background.png");
 
-    MainMenuUpdate(&camera);
+    SplashUpdate(&camera);
     return 0;
 }
