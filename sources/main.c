@@ -58,7 +58,7 @@ void SetRuntimeResolution(Camera2D *camera, int screenWidth, int screenHeight)
 }
 
 // Function prototype
-void MainMenuUpdate(Camera2D* camera);
+void MainMenuUpdate(Camera2D* camera, bool playFade);
 void OptionsUpdate(Camera2D* camera);
 
 void WindowUpdate(Camera2D* camera)
@@ -325,7 +325,8 @@ void GameUpdate(Camera2D *camera)
 
 }
 
-void MainMenuUpdate(Camera2D *camera)
+
+void MainMenuUpdate(Camera2D *camera, bool playFade)
 {
     // Button positions and dimensions
     Rectangle startButtonRect = { baseX + 100, baseY + 30, 200, 50 };
@@ -403,11 +404,14 @@ void MainMenuUpdate(Camera2D *camera)
         DrawText("Exit Game", (int)(exitButtonRect.x + 40), (int)(exitButtonRect.y + 15), 20, WHITE);
 
         // Calculate alpha based on the current time
-        float alpha = (float)(255.0 * (1.0 - fmin(currentTime / fadeOutDuration, 1.0)));
-        if(!isFadeOutDone && alpha != 0)
-            DrawTextureEx(splashBackgroundTexture, (Vector2) { baseX, baseY }, 0.0f, fmax(splashBackgroundScaleX, splashBackgroundScaleY), (Color) { 255, 255, 255, alpha });
-        else
-            isFadeOutDone = true;
+        if (playFade)
+        {
+            float alpha = (float)(255.0 * (1.0 - fmin(currentTime / fadeOutDuration, 1.0)));
+            if (!isFadeOutDone && alpha != 0)
+                DrawTextureEx(splashBackgroundTexture, (Vector2) { baseX, baseY }, 0.0f, fmax(splashBackgroundScaleX, splashBackgroundScaleY), (Color) { 255, 255, 255, alpha });
+            else
+                isFadeOutDone = true;
+        }
 
         EndMode2D();
         EndDrawing();
@@ -533,7 +537,7 @@ void SplashUpdate(Camera2D* camera)
 
     // UnloadSound(systemLoad);
 
-    MainMenuUpdate(camera);
+    MainMenuUpdate(camera, true);
 }
 
 
