@@ -47,6 +47,7 @@ typedef struct GameOptions {
 	int targetFps;
 	bool fullscreen;
     Difficulty difficulty;
+    bool showDebug;
 } GameOptions;
 
 GameOptions *options;
@@ -281,6 +282,9 @@ void OptionsUpdate(Camera2D* camera)
         DrawText("Fullscreen", (int)(fullscreenRect.x + 40), (int)(fullscreenRect.y + 15), 20, WHITE);
         DrawText("Back", (int)(backRect.x + 40), (int)(backRect.y + 15), 20, WHITE);
 
+        if (options->showDebug)
+            DrawFPS(baseX + 5, baseY + 5);
+
         EndMode2D();
         EndDrawing();
     }
@@ -357,8 +361,10 @@ void GameUpdate(Camera2D *camera)
         // Text
         DrawTextEx(GetFontDefault(), "Hello, Test!", (Vector2) { baseX + 20, baseY + 20 }, 20, 2, WHITE);
 
-        EndMode2D();
+        if (options->showDebug)
+            DrawFPS(baseX + 5, baseY + 5);
 
+        EndMode2D();
         EndDrawing();
     }
 
@@ -659,7 +665,8 @@ void MainMenuUpdate(Camera2D* camera, bool playFade)
         }
 
 
-        DrawFPS(baseX + 5, baseY + 5);
+        if(options->showDebug)
+            DrawFPS(baseX + 5, baseY + 5);
 
         EndMode2D();
         EndDrawing();
@@ -699,6 +706,10 @@ void SplashUpdate(Camera2D* camera)
     BeginDrawing();
     BeginMode2D(*camera);
     ClearBackground(RAYWHITE);
+
+    if (options->showDebug)
+        DrawFPS(baseX + 5, baseY + 5);
+
     EndMode2D();
     EndDrawing();
 
@@ -713,6 +724,10 @@ void SplashUpdate(Camera2D* camera)
 
         DrawTextureEx(splashBackgroundTexture, (Vector2) { baseX, baseY }, 0.0f, fmax(scaleX, scaleY), WHITE);
         DrawRectangle(baseX, baseY, baseScreenWidth, baseScreenHeight, (Color) { 255, 255, 255, alpha });
+
+        if (options->showDebug)
+            DrawFPS(baseX + 5, baseY + 5);
+
         EndMode2D();
         EndDrawing();
     }
@@ -754,6 +769,9 @@ void SplashUpdate(Camera2D* camera)
         DrawTextureEx(splashBackgroundTexture, (Vector2) { baseX, baseY }, 0.0f, fmax(scaleX, scaleY), WHITE);
         DrawTextureEx(splashOverlayTexture, (Vector2) { baseX, baseY }, 0.0f, fmax(scaleX, scaleY), (Color) { 255, 255, 255, alpha });
         
+        if (options->showDebug)
+            DrawFPS(baseX + 5, baseY + 5);
+
         EndMode2D();
         EndDrawing();
     }
@@ -807,6 +825,7 @@ int main()
     _options.resolution = (Resolution){ 1280, 720 };
     _options.targetFps = 240;
     _options.fullscreen = false;  // Default to windowed mode
+    _options.showDebug = true;
 
     options = &_options;
 
