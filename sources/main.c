@@ -513,7 +513,7 @@ void MainMenuUpdate(Camera2D *camera, bool playFade)
             item->rotation += item->rotationSpeed;
 
             // Top left of screen is (baseX, baseY)
-            if (item->position.y > baseY + baseScreenHeight) {
+            if (item->position.y > baseY + baseScreenHeight + 1000) {
 				item->position = (Vector2){ GetRandomValue(baseX, baseX + baseScreenWidth - 20), baseY - GetRandomValue(200, 1000) };
 				item->textureIndex = GetRandomValue(0, numItems - 1);
                 item->fallingSpeed = GetRandomValue(1, 3);
@@ -540,7 +540,7 @@ void MainMenuUpdate(Camera2D *camera, bool playFade)
             item->rotation += item->rotationSpeed;
 
             // Top left of screen is (baseX, baseY)
-            if (item->position.y > baseY + baseScreenHeight) {
+            if (item->position.y > baseY + baseScreenHeight + 1000) {
                 item->position = (Vector2){ GetRandomValue(baseX, baseX + baseScreenWidth - 20), baseY - GetRandomValue(200, 1000) };
                 item->textureIndex = GetRandomValue(0, numItems - 1);
                 item->fallingSpeed = GetRandomValue(1, 3);
