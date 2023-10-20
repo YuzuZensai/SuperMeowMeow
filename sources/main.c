@@ -15,10 +15,13 @@ Texture2D logoTexture;
 Texture2D splashBackgroundTexture;
 Texture2D splashOverlayTexture;
 Texture2D backgroundTexture;
+Texture2D backgroundOverlayTexture;
 Texture2D pawTexture;
 Font meowFont;
 Sound select;
 Sound hover;
+
+Texture2D mainMenuFallingItems[8];
 
 typedef enum {
     EASY,
@@ -72,6 +75,7 @@ void WindowUpdate(Camera2D* camera)
         int screenWidth = GetScreenWidth();
         int screenHeight = GetScreenHeight();
 
+
         float currentAspectRatio = (float)screenWidth / (float)screenHeight;
         float scale = (currentAspectRatio > targetAspectRatio) ? (float)screenHeight / baseScreenHeight : (float)screenWidth / baseScreenWidth;
 
@@ -94,16 +98,35 @@ void WindowUpdate(Camera2D* camera)
 void LoadGlobalAssets()
 {
     backgroundTexture = LoadTexture(ASSETS_PATH"image/backgrounds/main.png");
+    backgroundOverlayTexture = LoadTexture(ASSETS_PATH"image/backgrounds/main_overlay.png");
     pawTexture = LoadTexture(ASSETS_PATH"image/elements/paw.png");
     meowFont = LoadFontEx(ASSETS_PATH"font/Meows-VGWjy.ttf", 256, 0, 250);
 
     hover = LoadSound(ASSETS_PATH"audio/hover.wav");
     select = LoadSound(ASSETS_PATH"audio/select.wav");
+
+    mainMenuFallingItems[0] = LoadTexture(ASSETS_PATH"image/falling_items/cara.png");
+    mainMenuFallingItems[1] = LoadTexture(ASSETS_PATH"image/falling_items/cmilk.png");
+    mainMenuFallingItems[2] = LoadTexture(ASSETS_PATH"image/falling_items/cocoa.png");
+    mainMenuFallingItems[3] = LoadTexture(ASSETS_PATH"image/falling_items/gar.png");
+    mainMenuFallingItems[4] = LoadTexture(ASSETS_PATH"image/falling_items/marshmello.png");
+    mainMenuFallingItems[5] = LoadTexture(ASSETS_PATH"image/falling_items/matcha.png");
+    mainMenuFallingItems[6] = LoadTexture(ASSETS_PATH"image/falling_items/milk.png");
+    mainMenuFallingItems[7] = LoadTexture(ASSETS_PATH"image/falling_items/wcream.png");
 }
 
 void UnloadGlobalAssets()
 {
     UnloadTexture(backgroundTexture);
+    UnloadTexture(backgroundOverlayTexture);
+    UnloadTexture(pawTexture);
+    UnloadFont(meowFont);
+
+    UnloadSound(hover);
+    UnloadSound(select);
+
+    for(int i = 0; i < 8; i++)
+		UnloadTexture(mainMenuFallingItems[i]);
 }
 
 void ExitApplication()
@@ -334,6 +357,13 @@ void GameUpdate(Camera2D *camera)
 
 }
 
+typedef struct {
+    Vector2 position;
+    float rotation;
+    int textureIndex;
+    float fallingSpeed;
+    float rotationSpeed;
+} FallingItem;
 
 void MainMenuUpdate(Camera2D *camera, bool playFade)
 {
@@ -353,6 +383,27 @@ void MainMenuUpdate(Camera2D *camera, bool playFade)
 
     bool isFadeOutDone = false;
 
+    const int numItems = 8; // The number of different falling items
+
+
+    FallingItem fallingItems[11]; 
+
+    for (int i = 0; i < 11; i++) {
+        fallingItems[i].position = (Vector2){ GetRandomValue(baseX, baseX + baseScreenWidth - 20), baseY };
+        fallingItems[i].textureIndex = GetRandomValue(0, numItems - 1);
+
+        // Random rotation and falling speed
+        fallingItems[i].rotation = GetRandomValue(0, 360);
+        fallingItems[i].fallingSpeed = GetRandomValue(1, 3);
+
+        // Rotation speed is between -3 and 3, but should not execeed falling speed and should not be 0
+        fallingItems[i].rotationSpeed = GetRandomValue(-3, 3);
+		if (abs(fallingItems[i].rotationSpeed) > fallingItems[i].fallingSpeed)
+			fallingItems[i].rotationSpeed = fallingItems[i].fallingSpeed;
+		if (fallingItems[i].rotationSpeed == 0)
+			fallingItems[i].rotationSpeed = 1;
+
+    }
 
     Rectangle buttons[] = { startButtonRect, optionsButtonRect, exitButtonRect };
     int currentHoveredButton = NULL;
@@ -450,10 +501,70 @@ void MainMenuUpdate(Camera2D *camera, bool playFade)
         DrawRectangleRec(exitButtonRect, isExitButtonHovered ? SKYBLUE : BLUE);
         */
 
+        // Draw falling items
+        for (int i = 0; i < 6; i++) {
+            FallingItem* item = &fallingItems[i];
+            Vector2 origin = { (float)mainMenuFallingItems[item->textureIndex].width / 2, (float)mainMenuFallingItems[item->textureIndex].height / 2 };
+            DrawTexturePro(mainMenuFallingItems[item->textureIndex], (Rectangle) { 0, 0, mainMenuFallingItems[item->textureIndex].width, mainMenuFallingItems[item->textureIndex].height },
+                (Rectangle) {
+                item->position.x, item->position.y, mainMenuFallingItems[item->textureIndex].width, mainMenuFallingItems[item->textureIndex].height
+            }, origin, item->rotation, WHITE);
+            item->position.y += item->fallingSpeed;
+            item->rotation += item->rotationSpeed;
+
+            // Top left of screen is (baseX, baseY)
+            if (item->position.y > baseY + baseScreenHeight) {
+				item->position = (Vector2){ GetRandomValue(baseX, baseX + baseScreenWidth - 20), baseY - GetRandomValue(200, 1000) };
+				item->textureIndex = GetRandomValue(0, numItems - 1);
+                item->fallingSpeed = GetRandomValue(1, 3);
+                item->rotation = GetRandomValue(0, 360);
+                item->rotationSpeed = GetRandomValue(-3, 3);    
+                if (abs(item->rotationSpeed) > item->fallingSpeed)
+			        item->rotationSpeed = item->fallingSpeed;
+		        if (item->rotationSpeed == 0)
+                    item->rotationSpeed = 1;        
+			}
+        }
+
+       
+        DrawTextureEx(backgroundOverlayTexture, (Vector2) { baseX, baseY }, 0.0f, fmax(scaleX, scaleY), WHITE);
+
+        for (int i = 5; i < 11; i++) {
+            FallingItem* item = &fallingItems[i];
+            Vector2 origin = { (float)mainMenuFallingItems[item->textureIndex].width / 2, (float)mainMenuFallingItems[item->textureIndex].height / 2 };
+            DrawTexturePro(mainMenuFallingItems[item->textureIndex], (Rectangle) { 0, 0, mainMenuFallingItems[item->textureIndex].width, mainMenuFallingItems[item->textureIndex].height },
+                (Rectangle) {
+                item->position.x, item->position.y, mainMenuFallingItems[item->textureIndex].width, mainMenuFallingItems[item->textureIndex].height
+            }, origin, item->rotation, WHITE);
+            item->position.y += item->fallingSpeed;
+            item->rotation += item->rotationSpeed;
+
+            // Top left of screen is (baseX, baseY)
+            if (item->position.y > baseY + baseScreenHeight) {
+                item->position = (Vector2){ GetRandomValue(baseX, baseX + baseScreenWidth - 20), baseY - GetRandomValue(200, 1000) };
+                item->textureIndex = GetRandomValue(0, numItems - 1);
+                item->fallingSpeed = GetRandomValue(1, 3);
+                item->rotation = GetRandomValue(0, 360);
+                item->rotationSpeed = GetRandomValue(-3, 3);
+                if (abs(item->rotationSpeed) > item->fallingSpeed)
+                    item->rotationSpeed = item->fallingSpeed;
+                if (item->rotationSpeed == 0)
+                    item->rotationSpeed = 1;
+            }
+        }
+
+
+        // Draw area outside the view
+        DrawRectangle(baseX, baseY-2000, baseScreenWidth, 2000, (Color) { 0, 0, 0, 255 });
+        DrawRectangle(baseX, baseY + baseScreenHeight, baseScreenWidth, 2000, (Color) { 0, 0, 0, 255 });
+        DrawRectangle(baseX - 2000, baseY, 2000, baseScreenHeight, (Color) { 0, 0, 0, 255 });
+        DrawRectangle(baseX + baseScreenWidth, baseY, 2000, baseScreenHeight, (Color) { 0, 0, 0, 255 });
+
         // Draw button labels
-        DrawTextEx(meowFont, "Start Game", (Vector2) { (int)(startButtonRect.x + 40), (int)(startButtonRect.y + 15)}, 60, 2, isStartButtonHovered ? BLACK : WHITE);
+        DrawTextEx(meowFont, "Start Game", (Vector2) { (int)(startButtonRect.x + 40), (int)(startButtonRect.y + 15) }, 60, 2, isStartButtonHovered ? BLACK : WHITE);
         DrawTextEx(meowFont, "Options", (Vector2) { (int)(optionsButtonRect.x + 40), (int)(optionsButtonRect.y + 15) }, 60, 2, isOptionsButtonHovered ? BLACK : WHITE);
         DrawTextEx(meowFont, "Exit", (Vector2) { (int)(exitButtonRect.x + 40), (int)(exitButtonRect.y + 15) }, 60, 2, isExitButtonHovered ? BLACK : WHITE);
+
 
         // Calculate alpha based on the current time
         if (playFade)
@@ -472,7 +583,6 @@ void MainMenuUpdate(Camera2D *camera, bool playFade)
     UnloadTexture(backgroundTexture);
     CloseWindow();
 }
-
 
 void SplashUpdate(Camera2D* camera)
 {
@@ -592,10 +702,6 @@ void SplashUpdate(Camera2D* camera)
 
     MainMenuUpdate(camera, true);
 }
-
-
-
-
 
 int main()
 {
