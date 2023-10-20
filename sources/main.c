@@ -1,5 +1,6 @@
 #include "raylib.h"
 #include "raymath.h"
+#include <stdlib.h>
 #include <math.h>
 
 #define DEBUG_FASTLOAD false
@@ -41,7 +42,6 @@ typedef struct Resolution {
 	int y;
 } Resolution;
 
-// Game Options in struct
 typedef struct GameOptions {
     Resolution resolution;
 	int targetFps;
@@ -50,11 +50,95 @@ typedef struct GameOptions {
     bool showDebug;
 } GameOptions;
 
+
+typedef struct {
+    Vector2 position;
+    float rotation;
+    int textureIndex;
+    float fallingSpeed;
+    float rotationSpeed;
+} FallingItem;
+
+
+#define fallingItemsNumber 8
+FallingItem fallingItems[20];
 GameOptions *options;
 
-int GetRandomIntValue(int min, int max)
+
+double GetRandomDoubleValue(double min, double max)
 {
-	return min + rand() % (max - min + 1);
+    return min + (rand() / (double)RAND_MAX) * (max - min);
+}
+
+void DrawFallingItems1(double baseX, double baseY, double deltaTime)
+{
+    for (int i = 0; i < 11; i++) {
+        FallingItem* item = &fallingItems[i];
+
+        // Calculate the item's position change based on its falling speed and deltaTime
+        item->position.y += item->fallingSpeed * deltaTime;
+
+        // Calculate the item's rotation change based on its rotation speed and deltaTime
+        item->rotation += item->rotationSpeed * deltaTime;
+
+        Vector2 origin = { (float)mainMenuFallingItems[item->textureIndex].width / 2, (float)mainMenuFallingItems[item->textureIndex].height / 2 };
+        DrawTexturePro(mainMenuFallingItems[item->textureIndex], (Rectangle) { 0, 0, mainMenuFallingItems[item->textureIndex].width, mainMenuFallingItems[item->textureIndex].height },
+            (Rectangle) {
+            item->position.x, item->position.y, mainMenuFallingItems[item->textureIndex].width, mainMenuFallingItems[item->textureIndex].height
+        },
+            origin, item->rotation, WHITE);
+
+        // Top left of the screen is (baseX, baseY)
+        if (item->position.y > baseY + baseScreenHeight + 1000) {
+            item->position = (Vector2){ GetRandomDoubleValue(baseX, baseX + baseScreenWidth - 20), baseY - GetRandomDoubleValue(200, 1000) };
+            item->textureIndex = GetRandomValue(0, fallingItemsNumber - 1);
+            item->fallingSpeed = GetRandomDoubleValue(1, 3);
+            item->fallingSpeed *= 100;
+            item->rotation = GetRandomDoubleValue(-360, 360);
+            item->rotationSpeed = GetRandomValue(-3, 3);
+            item->rotationSpeed *= 100;
+            if (abs(item->rotationSpeed) > item->fallingSpeed)
+                item->rotationSpeed = item->fallingSpeed;
+            if (item->rotationSpeed == 0)
+                item->rotationSpeed = 1 * 100;
+        }
+    }
+}
+
+void DrawFallingItems2(double baseX, double baseY, double deltaTime)
+{
+    for (int i = 11; i < 20; i++) {
+        FallingItem* item = &fallingItems[i];
+
+        // Calculate the item's position change based on its falling speed and deltaTime
+        item->position.y += item->fallingSpeed * deltaTime;
+
+        // Calculate the item's rotation change based on its rotation speed and deltaTime
+        item->rotation += item->rotationSpeed * deltaTime;
+
+        Vector2 origin = { (float)mainMenuFallingItems[item->textureIndex].width / 2, (float)mainMenuFallingItems[item->textureIndex].height / 2 };
+        DrawTexturePro(mainMenuFallingItems[item->textureIndex], (Rectangle) { 0, 0, mainMenuFallingItems[item->textureIndex].width, mainMenuFallingItems[item->textureIndex].height },
+            (Rectangle) {
+            item->position.x, item->position.y, mainMenuFallingItems[item->textureIndex].width, mainMenuFallingItems[item->textureIndex].height
+        },
+            origin, item->rotation, WHITE);
+
+        // Top left of the screen is (baseX, baseY)
+        if (item->position.y > baseY + baseScreenHeight + 1000) {
+            item->position = (Vector2){ GetRandomDoubleValue(baseX, baseX + baseScreenWidth - 20), baseY - GetRandomDoubleValue(200, 1000) };
+            item->textureIndex = GetRandomValue(0, fallingItemsNumber - 1);
+            item->fallingSpeed = GetRandomDoubleValue(1, 3);
+            item->fallingSpeed *= 100;
+            item->rotation = GetRandomDoubleValue(-360, 360);
+            item->rotationSpeed = GetRandomValue(-3, 3);
+            item->rotationSpeed *= 100;
+            if (abs(item->rotationSpeed) > item->fallingSpeed)
+                item->rotationSpeed = item->fallingSpeed;
+            if (item->rotationSpeed == 0)
+                item->rotationSpeed = 1 * 100;
+        }
+    }
+
 }
 
 void SetRuntimeResolution(Camera2D *camera, int screenWidth, int screenHeight)
@@ -157,9 +241,14 @@ void OptionsUpdate(Camera2D* camera)
     Rectangle backRect = { baseX + 100, baseY + 480, 200, 50 };
 
     bool firstRender = true;
+    double lastFrameTime = GetTime();
 
     while (!WindowShouldClose())
     {
+        // Calculate delta time
+        double deltaTime = GetTime() - lastFrameTime;
+        lastFrameTime = GetTime();
+
         WindowUpdate(camera);
 
         // Convert mouse position from screen space to world space
@@ -259,6 +348,15 @@ void OptionsUpdate(Camera2D* camera)
 
         // Draw the background with the scaled dimensions
         DrawTextureEx(backgroundTexture, (Vector2) { baseX, baseY }, 0.0f, fmax(scaleX, scaleY), WHITE);
+
+        // Draw falling items
+        DrawFallingItems1(baseX, baseY, deltaTime);
+
+        DrawTextureEx(backgroundOverlayTexture, (Vector2) { baseX, baseY }, 0.0f, fmax(scaleX, scaleY), WHITE);
+
+        // Draw falling items 2
+        DrawFallingItems2(baseX, baseY, deltaTime);
+
 
         // Draw UI elements
         DrawRectangleRec(difficultyRect, isDifficultySelected ? SKYBLUE : BLUE);
@@ -373,14 +471,6 @@ void GameUpdate(Camera2D *camera)
 
 }
 
-typedef struct {
-    Vector2 position;
-    float rotation;
-    int textureIndex;
-    float fallingSpeed;
-    float rotationSpeed;
-} FallingItem;
-
 void MainMenuUpdate(Camera2D* camera, bool playFade)
 {
     float fadeOutDuration = 1.0f;
@@ -402,28 +492,27 @@ void MainMenuUpdate(Camera2D* camera, bool playFade)
     if(isTransitioningIn)
         transitionOffset = baseScreenWidth / 2;
 
-    const int numItems = 8; // The number of different falling items
+    if(playFade)
+    {
+        for (int i = 0; i < 20; i++) {
+            fallingItems[i].position = (Vector2){ GetRandomDoubleValue(baseX, baseX + baseScreenWidth - 20), baseY - GetRandomDoubleValue(200, 1000) };
+            fallingItems[i].textureIndex = GetRandomValue(0, fallingItemsNumber - 1);
 
-    FallingItem fallingItems[20];
+            // Random rotation and falling speed
+            fallingItems[i].rotation = GetRandomDoubleValue(-360, 360);
+            fallingItems[i].fallingSpeed = GetRandomDoubleValue(1, 3);
+            fallingItems[i].fallingSpeed *= 100;
 
-    for (int i = 0; i < 20; i++) {
-        fallingItems[i].position = (Vector2){ GetRandomIntValue(baseX, baseX + baseScreenWidth - 20), baseY - GetRandomValue(200, 1000) };
-        fallingItems[i].textureIndex = GetRandomIntValue(0, numItems - 1);
+            // Rotation speed is between -3 and 3, but should not execeed falling speed and should not be 0
+            fallingItems[i].rotationSpeed = GetRandomValue(-3, 3);
+            if (abs(fallingItems[i].rotationSpeed) > fallingItems[i].fallingSpeed)
+                fallingItems[i].rotationSpeed = fallingItems[i].fallingSpeed;
+            if (fallingItems[i].rotationSpeed == 0)
+                fallingItems[i].rotationSpeed = 1;
 
-        // Random rotation and falling speed
-        fallingItems[i].rotation = GetRandomIntValue(-360, 360);
-        fallingItems[i].fallingSpeed = GetRandomIntValue(1, 3);
-        fallingItems[i].fallingSpeed *= 100;
+            fallingItems[i].rotationSpeed *= 100;
 
-        // Rotation speed is between -3 and 3, but should not execeed falling speed and should not be 0
-        fallingItems[i].rotationSpeed = GetRandomIntValue(-3, 3);
-        if (abs(fallingItems[i].rotationSpeed) > fallingItems[i].fallingSpeed)
-            fallingItems[i].rotationSpeed = fallingItems[i].fallingSpeed;
-        if (fallingItems[i].rotationSpeed == 0)
-            fallingItems[i].rotationSpeed = 1;
-
-        fallingItems[i].rotationSpeed *= 100;
-
+        }
     }
 
     int currentHoveredButton = NULL;
@@ -541,73 +630,12 @@ void MainMenuUpdate(Camera2D* camera, bool playFade)
         */
 
         // Draw falling items
-        for (int i = 0; i < 11; i++) {
-            FallingItem* item = &fallingItems[i];
-
-            // Calculate the item's position change based on its falling speed and deltaTime
-            item->position.y += item->fallingSpeed * deltaTime;
-
-            // Calculate the item's rotation change based on its rotation speed and deltaTime
-            item->rotation += item->rotationSpeed * deltaTime;
-
-            Vector2 origin = { (float)mainMenuFallingItems[item->textureIndex].width / 2, (float)mainMenuFallingItems[item->textureIndex].height / 2 };
-            DrawTexturePro(mainMenuFallingItems[item->textureIndex], (Rectangle) { 0, 0, mainMenuFallingItems[item->textureIndex].width, mainMenuFallingItems[item->textureIndex].height },
-                (Rectangle) {
-                item->position.x, item->position.y, mainMenuFallingItems[item->textureIndex].width, mainMenuFallingItems[item->textureIndex].height
-            },
-                origin, item->rotation, WHITE);
-
-            // Top left of the screen is (baseX, baseY)
-            if (item->position.y > baseY + baseScreenHeight + 1000) {
-                item->position = (Vector2){ GetRandomIntValue(baseX, baseX + baseScreenWidth - 20), baseY - GetRandomValue(200, 1000) };
-                item->textureIndex = GetRandomIntValue(0, numItems - 1);
-                item->fallingSpeed = GetRandomIntValue(1, 3);
-                item->fallingSpeed *= 100;
-                item->rotation = GetRandomIntValue(-360, 360);
-                item->rotationSpeed = GetRandomIntValue(-3, 3);
-                item->rotationSpeed *= 100;
-                if (abs(item->rotationSpeed) > item->fallingSpeed)
-                    item->rotationSpeed = item->fallingSpeed;
-                if (item->rotationSpeed == 0)
-                    item->rotationSpeed = 1 * 100;
-            }
-        }
-
+        DrawFallingItems1(baseX, baseY, deltaTime);
 
         DrawTextureEx(backgroundOverlayTexture, (Vector2) { baseX, baseY }, 0.0f, fmax(scaleX, scaleY), WHITE);
 
-        for (int i = 11; i < 20; i++) {
-            FallingItem* item = &fallingItems[i];
-
-            // Calculate the item's position change based on its falling speed and deltaTime
-            item->position.y += item->fallingSpeed * deltaTime;
-
-            // Calculate the item's rotation change based on its rotation speed and deltaTime
-            item->rotation += item->rotationSpeed * deltaTime;
-
-            Vector2 origin = { (float)mainMenuFallingItems[item->textureIndex].width / 2, (float)mainMenuFallingItems[item->textureIndex].height / 2 };
-            DrawTexturePro(mainMenuFallingItems[item->textureIndex], (Rectangle) { 0, 0, mainMenuFallingItems[item->textureIndex].width, mainMenuFallingItems[item->textureIndex].height },
-                (Rectangle) {
-                item->position.x, item->position.y, mainMenuFallingItems[item->textureIndex].width, mainMenuFallingItems[item->textureIndex].height
-            },
-                origin, item->rotation, WHITE);
-
-            // Top left of the screen is (baseX, baseY)
-            if (item->position.y > baseY + baseScreenHeight + 1000) {
-                item->position = (Vector2){ GetRandomIntValue(baseX, baseX + baseScreenWidth - 20), baseY - GetRandomIntValue(200, 1000) };
-                item->textureIndex = GetRandomIntValue(0, numItems - 1);
-                item->fallingSpeed = GetRandomIntValue(1, 3);
-                item->fallingSpeed *= 100;
-                item->rotation = GetRandomIntValue(-360, 360);
-                item->rotationSpeed = GetRandomIntValue(-3, 3);
-                item->rotationSpeed *= 100;
-                if (abs(item->rotationSpeed) > item->fallingSpeed)
-                    item->rotationSpeed = item->fallingSpeed;
-                if (item->rotationSpeed == 0)
-                    item->rotationSpeed = 1 * 100;
-            }
-        }
-
+        // Draw falling items 2
+        DrawFallingItems2(baseX, baseY, deltaTime);
 
         // If transitioning out, move the background to the left
         if (isTransitioningOut)
