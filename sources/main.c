@@ -70,7 +70,7 @@ double GetRandomDoubleValue(double min, double max)
     return min + (rand() / (double)RAND_MAX) * (max - min);
 }
 
-void DrawFallingItems1(double baseX, double baseY, double deltaTime)
+void DrawFallingItems1(double deltaTime)
 {
     for (int i = 0; i < 11; i++) {
         FallingItem* item = &fallingItems[i];
@@ -105,7 +105,7 @@ void DrawFallingItems1(double baseX, double baseY, double deltaTime)
     }
 }
 
-void DrawFallingItems2(double baseX, double baseY, double deltaTime)
+void DrawFallingItems2(double deltaTime)
 {
     for (int i = 11; i < 20; i++) {
         FallingItem* item = &fallingItems[i];
@@ -153,6 +153,27 @@ void SetRuntimeResolution(Camera2D *camera, int screenWidth, int screenHeight)
 
     options->resolution.x = screenWidth;
     options->resolution.y = screenHeight;
+}
+
+bool isMousePositionInGameWindow(Camera2D * camera)
+{
+    Vector2 mouseWorldPos = GetScreenToWorld2D(GetMousePosition(), *camera);
+    return mouseWorldPos.x >= baseX && mouseWorldPos.x <= baseX + baseScreenWidth && mouseWorldPos.y >= baseY && mouseWorldPos.y <= baseY + baseScreenHeight;
+
+}
+
+void DrawDebug(Camera2D *camera)
+{
+    Color color = LIME; 
+    int fps = GetFPS();
+
+    if ((fps < 30) && (fps >= 15)) color = ORANGE;
+    else if (fps < 15) color = RED;
+
+    Vector2 mousePosition = GetMousePosition();
+    Vector2 mouseWorldPos = GetScreenToWorld2D(mousePosition, *camera);
+
+    DrawText(TextFormat("%2i FPS | Mx %.2f My %.2f (%dx%d) | Wx %.2f Wy %.2f (%dx%d) | Zoom %.2f | In View: %s", fps, mousePosition.x, mousePosition.y, options->resolution.x, options->resolution.y, mouseWorldPos.x, mouseWorldPos.y, baseScreenWidth, baseScreenHeight, camera->zoom, isMousePositionInGameWindow(camera) ? "True" : "False"), baseX + 5, baseY + 5, 20, color);
 }
 
 // Function prototype
@@ -350,12 +371,12 @@ void OptionsUpdate(Camera2D* camera)
         DrawTextureEx(backgroundTexture, (Vector2) { baseX, baseY }, 0.0f, fmax(scaleX, scaleY), WHITE);
 
         // Draw falling items
-        DrawFallingItems1(baseX, baseY, deltaTime);
+        DrawFallingItems1(deltaTime);
 
         DrawTextureEx(backgroundOverlayTexture, (Vector2) { baseX, baseY }, 0.0f, fmax(scaleX, scaleY), WHITE);
 
         // Draw falling items 2
-        DrawFallingItems2(baseX, baseY, deltaTime);
+        DrawFallingItems2(deltaTime);
 
 
         // Draw UI elements
@@ -381,7 +402,7 @@ void OptionsUpdate(Camera2D* camera)
         DrawText("Back", (int)(backRect.x + 40), (int)(backRect.y + 15), 20, WHITE);
 
         if (options->showDebug)
-            DrawFPS(baseX + 5, baseY + 5);
+            DrawDebug(camera);
 
         EndMode2D();
         EndDrawing();
@@ -460,7 +481,7 @@ void GameUpdate(Camera2D *camera)
         DrawTextEx(GetFontDefault(), "Hello, Test!", (Vector2) { baseX + 20, baseY + 20 }, 20, 2, WHITE);
 
         if (options->showDebug)
-            DrawFPS(baseX + 5, baseY + 5);
+            DrawDebug(camera);
 
         EndMode2D();
         EndDrawing();
@@ -630,12 +651,12 @@ void MainMenuUpdate(Camera2D* camera, bool playFade)
         */
 
         // Draw falling items
-        DrawFallingItems1(baseX, baseY, deltaTime);
+        DrawFallingItems1(deltaTime);
 
         DrawTextureEx(backgroundOverlayTexture, (Vector2) { baseX, baseY }, 0.0f, fmax(scaleX, scaleY), WHITE);
 
         // Draw falling items 2
-        DrawFallingItems2(baseX, baseY, deltaTime);
+        DrawFallingItems2(deltaTime);
 
         // If transitioning out, move the background to the left
         if (isTransitioningOut)
@@ -694,7 +715,7 @@ void MainMenuUpdate(Camera2D* camera, bool playFade)
 
 
         if(options->showDebug)
-            DrawFPS(baseX + 5, baseY + 5);
+            DrawDebug(camera);
 
         EndMode2D();
         EndDrawing();
@@ -736,7 +757,7 @@ void SplashUpdate(Camera2D* camera)
     ClearBackground(RAYWHITE);
 
     if (options->showDebug)
-        DrawFPS(baseX + 5, baseY + 5);
+        DrawDebug(camera);
 
     EndMode2D();
     EndDrawing();
@@ -754,7 +775,7 @@ void SplashUpdate(Camera2D* camera)
         DrawRectangle(baseX, baseY, baseScreenWidth, baseScreenHeight, (Color) { 255, 255, 255, alpha });
 
         if (options->showDebug)
-            DrawFPS(baseX + 5, baseY + 5);
+            DrawDebug(camera);
 
         EndMode2D();
         EndDrawing();
@@ -798,7 +819,7 @@ void SplashUpdate(Camera2D* camera)
         DrawTextureEx(splashOverlayTexture, (Vector2) { baseX, baseY }, 0.0f, fmax(scaleX, scaleY), (Color) { 255, 255, 255, alpha });
         
         if (options->showDebug)
-            DrawFPS(baseX + 5, baseY + 5);
+            DrawDebug(camera);
 
         EndMode2D();
         EndDrawing();
