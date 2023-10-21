@@ -16,6 +16,9 @@ const float baseY = -(baseScreenHeight / 2);
 const float targetAspectRatio = (float)baseScreenWidth / (float)baseScreenHeight;
 const int targetFps = 300;
 
+Color MAIN_BROWN = { 150, 104, 81, 255 };
+Color MAIN_ORANGE = { 245, 167, 128, 255 };
+
 Texture2D logoTexture;
 Texture2D splashBackgroundTexture;
 Texture2D splashOverlayTexture;
@@ -504,12 +507,25 @@ void ExitApplication()
 
 void OptionsUpdate(Camera2D* camera)
 {
-    // Define rectangles for UI elements (e.g., buttons, dropdowns)
-    Rectangle difficultyRect = { baseX + 100, baseY + 30, 200, 50 };
-    Rectangle resolutionRect = { baseX + 100, baseY + 120, 200, 50 };
-    Rectangle fpsRect = { baseX + 100, baseY + 220, 200, 50 };
-    Rectangle fullscreenRect = { baseX + 100, baseY + 320, 200, 50 };
-    Rectangle backRect = { baseX + 100, baseY + 480, 200, 50 };
+    Rectangle difficultyRect = { baseX + 780, baseY + 595, 200, 70 };
+    Rectangle difficultyDecrementRect = { difficultyRect.x, difficultyRect.y + 10, 50, 50 };
+    Rectangle difficultyIncrementRect = { difficultyRect.x + 280, difficultyRect.y + 10, 50, 50 };
+    
+    Rectangle resolutionRect = { baseX + 780, baseY + 675, 200, 70 };
+    Rectangle resolutionDecrementRect = { resolutionRect.x, resolutionRect.y + 10, 50, 50 };
+    Rectangle resolutionIncrementRect = { resolutionRect.x + 280, resolutionRect.y + 10, 50, 50 };
+
+    Rectangle fpsRect = { baseX + 1200, baseY + 595, 200, 70 };
+    Rectangle fpsDecrementRect = { fpsRect.x, fpsRect.y + 10, 50, 50 };
+    Rectangle fpsIncrementRect = { fpsRect.x + 280, fpsRect.y + 10, 50, 50 };
+
+    Rectangle musicRect = { baseX + 100, baseY + 595, 200, 70 };
+    Rectangle soundFxRect = { baseX + 100, baseY + 675, 200, 70 };
+
+    Rectangle fullscreenRect = { baseX + 400, baseY + 595, 200, 70 };
+    Rectangle debugRect = { baseX + 400, baseY + 675, 200, 70 };
+
+    Rectangle backRect = { baseX + 100, baseY + 430, 200, 70 };
 
     bool firstRender = true;
     double lastFrameTime = GetTime();
@@ -522,66 +538,112 @@ void OptionsUpdate(Camera2D* camera)
 
         WindowUpdate(camera);
 
-        // Convert mouse position from screen space to world space
         Vector2 mouseWorldPos = GetScreenToWorld2D(GetMousePosition(), *camera);
 
-        bool isDifficultySelected = CheckCollisionPointRec(mouseWorldPos, difficultyRect);
-        bool isResolutionSelected = CheckCollisionPointRec(mouseWorldPos, resolutionRect);
-        bool isFpsSelected = CheckCollisionPointRec(mouseWorldPos, fpsRect);
+        bool isDifficultyIncrementSelected = CheckCollisionPointRec(mouseWorldPos, (Rectangle) { difficultyRect.x + 260, difficultyRect.y + 10, 50, 50 });
+        bool isDifficultyDecrementSelected = CheckCollisionPointRec(mouseWorldPos, (Rectangle) { difficultyRect.x + 10, difficultyRect.y + 10, 50, 50 });
+        
+        bool isResolutionIncrementSelected = CheckCollisionPointRec(mouseWorldPos, resolutionIncrementRect);
+        bool isResolutionDecrementSelected = CheckCollisionPointRec(mouseWorldPos, resolutionDecrementRect);
+
+        bool isFpsIncrementSelected = CheckCollisionPointRec(mouseWorldPos, fpsIncrementRect);
+        bool isFpsDecrementSelected = CheckCollisionPointRec(mouseWorldPos, fpsDecrementRect);
+        
+        
+        bool isMusicSelected = CheckCollisionPointRec(mouseWorldPos, musicRect);
+        bool isSoundFxSelected = CheckCollisionPointRec(mouseWorldPos, soundFxRect);
         bool isFullscreenToggled = CheckCollisionPointRec(mouseWorldPos, fullscreenRect);
+        bool isDebugSelected = CheckCollisionPointRec(mouseWorldPos, debugRect);
+
         bool isBackSelected = CheckCollisionPointRec(mouseWorldPos, backRect);
 
         // Handle user input
         if (!firstRender && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-            if (isDifficultySelected) {
-                // Toggle difficulty (cycle through the options)
-                options->difficulty = (options->difficulty + 1) % 3;
-            }
-            else if (isResolutionSelected) {
-                // 1280x720, 1920x1080
-                if (options->resolution.x == 1920) {
-                    options->resolution.x = 1280;
-                    options->resolution.y = 720;
-                }
-                else if (options->resolution.x == 1280) {
-					options->resolution.x = 1920;
-					options->resolution.y = 1080;
+            if (isDifficultyIncrementSelected) {
+                if (options->difficulty == EASY) {
+					options->difficulty = MEDIUM;
 				}
-                else
-                {
-                    // Custom resize resolution
-                    // Change it to closest resolution, either 1280x720, 1920x1080
-                    if (options->resolution.x > 1600) {
-						options->resolution.x = 1920;
-						options->resolution.y = 1080;
-					}
-					else {
+				else if (options->difficulty == MEDIUM) {
+					options->difficulty = HARD;
+				}
+            }
+            else if (isDifficultyDecrementSelected) {
+				if (options->difficulty == HARD) {
+                    options->difficulty = MEDIUM;
+				}
+                else if (options->difficulty == MEDIUM) {
+                    options->difficulty = EASY;
+				}
+			}
+            else if (isResolutionIncrementSelected) {
+                // 720p -> 1080p
+                if (options->resolution.x == 1280) {
+                    options->resolution.x = 1920;
+                    options->resolution.y = 1080;
+                }
+                // Custom resize resolution
+				else
+				{
+                    // If current resolution is less than 720p, set it to 720p
+                    if (options->resolution.x < 1280 || options->resolution.y < 720) {
 						options->resolution.x = 1280;
 						options->resolution.y = 720;
 					}
-
-                }
+				}
                 SetRuntimeResolution(camera, options->resolution.x, options->resolution.y);
             }
-            else if (isFpsSelected) {
+            else if (isResolutionDecrementSelected) {
+                // 1080p -> 720p
+                if (options->resolution.x == 1920) {
+					options->resolution.x = 1280;
+					options->resolution.y = 720;
+				}
+                // Custom resize resolution
+                else {
+                    // If current resolution is more than 1080p, set it to 1080p
+                    if (options->resolution.x > 1920 || options->resolution.y > 1080) {
+                        options->resolution.x = 1920;
+                        options->resolution.y = 1080;
+                    }
+                    SetRuntimeResolution(camera, options->resolution.x, options->resolution.y);
+                }
+            }
+            else if (isFpsIncrementSelected) {
                 // Change target FPS 30, 60, 120, 144, 240, Basically Unlimited (1000)
                 if (options->targetFps == 30) {
-					options->targetFps = 60;
-				}
-				else if (options->targetFps == 60) {
-					options->targetFps = 120;
-				}
-				else if (options->targetFps == 120) {
-					options->targetFps = 144;
-				}
-				else if (options->targetFps == 144) {
+                    options->targetFps = 60;
+                }
+                else if (options->targetFps == 60) {
+                    options->targetFps = 120;
+                }
+                else if (options->targetFps == 120) {
+                    options->targetFps = 144;
+                }
+                else if (options->targetFps == 144) {
+                    options->targetFps = 240;
+                }
+                else if (options->targetFps == 240) {
+                    options->targetFps = 1000;
+                }
+
+                SetTargetFPS(options->targetFps);
+            }
+            else if (isFpsDecrementSelected) {
+                // Change target FPS 30, 60, 120, 144, 240, Basically Unlimited (1000)
+                if (options->targetFps == 60) {
+                    options->targetFps = 30;
+                }
+                else if (options->targetFps == 120) {
+                    options->targetFps = 60;
+                }
+                else if (options->targetFps == 144) {
+                    options->targetFps = 120;
+                }
+                else if (options->targetFps == 240) {
+                    options->targetFps = 144;
+                }
+                else if (options->targetFps == 1000) {
 					options->targetFps = 240;
-				}
-				else if (options->targetFps == 240) {
-					options->targetFps = 1000;
-				}
-				else if (options->targetFps == 1000) {
-					options->targetFps = 30;
 				}
 
                 SetTargetFPS(options->targetFps);
@@ -592,6 +654,15 @@ void OptionsUpdate(Camera2D* camera)
                 SetRuntimeResolution(camera, options->resolution.x, options->resolution.y);
                 ToggleFullscreen();
             }
+            else if (isDebugSelected) {
+				// Toggle debug
+				options->showDebug = !options->showDebug;
+			}
+			else if (isBackSelected) {
+				// Go back to main menu
+				MainMenuUpdate(camera, false);
+				break;
+			}
             else if (isBackSelected) {
 				// Go back to main menu
 				MainMenuUpdate(camera, false);
@@ -610,7 +681,6 @@ void OptionsUpdate(Camera2D* camera)
 
         BeginMode2D(*camera);
 
-
         int imageWidth = backgroundTexture.width;
         int imageHeight = backgroundTexture.height;
 
@@ -628,30 +698,44 @@ void OptionsUpdate(Camera2D* camera)
         // Draw falling items 2
         DrawFallingItems2(deltaTime);
 
+        // Music
+        DrawTextureEx(options->fullscreen ? checkboxChecked : checkbox, (Vector2) { musicRect.x + 10, musicRect.y + 10 }, 0.0f, 1.0f / 6.0f, WHITE);
+		DrawTextEx(meowFont, "Music", (Vector2) { musicRect.x + 80, musicRect.y + 22 }, 32, 2, MAIN_BROWN);
 
-        // Draw UI elements
-        DrawRectangleRec(difficultyRect, isDifficultySelected ? SKYBLUE : BLUE);
-        DrawRectangleRec(resolutionRect, isResolutionSelected ? SKYBLUE : BLUE);
-        DrawRectangleRec(fpsRect, isFpsSelected ? SKYBLUE : BLUE);
-        //DrawRectangleRec(fullscreenRect, isFullscreenToggled ? SKYBLUE : BLUE);
+        // Sound FX
+        DrawTextureEx(options->fullscreen ? checkboxChecked : checkbox, (Vector2) { soundFxRect.x + 10, soundFxRect.y + 10 }, 0.0f, 1.0f / 6.0f, WHITE);
+        DrawTextEx(meowFont, "Sound FX", (Vector2) { soundFxRect.x + 80, soundFxRect.y + 22 }, 32, 2, MAIN_BROWN);
 
-        DrawTextureEx(options->fullscreen ? checkboxChecked : checkbox, (Vector2) { fullscreenRect.x + 5, fullscreenRect.y + 5 }, 0.0f, 1.0f/6.0f, WHITE);
-        DrawRectangleRec(backRect, isBackSelected ? SKYBLUE : BLUE);
+        // Fullscreen
+        DrawTextureEx(options->fullscreen ? checkboxChecked : checkbox, (Vector2) { fullscreenRect.x + 10, fullscreenRect.y + 10 }, 0.0f, 1.0f / 6.0f, WHITE);
+        DrawTextEx(meowFont, "Fullscreen", (Vector2) { fullscreenRect.x + 80, fullscreenRect.y + 22 }, 32, 2, MAIN_BROWN);
 
-        char difficultyText[50];
-        sprintf(difficultyText, "Difficulty: %s", StringFromDifficultyEnum(options->difficulty));
+        // Debug
+        DrawTextureEx(options->showDebug ? checkboxChecked : checkbox, (Vector2) { debugRect.x + 10, debugRect.y + 10 }, 0.0f, 1.0f / 6.0f, WHITE);
+		DrawTextEx(meowFont, "Debug", (Vector2) { debugRect.x + 80, debugRect.y + 22 }, 32, 2, MAIN_BROWN);
 
-        char targetFpsText[20];
-        sprintf(targetFpsText, "Fps: %d", options->targetFps);
+        // Difficulty
+        DrawTextureEx(left_arrow, (Vector2) { difficultyDecrementRect.x , difficultyDecrementRect.y}, 0.0f, 1.0f / 5.0f, WHITE);
+        DrawTextureEx(right_arrow, (Vector2) { difficultyIncrementRect.x, difficultyIncrementRect.y }, 0.0f, 1.0f / 5.0f, WHITE);
+        DrawTextEx(meowFont, "Difficulty", (Vector2) { difficultyRect.x + 80, difficultyRect.y + 10 }, 32, 2, MAIN_BROWN);
+        DrawTextEx(meowFont, StringFromDifficultyEnum(options->difficulty), (Vector2) { difficultyRect.x + 80, difficultyRect.y + 42 }, 32, 2, MAIN_BROWN);
 
-        char resolutionText[20];
-        sprintf(resolutionText, "%dx%d", options->resolution.x, options->resolution.y);
+        // Resolution
+        DrawTextureEx(left_arrow, (Vector2) { resolutionDecrementRect.x, resolutionDecrementRect.y }, 0.0f, 1.0f / 5.0f, WHITE);
+        DrawTextureEx(right_arrow, (Vector2) { resolutionIncrementRect.x, resolutionDecrementRect.y }, 0.0f, 1.0f / 5.0f, WHITE);
+        DrawTextEx(meowFont, "Resolution", (Vector2) { resolutionRect.x + 80, resolutionRect.y + 10 }, 32, 2, MAIN_BROWN);
+        DrawTextEx(meowFont, TextFormat("%dx%d", options->resolution.x, options->resolution.y), (Vector2) { resolutionRect.x + 80, resolutionRect.y + 42 }, 32, 2, MAIN_BROWN);
 
-        DrawText(difficultyText, (int)(difficultyRect.x + 40), (int)(difficultyRect.y + 15), 20, WHITE);
-        DrawText(resolutionText, (int)(resolutionRect.x + 40), (int)(resolutionRect.y + 15), 20, WHITE);
-        DrawText(targetFpsText, (int)(fpsRect.x + 40), (int)(fpsRect.y + 15), 20, WHITE);
-        DrawText("Fullscreen", (int)(fullscreenRect.x + 40), (int)(fullscreenRect.y + 15), 20, WHITE);
-        DrawText("Back", (int)(backRect.x + 40), (int)(backRect.y + 15), 20, WHITE);
+        // FPS
+        DrawTextureEx(left_arrow, (Vector2) { fpsDecrementRect.x, fpsDecrementRect.y }, 0.0f, 1.0f / 5.0f, WHITE);
+        DrawTextureEx(right_arrow, (Vector2) { fpsIncrementRect.x, fpsDecrementRect.y }, 0.0f, 1.0f / 5.0f, WHITE);
+		DrawTextEx(meowFont, "Target FPS", (Vector2) { fpsRect.x + 80, fpsRect.y + 10 }, 32, 2, MAIN_BROWN);
+        DrawTextEx(meowFont, TextFormat("%d FPS", options->targetFps), (Vector2) { fpsRect.x + 80, fpsRect.y + 42 }, 32, 2, MAIN_BROWN);
+
+
+        // Back
+        DrawRectangleRec(backRect, isBackSelected ? MAIN_ORANGE : MAIN_BROWN);
+        DrawTextEx(meowFont, "Back", (Vector2) { backRect.x + 40, backRect.y + 22 }, 32, 2, WHITE);
 
         if (options->showDebug)
             DrawDebug(camera);
@@ -1000,9 +1084,9 @@ void MainMenuUpdate(Camera2D* camera, bool playFade)
         DrawTextureEx(logoTexture, (Vector2) { baseX - transitionOffset, baseY - 50 }, 0.0f, fmax(scaleLogoX, scaleLogoY), WHITE);
 
         // Draw button labels
-        DrawTextEx(meowFont, "Start Game", (Vector2) { (int)(startButtonRect.x + 40), (int)(startButtonRect.y + 15) }, 60, 2, isStartButtonHovered ? (Color) { 150, 104, 81, 255 } : BLACK);
-        DrawTextEx(meowFont, "Options", (Vector2) { (int)(optionsButtonRect.x + 40), (int)(optionsButtonRect.y + 15) }, 60, 2, isOptionsButtonHovered ? (Color) { 150, 104, 81, 255 } : BLACK);
-        DrawTextEx(meowFont, "Exit", (Vector2) { (int)(exitButtonRect.x + 40), (int)(exitButtonRect.y + 15) }, 60, 2, isExitButtonHovered ? (Color) { 255, 0, 0, 255 } : BLACK);
+        DrawTextEx(meowFont, "Start Game", (Vector2) { (int)(startButtonRect.x + 40), (int)(startButtonRect.y + 15) }, 60, 2, isStartButtonHovered ? MAIN_ORANGE : MAIN_BROWN);
+        DrawTextEx(meowFont, "Settings", (Vector2) { (int)(optionsButtonRect.x + 40), (int)(optionsButtonRect.y + 15) }, 60, 2, isOptionsButtonHovered ? MAIN_ORANGE : MAIN_BROWN);
+        DrawTextEx(meowFont, "Exit", (Vector2) { (int)(exitButtonRect.x + 40), (int)(exitButtonRect.y + 15) }, 60, 2, isExitButtonHovered ? MAIN_ORANGE : MAIN_BROWN);
 
 
         // Calculate alpha based on the current time
