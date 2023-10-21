@@ -118,6 +118,12 @@ typedef enum {
     EMOTION_ANGRY
 } CustomerEmotion;
 
+static inline char* StringFromCustomerEmotionEnum(CustomerEmotion emotion)
+{
+	static const char* strings[] = { "Happy", "Frustrated", "Angry" };
+	return strings[emotion];
+}
+
 typedef struct MenuCustomer {
     CustomerEmotion emotion;
     double blinkTimer;
@@ -286,6 +292,11 @@ CustomerTextureFrameType GetCustomerEyesClosedTextureFrameType(CustomerEmotion e
 
 void DrawCustomer(MenuCustomer* customer, int frame, Vector2 pos)
 {
+    if (options->showDebug)
+    {
+        DrawRectangleLinesEx((Rectangle) { pos.x, pos.y, customersImageData[frame].happy.width / 2, customersImageData[frame].happy.height / 2 }, 1, RED);
+        DrawTextEx(meowFont, TextFormat("%s | Blink %s (%.2f) %.2f/%.2f", StringFromCustomerEmotionEnum(customer->emotion), customer->eyesClosed ? "[Yes]" : "[No]", customer->blinkDuration, customer->blinkTimer, customer->normalDuration), (Vector2) { pos.x, pos.y - 20 }, 20, 1, WHITE);
+    }
     switch (customer->emotion)
     {
     case EMOTION_HAPPY:
