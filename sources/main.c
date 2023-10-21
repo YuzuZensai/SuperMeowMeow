@@ -19,9 +19,17 @@ Texture2D splashBackgroundTexture;
 Texture2D splashOverlayTexture;
 Texture2D backgroundTexture;
 Texture2D pawTexture;
-Texture2D customerTexture_first;
-Texture2D customerTexture_second;
-Texture2D customerTexture_third;
+//customer
+Texture2D customerTexture_first_happy;
+Texture2D customerTexture_second_happy;
+Texture2D customerTexture_third_happy;
+Texture2D customerTexture_first_normal;
+Texture2D customerTexture_second_normal;
+Texture2D customerTexture_third_normal;
+Texture2D customerTexture_first_angry;
+Texture2D customerTexture_second_angry;
+Texture2D customerTexture_third_angry;
+//customer
 Font meowFont;
 Sound select;
 Sound hover;
@@ -96,8 +104,11 @@ typedef struct Customers {
 } Customers;
 
 
-#define PLACEHOLDER_ORDER "PLACEHOLDER_ORDER"
 
+// TO BE DESTROYED
+#define PLACEHOLDER_ORDER "PLACEHOLDER_ORDER"
+static int placeholder_static = 1;
+static int global_score = 0;
 
 
 void create_customer(Customer *customer, int patience, Order order, int currentTime, int orderEnd) {
@@ -114,21 +125,53 @@ void render_customers(Customers *customers)
 	//customer 1
 	if (customers->customer1.visible == 1)
 	{
-		DrawTextureEx(customerTexture_first, (Vector2) { baseX, baseY + 100 }, 0.0f, 1.0f, WHITE);
+		if (customers->customer1.state == 1)
+		{
+			DrawTextureEx(customerTexture_first_happy, (Vector2) { baseX, baseY + 100 }, 0.0f, 1.0f, WHITE);
+		}
+		else if (customers->customer1.state == 2)
+		{
+			DrawTextureEx(customerTexture_first_normal, (Vector2) { baseX, baseY + 100 }, 0.0f, 1.0f, WHITE);
+		}
+		else if (customers->customer1.state == 3)
+		{
+			DrawTextureEx(customerTexture_first_angry, (Vector2) { baseX, baseY + 100 }, 0.0f, 1.0f, WHITE);
+		}
 	}
 	//customer 2
 	if (customers->customer2.visible == 1)
 	{
-		DrawTextureEx(customerTexture_second, (Vector2) { baseX + 600, baseY + 100 }, 0.0f, 1.0f, WHITE);
+		if (customers->customer2.state == 1)
+		{
+			DrawTextureEx(customerTexture_second_happy, (Vector2) { baseX + 600, baseY + 100 }, 0.0f, 1.0f, WHITE);
+		}
+		else if (customers->customer2.state == 2)
+		{
+			DrawTextureEx(customerTexture_second_normal, (Vector2) { baseX + 600, baseY + 100 }, 0.0f, 1.0f, WHITE);
+		}
+		else if (customers->customer2.state == 3)
+		{
+			DrawTextureEx(customerTexture_second_angry, (Vector2) { baseX + 600, baseY + 100 }, 0.0f, 1.0f, WHITE);
+		}
 	}
 	//customer 3
 	if (customers->customer3.visible == 1)
 	{
-		DrawTextureEx(customerTexture_third, (Vector2) { baseX + 1200, baseY + 100 }, 0.0f, 1.0f, WHITE);
+		if (customers->customer3.state == 1)
+		{
+			DrawTextureEx(customerTexture_third_happy, (Vector2) { baseX + 1200, baseY + 100 }, 0.0f, 1.0f, WHITE);
+		}
+		else if (customers->customer3.state == 2)
+		{
+			DrawTextureEx(customerTexture_third_normal, (Vector2) { baseX + 1200, baseY + 100 }, 0.0f, 1.0f, WHITE);
+		}
+		else if (customers->customer3.state == 3)
+		{
+			DrawTextureEx(customerTexture_third_angry, (Vector2) { baseX + 1200, baseY + 100 }, 0.0f, 1.0f, WHITE);
+		}
 	}
 }
 
-//remove customer image at either position 1 2 3 or 4
 void remove_customers(Customer *customer, int position)
 {
 	customer->visible = 0;
@@ -142,10 +185,19 @@ void Tick(Customers *customers)
 		if (customers->customer1.currentTime < customers->customer1.orderEnd)
 		{
 			customers->customer1.currentTime++;
+			if (customers->customer1.currentTime > customers->customer1.orderEnd / 2)
+			{
+				customers->customer1.state = 3;
+			}
+			else if (customers->customer1.currentTime > customers->customer1.orderEnd / 4)
+			{
+				customers->customer1.state = 2;
+			}
 		}
 		else
 		{
 			remove_customers(&customers->customer1, 1);
+			global_score -= 50;
 		}
 	}
 	//customer 2
@@ -154,10 +206,19 @@ void Tick(Customers *customers)
 		if (customers->customer2.currentTime < customers->customer2.orderEnd)
 		{
 			customers->customer2.currentTime++;
+			if (customers->customer2.currentTime > customers->customer2.orderEnd / 2)
+			{
+				customers->customer2.state = 3;
+			}
+			else if (customers->customer2.currentTime > customers->customer2.orderEnd / 4)
+			{
+				customers->customer2.state = 2;
+			}
 		}
 		else
 		{
 			remove_customers(&customers->customer2, 2);
+			global_score -= 50;
 		}
 	}
 	//customer 3
@@ -166,14 +227,23 @@ void Tick(Customers *customers)
 		if (customers->customer3.currentTime < customers->customer3.orderEnd)
 		{
 			customers->customer3.currentTime++;
+			if (customers->customer3.currentTime > customers->customer3.orderEnd / 2)
+			{
+				customers->customer3.state = 3;
+			}
+			else if (customers->customer3.currentTime > customers->customer3.orderEnd / 4)
+			{
+				customers->customer3.state = 2;
+			}
 		}
 		else
 		{
 			remove_customers(&customers->customer3, 3);
+			global_score -= 50;
 		}
 	}
 }
-
+//Yandere dev inspired programming.
 
 /* Definitions terminates*/
 
@@ -211,9 +281,16 @@ void LoadGlobalAssets()
     backgroundTexture = LoadTexture(ASSETS_PATH"image/backgrounds/main.png");
     pawTexture = LoadTexture(ASSETS_PATH"image/elements/paw.png");
     meowFont = LoadFontEx(ASSETS_PATH"font/Meows-VGWjy.ttf", 256, 0, 250);
-	customerTexture_first = LoadTexture(ASSETS_PATH"image/sprite/customer.png");
-	customerTexture_second = LoadTexture(ASSETS_PATH"image/sprite/customer.png");
-	customerTexture_third = LoadTexture(ASSETS_PATH"image/sprite/customer.png");
+	customerTexture_first_happy = LoadTexture(ASSETS_PATH"image/sprite/customer_happy.png");
+	customerTexture_second_happy = LoadTexture(ASSETS_PATH"image/sprite/customer_happy.png");
+	customerTexture_third_happy = LoadTexture(ASSETS_PATH"image/sprite/customer_happy.png");
+	customerTexture_first_normal = LoadTexture(ASSETS_PATH"image/sprite/customer_normal.png");
+	customerTexture_second_normal = LoadTexture(ASSETS_PATH"image/sprite/customer_normal.png");
+	customerTexture_third_normal = LoadTexture(ASSETS_PATH"image/sprite/customer_normal.png");
+	customerTexture_first_angry = LoadTexture(ASSETS_PATH"image/sprite/customer_angry.png");
+	customerTexture_second_angry = LoadTexture(ASSETS_PATH"image/sprite/customer_angry.png");
+	customerTexture_third_angry = LoadTexture(ASSETS_PATH"image/sprite/customer_angry.png");
+
     hover = LoadSound(ASSETS_PATH"audio/hover.wav");
     select = LoadSound(ASSETS_PATH"audio/select.wav");
 }
@@ -373,10 +450,6 @@ void OptionsUpdate(Camera2D* camera)
     CloseWindow();
 }
 
-
-// MOVE THIS GLOBAL VAR 
-static int placeholder_static = 1;
-
 void GameUpdate(Camera2D *camera)
 {
     float circleRadius = 30.0f;
@@ -486,7 +559,8 @@ void GameUpdate(Camera2D *camera)
         DrawCircleV(circlePosition, circleRadius, BLUE);
 
         // Text
-        DrawTextEx(GetFontDefault(), "Hello, Test!", (Vector2) { baseX + 20, baseY + 20 }, 20, 2, WHITE);
+		char *scoreText = TextFormat("Score: %d", global_score);
+        DrawTextEx(GetFontDefault(), scoreText, (Vector2) { baseX + 20, baseY + 20 }, 20, 2, WHITE);
         EndMode2D();
 
         EndDrawing();
