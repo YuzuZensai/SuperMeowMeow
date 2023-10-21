@@ -463,8 +463,17 @@ void Tick(Customers *customers)
 
 /* Definitions terminates*/
 
+void PlayHoverSound()
+{
+    if(options->soundFxEnabled)
+	    PlaySound(hover);
+}
 
-
+void PlaySelectSound()
+{
+    if(options->soundFxEnabled)
+        PlaySound(select);
+}
 
 void WindowUpdate(Camera2D* camera)
 {
@@ -584,6 +593,9 @@ void OptionsUpdate(Camera2D* camera)
 
     bool firstRender = true;
     double lastFrameTime = GetTime();
+
+    bool isHovering = false;
+    int currentHoveredButton = NULL;
 
     while (!WindowShouldClose())
     {
@@ -713,10 +725,100 @@ void OptionsUpdate(Camera2D* camera)
 				// Toggle debug
 				options->showDebug = !options->showDebug;
 			}
+			else if (isBackHovered) {
 				// Go back to main menu
 				MainMenuUpdate(camera, false);
 				break;
 			}
+        }
+
+        // Play sound when hovering over a button, but only once
+
+        if (isDifficultyIncrementHovered)
+        {
+            if (!isHovering || currentHoveredButton != 0)
+            {
+                PlayHoverSound();
+                isHovering = true;
+            }
+            currentHoveredButton = 0;
+        }
+        else if (isDifficultyDecrementHovered)
+        {
+            if (!isHovering || currentHoveredButton != 1)
+            {
+                PlayHoverSound();
+                isHovering = true;
+            }
+            currentHoveredButton = 1;
+        }
+        else if (isResolutionIncrementHovered)
+        {
+            if (!isHovering || currentHoveredButton != 2)
+            {
+                PlayHoverSound();
+                isHovering = true;
+            }
+            currentHoveredButton = 2;
+        }
+        else if (isResolutionDecrementHovered)
+        {
+            if (!isHovering || currentHoveredButton != 3)
+            {
+                PlayHoverSound();
+                isHovering = true;
+            }
+            currentHoveredButton = 3;
+        }
+        else if (isFpsIncrementHovered)
+        {
+            if (!isHovering || currentHoveredButton != 4)
+            {
+                PlayHoverSound();
+                isHovering = true;
+            }
+            currentHoveredButton = 4;
+        }
+        else if (isFpsDecrementHovered)
+        {
+            if (!isHovering || currentHoveredButton != 5)
+            {
+                PlayHoverSound();
+                isHovering = true;
+            }
+            currentHoveredButton = 5;
+        }
+        else if (isFullscreenHovered)
+        {
+            if (!isHovering || currentHoveredButton != 6)
+            {
+                PlayHoverSound();
+                isHovering = true;
+            }
+            currentHoveredButton = 6;
+        }
+        else if (isDebugHovered)
+        {
+            if (!isHovering || currentHoveredButton != 7)
+            {
+                PlayHoverSound();
+                isHovering = true;
+            }
+            currentHoveredButton = 7;
+        }
+        else if (isBackHovered)
+        {
+            if (!isHovering || currentHoveredButton != 8)
+            {
+                PlayHoverSound();
+                isHovering = true;
+            }
+            currentHoveredButton = 8;
+        } 
+        else
+        {
+            currentHoveredButton = NULL;
+            isHovering = false;
         }
 
         if (firstRender)
