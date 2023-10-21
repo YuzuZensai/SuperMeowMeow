@@ -335,6 +335,49 @@ void create_customer(Customer *customer, int patience, Order order, int currentT
 	customer->orderEnd = orderEnd * patience;
 }
 
+void create_order(Order *order, char *first, char *second, char *third, char *fourth) {
+	order->first = first;
+	order->second = second;
+	order->third = third;
+	order->fourth = fourth;
+}
+
+void validiator(Order *order, char *first, char *second, char *third, char *fourth)
+{
+	//if order is valid, call distribute points
+	if (strcmp(order->first, first) == 0 && strcmp(order->second, second) == 0 && strcmp(order->third, third) == 0 && strcmp(order->fourth, fourth) == 0)
+	{
+		distribute_points(order, first, second, third, fourth);
+	}
+	else
+	{
+		//To be implemented, waiting for mixture parts.
+	}
+}
+
+
+
+void distribute_points(Order *order, char *first, char *second, char *third, char *fourth)
+{
+	if (first)
+	{
+		global_score += 50;
+	}
+	if (second)
+	{
+		global_score += 50;
+	}
+	if (third)
+	{
+		global_score += 50;
+	}
+	if (fourth)
+	{
+		global_score += 50;
+	}
+}
+
+
 //create customer image at either position 1 2 or 3
 void render_customers(Customers *customers)
 {
@@ -388,78 +431,36 @@ void render_customers(Customers *customers)
 	}
 }
 
+
+//Yandere dev inspired programming.
+
 void remove_customers(Customer *customer, int position)
 {
 	customer->visible = 0;
 }
 
-void Tick(Customers *customers)
-{
-	//customer 1
-	if (customers->customer1.visible == 1)
-	{
-		if (customers->customer1.currentTime < customers->customer1.orderEnd)
-		{
-			customers->customer1.currentTime++;
-			if (customers->customer1.currentTime > customers->customer1.orderEnd / 2)
-			{
-				customers->customer1.state = 3;
-			}
-			else if (customers->customer1.currentTime > customers->customer1.orderEnd / 4)
-			{
-				customers->customer1.state = 2;
-			}
-		}
-		else
-		{
-			remove_customers(&customers->customer1, 1);
-			global_score -= 50;
-		}
-	}
-	//customer 2
-	if (customers->customer2.visible == 1)
-	{
-		if (customers->customer2.currentTime < customers->customer2.orderEnd)
-		{
-			customers->customer2.currentTime++;
-			if (customers->customer2.currentTime > customers->customer2.orderEnd / 2)
-			{
-				customers->customer2.state = 3;
-			}
-			else if (customers->customer2.currentTime > customers->customer2.orderEnd / 4)
-			{
-				customers->customer2.state = 2;
-			}
-		}
-		else
-		{
-			remove_customers(&customers->customer2, 2);
-			global_score -= 50;
-		}
-	}
-	//customer 3
-	if (customers->customer3.visible == 1)
-	{
-		if (customers->customer3.currentTime < customers->customer3.orderEnd)
-		{
-			customers->customer3.currentTime++;
-			if (customers->customer3.currentTime > customers->customer3.orderEnd / 2)
-			{
-				customers->customer3.state = 3;
-			}
-			else if (customers->customer3.currentTime > customers->customer3.orderEnd / 4)
-			{
-				customers->customer3.state = 2;
-			}
-		}
-		else
-		{
-			remove_customers(&customers->customer3, 3);
-			global_score -= 50;
-		}
-	}
+void update_customer_state(Customer *customer) {
+    if (customer->visible == 1) {
+        if (customer->currentTime < customer->orderEnd) {
+            customer->currentTime++;
+            if (customer->currentTime > customer->orderEnd / 2) {
+                customer->state = 3;
+            } else if (customer->currentTime > customer->orderEnd / 4) {
+                customer->state = 2;
+            }
+        } else {
+            remove_customers(customer, 1);
+            global_score -= 50;
+        }
+    }
 }
-//Yandere dev inspired programming.
+
+void Tick(Customers *customers) {
+    update_customer_state(&customers->customer1);
+    update_customer_state(&customers->customer2);
+    update_customer_state(&customers->customer3);
+}
+
 
 /* Definitions terminates*/
 
