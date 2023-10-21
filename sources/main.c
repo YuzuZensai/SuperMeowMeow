@@ -9,6 +9,7 @@
 #define DEBUG_FASTLOAD true
 #define baseScreenWidth 1920
 #define baseScreenHeight 1080
+#define MAX_FPS_HISTORY 500
 
 const float baseX = -(baseScreenWidth / 2);
 const float baseY = -(baseScreenHeight / 2);
@@ -38,6 +39,9 @@ Sound select;
 Sound hover;
 
 Texture2D mainMenuFallingItems[8];
+
+int fpsHistory[MAX_FPS_HISTORY];
+int fpsHistoryIndex = 0;
 
 typedef enum {
     EASY,
@@ -176,6 +180,34 @@ bool isMousePositionInGameWindow(Camera2D * camera)
 
 }
 
+void DrawFpsGraph(Camera2D* camera) {
+    int graphWidth = MAX_FPS_HISTORY;
+    int graphHeight = 200;
+    int graphX = baseX + 10;
+    int graphY = baseY + 30;
+
+    float fpsScale = (float)graphHeight / (float)options->targetFps;
+
+    DrawRectangle(graphX, graphY, graphWidth, graphHeight, Fade(GRAY, 0.7));
+
+    // Draw the FPS history graph
+    for (int i = 1; i < MAX_FPS_HISTORY; i++) {
+        int x1 = graphX + i - 1;
+        int x2 = graphX + i;
+        int y1 = graphY + graphHeight - (fpsHistory[(fpsHistoryIndex + i - 1) % MAX_FPS_HISTORY] * fpsScale);
+        int y2 = graphY + graphHeight - (fpsHistory[(fpsHistoryIndex + i) % MAX_FPS_HISTORY] * fpsScale);
+        DrawLine(x1, y1, x2, y2, GREEN);
+    }
+
+    DrawText(TextFormat("%d", options->targetFps), graphX + 10, graphY + 10, 15, WHITE);
+    DrawText("0", graphX + 10, graphY + graphHeight - 30, 15, WHITE);
+}
+
+void UpdateFpsHistory() {
+    fpsHistory[fpsHistoryIndex] = GetFPS();
+    fpsHistoryIndex = (fpsHistoryIndex + 1) % MAX_FPS_HISTORY;
+}
+
 void DrawDebug(Camera2D *camera)
 {
     Color color = LIME; 
@@ -187,7 +219,9 @@ void DrawDebug(Camera2D *camera)
     Vector2 mousePosition = GetMousePosition();
     Vector2 mouseWorldPos = GetScreenToWorld2D(mousePosition, *camera);
 
-    DrawText(TextFormat("%2i FPS | Mx %.2f My %.2f (%dx%d) | Wx %.2f Wy %.2f (%dx%d) | Zoom %.2f | In View: %s", fps, mousePosition.x, mousePosition.y, options->resolution.x, options->resolution.y, mouseWorldPos.x, mouseWorldPos.y, baseScreenWidth, baseScreenHeight, camera->zoom, isMousePositionInGameWindow(camera) ? "True" : "False"), baseX + 5, baseY + 5, 20, color);
+    DrawTextEx(meowFont, TextFormat("%2i FPS | Mx %.2f My %.2f (%dx%d) | Wx %.2f Wy %.2f (%dx%d) | Zoom %.2f | In View: %s", fps, mousePosition.x, mousePosition.y, options->resolution.x, options->resolution.y, mouseWorldPos.x, mouseWorldPos.y, baseScreenWidth, baseScreenHeight, camera->zoom, isMousePositionInGameWindow(camera) ? "True" : "False"), (Vector2) { baseX + 5, baseY + 5 }, 20, 2, color);
+    UpdateFpsHistory();
+    DrawFpsGraph(camera);
 }
 
 // Function prototype
