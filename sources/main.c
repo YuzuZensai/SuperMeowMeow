@@ -2,8 +2,11 @@
 #include "raymath.h"
 #include <stdlib.h>
 #include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <stddef.h>
 
-#define DEBUG_FASTLOAD false
+#define DEBUG_FASTLOAD true
 #define baseScreenWidth 1920
 #define baseScreenHeight 1080
 
@@ -19,6 +22,17 @@ Texture2D backgroundTexture;
 Texture2D backgroundOverlayTexture;
 Texture2D backgroundOverlaySidebarTexture;
 Texture2D pawTexture;
+//customer
+Texture2D customerTexture_first_happy;
+Texture2D customerTexture_second_happy;
+Texture2D customerTexture_third_happy;
+Texture2D customerTexture_first_normal;
+Texture2D customerTexture_second_normal;
+Texture2D customerTexture_third_normal;
+Texture2D customerTexture_first_angry;
+Texture2D customerTexture_second_angry;
+Texture2D customerTexture_third_angry;
+//customer
 Font meowFont;
 Sound select;
 Sound hover;
@@ -180,6 +194,177 @@ void DrawDebug(Camera2D *camera)
 void MainMenuUpdate(Camera2D* camera, bool playFade);
 void OptionsUpdate(Camera2D* camera);
 
+/* Definitions of this branch */
+
+typedef struct Order { //text-based-combinations
+	char *first;
+	char *second;
+	char *third;
+	char *fourth;
+} Order;
+
+typedef struct Customer {
+	//int patience; //To be removed. 
+	int state; //1 for happy 2 for neutral 3 for angry
+	int visible;
+	Order *order;
+	int currentTime;
+	int orderEnd;
+} Customer;
+
+typedef struct Customers {
+	Customer customer1;
+	Customer customer2;
+	Customer customer3;
+} Customers;
+
+
+
+// TO BE DESTROYED
+#define PLACEHOLDER_ORDER "PLACEHOLDER_ORDER"
+static int placeholder_static = 1;
+static int global_score = 0;
+
+
+void create_customer(Customer *customer, int patience, Order order, int currentTime, int orderEnd) {
+	customer->visible = 1;
+	customer->state = 1;
+	customer->order = &order;
+	customer->currentTime = currentTime;
+	customer->orderEnd = orderEnd * patience;
+}
+
+//create customer image at either position 1 2 or 3
+void render_customers(Customers *customers)
+{
+	//customer 1
+	if (customers->customer1.visible == 1)
+	{
+		if (customers->customer1.state == 1)
+		{
+			DrawTextureEx(customerTexture_first_happy, (Vector2) { baseX, baseY + 100 }, 0.0f, 1.0f, WHITE);
+		}
+		else if (customers->customer1.state == 2)
+		{
+			DrawTextureEx(customerTexture_first_normal, (Vector2) { baseX, baseY + 100 }, 0.0f, 1.0f, WHITE);
+		}
+		else if (customers->customer1.state == 3)
+		{
+			DrawTextureEx(customerTexture_first_angry, (Vector2) { baseX, baseY + 100 }, 0.0f, 1.0f, WHITE);
+		}
+	}
+	//customer 2
+	if (customers->customer2.visible == 1)
+	{
+		if (customers->customer2.state == 1)
+		{
+			DrawTextureEx(customerTexture_second_happy, (Vector2) { baseX + 600, baseY + 100 }, 0.0f, 1.0f, WHITE);
+		}
+		else if (customers->customer2.state == 2)
+		{
+			DrawTextureEx(customerTexture_second_normal, (Vector2) { baseX + 600, baseY + 100 }, 0.0f, 1.0f, WHITE);
+		}
+		else if (customers->customer2.state == 3)
+		{
+			DrawTextureEx(customerTexture_second_angry, (Vector2) { baseX + 600, baseY + 100 }, 0.0f, 1.0f, WHITE);
+		}
+	}
+	//customer 3
+	if (customers->customer3.visible == 1)
+	{
+		if (customers->customer3.state == 1)
+		{
+			DrawTextureEx(customerTexture_third_happy, (Vector2) { baseX + 1200, baseY + 100 }, 0.0f, 1.0f, WHITE);
+		}
+		else if (customers->customer3.state == 2)
+		{
+			DrawTextureEx(customerTexture_third_normal, (Vector2) { baseX + 1200, baseY + 100 }, 0.0f, 1.0f, WHITE);
+		}
+		else if (customers->customer3.state == 3)
+		{
+			DrawTextureEx(customerTexture_third_angry, (Vector2) { baseX + 1200, baseY + 100 }, 0.0f, 1.0f, WHITE);
+		}
+	}
+}
+
+void remove_customers(Customer *customer, int position)
+{
+	customer->visible = 0;
+}
+
+void Tick(Customers *customers)
+{
+	//customer 1
+	if (customers->customer1.visible == 1)
+	{
+		if (customers->customer1.currentTime < customers->customer1.orderEnd)
+		{
+			customers->customer1.currentTime++;
+			if (customers->customer1.currentTime > customers->customer1.orderEnd / 2)
+			{
+				customers->customer1.state = 3;
+			}
+			else if (customers->customer1.currentTime > customers->customer1.orderEnd / 4)
+			{
+				customers->customer1.state = 2;
+			}
+		}
+		else
+		{
+			remove_customers(&customers->customer1, 1);
+			global_score -= 50;
+		}
+	}
+	//customer 2
+	if (customers->customer2.visible == 1)
+	{
+		if (customers->customer2.currentTime < customers->customer2.orderEnd)
+		{
+			customers->customer2.currentTime++;
+			if (customers->customer2.currentTime > customers->customer2.orderEnd / 2)
+			{
+				customers->customer2.state = 3;
+			}
+			else if (customers->customer2.currentTime > customers->customer2.orderEnd / 4)
+			{
+				customers->customer2.state = 2;
+			}
+		}
+		else
+		{
+			remove_customers(&customers->customer2, 2);
+			global_score -= 50;
+		}
+	}
+	//customer 3
+	if (customers->customer3.visible == 1)
+	{
+		if (customers->customer3.currentTime < customers->customer3.orderEnd)
+		{
+			customers->customer3.currentTime++;
+			if (customers->customer3.currentTime > customers->customer3.orderEnd / 2)
+			{
+				customers->customer3.state = 3;
+			}
+			else if (customers->customer3.currentTime > customers->customer3.orderEnd / 4)
+			{
+				customers->customer3.state = 2;
+			}
+		}
+		else
+		{
+			remove_customers(&customers->customer3, 3);
+			global_score -= 50;
+		}
+	}
+}
+//Yandere dev inspired programming.
+
+/* Definitions terminates*/
+
+
+
+
 void WindowUpdate(Camera2D* camera)
 {
     if (IsWindowResized())
@@ -214,6 +399,15 @@ void LoadGlobalAssets()
     backgroundOverlaySidebarTexture = LoadTexture(ASSETS_PATH"image/backgrounds/main_overlay_2.png");
     pawTexture = LoadTexture(ASSETS_PATH"image/elements/paw.png");
     meowFont = LoadFontEx(ASSETS_PATH"font/Meows-VGWjy.ttf", 256, 0, 250);
+	customerTexture_first_happy = LoadTexture(ASSETS_PATH"image/sprite/customer_happy.png");
+	customerTexture_second_happy = LoadTexture(ASSETS_PATH"image/sprite/customer_happy.png");
+	customerTexture_third_happy = LoadTexture(ASSETS_PATH"image/sprite/customer_happy.png");
+	customerTexture_first_normal = LoadTexture(ASSETS_PATH"image/sprite/customer_normal.png");
+	customerTexture_second_normal = LoadTexture(ASSETS_PATH"image/sprite/customer_normal.png");
+	customerTexture_third_normal = LoadTexture(ASSETS_PATH"image/sprite/customer_normal.png");
+	customerTexture_first_angry = LoadTexture(ASSETS_PATH"image/sprite/customer_angry.png");
+	customerTexture_second_angry = LoadTexture(ASSETS_PATH"image/sprite/customer_angry.png");
+	customerTexture_third_angry = LoadTexture(ASSETS_PATH"image/sprite/customer_angry.png");
 
     hover = LoadSound(ASSETS_PATH"audio/hover.wav");
     select = LoadSound(ASSETS_PATH"audio/select.wav");
@@ -473,12 +667,55 @@ void GameUpdate(Camera2D *camera)
         // Draw the background with the scaled dimensions
         DrawTextureEx(backgroundTexture, (Vector2) { baseX, baseY }, 0.0f, fmax(scaleX, scaleY), WHITE);
 
+		/* Customers */
+
+		
+		Customer customer1;
+		Order order1;
+		Customer customer2;
+		Order order2;
+		Customer customer3;
+		Order order3;
+		Customers customers;
+
+		if (placeholder_static == 1)
+		{
+			order1.first = PLACEHOLDER_ORDER;
+			order1.second = PLACEHOLDER_ORDER;
+			order1.third = PLACEHOLDER_ORDER;
+			order1.fourth = PLACEHOLDER_ORDER;
+			create_customer(&customer1, 1, order1 , 0, 1000);
+		
+			order2.first = PLACEHOLDER_ORDER;
+			order2.second = PLACEHOLDER_ORDER;
+			order2.third = PLACEHOLDER_ORDER;
+			order2.fourth = PLACEHOLDER_ORDER;
+			create_customer(&customer2, 1, order2, 0, 5000);
+
+
+			order3.first = PLACEHOLDER_ORDER;
+			order3.second = PLACEHOLDER_ORDER;
+			order3.third = PLACEHOLDER_ORDER;
+			order3.fourth = PLACEHOLDER_ORDER;
+			create_customer(&customer3, 1, order3, 0, 10000);
+
+			customers.customer1 = customer1;
+			customers.customer2 = customer2;
+			customers.customer3 = customer3;
+
+			placeholder_static = 0;
+		}
+		Tick(&customers);
+		render_customers(&customers);
+
+		/* Customers TEST AREA END*/
+
 
         // Draw circle
         DrawCircleV(circlePosition, circleRadius, BLUE);
 
-        // Text
-        DrawTextEx(GetFontDefault(), "Hello, Test!", (Vector2) { baseX + 20, baseY + 20 }, 20, 2, WHITE);
+		char *scoreText = TextFormat("Score: %d", global_score);
+        DrawTextEx(GetFontDefault(), scoreText, (Vector2) { baseX + 20, baseY + 20 }, 20, 2, WHITE);
 
         if (options->showDebug)
             DrawDebug(camera);
