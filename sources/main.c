@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 
+#define DEBUG_SHOW true
 #define DEBUG_FASTLOAD true
 #define baseScreenWidth 1920
 #define baseScreenHeight 1080
@@ -117,6 +118,27 @@ void DrawFallingItems1(double deltaTime)
         },
             origin, item->rotation, WHITE);
 
+        if (options->showDebug) {
+            Vector2 corners[4];
+            corners[0] = (Vector2){ -origin.x, -origin.y };
+            corners[1] = (Vector2){ -origin.x, origin.y };
+            corners[2] = (Vector2){ origin.x, origin.y };
+            corners[3] = (Vector2){ origin.x, -origin.y };
+
+            for (int j = 0; j < 4; j++) {
+                float tempX = corners[j].x * cos(DEG2RAD * item->rotation) - corners[j].y * sin(DEG2RAD * item->rotation);
+                float tempY = corners[j].x * sin(DEG2RAD * item->rotation) + corners[j].y * cos(DEG2RAD * item->rotation);
+                corners[j].x = tempX + item->position.x;
+                corners[j].y = tempY + item->position.y;
+            }
+
+            DrawLineEx(corners[0], corners[1], 1, RED);
+            DrawLineEx(corners[1], corners[2], 1, RED);
+            DrawLineEx(corners[2], corners[3], 1, RED);
+            DrawLineEx(corners[3], corners[0], 1, RED);
+            DrawTextEx(meowFont, TextFormat("%d | XY %.2f,%.2f | R %.2f | G %.2f", i, item->position.x, item->position.y, item->rotation, item->fallingSpeed), (Vector2) { item->position.x, item->position.y }, 20, 1, WHITE);
+		}
+
         // Top left of the screen is (baseX, baseY)
         if (item->position.y > baseY + baseScreenHeight + 1000) {
             item->position = (Vector2){ GetRandomDoubleValue(baseX, baseX + baseScreenWidth - 20), baseY - GetRandomDoubleValue(200, 1000) };
@@ -151,6 +173,27 @@ void DrawFallingItems2(double deltaTime)
             item->position.x, item->position.y, mainMenuFallingItems[item->textureIndex].width, mainMenuFallingItems[item->textureIndex].height
         },
             origin, item->rotation, WHITE);
+
+        if (options->showDebug) {
+            Vector2 corners[4];
+            corners[0] = (Vector2){ -origin.x, -origin.y };
+            corners[1] = (Vector2){ -origin.x, origin.y };
+            corners[2] = (Vector2){ origin.x, origin.y };
+            corners[3] = (Vector2){ origin.x, -origin.y };
+
+            for (int j = 0; j < 4; j++) {
+                float tempX = corners[j].x * cos(DEG2RAD * item->rotation) - corners[j].y * sin(DEG2RAD * item->rotation);
+                float tempY = corners[j].x * sin(DEG2RAD * item->rotation) + corners[j].y * cos(DEG2RAD * item->rotation);
+                corners[j].x = tempX + item->position.x;
+                corners[j].y = tempY + item->position.y;
+            }
+
+            DrawLineEx(corners[0], corners[1], 1, RED);
+            DrawLineEx(corners[1], corners[2], 1, RED);
+            DrawLineEx(corners[2], corners[3], 1, RED);
+            DrawLineEx(corners[3], corners[0], 1, RED);
+            DrawTextEx(meowFont, TextFormat("%d | XY %.2f,%.2f | R %.2f | G %.2f", i, item->position.x, item->position.y, item->rotation, item->fallingSpeed), (Vector2) { item->position.x, item->position.y }, 20, 1, WHITE);
+        }
 
         // Top left of the screen is (baseX, baseY)
         if (item->position.y > baseY + baseScreenHeight + 1000) {
@@ -194,8 +237,8 @@ bool isMousePositionInGameWindow(Camera2D * camera)
 void DrawFpsGraph(Camera2D* camera) {
     int graphWidth = MAX_FPS_HISTORY;
     int graphHeight = 200;
-    int graphX = baseX + 10;
-    int graphY = baseY + 30;
+    int graphX = baseX + baseScreenWidth - 15 - graphWidth;
+    int graphY = baseY + 25;
 
     float fpsScale = (float)graphHeight / (float)options->targetFps;
 
@@ -210,8 +253,9 @@ void DrawFpsGraph(Camera2D* camera) {
         DrawLine(x1, y1, x2, y2, GREEN);
     }
 
-    DrawText(TextFormat("%d", options->targetFps), graphX + 10, graphY + 10, 15, WHITE);
-    DrawText("0", graphX + 10, graphY + graphHeight - 30, 15, WHITE);
+    DrawTextEx(meowFont, "FPS", (Vector2) { baseX + baseScreenWidth - 50, baseY + 5 }, 20, 2, GRAY);
+	DrawTextEx(meowFont, TextFormat("%d", options->targetFps), (Vector2) { graphX + 10, graphY + 10 }, 15, 2, WHITE);
+    DrawTextEx(meowFont, "0", (Vector2) { graphX + 10, graphY + graphHeight - 30 }, 15, 2, WHITE);
 }
 
 void UpdateFpsHistory() {
@@ -230,8 +274,11 @@ void DrawDebug(Camera2D *camera)
     Vector2 mousePosition = GetMousePosition();
     Vector2 mouseWorldPos = GetScreenToWorld2D(mousePosition, *camera);
 
-    DrawTextEx(meowFont, TextFormat("%2i FPS | Mx %.2f My %.2f (%dx%d) | Wx %.2f Wy %.2f (%dx%d) | Zoom %.2f | In View: %s", fps, mousePosition.x, mousePosition.y, options->resolution.x, options->resolution.y, mouseWorldPos.x, mouseWorldPos.y, baseScreenWidth, baseScreenHeight, camera->zoom, isMousePositionInGameWindow(camera) ? "True" : "False"), (Vector2) { baseX + 5, baseY + 5 }, 20, 2, color);
     UpdateFpsHistory();
+    
+    DrawTextEx(meowFont, TextFormat("%d FPS | Target FPS %d | Window (%dx%d) | Render (%dx%d) | Fullscreen ", fps, options->targetFps, options->resolution.x, options->resolution.y, baseScreenWidth, baseScreenHeight, options->fullscreen ? "Yes" : "No"), (Vector2) { baseX + 10, baseY + 5 }, 20, 2, color);
+    DrawTextEx(meowFont, TextFormat("Cursor %.2f,%.2f (%dx%d) | World %.2f,%.2f (%dx%d) | R Base World %.2f,%.2f", mousePosition.x, mousePosition.y, options->resolution.x, options->resolution.y, mouseWorldPos.x, mouseWorldPos.y, baseScreenWidth, baseScreenHeight, mouseWorldPos.x - baseX, mouseWorldPos.y - baseY), (Vector2) { baseX + 10, baseY + 25 }, 20, 2, color);
+    DrawTextEx(meowFont, TextFormat("Zoom %.2f | In View %s", camera->zoom, isMousePositionInGameWindow(camera) ? "Yes" : "No"), (Vector2) { baseX + 10, baseY + 45 }, 20, 2, color);
     DrawFpsGraph(camera);
 }
 
@@ -1041,7 +1088,7 @@ void MainMenuUpdate(Camera2D* camera, bool playFade)
         if (isTransitioningOut)
         {
             float pixelsToMove = 900.0f;
-            float durationInSeconds = 1.0f;
+            float durationInSeconds = 0.6f;
             float transitionSpeed = pixelsToMove / durationInSeconds;
 
             transitionOffset += transitionSpeed * deltaTime;
@@ -1059,7 +1106,7 @@ void MainMenuUpdate(Camera2D* camera, bool playFade)
         if (isTransitioningIn)
         {
             float pixelsToMove = 900.0f;
-            float durationInSeconds = 1.0f;
+            float durationInSeconds = 0.6f;
             float transitionSpeed = pixelsToMove / durationInSeconds;
 
             transitionOffset -= transitionSpeed * deltaTime;
@@ -1259,7 +1306,7 @@ int main()
     _options.resolution = (Resolution){ 1280, 720 };
     _options.targetFps = 240;
     _options.fullscreen = false;  // Default to windowed mode
-    _options.showDebug = true;
+    _options.showDebug = DEBUG_SHOW;
 
     options = &_options;
 
