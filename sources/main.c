@@ -213,6 +213,15 @@ void DrawFallingItems2(double deltaTime)
 
 }
 
+void DrawOuterWorld()
+{
+    // Draw area outside the view
+    DrawRectangle(baseX, baseY - 2000, baseScreenWidth, 2000, BLACK);
+    DrawRectangle(baseX, baseY + baseScreenHeight, baseScreenWidth, 2000, BLACK);
+    DrawRectangle(baseX - 2000, baseY, 2000, baseScreenHeight, BLACK);
+    DrawRectangle(baseX + baseScreenWidth, baseY, 2000, baseScreenHeight, BLACK);
+}
+
 void SetRuntimeResolution(Camera2D *camera, int screenWidth, int screenHeight)
 {
     SetWindowSize(screenWidth, screenHeight);
@@ -784,6 +793,8 @@ void OptionsUpdate(Camera2D* camera)
         DrawRectangleRec(backRect, isBackSelected ? MAIN_ORANGE : MAIN_BROWN);
         DrawTextEx(meowFont, "Back", (Vector2) { backRect.x + 40, backRect.y + 22 }, 32, 2, WHITE);
 
+        DrawOuterWorld();
+
         if (options->showDebug)
             DrawDebug(camera);
 
@@ -905,6 +916,8 @@ void GameUpdate(Camera2D *camera)
 
 		char *scoreText = TextFormat("Score: %d", global_score);
         DrawTextEx(GetFontDefault(), scoreText, (Vector2) { baseX + 20, baseY + 20 }, 20, 2, WHITE);
+
+        DrawOuterWorld();
 
         if (options->showDebug)
             DrawDebug(camera);
@@ -1118,11 +1131,6 @@ void MainMenuUpdate(Camera2D* camera, bool playFade)
             }
         }
 
-        // Draw area outside the view
-        DrawRectangle(baseX, baseY - 2000, baseScreenWidth, 2000, (Color) { 0, 0, 0, 255 });
-        DrawRectangle(baseX, baseY + baseScreenHeight, baseScreenWidth, 2000, (Color) { 0, 0, 0, 255 });
-        DrawRectangle(baseX - 2000, baseY, 2000, baseScreenHeight, (Color) { 0, 0, 0, 255 });
-        DrawRectangle(baseX + baseScreenWidth, baseY, 2000, baseScreenHeight, (Color) { 0, 0, 0, 255 });
 
         // Left sidebar white 
         DrawTextureEx(backgroundOverlaySidebarTexture, (Vector2) { baseX - transitionOffset, baseY }, 0.0f, fmax(scaleX, scaleY), WHITE);
@@ -1135,6 +1143,7 @@ void MainMenuUpdate(Camera2D* camera, bool playFade)
         DrawTextEx(meowFont, "Settings", (Vector2) { (int)(optionsButtonRect.x + 40), (int)(optionsButtonRect.y + 15) }, 60, 2, isOptionsButtonHovered ? MAIN_ORANGE : MAIN_BROWN);
         DrawTextEx(meowFont, "Exit", (Vector2) { (int)(exitButtonRect.x + 40), (int)(exitButtonRect.y + 15) }, 60, 2, isExitButtonHovered ? MAIN_ORANGE : MAIN_BROWN);
 
+        DrawOuterWorld();
 
         // Calculate alpha based on the current time
         if (playFade)
