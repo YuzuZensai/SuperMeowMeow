@@ -52,6 +52,27 @@ Sound hover;
 
 Texture2D mainMenuFallingItems[8];
 
+typedef struct {
+    Texture2D happy;
+    Texture2D happyEyesClosed;
+    Texture2D frustrated;
+    Texture2D frustratedEyesClosed;
+    Texture2D angry;
+    Texture2D angryEyesClosed;
+} CustomerImageData;
+
+typedef enum {
+    TEXTURE_TYPE_HAPPY,
+    TEXTURE_TYPE_HAPPY_EYES_CLOSED,
+    TEXTURE_TYPE_FRUSTRATED,
+    TEXTURE_TYPE_FRUSTRATED_EYES_CLOSED,
+    TEXTURE_TYPE_ANGRY,
+    TEXTURE_TYPE_ANGRY_EYES_CLOSED
+} CustomerTextureFrameType;
+
+
+CustomerImageData customersImageData[3];
+
 int fpsHistory[MAX_FPS_HISTORY];
 int fpsHistoryIndex = 0;
 
@@ -78,6 +99,8 @@ typedef struct GameOptions {
 	bool fullscreen;
     Difficulty difficulty;
     bool showDebug;
+    bool soundFxEnabled;
+    bool musicEnabled;
 } GameOptions;
 
 
@@ -89,11 +112,27 @@ typedef struct {
     float rotationSpeed;
 } FallingItem;
 
+typedef enum {
+	EMOTION_HAPPY,
+    EMOTION_FRUSTRATED,
+    EMOTION_ANGRY
+} CustomerEmotion;
+
+typedef struct MenuCustomer {
+    CustomerEmotion emotion;
+    double blinkTimer;
+    double normalDuration;
+    double blinkDuration;
+    bool eyesClosed;
+} MenuCustomer;
+
 
 #define fallingItemsNumber 8
 FallingItem fallingItems[20];
 GameOptions *options;
 
+MenuCustomer menuCustomer1 = { EMOTION_HAPPY, 2.0, 4.0, 0.25, false };
+MenuCustomer menuCustomer2 = { EMOTION_HAPPY, 0.4, 5.2, 0.3, false };
 
 double GetRandomDoubleValue(double min, double max)
 {
@@ -211,6 +250,77 @@ void DrawFallingItems2(double deltaTime)
         }
     }
 
+}
+
+
+CustomerTextureFrameType GetCustomerTextureFrameType(CustomerEmotion emotion)
+{
+    switch (emotion)
+    {
+    case EMOTION_HAPPY:
+        return TEXTURE_TYPE_HAPPY;
+    case EMOTION_FRUSTRATED:
+        return TEXTURE_TYPE_FRUSTRATED;
+    case EMOTION_ANGRY:
+        return TEXTURE_TYPE_ANGRY;
+    default:
+        return TEXTURE_TYPE_HAPPY;
+    }
+}
+
+CustomerTextureFrameType GetCustomerEyesClosedTextureFrameType(CustomerEmotion emotion)
+{
+    switch (emotion)
+    {
+        case EMOTION_HAPPY:
+		    return TEXTURE_TYPE_HAPPY_EYES_CLOSED;
+        case EMOTION_FRUSTRATED:
+            return TEXTURE_TYPE_FRUSTRATED_EYES_CLOSED;
+        case EMOTION_ANGRY:
+			return TEXTURE_TYPE_ANGRY_EYES_CLOSED;
+        default:
+            return TEXTURE_TYPE_HAPPY_EYES_CLOSED;
+    }
+}
+
+
+void DrawCustomer(MenuCustomer* customer, int frame, Vector2 pos)
+{
+    switch (customer->emotion)
+    {
+    case EMOTION_HAPPY:
+        DrawTextureEx(!customer->eyesClosed ? customersImageData[frame].happy : customersImageData[frame].happyEyesClosed, pos, 0.0f, 1.0f / 2.0f, WHITE);
+        break;
+    case EMOTION_FRUSTRATED:
+        DrawTextureEx(!customer->eyesClosed ? customersImageData[frame].frustrated : customersImageData[frame].frustratedEyesClosed, pos, 0.0f, 1.0f / 2.0f, WHITE);
+        break;
+    case EMOTION_ANGRY:
+        DrawTextureEx(!customer->eyesClosed ? customersImageData[frame].angry : customersImageData[frame].angryEyesClosed, pos, 0.0f, 1.0f / 2.0f, WHITE);
+        break;
+    default:
+        break;
+    }
+}
+
+void UpdateMenuCustomerBlink(MenuCustomer* customer, double deltaTime) {
+    customer->blinkTimer += deltaTime;
+
+    if (!customer->eyesClosed && customer->blinkTimer > customer->normalDuration) {
+        customer->blinkTimer = 0.0;
+        customer->eyesClosed = true;
+    }
+    else if (customer->eyesClosed && customer->blinkTimer > customer->blinkDuration) {
+        customer->blinkTimer = 0.0;
+        customer->eyesClosed = false;
+    }
+}
+
+void DrawCustomerInMenu(double deltaTime) {
+    UpdateMenuCustomerBlink(&menuCustomer1, deltaTime);
+    UpdateMenuCustomerBlink(&menuCustomer2, deltaTime);
+
+    DrawCustomer(&menuCustomer1, 1, (Vector2) { baseX + 650, baseY + 55 });
+    DrawCustomer(&menuCustomer2, 2, (Vector2) { baseX + 1200, baseY + 52 });
 }
 
 void DrawOuterWorld()
@@ -535,6 +645,17 @@ void LoadGlobalAssets()
     mainMenuFallingItems[5] = LoadTexture(ASSETS_PATH"image/falling_items/matcha.png");
     mainMenuFallingItems[6] = LoadTexture(ASSETS_PATH"image/falling_items/milk.png");
     mainMenuFallingItems[7] = LoadTexture(ASSETS_PATH"image/falling_items/wcream.png");
+
+    for (int i = 0; i < 3; i++)
+    {
+        customersImageData[i].happy = LoadTexture(TextFormat(ASSETS_PATH"image/sprite/customer_%d/happy.png", i + 1));
+		customersImageData[i].happyEyesClosed = LoadTexture(TextFormat(ASSETS_PATH"image/sprite/customer_%d/happy_eyes_closed.png", i + 1));
+        customersImageData[i].frustrated = LoadTexture(TextFormat(ASSETS_PATH"image/sprite/customer_%d/frustrated.png", i + 1));
+        customersImageData[i].frustratedEyesClosed = LoadTexture(TextFormat(ASSETS_PATH"image/sprite/customer_%d/frustrated_eyes_closed.png", i + 1));
+        customersImageData[i].angry = LoadTexture(TextFormat(ASSETS_PATH"image/sprite/customer_%d/angry.png", i + 1));
+        customersImageData[i].angryEyesClosed = LoadTexture(TextFormat(ASSETS_PATH"image/sprite/customer_%d/angry_eyes_closed.png", i + 1));
+	}
+
 }
 
 void UnloadGlobalAssets()
@@ -559,6 +680,16 @@ void UnloadGlobalAssets()
     UnloadTexture(logoTexture);
     UnloadTexture(splashBackgroundTexture);
     UnloadTexture(splashOverlayTexture);
+
+    for (int i = 0; i < 3; i++)
+    {
+        UnloadTexture(customersImageData[i].happy);
+		UnloadTexture(customersImageData[i].happyEyesClosed);
+		UnloadTexture(customersImageData[i].frustrated);
+		UnloadTexture(customersImageData[i].frustratedEyesClosed);
+		UnloadTexture(customersImageData[i].angry);
+		UnloadTexture(customersImageData[i].angryEyesClosed);
+    }
 }
 
 void ExitApplication()
@@ -843,6 +974,8 @@ void OptionsUpdate(Camera2D* camera)
 
         // Draw falling items
         DrawFallingItems1(deltaTime);
+
+        DrawCustomerInMenu(deltaTime);
 
         DrawTextureEx(backgroundOverlayTexture, (Vector2) { baseX, baseY }, 0.0f, fmax(scaleX, scaleY), WHITE);
 
@@ -1186,6 +1319,10 @@ void MainMenuUpdate(Camera2D* camera, bool playFade)
 
         // Draw falling items
         DrawFallingItems1(deltaTime);
+
+
+        // Draw customer images
+        DrawCustomerInMenu(deltaTime);
 
         DrawTextureEx(backgroundOverlayTexture, (Vector2) { baseX, baseY }, 0.0f, fmax(scaleX, scaleY), WHITE);
 
