@@ -662,10 +662,14 @@ void MainMenuUpdate(Camera2D* camera, bool playFade)
         if (isTransitioningOut)
         {
             float transitionSpeed = 900.0f;
+            float durationInSeconds = 1.0f;
+            float transitionSpeed = pixelsToMove / durationInSeconds;
+
             transitionOffset += transitionSpeed * deltaTime;
 
             if (transitionOffset >= baseScreenWidth / 2)
             {
+                transitionOffset = 0;
                 isTransitioningOut = false;
                 transitionCallback(camera);
                 break;
@@ -674,16 +678,19 @@ void MainMenuUpdate(Camera2D* camera, bool playFade)
 
         // If transitioning in, move the background to the right
         if (isTransitioningIn)
-		{
-			float transitionSpeed = 900.0f;
-			transitionOffset -= transitionSpeed * deltaTime;
+        {
+            float pixelsToMove = 900.0f;
+            float durationInSeconds = 1.0f;
+            float transitionSpeed = pixelsToMove / durationInSeconds;
 
-			if (transitionOffset <= 0)
-			{
-				isTransitioningIn = false;
-			}
-		}
+            transitionOffset -= transitionSpeed * deltaTime;
 
+            if (transitionOffset <= 0)
+            {
+                transitionOffset = 0;
+                isTransitioningIn = false;
+            }
+        }
 
         // Draw area outside the view
         DrawRectangle(baseX, baseY - 2000, baseScreenWidth, 2000, (Color) { 0, 0, 0, 255 });
