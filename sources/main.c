@@ -463,6 +463,26 @@ void create_order(Order *order, char *first, char *second, char *third, char *fo
 	order->fourth = fourth;
 }
 
+void distribute_points(Order* order, char* first, char* second, char* third, char* fourth)
+{
+    if (first)
+    {
+        global_score += 50;
+    }
+    if (second)
+    {
+        global_score += 50;
+    }
+    if (third)
+    {
+        global_score += 50;
+    }
+    if (fourth)
+    {
+        global_score += 50;
+    }
+}
+
 void validiator(Order *order, char *first, char *second, char *third, char *fourth)
 {
 	//if order is valid, call distribute points
@@ -473,28 +493,6 @@ void validiator(Order *order, char *first, char *second, char *third, char *four
 	else
 	{
 		//To be implemented, waiting for mixture parts.
-	}
-}
-
-
-
-void distribute_points(Order *order, char *first, char *second, char *third, char *fourth)
-{
-	if (first)
-	{
-		global_score += 50;
-	}
-	if (second)
-	{
-		global_score += 50;
-	}
-	if (third)
-	{
-		global_score += 50;
-	}
-	if (fourth)
-	{
-		global_score += 50;
 	}
 }
 
