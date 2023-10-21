@@ -27,6 +27,8 @@ Texture2D pawTexture;
 // UI Elements
 Texture2D checkbox;
 Texture2D checkboxChecked;
+Texture2D left_arrow;
+Texture2D right_arrow;
 
 //Customer
 Texture2D customerTexture_first_happy;
@@ -441,6 +443,8 @@ void LoadGlobalAssets()
 
     checkbox = LoadTexture(ASSETS_PATH"image/elements/checkbox.png");
     checkboxChecked = LoadTexture(ASSETS_PATH"image/elements/checkbox_checked.png");
+    left_arrow = LoadTexture(ASSETS_PATH"image/elements/left_arrow.png");
+    right_arrow = LoadTexture(ASSETS_PATH"image/elements/right_arrow.png");
 
 	customerTexture_first_happy = LoadTexture(ASSETS_PATH"image/sprite/customer_happy.png");
 	customerTexture_second_happy = LoadTexture(ASSETS_PATH"image/sprite/customer_happy.png");
@@ -475,6 +479,8 @@ void UnloadGlobalAssets()
 
     UnloadTexture(checkbox);
 	UnloadTexture(checkboxChecked);
+    UnloadTexture(left_arrow);
+    UnloadTexture(right_arrow);
 
     UnloadSound(hover);
     UnloadSound(select);
