@@ -397,7 +397,7 @@ void DrawDebug(Camera2D *camera)
     
     DrawTextEx(meowFont, TextFormat("%d FPS | Target FPS %d | Window (%dx%d) | Render (%dx%d) | Fullscreen ", fps, options->targetFps, options->resolution.x, options->resolution.y, baseScreenWidth, baseScreenHeight, options->fullscreen ? "Yes" : "No"), (Vector2) { baseX + 10, baseY + 5 }, 20, 2, color);
     DrawTextEx(meowFont, TextFormat("Cursor %.2f,%.2f (%dx%d) | World %.2f,%.2f (%dx%d) | R Base World %.2f,%.2f", mousePosition.x, mousePosition.y, options->resolution.x, options->resolution.y, mouseWorldPos.x, mouseWorldPos.y, baseScreenWidth, baseScreenHeight, mouseWorldPos.x - baseX, mouseWorldPos.y - baseY), (Vector2) { baseX + 10, baseY + 25 }, 20, 2, color);
-    DrawTextEx(meowFont, TextFormat("Zoom %.2f | In View %s", camera->zoom, isMousePositionInGameWindow(camera) ? "Yes" : "No"), (Vector2) { baseX + 10, baseY + 45 }, 20, 2, color);
+    DrawTextEx(meowFont, TextFormat("Zoom %.2f | In View %s", camera->zoom, isMousePositionInGameWindow(camera) ? "[Yes]" : "[No]"), (Vector2) { baseX + 10, baseY + 45 }, 20, 2, color);
     DrawFpsGraph(camera);
 }
 
