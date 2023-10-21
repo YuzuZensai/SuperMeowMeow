@@ -898,7 +898,7 @@ void MainMenuUpdate(Camera2D* camera, bool playFade)
         // If transitioning out, move the background to the left
         if (isTransitioningOut)
         {
-            float transitionSpeed = 900.0f;
+            float pixelsToMove = 900.0f;
             float durationInSeconds = 1.0f;
             float transitionSpeed = pixelsToMove / durationInSeconds;
 
