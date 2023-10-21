@@ -2,9 +2,10 @@
 #include "raymath.h"
 #include <math.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <stddef.h>
 
-#define DEBUG_FASTLOAD false
+#define DEBUG_FASTLOAD true
 #define baseScreenWidth 1920
 #define baseScreenHeight 1080
 
@@ -72,14 +73,19 @@ void OptionsUpdate(Camera2D* camera);
 
 /* Definitions of this branch */
 
+typedef struct Order { //text-based-combinations
+	char *first;
+	char *second;
+	char *third;
+	char *fourth;
+} Order;
 
 typedef struct Customer {
 	int position;
 	int patience; //multiplier for difficulty defaulted to 1.0
 	int state; //1 for happy 2 for neutral 3 for angry
-	int state;
 	int visible;
-	char *order;
+	Order *order;
 	int orderTime;
 	int orderEnd;
 } Customer;
@@ -91,22 +97,25 @@ typedef struct Customers {
 	Customer customer4;
 } Customers;
 
+
 #define PLACEHOLDER_ORDER "PLACEHOLDER_ORDER"
 
 
 
-void create_customer(Customer *customer, int position, int patience, char *order, int orderTime, int orderEnd) {
+void create_customer(Customer *customer, int position, int patience, Order order, int orderTime, int orderEnd) {
 	customer->position = position;
 	customer->patience = patience; //multiplier for orderEnd
 	customer->visible = 1;
 	customer->state = 1;
-	customer->order = order;
+	customer->order = &order;
 	customer->orderTime = orderTime;
 	customer->orderEnd = orderEnd;
 }
 
 //create customer image at either position 1 2 or 3
 void render_customer(Customer *customer, int position) {
+	if (customer->visible = 1)
+	{
 	if (position == 1) {
 		DrawTextureEx(customerTexture_first, (Vector2) { baseX + 100, baseY + 100 }, 0.0f, 1.0f, WHITE);
 	}
@@ -115,6 +124,7 @@ void render_customer(Customer *customer, int position) {
 	}
 	else if (position == 3) {
 		DrawTextureEx(customerTexture_third, (Vector2) { baseX + 100, baseY + 100 }, 0.0f, 1.0f, WHITE);
+	}
 	}
 }
 
@@ -175,7 +185,7 @@ void LoadGlobalAssets()
     meowFont = LoadFontEx(ASSETS_PATH"font/Meows-VGWjy.ttf", 256, 0, 250);
 	customerTexture_first = LoadTexture(ASSETS_PATH"image/elements/customer.png");
 	customerTexture_second = LoadTexture(ASSETS_PATH"image/elements/customer.png");
-	customerTexture_third = LoadTexxture(ASSETS_PATH"image/elements/customer.png");
+	customerTexture_third = LoadTexture(ASSETS_PATH"image/elements/customer.png");
     hover = LoadSound(ASSETS_PATH"audio/hover.wav");
     select = LoadSound(ASSETS_PATH"audio/select.wav");
 }
@@ -396,13 +406,23 @@ void GameUpdate(Camera2D *camera)
         // Draw the background with the scaled dimensions
         DrawTextureEx(backgroundTexture, (Vector2) { baseX, baseY }, 0.0f, fmax(scaleX, scaleY), WHITE);
 
+		// Draw Customer
+		Customer customer1;
+		Order order1;
+		order1.first = PLACEHOLDER_ORDER;
+		order1.second = PLACEHOLDER_ORDER;
+		order1.third = PLACEHOLDER_ORDER;
+		order1.fourth = PLACEHOLDER_ORDER;
+		create_customer(&customer1, 1, 1, order1 , 100, 100);
+		
+
 
         // Draw circle
         DrawCircleV(circlePosition, circleRadius, BLUE);
 
         // Text
         DrawTextEx(GetFontDefault(), "Hello, Test!", (Vector2) { baseX + 20, baseY + 20 }, 20, 2, WHITE);
-
+		render_customer(&customer1, 1);
         EndMode2D();
 
         EndDrawing();
