@@ -560,7 +560,6 @@ void ExitApplication()
     exit(0);
 }
 
-
 void OptionsUpdate(Camera2D* camera)
 {
     Rectangle difficultyRect = { baseX + 780, baseY + 595, 200, 70 };
@@ -596,26 +595,26 @@ void OptionsUpdate(Camera2D* camera)
 
         Vector2 mouseWorldPos = GetScreenToWorld2D(GetMousePosition(), *camera);
 
-        bool isDifficultyIncrementSelected = CheckCollisionPointRec(mouseWorldPos, (Rectangle) { difficultyRect.x + 260, difficultyRect.y + 10, 50, 50 });
-        bool isDifficultyDecrementSelected = CheckCollisionPointRec(mouseWorldPos, (Rectangle) { difficultyRect.x + 10, difficultyRect.y + 10, 50, 50 });
+        bool isDifficultyIncrementHovered = CheckCollisionPointRec(mouseWorldPos, (Rectangle) { difficultyRect.x + 260, difficultyRect.y + 10, 50, 50 });
+        bool isDifficultyDecrementHovered = CheckCollisionPointRec(mouseWorldPos, (Rectangle) { difficultyRect.x + 10, difficultyRect.y + 10, 50, 50 });
         
-        bool isResolutionIncrementSelected = CheckCollisionPointRec(mouseWorldPos, resolutionIncrementRect);
-        bool isResolutionDecrementSelected = CheckCollisionPointRec(mouseWorldPos, resolutionDecrementRect);
+        bool isResolutionIncrementHovered = CheckCollisionPointRec(mouseWorldPos, resolutionIncrementRect);
+        bool isResolutionDecrementHovered = CheckCollisionPointRec(mouseWorldPos, resolutionDecrementRect);
 
-        bool isFpsIncrementSelected = CheckCollisionPointRec(mouseWorldPos, fpsIncrementRect);
-        bool isFpsDecrementSelected = CheckCollisionPointRec(mouseWorldPos, fpsDecrementRect);
+        bool isFpsIncrementHovered = CheckCollisionPointRec(mouseWorldPos, fpsIncrementRect);
+        bool isFpsDecrementHovered = CheckCollisionPointRec(mouseWorldPos, fpsDecrementRect);
         
         
-        bool isMusicSelected = CheckCollisionPointRec(mouseWorldPos, musicRect);
-        bool isSoundFxSelected = CheckCollisionPointRec(mouseWorldPos, soundFxRect);
-        bool isFullscreenToggled = CheckCollisionPointRec(mouseWorldPos, fullscreenRect);
-        bool isDebugSelected = CheckCollisionPointRec(mouseWorldPos, debugRect);
+        bool isMusicHovered = CheckCollisionPointRec(mouseWorldPos, musicRect);
+        bool isSoundFxHovered = CheckCollisionPointRec(mouseWorldPos, soundFxRect);
+        bool isFullscreenHovered = CheckCollisionPointRec(mouseWorldPos, fullscreenRect);
+        bool isDebugHovered = CheckCollisionPointRec(mouseWorldPos, debugRect);
 
-        bool isBackSelected = CheckCollisionPointRec(mouseWorldPos, backRect);
+        bool isBackHovered = CheckCollisionPointRec(mouseWorldPos, backRect);
 
         // Handle user input
         if (!firstRender && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-            if (isDifficultyIncrementSelected) {
+            if (isDifficultyIncrementHovered) {
                 if (options->difficulty == EASY) {
 					options->difficulty = MEDIUM;
 				}
@@ -623,7 +622,7 @@ void OptionsUpdate(Camera2D* camera)
 					options->difficulty = HARD;
 				}
             }
-            else if (isDifficultyDecrementSelected) {
+            else if (isDifficultyDecrementHovered) {
 				if (options->difficulty == HARD) {
                     options->difficulty = MEDIUM;
 				}
@@ -631,7 +630,7 @@ void OptionsUpdate(Camera2D* camera)
                     options->difficulty = EASY;
 				}
 			}
-            else if (isResolutionIncrementSelected) {
+            else if (isResolutionIncrementHovered) {
                 // 720p -> 1080p
                 if (options->resolution.x == 1280) {
                     options->resolution.x = 1920;
@@ -648,7 +647,7 @@ void OptionsUpdate(Camera2D* camera)
 				}
                 SetRuntimeResolution(camera, options->resolution.x, options->resolution.y);
             }
-            else if (isResolutionDecrementSelected) {
+            else if (isResolutionDecrementHovered) {
                 // 1080p -> 720p
                 if (options->resolution.x == 1920) {
 					options->resolution.x = 1280;
@@ -664,7 +663,7 @@ void OptionsUpdate(Camera2D* camera)
                 }
                 SetRuntimeResolution(camera, options->resolution.x, options->resolution.y);
             }
-            else if (isFpsIncrementSelected) {
+            else if (isFpsIncrementHovered) {
                 // Change target FPS 30, 60, 120, 144, 240, Basically Unlimited (1000)
                 if (options->targetFps == 30) {
                     options->targetFps = 60;
@@ -684,7 +683,7 @@ void OptionsUpdate(Camera2D* camera)
 
                 SetTargetFPS(options->targetFps);
             }
-            else if (isFpsDecrementSelected) {
+            else if (isFpsDecrementHovered) {
                 // Change target FPS 30, 60, 120, 144, 240, Basically Unlimited (1000)
                 if (options->targetFps == 60) {
                     options->targetFps = 30;
@@ -704,22 +703,16 @@ void OptionsUpdate(Camera2D* camera)
 
                 SetTargetFPS(options->targetFps);
             }
-            else if (isFullscreenToggled) {
+            else if (isFullscreenHovered) {
                 // Toggle fullscreen
                 options->fullscreen = !options->fullscreen;
                 SetRuntimeResolution(camera, options->resolution.x, options->resolution.y);
                 ToggleFullscreen();
             }
-            else if (isDebugSelected) {
+            else if (isDebugHovered) {
 				// Toggle debug
 				options->showDebug = !options->showDebug;
 			}
-			else if (isBackSelected) {
-				// Go back to main menu
-				MainMenuUpdate(camera, false);
-				break;
-			}
-            else if (isBackSelected) {
 				// Go back to main menu
 				MainMenuUpdate(camera, false);
 				break;
@@ -790,7 +783,7 @@ void OptionsUpdate(Camera2D* camera)
 
 
         // Back
-        DrawRectangleRec(backRect, isBackSelected ? MAIN_ORANGE : MAIN_BROWN);
+        DrawRectangleRec(backRect, isBackHovered ? MAIN_ORANGE : MAIN_BROWN);
         DrawTextEx(meowFont, "Back", (Vector2) { backRect.x + 40, backRect.y + 22 }, 32, 2, WHITE);
 
         DrawOuterWorld();
@@ -1010,13 +1003,13 @@ void MainMenuUpdate(Camera2D* camera, bool playFade)
         {
             if (isStartButtonHovered)
             {
-                PlaySound(select);
+                PlaySelectSound();
                 transitionCallback = GameUpdate;
                 isTransitioningOut = true;
             }
             else if (isOptionsButtonHovered)
             {
-                PlaySound(select);
+                PlaySelectSound();
                 transitionCallback = OptionsUpdate;
                 isTransitioningOut = true;
             }
@@ -1031,7 +1024,7 @@ void MainMenuUpdate(Camera2D* camera, bool playFade)
         {
             if (!isHovering || currentHoveredButton != 0)
             {
-                PlaySound(hover);
+                PlayHoverSound();
                 isHovering = true;
             }
             currentHoveredButton = 0;
@@ -1040,7 +1033,7 @@ void MainMenuUpdate(Camera2D* camera, bool playFade)
         {
             if (!isHovering || currentHoveredButton != 1)
             {
-                PlaySound(hover);
+                PlayHoverSound();
                 isHovering = true;
             }
             currentHoveredButton = 1;
@@ -1049,7 +1042,7 @@ void MainMenuUpdate(Camera2D* camera, bool playFade)
         {
             if (!isHovering || currentHoveredButton != 2)
             {
-                PlaySound(hover);
+                PlayHoverSound();
                 isHovering = true;
             }
             currentHoveredButton = 2;
@@ -1316,6 +1309,8 @@ int main()
     _options.targetFps = 240;
     _options.fullscreen = false;  // Default to windowed mode
     _options.showDebug = DEBUG_SHOW;
+    _options.musicEnabled = true;
+    _options.soundFxEnabled = true;
 
     options = &_options;
 
