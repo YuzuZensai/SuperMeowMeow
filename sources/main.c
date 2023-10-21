@@ -23,7 +23,12 @@ Texture2D backgroundTexture;
 Texture2D backgroundOverlayTexture;
 Texture2D backgroundOverlaySidebarTexture;
 Texture2D pawTexture;
-//customer
+
+// UI Elements
+Texture2D checkbox;
+Texture2D checkboxChecked;
+
+//Customer
 Texture2D customerTexture_first_happy;
 Texture2D customerTexture_second_happy;
 Texture2D customerTexture_third_happy;
@@ -33,7 +38,8 @@ Texture2D customerTexture_third_normal;
 Texture2D customerTexture_first_angry;
 Texture2D customerTexture_second_angry;
 Texture2D customerTexture_third_angry;
-//customer
+
+
 Font meowFont;
 Sound select;
 Sound hover;
@@ -432,7 +438,10 @@ void LoadGlobalAssets()
     backgroundOverlayTexture = LoadTexture(ASSETS_PATH"image/backgrounds/main_overlay_1.png");
     backgroundOverlaySidebarTexture = LoadTexture(ASSETS_PATH"image/backgrounds/main_overlay_2.png");
     pawTexture = LoadTexture(ASSETS_PATH"image/elements/paw.png");
-    meowFont = LoadFontEx(ASSETS_PATH"font/Meows-VGWjy.ttf", 256, 0, 250);
+
+    checkbox = LoadTexture(ASSETS_PATH"image/elements/checkbox.png");
+    checkboxChecked = LoadTexture(ASSETS_PATH"image/elements/checkbox_checked.png");
+
 	customerTexture_first_happy = LoadTexture(ASSETS_PATH"image/sprite/customer_happy.png");
 	customerTexture_second_happy = LoadTexture(ASSETS_PATH"image/sprite/customer_happy.png");
 	customerTexture_third_happy = LoadTexture(ASSETS_PATH"image/sprite/customer_happy.png");
@@ -464,11 +473,18 @@ void UnloadGlobalAssets()
     UnloadTexture(pawTexture);
     UnloadFont(meowFont);
 
+    UnloadTexture(checkbox);
+	UnloadTexture(checkboxChecked);
+
     UnloadSound(hover);
     UnloadSound(select);
 
     for(int i = 0; i < 8; i++)
 		UnloadTexture(mainMenuFallingItems[i]);
+
+    UnloadTexture(logoTexture);
+    UnloadTexture(splashBackgroundTexture);
+    UnloadTexture(splashOverlayTexture);
 }
 
 void ExitApplication()
@@ -611,7 +627,9 @@ void OptionsUpdate(Camera2D* camera)
         DrawRectangleRec(difficultyRect, isDifficultySelected ? SKYBLUE : BLUE);
         DrawRectangleRec(resolutionRect, isResolutionSelected ? SKYBLUE : BLUE);
         DrawRectangleRec(fpsRect, isFpsSelected ? SKYBLUE : BLUE);
-        DrawRectangleRec(fullscreenRect, isFullscreenToggled ? SKYBLUE : BLUE);
+        //DrawRectangleRec(fullscreenRect, isFullscreenToggled ? SKYBLUE : BLUE);
+
+        DrawTextureEx(options->fullscreen ? checkboxChecked : checkbox, (Vector2) { fullscreenRect.x + 5, fullscreenRect.y + 5 }, 0.0f, 1.0f/6.0f, WHITE);
         DrawRectangleRec(backRect, isBackSelected ? SKYBLUE : BLUE);
 
         char difficultyText[50];
@@ -1133,7 +1151,6 @@ int main()
     
     SetConfigFlags(FLAG_WINDOW_RESIZABLE);
     SetConfigFlags(FLAG_MSAA_4X_HINT);
-    //SetTextureFilter(meowFont.texture, TEXTURE_FILTER_TRILINEAR);
 
     InitWindow(baseScreenWidth, baseScreenHeight, "SuperMeowMeow");
     InitAudioDevice();
@@ -1160,10 +1177,15 @@ int main()
     SetTargetFPS(options->targetFps);
     SetRuntimeResolution(&camera, options->resolution.x, options->resolution.y);
 
+
+    meowFont = LoadFontEx(ASSETS_PATH"font/SantJoanDespi-Regular.otf", 256, 0, 250);
+    SetTextureFilter(meowFont.texture, TEXTURE_FILTER_ANISOTROPIC_4X);
+
     logoTexture = LoadTexture(ASSETS_PATH"image/elements/studio_logo.png");
     splashBackgroundTexture = LoadTexture(ASSETS_PATH"image/backgrounds/splash.png");
     splashOverlayTexture = LoadTexture(ASSETS_PATH"image/backgrounds/splash_overlay.png");
 
     SplashUpdate(&camera);
+    UnloadGlobalAssets();
     return 0;
 }
