@@ -124,21 +124,50 @@ static inline char* StringFromCustomerEmotionEnum(CustomerEmotion emotion)
 	return strings[emotion];
 }
 
-typedef struct MenuCustomer {
+
+typedef struct Order { //text-based-combinations
+    char* first;
+    char* second;
+    char* third;
+    char* fourth;
+} Order;
+
+typedef struct Customer {
     CustomerEmotion emotion;
     double blinkTimer;
     double normalDuration;
     double blinkDuration;
     bool eyesClosed;
-} MenuCustomer;
 
+    //int patience; //To be removed. 
+    bool visible;
+    Order* order;
+    int currentTime;
+    int orderEnd;
+} Customer;
+
+
+Customer menuCustomer1;
+Customer menuCustomer2;
 
 #define fallingItemsNumber 8
 FallingItem fallingItems[20];
 GameOptions *options;
 
-MenuCustomer menuCustomer1 = { EMOTION_HAPPY, 2.0, 4.0, 0.25, false };
-MenuCustomer menuCustomer2 = { EMOTION_HAPPY, 0.4, 5.2, 0.3, false };
+Customer createCustomer(CustomerEmotion emotion, double blinkTimer, double normalDuration, double blinkDuration, bool visible) {
+    Customer newCustomer;
+    newCustomer.emotion = emotion;
+    newCustomer.blinkTimer = blinkTimer;
+    newCustomer.normalDuration = normalDuration;
+    newCustomer.blinkDuration = blinkDuration;
+    newCustomer.eyesClosed = false;
+    newCustomer.visible = visible;
+    newCustomer.order = NULL;
+    newCustomer.currentTime = NULL;
+    newCustomer.orderEnd = NULL;
+
+    return newCustomer;
+}
 
 double GetRandomDoubleValue(double min, double max)
 {
@@ -290,30 +319,32 @@ CustomerTextureFrameType GetCustomerEyesClosedTextureFrameType(CustomerEmotion e
 }
 
 
-void DrawCustomer(MenuCustomer* customer, int frame, Vector2 pos)
+void DrawCustomer(Customer* customer, int frame, Vector2 pos)
 {
     if (options->showDebug)
     {
         DrawRectangleLinesEx((Rectangle) { pos.x, pos.y, customersImageData[frame].happy.width / 2, customersImageData[frame].happy.height / 2 }, 1, RED);
         DrawTextEx(meowFont, TextFormat("%s | Blink %s (%.2f) %.2f/%.2f", StringFromCustomerEmotionEnum(customer->emotion), customer->eyesClosed ? "[Yes]" : "[No]", customer->blinkDuration, customer->blinkTimer, customer->normalDuration), (Vector2) { pos.x, pos.y - 20 }, 20, 1, WHITE);
     }
+    if (!customer->visible) return;
+
     switch (customer->emotion)
     {
     case EMOTION_HAPPY:
-        DrawTextureEx(!customer->eyesClosed ? customersImageData[frame].happy : customersImageData[frame].happyEyesClosed, pos, 0.0f, 1.0f / 2.0f, WHITE);
+        DrawTextureEx(customer->eyesClosed ? customersImageData[frame].happy : customersImageData[frame].happyEyesClosed, pos, 0.0f, 1.0f / 2.0f, WHITE);
         break;
     case EMOTION_FRUSTRATED:
-        DrawTextureEx(!customer->eyesClosed ? customersImageData[frame].frustrated : customersImageData[frame].frustratedEyesClosed, pos, 0.0f, 1.0f / 2.0f, WHITE);
+        DrawTextureEx(customer->eyesClosed ? customersImageData[frame].frustrated : customersImageData[frame].frustratedEyesClosed, pos, 0.0f, 1.0f / 2.0f, WHITE);
         break;
     case EMOTION_ANGRY:
-        DrawTextureEx(!customer->eyesClosed ? customersImageData[frame].angry : customersImageData[frame].angryEyesClosed, pos, 0.0f, 1.0f / 2.0f, WHITE);
+        DrawTextureEx(customer->eyesClosed ? customersImageData[frame].angry : customersImageData[frame].angryEyesClosed, pos, 0.0f, 1.0f / 2.0f, WHITE);
         break;
     default:
         break;
     }
 }
 
-void UpdateMenuCustomerBlink(MenuCustomer* customer, double deltaTime) {
+void UpdateMenuCustomerBlink(Customer* customer, double deltaTime) {
     customer->blinkTimer += deltaTime;
 
     if (!customer->eyesClosed && customer->blinkTimer > customer->normalDuration) {
@@ -418,39 +449,20 @@ void OptionsUpdate(Camera2D* camera);
 
 /* Definitions of this branch */
 
-typedef struct Order { //text-based-combinations
-	char *first;
-	char *second;
-	char *third;
-	char *fourth;
-} Order;
-
-typedef struct Customer {
-	//int patience; //To be removed. 
-	int state; //1 for happy 2 for neutral 3 for angry
-	int visible;
-	Order *order;
-	int currentTime;
-	int orderEnd;
-} Customer;
-
 typedef struct Customers {
 	Customer customer1;
 	Customer customer2;
 	Customer customer3;
 } Customers;
 
-
-
 // TO BE DESTROYED
 #define PLACEHOLDER_ORDER "PLACEHOLDER_ORDER"
-static int placeholder_static = 1;
+static int placeholder_static = 0;
 static int global_score = 0;
 
 
 void create_customer(Customer *customer, int patience, Order order, int currentTime, int orderEnd) {
-	customer->visible = 1;
-	customer->state = 1;
+	customer->visible = true;
 	customer->order = &order;
 	customer->currentTime = currentTime;
 	customer->orderEnd = orderEnd * patience;
@@ -500,54 +512,12 @@ void validiator(Order *order, char *first, char *second, char *third, char *four
 //create customer image at either position 1 2 or 3
 void render_customers(Customers *customers)
 {
-	//customer 1
-	if (customers->customer1.visible == 1)
-	{
-		if (customers->customer1.state == 1)
-		{
-			DrawTextureEx(customerTexture_first_happy, (Vector2) { baseX, baseY + 100 }, 0.0f, 1.0f, WHITE);
-		}
-		else if (customers->customer1.state == 2)
-		{
-			DrawTextureEx(customerTexture_first_normal, (Vector2) { baseX, baseY + 100 }, 0.0f, 1.0f, WHITE);
-		}
-		else if (customers->customer1.state == 3)
-		{
-			DrawTextureEx(customerTexture_first_angry, (Vector2) { baseX, baseY + 100 }, 0.0f, 1.0f, WHITE);
-		}
-	}
-	//customer 2
-	if (customers->customer2.visible == 1)
-	{
-		if (customers->customer2.state == 1)
-		{
-			DrawTextureEx(customerTexture_second_happy, (Vector2) { baseX + 600, baseY + 100 }, 0.0f, 1.0f, WHITE);
-		}
-		else if (customers->customer2.state == 2)
-		{
-			DrawTextureEx(customerTexture_second_normal, (Vector2) { baseX + 600, baseY + 100 }, 0.0f, 1.0f, WHITE);
-		}
-		else if (customers->customer2.state == 3)
-		{
-			DrawTextureEx(customerTexture_second_angry, (Vector2) { baseX + 600, baseY + 100 }, 0.0f, 1.0f, WHITE);
-		}
-	}
-	//customer 3
-	if (customers->customer3.visible == 1)
-	{
-		if (customers->customer3.state == 1)
-		{
-			DrawTextureEx(customerTexture_third_happy, (Vector2) { baseX + 1200, baseY + 100 }, 0.0f, 1.0f, WHITE);
-		}
-		else if (customers->customer3.state == 2)
-		{
-			DrawTextureEx(customerTexture_third_normal, (Vector2) { baseX + 1200, baseY + 100 }, 0.0f, 1.0f, WHITE);
-		}
-		else if (customers->customer3.state == 3)
-		{
-			DrawTextureEx(customerTexture_third_angry, (Vector2) { baseX + 1200, baseY + 100 }, 0.0f, 1.0f, WHITE);
-		}
-	}
+    if(&customers->customer1 != NULL)
+        DrawCustomer(&customers->customer1, 0, (Vector2) { baseX, baseY + 100 });
+    if (&customers->customer2 != NULL)
+        DrawCustomer(&customers->customer2, 1, (Vector2) { baseX + 500, baseY + 100 });
+    if (&customers->customer3 != NULL)
+        DrawCustomer(&customers->customer3, 2, (Vector2) { baseX + 1100, baseY + 100 });
 }
 
 
@@ -555,17 +525,17 @@ void render_customers(Customers *customers)
 
 void remove_customers(Customer *customer, int position)
 {
-	customer->visible = 0;
+	customer->visible = false;
 }
 
 void update_customer_state(Customer *customer) {
-    if (customer->visible == 1) {
+    if (customer->visible == true) {
         if (customer->currentTime < customer->orderEnd) {
             customer->currentTime++;
             if (customer->currentTime > customer->orderEnd / 2) {
-                customer->state = 3;
+                customer->emotion = EMOTION_FRUSTRATED;
             } else if (customer->currentTime > customer->orderEnd / 4) {
-                customer->state = 2;
+                customer->eyesClosed = EMOTION_ANGRY;
             }
         } else {
             remove_customers(customer, 1);
@@ -666,6 +636,8 @@ void LoadGlobalAssets()
         customersImageData[i].angryEyesClosed = LoadTexture(TextFormat(ASSETS_PATH"image/sprite/customer_%d/angry_eyes_closed.png", i + 1));
 	}
 
+    menuCustomer1 = createCustomer(EMOTION_HAPPY, 2.0, 4.0, 0.25, true);
+    menuCustomer2 = createCustomer(EMOTION_HAPPY, 0.4, 5.2, 0.3, true);
 }
 
 void UnloadGlobalAssets()
@@ -1046,12 +1018,18 @@ void OptionsUpdate(Camera2D* camera)
 
 void GameUpdate(Camera2D *camera)
 {
+
+    double lastFrameTime = GetTime();
     float circleRadius = 30.0f;
     Vector2 circlePosition = { 100, 50 };
     bool isDragging = false;
 
     while (!WindowShouldClose())
     {
+        // Calculate delta time
+        double deltaTime = GetTime() - lastFrameTime;
+        lastFrameTime = GetTime();
+
         WindowUpdate(camera);
         if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
         {
@@ -1108,13 +1086,16 @@ void GameUpdate(Camera2D *camera)
 		/* Customers */
 
 		
-		Customer customer1;
+		Customer customer1 = createCustomer(EMOTION_HAPPY, 2.0, 4.0, 0.25, true);
 		Order order1;
-		Customer customer2;
+		Customer customer2 = createCustomer(EMOTION_HAPPY, 2.0, 4.0, 0.25, true);
 		Order order2;
-		Customer customer3;
+		Customer customer3 = createCustomer(EMOTION_HAPPY, 2.0, 4.0, 0.25, true);
 		Order order3;
 		Customers customers;
+        customers.customer1 = customer1;
+        customers.customer2 = customer2;
+        customers.customer3 = customer3;
 
 		if (placeholder_static == 1)
 		{
@@ -1143,10 +1124,18 @@ void GameUpdate(Camera2D *camera)
 
 			placeholder_static = 0;
 		}
+
 		Tick(&customers);
 		render_customers(&customers);
 
 		/* Customers TEST AREA END*/
+
+        if(&customers.customer1 != NULL)
+            UpdateMenuCustomerBlink(&customers.customer1, deltaTime);
+        if (&customers.customer2 != NULL)
+            UpdateMenuCustomerBlink(&customers.customer2, deltaTime);
+        if (&customers.customer3 != NULL)
+            UpdateMenuCustomerBlink(&customers.customer3, deltaTime);
 
 
         // Draw circle
