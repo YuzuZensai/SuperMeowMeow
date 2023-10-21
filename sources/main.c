@@ -81,12 +81,11 @@ typedef struct Order { //text-based-combinations
 } Order;
 
 typedef struct Customer {
-	int position;
-	int patience; //multiplier for difficulty defaulted to 1.0
+	//int patience; //To be removed. 
 	int state; //1 for happy 2 for neutral 3 for angry
 	int visible;
 	Order *order;
-	int orderTime;
+	int currentTime;
 	int orderEnd;
 } Customer;
 
@@ -94,7 +93,6 @@ typedef struct Customers {
 	Customer customer1;
 	Customer customer2;
 	Customer customer3;
-	Customer customer4;
 } Customers;
 
 
@@ -102,29 +100,31 @@ typedef struct Customers {
 
 
 
-void create_customer(Customer *customer, int position, int patience, Order order, int orderTime, int orderEnd) {
-	customer->position = position;
-	customer->patience = patience; //multiplier for orderEnd
+void create_customer(Customer *customer, int patience, Order order, int currentTime, int orderEnd) {
 	customer->visible = 1;
 	customer->state = 1;
 	customer->order = &order;
-	customer->orderTime = orderTime;
-	customer->orderEnd = orderEnd;
+	customer->currentTime = currentTime;
+	customer->orderEnd = orderEnd * patience;
 }
 
 //create customer image at either position 1 2 or 3
-void render_customer(Customer *customer, int position) {
-	if (customer->visible = 1)
+void render_customers(Customers *customers)
+{
+	//customer 1
+	if (customers->customer1.visible == 1)
 	{
-	if (position == 1) {
-		DrawTextureEx(customerTexture_first, (Vector2) { baseX + 100, baseY + 100 }, 0.0f, 1.0f, WHITE);
+		DrawTextureEx(customerTexture_first, (Vector2) { baseX, baseY + 100 }, 0.0f, 1.0f, WHITE);
 	}
-	else if (position == 2) {
-		DrawTextureEx(customerTexture_second, (Vector2) { baseX + 100, baseY + 100 }, 0.0f, 1.0f, WHITE);
+	//customer 2
+	if (customers->customer2.visible == 1)
+	{
+		DrawTextureEx(customerTexture_second, (Vector2) { baseX + 600, baseY + 100 }, 0.0f, 1.0f, WHITE);
 	}
-	else if (position == 3) {
-		DrawTextureEx(customerTexture_third, (Vector2) { baseX + 100, baseY + 100 }, 0.0f, 1.0f, WHITE);
-	}
+	//customer 3
+	if (customers->customer3.visible == 1)
+	{
+		DrawTextureEx(customerTexture_third, (Vector2) { baseX + 1200, baseY + 100 }, 0.0f, 1.0f, WHITE);
 	}
 }
 
@@ -134,14 +134,42 @@ void remove_customers(Customer *customer, int position)
 	customer->visible = 0;
 }
 
-void Tick(Customer *customer, int position) {
-	if (customer->visible == 1) {
-		if (customer->orderTime == 0) {
-			remove_customers(customer, position);
-
+void Tick(Customers *customers)
+{
+	//customer 1
+	if (customers->customer1.visible == 1)
+	{
+		if (customers->customer1.currentTime < customers->customer1.orderEnd)
+		{
+			customers->customer1.currentTime++;
 		}
-		else {
-			customer->orderTime -= 1;
+		else
+		{
+			remove_customers(&customers->customer1, 1);
+		}
+	}
+	//customer 2
+	if (customers->customer2.visible == 1)
+	{
+		if (customers->customer2.currentTime < customers->customer2.orderEnd)
+		{
+			customers->customer2.currentTime++;
+		}
+		else
+		{
+			remove_customers(&customers->customer2, 2);
+		}
+	}
+	//customer 3
+	if (customers->customer3.visible == 1)
+	{
+		if (customers->customer3.currentTime < customers->customer3.orderEnd)
+		{
+			customers->customer3.currentTime++;
+		}
+		else
+		{
+			remove_customers(&customers->customer3, 3);
 		}
 	}
 }
@@ -183,9 +211,9 @@ void LoadGlobalAssets()
     backgroundTexture = LoadTexture(ASSETS_PATH"image/backgrounds/main.png");
     pawTexture = LoadTexture(ASSETS_PATH"image/elements/paw.png");
     meowFont = LoadFontEx(ASSETS_PATH"font/Meows-VGWjy.ttf", 256, 0, 250);
-	customerTexture_first = LoadTexture(ASSETS_PATH"image/elements/customer.png");
-	customerTexture_second = LoadTexture(ASSETS_PATH"image/elements/customer.png");
-	customerTexture_third = LoadTexture(ASSETS_PATH"image/elements/customer.png");
+	customerTexture_first = LoadTexture(ASSETS_PATH"image/sprite/customer.png");
+	customerTexture_second = LoadTexture(ASSETS_PATH"image/sprite/customer.png");
+	customerTexture_third = LoadTexture(ASSETS_PATH"image/sprite/customer.png");
     hover = LoadSound(ASSETS_PATH"audio/hover.wav");
     select = LoadSound(ASSETS_PATH"audio/select.wav");
 }
@@ -345,6 +373,10 @@ void OptionsUpdate(Camera2D* camera)
     CloseWindow();
 }
 
+
+// MOVE THIS GLOBAL VAR 
+static int placeholder_static = 1;
+
 void GameUpdate(Camera2D *camera)
 {
     float circleRadius = 30.0f;
@@ -406,15 +438,48 @@ void GameUpdate(Camera2D *camera)
         // Draw the background with the scaled dimensions
         DrawTextureEx(backgroundTexture, (Vector2) { baseX, baseY }, 0.0f, fmax(scaleX, scaleY), WHITE);
 
-		// Draw Customer
+		/* Customers */
+
+		
 		Customer customer1;
 		Order order1;
-		order1.first = PLACEHOLDER_ORDER;
-		order1.second = PLACEHOLDER_ORDER;
-		order1.third = PLACEHOLDER_ORDER;
-		order1.fourth = PLACEHOLDER_ORDER;
-		create_customer(&customer1, 1, 1, order1 , 100, 100);
+		Customer customer2;
+		Order order2;
+		Customer customer3;
+		Order order3;
+		Customers customers;
+
+		if (placeholder_static == 1)
+		{
+			order1.first = PLACEHOLDER_ORDER;
+			order1.second = PLACEHOLDER_ORDER;
+			order1.third = PLACEHOLDER_ORDER;
+			order1.fourth = PLACEHOLDER_ORDER;
+			create_customer(&customer1, 1, order1 , 0, 1000);
 		
+			order2.first = PLACEHOLDER_ORDER;
+			order2.second = PLACEHOLDER_ORDER;
+			order2.third = PLACEHOLDER_ORDER;
+			order2.fourth = PLACEHOLDER_ORDER;
+			create_customer(&customer2, 1, order2, 0, 5000);
+
+
+			order3.first = PLACEHOLDER_ORDER;
+			order3.second = PLACEHOLDER_ORDER;
+			order3.third = PLACEHOLDER_ORDER;
+			order3.fourth = PLACEHOLDER_ORDER;
+			create_customer(&customer3, 1, order3, 0, 10000);
+
+			customers.customer1 = customer1;
+			customers.customer2 = customer2;
+			customers.customer3 = customer3;
+
+			placeholder_static = 0;
+		}
+		Tick(&customers);
+		render_customers(&customers);
+
+		/* Customers TEST AREA END*/
 
 
         // Draw circle
@@ -422,7 +487,6 @@ void GameUpdate(Camera2D *camera)
 
         // Text
         DrawTextEx(GetFontDefault(), "Hello, Test!", (Vector2) { baseX + 20, baseY + 20 }, 20, 2, WHITE);
-		render_customer(&customer1, 1);
         EndMode2D();
 
         EndDrawing();
