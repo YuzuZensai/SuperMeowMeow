@@ -661,8 +661,8 @@ void OptionsUpdate(Camera2D* camera)
                         options->resolution.x = 1920;
                         options->resolution.y = 1080;
                     }
-                    SetRuntimeResolution(camera, options->resolution.x, options->resolution.y);
                 }
+                SetRuntimeResolution(camera, options->resolution.x, options->resolution.y);
             }
             else if (isFpsIncrementSelected) {
                 // Change target FPS 30, 60, 120, 144, 240, Basically Unlimited (1000)
