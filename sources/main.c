@@ -839,8 +839,8 @@ void OptionsUpdate(Camera2D* camera)
 
         Vector2 mouseWorldPos = GetScreenToWorld2D(GetMousePosition(), *camera);
 
-        bool isDifficultyIncrementHovered = CheckCollisionPointRec(mouseWorldPos, (Rectangle) { difficultyRect.x + 260, difficultyRect.y + 10, 50, 50 });
-        bool isDifficultyDecrementHovered = CheckCollisionPointRec(mouseWorldPos, (Rectangle) { difficultyRect.x + 10, difficultyRect.y + 10, 50, 50 });
+        bool isDifficultyIncrementHovered = CheckCollisionPointRec(mouseWorldPos, difficultyIncrementRect);
+        bool isDifficultyDecrementHovered = CheckCollisionPointRec(mouseWorldPos, difficultyDecrementRect);
         
         bool isResolutionIncrementHovered = CheckCollisionPointRec(mouseWorldPos, resolutionIncrementRect);
         bool isResolutionDecrementHovered = CheckCollisionPointRec(mouseWorldPos, resolutionDecrementRect);
