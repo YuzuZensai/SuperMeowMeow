@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include <time.h> 
 
 // Render resolution
 #define BASE_SCREEN_WIDTH 1920
@@ -14,6 +15,7 @@
 #define DEBUG_SHOW true
 #define DEBUG_FASTLOAD true
 #define DEBUG_MAX_FPS_HISTORY 500
+#define DEBUG_MAX_LOGS_HISTORY 25
 
 // Base values
 const float baseX = -(BASE_SCREEN_WIDTH / 2);
@@ -28,6 +30,15 @@ int DebugFpsHistoryIndex = 0;
 // Debug frame time history
 int DebugFrameTimeHistory[DEBUG_MAX_FPS_HISTORY];
 int DebugFrameTimeHistoryIndex = 0;
+
+// Debug logs history
+typedef struct DebugLog {
+	int type;
+	char* text;
+} DebugLog;
+
+DebugLog DebugLogs[DEBUG_MAX_LOGS_HISTORY];
+int DebugLogsIndex = 0;
 
 // Runtime resolution
 typedef struct Resolution {
@@ -211,6 +222,61 @@ bool isCurrentBgmPaused = false;
 double loadDurationTimer = 0.0;
 bool isGlobalAssetsLoadFinished = false;
 
+void CustomLogger(int msgType, const char* text, va_list args)
+{
+    char timeStr[64] = { 0 };
+    time_t now = time(NULL);
+    struct tm* tm_info = localtime(&now);
+
+    strftime(timeStr, sizeof(timeStr), "%Y-%m-%d %H:%M:%S", tm_info);
+    printf("[%s] ", timeStr);
+
+    // Calculate the size needed for the formatted log message
+    int logMessageSize = vsnprintf(NULL, 0, text, args) + 1;
+    char* logMessage = (char*)malloc(logMessageSize);
+
+    switch (msgType)
+    {
+        case LOG_DEBUG: printf("[DEBUG]: "); break;
+        case LOG_INFO: printf("[INFO] : "); break;
+        case LOG_WARNING: printf("[WARN] : "); break;
+        case LOG_ERROR: printf("[ERROR]: "); break;
+        case LOG_FATAL: printf("[FATAL]: "); break;
+        default: break;
+    }
+
+    // Format the log message and store it in logMessage
+    vsnprintf(logMessage, logMessageSize, text, args);
+
+    // Add message to the log array, with shifting logic
+    if (DebugLogsIndex == DEBUG_MAX_LOGS_HISTORY) {
+        // If the array is full, shift the previous messages to make space
+        for (int i = 0; i < DEBUG_MAX_LOGS_HISTORY - 1; i++) {
+            DebugLogs[i] = DebugLogs[i + 1];
+        }
+        DebugLogsIndex = DEBUG_MAX_LOGS_HISTORY - 1;
+    }
+
+    DebugLogs[DebugLogsIndex].type = msgType;
+    DebugLogs[DebugLogsIndex].text = logMessage;
+    DebugLogsIndex++;
+
+    printf("%s\n", logMessage);
+}
+
+Color GetTextColorFromLogType(TraceLogLevel level)
+{
+	switch (level)
+	{
+    case LOG_DEBUG: return DARKGRAY;
+	case LOG_INFO: return WHITE;
+	case LOG_WARNING: return YELLOW;
+	case LOG_ERROR: return RED;
+    case LOG_FATAL: return ORANGE;
+	default: return WHITE;
+	}
+}
+
 double GetRandomDoubleValue(double min, double max)
 {
     return min + (rand() / (double)RAND_MAX) * (max - min);
@@ -252,6 +318,8 @@ void DrawMenuFallingItems(double deltaTime, bool behide)
             DrawLineEx(corners[1], corners[2], 1, RED);
             DrawLineEx(corners[2], corners[3], 1, RED);
             DrawLineEx(corners[3], corners[0], 1, RED);
+
+            DrawRectangle(item->position.x, item->position.y, 550, 20, Fade(GRAY, 0.7));
             DrawTextEx(meowFont, TextFormat("%d | XY %.2f,%.2f | R %.2f | G %.2f | Behide %s", i, item->position.x, item->position.y, item->rotation, item->fallingSpeed, behide ? "Yes": "No"), (Vector2) { item->position.x, item->position.y }, 20, 1, WHITE);
         }
 
@@ -276,6 +344,7 @@ void DrawCustomer(Customer* customer, int frame, Vector2 pos)
     if (options->showDebug)
     {
         DrawRectangleLinesEx((Rectangle) { pos.x, pos.y, customersImageData[frame].happy.width / 2, customersImageData[frame].happy.height / 2 }, 1, RED);
+        DrawRectangle(pos.x, pos.y - 20, 500, 20, Fade(GRAY, 0.7));
         DrawTextEx(meowFont, TextFormat("%s | Blink %s (%.2f) %.2f/%.2f", StringFromCustomerEmotionEnum(customer->emotion), customer->eyesClosed ? "[Yes]" : "[No]", customer->blinkDuration, customer->blinkTimer, customer->normalDuration), (Vector2) { pos.x, pos.y - 20 }, 20, 1, WHITE);
     }
     if (!customer->visible) return;
@@ -368,7 +437,23 @@ bool IsMousePositionInGameWindow(Camera2D * camera)
 
 }
 
-void DrawFpsGraph(Camera2D* camera) {
+void DrawDebugLogs(Camera2D* camera)
+{
+    DrawRectangle(baseX, baseY + BASE_SCREEN_HEIGHT - 20 - (DEBUG_MAX_LOGS_HISTORY * 20), BASE_SCREEN_WIDTH, DEBUG_MAX_LOGS_HISTORY * 20 + 20, Fade(GRAY, 0.7));
+
+    for (int i = 0; i < DEBUG_MAX_LOGS_HISTORY; i++) {
+        int index = DEBUG_MAX_LOGS_HISTORY - i - 1;
+		if (DebugLogs[index].text != NULL) {
+			DrawTextEx(meowFont, DebugLogs[index].text, (Vector2) { baseX + 10, baseY + BASE_SCREEN_HEIGHT - 20 - (i * 20) }, 16, 1, GetTextColorFromLogType(DebugLogs[index].type));
+		}
+        else {
+			break;
+		}
+	}
+}
+
+void DrawFpsGraph(Camera2D* camera)
+{
     int graphWidth = DEBUG_MAX_FPS_HISTORY;
     int graphHeight = 200;
     int graphX = baseX + BASE_SCREEN_WIDTH - 15 - graphWidth;
@@ -489,25 +574,37 @@ void UpdateDebugFrameTimeHistory() {
 	DebugFrameTimeHistoryIndex = (DebugFrameTimeHistoryIndex + 1) % DEBUG_MAX_FPS_HISTORY;
 }
 
-void DrawDebugOverlay(Camera2D *camera)
+void DrawDebugStats(Camera2D* camera)
 {
-    Color color = LIME; 
+    DrawRectangle(baseX, baseY, 1100, 70, Fade(GRAY, 0.7));
+
+    Color color = GREEN;
     int fps = GetFPS();
 
-    if ((fps < 30) && (fps >= 15)) color = ORANGE;
-    else if (fps < 15) color = RED;
+    if (fps < options->targetFps * 0.7f) {
+		color = RED;
+	}
+	else if (fps < options->targetFps * 0.9f) {
+		color = YELLOW;
+	}
 
     Vector2 mousePosition = GetMousePosition();
     Vector2 mouseWorldPos = GetScreenToWorld2D(mousePosition, *camera);
 
+    DrawTextEx(meowFont, TextFormat("%d FPS | Target FPS %d | Window (%dx%d) | Render (%dx%d) | Fullscreen ", fps, options->targetFps, options->resolution.x, options->resolution.y, BASE_SCREEN_WIDTH, BASE_SCREEN_HEIGHT, options->fullscreen ? "Yes" : "No"), (Vector2) { baseX + 10, baseY + 5 }, 20, 2, color);
+    DrawTextEx(meowFont, TextFormat("Cursor %.2f,%.2f (%dx%d) | World %.2f,%.2f (%dx%d) | R Base World %.2f,%.2f", mousePosition.x, mousePosition.y, options->resolution.x, options->resolution.y, mouseWorldPos.x, mouseWorldPos.y, BASE_SCREEN_WIDTH, BASE_SCREEN_HEIGHT, mouseWorldPos.x - baseX, mouseWorldPos.y - baseY), (Vector2) { baseX + 10, baseY + 25 }, 20, 2, WHITE);
+    DrawTextEx(meowFont, TextFormat("Zoom %.2f | In View %s", camera->zoom, IsMousePositionInGameWindow(camera) ? "[Yes]" : "[No]"), (Vector2) { baseX + 10, baseY + 45 }, 20, 2, WHITE);
+}
+
+void DrawDebugOverlay(Camera2D *camera)
+{
     UpdateDebugFpsHistory();
     UpdateDebugFrameTimeHistory();
     
-    DrawTextEx(meowFont, TextFormat("%d FPS | Target FPS %d | Window (%dx%d) | Render (%dx%d) | Fullscreen ", fps, options->targetFps, options->resolution.x, options->resolution.y, BASE_SCREEN_WIDTH, BASE_SCREEN_HEIGHT, options->fullscreen ? "Yes" : "No"), (Vector2) { baseX + 10, baseY + 5 }, 20, 2, color);
-    DrawTextEx(meowFont, TextFormat("Cursor %.2f,%.2f (%dx%d) | World %.2f,%.2f (%dx%d) | R Base World %.2f,%.2f", mousePosition.x, mousePosition.y, options->resolution.x, options->resolution.y, mouseWorldPos.x, mouseWorldPos.y, BASE_SCREEN_WIDTH, BASE_SCREEN_HEIGHT, mouseWorldPos.x - baseX, mouseWorldPos.y - baseY), (Vector2) { baseX + 10, baseY + 25 }, 20, 2, color);
-    DrawTextEx(meowFont, TextFormat("Zoom %.2f | In View %s", camera->zoom, IsMousePositionInGameWindow(camera) ? "[Yes]" : "[No]"), (Vector2) { baseX + 10, baseY + 45 }, 20, 2, color);
+    DrawDebugStats(camera);
     DrawFpsGraph(camera);
     DrawFrameTime(camera);
+    DrawDebugLogs(camera);
 }
 
 /* Definitions of branch customers */
@@ -1716,6 +1813,7 @@ int main()
     SetConfigFlags(FLAG_WINDOW_RESIZABLE);
     SetConfigFlags(FLAG_MSAA_4X_HINT);
 
+    SetTraceLogCallback(CustomLogger);
     InitWindow(BASE_SCREEN_WIDTH, BASE_SCREEN_HEIGHT, "SuperMeowMeow");
     InitAudioDevice();
     // Center of screen
