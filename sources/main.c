@@ -473,7 +473,7 @@ void DrawFrameTime(Camera2D* camera) {
         DrawLine(x1, y1, x2, y2, lineColor);
     }
 
-    DrawTextEx(meowFont, "Frame Time (ms)", (Vector2) { baseX - 130 + BASE_SCREEN_WIDTH - 50, graphY - 25 }, 20, 2, GRAY);
+    DrawTextEx(meowFont, "Frame Time (ms)", (Vector2) { baseX - 135 + BASE_SCREEN_WIDTH - 50, graphY - 25 }, 20, 2, GRAY);
     DrawTextEx(meowFont, TextFormat("%.2f", maxFrameTime > expectedFrameTime ? maxFrameTime : expectedFrameTime), (Vector2) { graphX + 10, graphY + 10 }, 15, 2, WHITE);
     DrawTextEx(meowFont, "0", (Vector2) { graphX + 10, graphY + graphHeight - 30 }, 15, 2, WHITE);
 }
