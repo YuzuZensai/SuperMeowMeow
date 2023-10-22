@@ -674,6 +674,7 @@ void OptionsUpdate(Camera2D* camera)
                 else if (options->difficulty == MEDIUM) {
                     options->difficulty = EASY;
 				}
+                PlaySelectSound();
 			}
             else if (isResolutionIncrementHovered) {
                 // 720p -> 1080p
@@ -691,6 +692,7 @@ void OptionsUpdate(Camera2D* camera)
 					}
 				}
                 SetRuntimeResolution(camera, options->resolution.x, options->resolution.y);
+                PlaySelectSound();
             }
             else if (isResolutionDecrementHovered) {
                 // 1080p -> 720p
@@ -707,6 +709,7 @@ void OptionsUpdate(Camera2D* camera)
                     }
                 }
                 SetRuntimeResolution(camera, options->resolution.x, options->resolution.y);
+                PlaySelectSound();
             }
             else if (isFpsIncrementHovered) {
                 // Change target FPS 30, 60, 120, 144, 240, Basically Unlimited (1000)
@@ -727,6 +730,7 @@ void OptionsUpdate(Camera2D* camera)
                 }
 
                 SetTargetFPS(options->targetFps);
+                PlaySelectSound();
             }
             else if (isFpsDecrementHovered) {
                 // Change target FPS 30, 60, 120, 144, 240, Basically Unlimited (1000)
@@ -747,22 +751,41 @@ void OptionsUpdate(Camera2D* camera)
 				}
 
                 SetTargetFPS(options->targetFps);
+                PlaySelectSound();
             }
             else if (isFullscreenHovered) {
                 // Toggle fullscreen
                 options->fullscreen = !options->fullscreen;
                 SetRuntimeResolution(camera, options->resolution.x, options->resolution.y);
                 ToggleFullscreen();
+                PlaySelectSound();
             }
             else if (isDebugHovered) {
 				// Toggle debug
 				options->showDebug = !options->showDebug;
+                PlaySelectSound();
 			}
 			else if (isBackHovered) {
 				// Go back to main menu
 				MainMenuUpdate(camera, false);
+                PlaySelectSound();
 				break;
 			}
+		    else if (isMusicHovered) {
+				// Toggle music
+				options->musicEnabled = !options->musicEnabled;
+                PlaySelectSound();
+				//if (options->musicEnabled)
+				//	PlayMusicStream(music);
+				//else
+				//	StopMusicStream(music);
+			}
+			else if (isSoundFxHovered) {
+				// Toggle sound fx
+				options->soundFxEnabled = !options->soundFxEnabled;
+                PlaySelectSound();
+			}
+			PlaySelectSound();
         }
 
         // Play sound when hovering over a button, but only once
