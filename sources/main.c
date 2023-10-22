@@ -848,6 +848,24 @@ void OptionsUpdate(Camera2D* camera)
             }
             currentHoveredButton = 8;
         } 
+        else if (isMusicHovered)
+        {
+            if (!isHovering || currentHoveredButton != 9)
+            {
+                PlayHoverSound();
+                isHovering = true;
+            }
+            currentHoveredButton = 9;
+        }
+        else if (isSoundFxHovered)
+        {
+            if (!isHovering || currentHoveredButton != 10)
+            {
+                PlayHoverSound();
+                isHovering = true;
+            }
+            currentHoveredButton = 10;
+        }
         else
         {
             currentHoveredButton = NULL;
