@@ -309,6 +309,27 @@ void DrawCustomerInMenu(double deltaTime) {
     UpdateMenuCustomerBlink(&menuCustomer1, deltaTime);
     UpdateMenuCustomerBlink(&menuCustomer2, deltaTime);
 
+    // Update customer emotions according to difficulty
+    switch (options->difficulty)
+    {
+        case EASY:
+            menuCustomer1.emotion = EMOTION_HAPPY;
+            menuCustomer2.emotion = EMOTION_HAPPY;
+            break;
+        case MEDIUM:
+            menuCustomer1.emotion = EMOTION_FRUSTRATED;
+            menuCustomer2.emotion = EMOTION_FRUSTRATED;
+            break;
+        case HARD:
+            menuCustomer1.emotion = EMOTION_ANGRY;
+            menuCustomer2.emotion = EMOTION_ANGRY;
+            break;
+        default:
+            menuCustomer1.emotion = EMOTION_HAPPY;
+            menuCustomer2.emotion = EMOTION_HAPPY;
+            break;
+            break;
+    }
     DrawCustomer(&menuCustomer1, 1, (Vector2) { baseX + 650, baseY + 55 });
     DrawCustomer(&menuCustomer2, 2, (Vector2) { baseX + 1200, baseY + 52 });
 }
