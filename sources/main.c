@@ -943,6 +943,11 @@ void StopBgm(Music *bgm)
     currentBgm = NULL;
 }
 
+Color ColorAlphaOverride(Color color, float alpha)
+{
+	return (Color) { color.r, color.g, color.b, (unsigned char)(alpha * 255) };
+}
+
 void OptionsUpdate(Camera2D* camera)
 {
     Rectangle difficultyRect = { baseX + 780, baseY + 595, 340, 70 };
@@ -971,6 +976,12 @@ void OptionsUpdate(Camera2D* camera)
     bool isHovering = false;
     int currentHoveredButton = NULL;
 
+    float alpha = 0.0f;
+    double fadeInDuration = 0.35;
+    double fadeOutDuration = 0.35;
+    bool isFadingIn = true;
+    bool isFadingOut = false;
+
     PlayBgmIfStopped(&menuBgm);
 
     while (!WindowShouldClose())
@@ -980,6 +991,27 @@ void OptionsUpdate(Camera2D* camera)
         lastFrameTime = GetTime();
 
         WindowUpdate(camera);
+
+        if (isFadingIn)
+		{
+			alpha += deltaTime / fadeInDuration;
+			if (alpha >= 1.0f)
+			{
+				alpha = 1.0f;
+				isFadingIn = false;
+			}
+		}
+
+	    if (isFadingOut)
+        {
+            alpha -= deltaTime / fadeOutDuration;
+            if (alpha <= 0.0f)
+            {
+                alpha = 0.0f;
+                isFadingOut = false;
+                MainMenuUpdate(camera, false);
+            }
+        }
 
         Vector2 mouseWorldPos = GetScreenToWorld2D(GetMousePosition(), *camera);
 
@@ -1000,7 +1032,7 @@ void OptionsUpdate(Camera2D* camera)
         bool isBackHovered = CheckCollisionPointRec(mouseWorldPos, backRect);
 
         // Handle user input
-        if (!firstRender && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+        if (!firstRender && IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && !isFadingIn && !isFadingOut) {
             if (isDifficultyIncrementHovered) {
                 if (options->difficulty == EASY) {
 					options->difficulty = MEDIUM;
@@ -1110,9 +1142,8 @@ void OptionsUpdate(Camera2D* camera)
 			}
 			else if (isBackHovered) {
 				// Go back to main menu
-				MainMenuUpdate(camera, false);
+                isFadingOut = true;
                 PlaySelectSound();
-				break;
 			}
 		    else if (isMusicHovered) {
 				// Toggle music
@@ -1131,110 +1162,112 @@ void OptionsUpdate(Camera2D* camera)
         }
 
         // Play sound when hovering over a button, but only once
-
-        if (isDifficultyIncrementHovered)
+        if (!isFadingIn && !isFadingOut)
         {
-            if (!isHovering || currentHoveredButton != 0)
+            if (isDifficultyIncrementHovered)
             {
-                PlayHoverSound();
-                isHovering = true;
+                if (!isHovering || currentHoveredButton != 0)
+                {
+                    PlayHoverSound();
+                    isHovering = true;
+                }
+                currentHoveredButton = 0;
             }
-            currentHoveredButton = 0;
-        }
-        else if (isDifficultyDecrementHovered)
-        {
-            if (!isHovering || currentHoveredButton != 1)
+            else if (isDifficultyDecrementHovered)
             {
-                PlayHoverSound();
-                isHovering = true;
+                if (!isHovering || currentHoveredButton != 1)
+                {
+                    PlayHoverSound();
+                    isHovering = true;
+                }
+                currentHoveredButton = 1;
             }
-            currentHoveredButton = 1;
-        }
-        else if (isResolutionIncrementHovered)
-        {
-            if (!isHovering || currentHoveredButton != 2)
+            else if (isResolutionIncrementHovered)
             {
-                PlayHoverSound();
-                isHovering = true;
+                if (!isHovering || currentHoveredButton != 2)
+                {
+                    PlayHoverSound();
+                    isHovering = true;
+                }
+                currentHoveredButton = 2;
             }
-            currentHoveredButton = 2;
-        }
-        else if (isResolutionDecrementHovered)
-        {
-            if (!isHovering || currentHoveredButton != 3)
+            else if (isResolutionDecrementHovered)
             {
-                PlayHoverSound();
-                isHovering = true;
+                if (!isHovering || currentHoveredButton != 3)
+                {
+                    PlayHoverSound();
+                    isHovering = true;
+                }
+                currentHoveredButton = 3;
             }
-            currentHoveredButton = 3;
-        }
-        else if (isFpsIncrementHovered)
-        {
-            if (!isHovering || currentHoveredButton != 4)
+            else if (isFpsIncrementHovered)
             {
-                PlayHoverSound();
-                isHovering = true;
+                if (!isHovering || currentHoveredButton != 4)
+                {
+                    PlayHoverSound();
+                    isHovering = true;
+                }
+                currentHoveredButton = 4;
             }
-            currentHoveredButton = 4;
-        }
-        else if (isFpsDecrementHovered)
-        {
-            if (!isHovering || currentHoveredButton != 5)
+            else if (isFpsDecrementHovered)
             {
-                PlayHoverSound();
-                isHovering = true;
+                if (!isHovering || currentHoveredButton != 5)
+                {
+                    PlayHoverSound();
+                    isHovering = true;
+                }
+                currentHoveredButton = 5;
             }
-            currentHoveredButton = 5;
-        }
-        else if (isFullscreenHovered)
-        {
-            if (!isHovering || currentHoveredButton != 6)
+            else if (isFullscreenHovered)
             {
-                PlayHoverSound();
-                isHovering = true;
+                if (!isHovering || currentHoveredButton != 6)
+                {
+                    PlayHoverSound();
+                    isHovering = true;
+                }
+                currentHoveredButton = 6;
             }
-            currentHoveredButton = 6;
-        }
-        else if (isDebugHovered)
-        {
-            if (!isHovering || currentHoveredButton != 7)
+            else if (isDebugHovered)
             {
-                PlayHoverSound();
-                isHovering = true;
+                if (!isHovering || currentHoveredButton != 7)
+                {
+                    PlayHoverSound();
+                    isHovering = true;
+                }
+                currentHoveredButton = 7;
             }
-            currentHoveredButton = 7;
-        }
-        else if (isBackHovered)
-        {
-            if (!isHovering || currentHoveredButton != 8)
+            else if (isBackHovered)
             {
-                PlayHoverSound();
-                isHovering = true;
+                if (!isHovering || currentHoveredButton != 8)
+                {
+                    PlayHoverSound();
+                    isHovering = true;
+                }
+                currentHoveredButton = 8;
             }
-            currentHoveredButton = 8;
-        } 
-        else if (isMusicHovered)
-        {
-            if (!isHovering || currentHoveredButton != 9)
+            else if (isMusicHovered)
             {
-                PlayHoverSound();
-                isHovering = true;
+                if (!isHovering || currentHoveredButton != 9)
+                {
+                    PlayHoverSound();
+                    isHovering = true;
+                }
+                currentHoveredButton = 9;
             }
-            currentHoveredButton = 9;
-        }
-        else if (isSoundFxHovered)
-        {
-            if (!isHovering || currentHoveredButton != 10)
+            else if (isSoundFxHovered)
             {
-                PlayHoverSound();
-                isHovering = true;
+                if (!isHovering || currentHoveredButton != 10)
+                {
+                    PlayHoverSound();
+                    isHovering = true;
+                }
+                currentHoveredButton = 10;
             }
-            currentHoveredButton = 10;
-        }
-        else
-        {
-            currentHoveredButton = NULL;
-            isHovering = false;
+            else
+            {
+                currentHoveredButton = NULL;
+                isHovering = false;
+            }
         }
 
         if (firstRender)
@@ -1268,43 +1301,43 @@ void OptionsUpdate(Camera2D* camera)
         DrawMenuFallingItems(deltaTime, false);
 
         // Music
-        DrawTextureEx(options->musicEnabled ? checkboxChecked : checkbox, (Vector2) { musicRect.x + 10, musicRect.y + 10 }, 0.0f, 1.0f / 6.0f, WHITE);
-		DrawTextEx(meowFont, "Music", (Vector2) { musicRect.x + 80, musicRect.y + 22 }, 32, 2, MAIN_BROWN);
+        DrawTextureEx(options->musicEnabled ? checkboxChecked : checkbox, (Vector2) { musicRect.x + 10, musicRect.y + 10 }, 0.0f, 1.0f / 6.0f, ColorAlphaOverride(WHITE, alpha));
+		DrawTextEx(meowFont, "Music", (Vector2) { musicRect.x + 80, musicRect.y + 22 }, 32, 2, ColorAlphaOverride(MAIN_BROWN, alpha));
 
         // Sound FX
-        DrawTextureEx(options->soundFxEnabled ? checkboxChecked : checkbox, (Vector2) { soundFxRect.x + 10, soundFxRect.y + 10 }, 0.0f, 1.0f / 6.0f, WHITE);
-        DrawTextEx(meowFont, "Sound FX", (Vector2) { soundFxRect.x + 80, soundFxRect.y + 22 }, 32, 2, MAIN_BROWN);
+        DrawTextureEx(options->soundFxEnabled ? checkboxChecked : checkbox, (Vector2) { soundFxRect.x + 10, soundFxRect.y + 10 }, 0.0f, 1.0f / 6.0f, ColorAlphaOverride(WHITE, alpha));
+        DrawTextEx(meowFont, "Sound FX", (Vector2) { soundFxRect.x + 80, soundFxRect.y + 22 }, 32, 2, ColorAlphaOverride(MAIN_BROWN, alpha));
 
         // Fullscreen
-        DrawTextureEx(options->fullscreen ? checkboxChecked : checkbox, (Vector2) { fullscreenRect.x + 10, fullscreenRect.y + 10 }, 0.0f, 1.0f / 6.0f, WHITE);
-        DrawTextEx(meowFont, "Fullscreen", (Vector2) { fullscreenRect.x + 80, fullscreenRect.y + 22 }, 32, 2, MAIN_BROWN);
+        DrawTextureEx(options->fullscreen ? checkboxChecked : checkbox, (Vector2) { fullscreenRect.x + 10, fullscreenRect.y + 10 }, 0.0f, 1.0f / 6.0f, ColorAlphaOverride(WHITE, alpha));
+        DrawTextEx(meowFont, "Fullscreen", (Vector2) { fullscreenRect.x + 80, fullscreenRect.y + 22 }, 32, 2, ColorAlphaOverride(MAIN_BROWN, alpha));
 
         // Debug
-        DrawTextureEx(options->showDebug ? checkboxChecked : checkbox, (Vector2) { debugRect.x + 10, debugRect.y + 10 }, 0.0f, 1.0f / 6.0f, WHITE);
-		DrawTextEx(meowFont, "Debug", (Vector2) { debugRect.x + 80, debugRect.y + 22 }, 32, 2, MAIN_BROWN);
+        DrawTextureEx(options->showDebug ? checkboxChecked : checkbox, (Vector2) { debugRect.x + 10, debugRect.y + 10 }, 0.0f, 1.0f / 6.0f, ColorAlphaOverride(WHITE, alpha));
+		DrawTextEx(meowFont, "Debug", (Vector2) { debugRect.x + 80, debugRect.y + 22 }, 32, 2, ColorAlphaOverride(MAIN_BROWN, alpha));
 
         // Difficulty
-        DrawTextureEx(left_arrow, (Vector2) { difficultyDecrementRect.x , difficultyDecrementRect.y}, 0.0f, 1.0f / 5.0f, WHITE);
-        DrawTextureEx(right_arrow, (Vector2) { difficultyIncrementRect.x, difficultyIncrementRect.y }, 0.0f, 1.0f / 5.0f, WHITE);
-        DrawTextEx(meowFont, "Difficulty", (Vector2) { difficultyRect.x + 80, difficultyRect.y + 10 }, 32, 2, MAIN_BROWN);
-        DrawTextEx(meowFont, StringFromDifficultyEnum(options->difficulty), (Vector2) { difficultyRect.x + 80, difficultyRect.y + 42 }, 32, 2, MAIN_BROWN);
+        DrawTextureEx(left_arrow, (Vector2) { difficultyDecrementRect.x , difficultyDecrementRect.y}, 0.0f, 1.0f / 5.0f, ColorAlphaOverride(WHITE, alpha));
+        DrawTextureEx(right_arrow, (Vector2) { difficultyIncrementRect.x, difficultyIncrementRect.y }, 0.0f, 1.0f / 5.0f, ColorAlphaOverride(WHITE, alpha));
+        DrawTextEx(meowFont, "Difficulty", (Vector2) { difficultyRect.x + 80, difficultyRect.y + 10 }, 32, 2, ColorAlphaOverride(MAIN_BROWN, alpha));
+        DrawTextEx(meowFont, StringFromDifficultyEnum(options->difficulty), (Vector2) { difficultyRect.x + 80, difficultyRect.y + 42 }, 32, 2, ColorAlphaOverride(MAIN_BROWN, alpha));
 
         // Resolution
-        DrawTextureEx(left_arrow, (Vector2) { resolutionDecrementRect.x, resolutionDecrementRect.y }, 0.0f, 1.0f / 5.0f, WHITE);
-        DrawTextureEx(right_arrow, (Vector2) { resolutionIncrementRect.x, resolutionDecrementRect.y }, 0.0f, 1.0f / 5.0f, WHITE);
-        DrawTextEx(meowFont, "Resolution", (Vector2) { resolutionRect.x + 80, resolutionRect.y + 10 }, 32, 2, MAIN_BROWN);
-        DrawTextEx(meowFont, TextFormat("%dx%d", options->resolution.x, options->resolution.y), (Vector2) { resolutionRect.x + 80, resolutionRect.y + 42 }, 32, 2, MAIN_BROWN);
+        DrawTextureEx(left_arrow, (Vector2) { resolutionDecrementRect.x, resolutionDecrementRect.y }, 0.0f, 1.0f / 5.0f, ColorAlphaOverride(WHITE, alpha));
+        DrawTextureEx(right_arrow, (Vector2) { resolutionIncrementRect.x, resolutionDecrementRect.y }, 0.0f, 1.0f / 5.0f, ColorAlphaOverride(WHITE, alpha));
+        DrawTextEx(meowFont, "Resolution", (Vector2) { resolutionRect.x + 80, resolutionRect.y + 10 }, 32, 2, ColorAlphaOverride(MAIN_BROWN, alpha));
+        DrawTextEx(meowFont, TextFormat("%dx%d", options->resolution.x, options->resolution.y), (Vector2) { resolutionRect.x + 80, resolutionRect.y + 42 }, 32, 2, ColorAlphaOverride(MAIN_BROWN, alpha));
 
         // FPS
-        DrawTextureEx(left_arrow, (Vector2) { fpsDecrementRect.x, fpsDecrementRect.y }, 0.0f, 1.0f / 5.0f, WHITE);
-        DrawTextureEx(right_arrow, (Vector2) { fpsIncrementRect.x, fpsDecrementRect.y }, 0.0f, 1.0f / 5.0f, WHITE);
-		DrawTextEx(meowFont, "Target FPS", (Vector2) { fpsRect.x + 80, fpsRect.y + 10 }, 32, 2, MAIN_BROWN);
-        DrawTextEx(meowFont, TextFormat("%d FPS", options->targetFps), (Vector2) { fpsRect.x + 80, fpsRect.y + 42 }, 32, 2, MAIN_BROWN);
+        DrawTextureEx(left_arrow, (Vector2) { fpsDecrementRect.x, fpsDecrementRect.y }, 0.0f, 1.0f / 5.0f, ColorAlphaOverride(WHITE, alpha));
+        DrawTextureEx(right_arrow, (Vector2) { fpsIncrementRect.x, fpsDecrementRect.y }, 0.0f, 1.0f / 5.0f, ColorAlphaOverride(WHITE, alpha));
+		DrawTextEx(meowFont, "Target FPS", (Vector2) { fpsRect.x + 80, fpsRect.y + 10 }, 32, 2, ColorAlphaOverride(MAIN_BROWN, alpha));
+        DrawTextEx(meowFont, TextFormat("%d FPS", options->targetFps), (Vector2) { fpsRect.x + 80, fpsRect.y + 42 }, 32, 2, ColorAlphaOverride(MAIN_BROWN, alpha));
 
 
         // Back
-        DrawRectangleRec(backRect, isBackHovered ? MAIN_ORANGE : MAIN_BROWN);
-        DrawTextEx(meowFont, "Back", (Vector2) { backRect.x + 40, backRect.y + 22 }, 32, 2, WHITE);
+        DrawRectangleRec(backRect, isBackHovered ? ColorAlphaOverride(MAIN_ORANGE, alpha) : ColorAlphaOverride(MAIN_BROWN, alpha));
+        DrawTextEx(meowFont, "Back", (Vector2) { backRect.x + 40, backRect.y + 22 }, 32, 2, ColorAlphaOverride(WHITE, alpha));
 
         // Draw debug
         if (options->showDebug && debugToolToggles.showObjects)
@@ -1334,8 +1367,7 @@ void OptionsUpdate(Camera2D* camera)
         EndDrawing();
     }
 
-    UnloadTexture(backgroundTexture);
-    CloseWindow();
+    ExitApplication();
 }
 
 void GameUpdate(Camera2D *camera)
