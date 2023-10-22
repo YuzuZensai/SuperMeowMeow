@@ -1690,9 +1690,9 @@ int main()
 
     GameOptions _options;
 
-    _options.difficulty = MEDIUM;
+    _options.difficulty = EASY;
     _options.resolution = (Resolution){ 1280, 720 };
-    _options.targetFps = 240;
+    _options.targetFps = 120;
     _options.fullscreen = false;  // Default to windowed mode
     _options.showDebug = DEBUG_SHOW;
     _options.musicEnabled = true;
