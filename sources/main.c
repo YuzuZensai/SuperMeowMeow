@@ -349,7 +349,22 @@ void DrawFpsGraph(Camera2D* camera) {
     int graphX = baseX + BASE_SCREEN_WIDTH - 15 - graphWidth;
     int graphY = baseY + 25;
 
-    float fpsScale = (float)graphHeight / (float)options->targetFps;
+    // Calculate the maximum value in the FPS history
+    float maxFpsValue = 0.0f;
+    for (int i = 0; i < DEBUG_MAX_FPS_HISTORY; i++) {
+        if (DebugFpsHistory[i] > maxFpsValue) {
+            maxFpsValue = (float)DebugFpsHistory[i];
+        }
+    }
+
+    // Adjust the scale based on the maximum value or target FPS
+    float fpsScale;
+    if ((float)options->targetFps > maxFpsValue) {
+        fpsScale = (float)graphHeight / (float)options->targetFps;
+    }
+    else {
+        fpsScale = (float)graphHeight / maxFpsValue;
+    }
 
     DrawRectangle(graphX, graphY, graphWidth, graphHeight, Fade(GRAY, 0.7));
 
