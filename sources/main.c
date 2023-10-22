@@ -40,6 +40,16 @@ typedef struct DebugLog {
 DebugLog DebugLogs[DEBUG_MAX_LOGS_HISTORY];
 int DebugLogsIndex = 0;
 
+// Debug tool toggles states
+typedef struct DebugToolToggles {
+	bool showDebugLogs;
+	bool showStats;
+	bool showGraph;
+    bool showObjects;
+} DebugToolToggles;
+
+DebugToolToggles debugToolToggles = { false, true, false, false };
+
 // Runtime resolution
 typedef struct Resolution {
     int x;
@@ -300,7 +310,7 @@ void DrawMenuFallingItems(double deltaTime, bool behide)
         },
             origin, item->rotation, WHITE);
 
-        if (options->showDebug) {
+        if (options->showDebug && debugToolToggles.showObjects) {
             Vector2 corners[4];
             corners[0] = (Vector2){ -origin.x, -origin.y };
             corners[1] = (Vector2){ -origin.x, origin.y };
@@ -341,7 +351,7 @@ void DrawMenuFallingItems(double deltaTime, bool behide)
 
 void DrawCustomer(Customer* customer, int frame, Vector2 pos)
 {
-    if (options->showDebug)
+    if (options->showDebug && debugToolToggles.showObjects)
     {
         DrawRectangleLinesEx((Rectangle) { pos.x, pos.y, customersImageData[frame].happy.width / 2, customersImageData[frame].happy.height / 2 }, 1, RED);
         DrawRectangle(pos.x, pos.y - 20, 500, 20, Fade(GRAY, 0.7));
@@ -598,13 +608,50 @@ void DrawDebugStats(Camera2D* camera)
 
 void DrawDebugOverlay(Camera2D *camera)
 {
+    if (options->showDebug)
+    {
+        // F1 - Toggle debug logs
+        if (IsKeyPressed(KEY_F1))
+        {
+            debugToolToggles.showDebugLogs = !debugToolToggles.showDebugLogs;
+        }
+        // F2 - Toggle debug stats
+        else if (IsKeyPressed(KEY_F2))
+        {
+            debugToolToggles.showStats = !debugToolToggles.showStats;
+        }
+        // F3 - Toggle debug graph
+        else if (IsKeyPressed(KEY_F3))
+        {
+            debugToolToggles.showGraph = !debugToolToggles.showGraph;
+        }
+        //  F4 - Toggle debug objects
+        else if (IsKeyPressed(KEY_F4))
+        {
+            debugToolToggles.showObjects = !debugToolToggles.showObjects;
+        }
+    }
+
     UpdateDebugFpsHistory();
     UpdateDebugFrameTimeHistory();
+
+    DrawRectangle(baseX + BASE_SCREEN_WIDTH - 15 - 300, baseY + BASE_SCREEN_HEIGHT - 15 - 110, 300, 140, Fade(GRAY, 0.7));
+    DrawTextEx(meowFont, "Debug Tools", (Vector2) { baseX + BASE_SCREEN_WIDTH - 15 - 290, baseY + BASE_SCREEN_HEIGHT - 15 - 100 }, 20, 2, WHITE);
+    DrawTextEx(meowFont, TextFormat("Logs | %s | F1", debugToolToggles.showDebugLogs ? "[On]" : "[Off]"), (Vector2) { baseX + BASE_SCREEN_WIDTH - 15 - 290, baseY + BASE_SCREEN_HEIGHT - 15 - 80 }, 20, 2, debugToolToggles.showDebugLogs ? GREEN : WHITE);
+    DrawTextEx(meowFont, TextFormat("Stats | %s | F2", debugToolToggles.showStats ? "[On]" : "[Off]"), (Vector2) { baseX + BASE_SCREEN_WIDTH - 15 - 290, baseY + BASE_SCREEN_HEIGHT - 15 - 60 }, 20, 2, debugToolToggles.showStats ? GREEN : WHITE);
+    DrawTextEx(meowFont, TextFormat("Graph | %s | F3", debugToolToggles.showGraph ? "[On]" : "[Off]"), (Vector2) { baseX + BASE_SCREEN_WIDTH - 15 - 290, baseY + BASE_SCREEN_HEIGHT - 15 - 40 }, 20, 2, debugToolToggles.showGraph ? GREEN : WHITE);
+    DrawTextEx(meowFont, TextFormat("Objects | %s | F4", debugToolToggles.showObjects ? "[On]" : "[Off]"), (Vector2) { baseX + BASE_SCREEN_WIDTH - 15 - 290, baseY + BASE_SCREEN_HEIGHT - 15 - 20 }, 20, 2, debugToolToggles.showObjects ? GREEN : WHITE);
     
-    DrawDebugStats(camera);
-    DrawFpsGraph(camera);
-    DrawFrameTime(camera);
-    DrawDebugLogs(camera);
+    if (debugToolToggles.showDebugLogs)
+        DrawDebugLogs(camera);
+    if(debugToolToggles.showStats)
+        DrawDebugStats(camera);
+    if (debugToolToggles.showGraph)
+    {
+        DrawFpsGraph(camera);
+        DrawFrameTime(camera);
+    }
+
 }
 
 /* Definitions of branch customers */
@@ -1260,7 +1307,7 @@ void OptionsUpdate(Camera2D* camera)
         DrawTextEx(meowFont, "Back", (Vector2) { backRect.x + 40, backRect.y + 22 }, 32, 2, WHITE);
 
         // Draw debug
-        if (options->showDebug)
+        if (options->showDebug && debugToolToggles.showObjects)
         {
             DrawRectangleLinesEx(difficultyRect, 1, RED);
             DrawRectangleLinesEx(difficultyDecrementRect, 1, RED);
@@ -1642,7 +1689,7 @@ void MainMenuUpdate(Camera2D* camera, bool playFade)
         DrawTextEx(meowFont, "Exit", (Vector2) { (int)(exitButtonRect.x + 40), (int)(exitButtonRect.y + 15) }, 60, 2, isExitButtonHovered ? MAIN_ORANGE : MAIN_BROWN);
 
         // Draw debug
-        if (options->showDebug)
+        if (options->showDebug && debugToolToggles.showObjects)
         {
             DrawRectangleLinesEx(startButtonRect, 1, RED);
             DrawRectangleLinesEx(optionsButtonRect, 1, RED);
