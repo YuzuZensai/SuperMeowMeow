@@ -864,6 +864,7 @@ void OptionsUpdate(Camera2D* camera)
 				else if (options->difficulty == MEDIUM) {
 					options->difficulty = HARD;
 				}
+                PlaySelectSound();
             }
             else if (isDifficultyDecrementHovered) {
 				if (options->difficulty == HARD) {
