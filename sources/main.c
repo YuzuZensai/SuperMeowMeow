@@ -428,7 +428,7 @@ void DrawFrameTime(Camera2D* camera) {
     int graphWidth = DEBUG_MAX_FPS_HISTORY;
     int graphHeight = 200;
     int graphX = baseX + BASE_SCREEN_WIDTH - 15 - graphWidth;
-    int graphY = baseY + 280;
+    int graphY = baseY + 255;
 
     float targetFrameTime = 1000.0f / options->targetFps;
 
