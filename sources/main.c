@@ -923,6 +923,25 @@ void OptionsUpdate(Camera2D* camera)
         DrawRectangleRec(backRect, isBackHovered ? MAIN_ORANGE : MAIN_BROWN);
         DrawTextEx(meowFont, "Back", (Vector2) { backRect.x + 40, backRect.y + 22 }, 32, 2, WHITE);
 
+        // Draw debug
+        if (options->showDebug)
+        {
+            DrawRectangleLinesEx(difficultyRect, 2, RED);
+            DrawRectangleLinesEx(difficultyDecrementRect, 2, RED);
+            DrawRectangleLinesEx(difficultyIncrementRect, 2, RED);
+            DrawRectangleLinesEx(resolutionRect, 2, RED);
+            DrawRectangleLinesEx(resolutionDecrementRect, 2, RED);
+            DrawRectangleLinesEx(resolutionIncrementRect, 2, RED);
+            DrawRectangleLinesEx(fpsRect, 2, RED);
+            DrawRectangleLinesEx(fpsDecrementRect, 2, RED);
+            DrawRectangleLinesEx(fpsIncrementRect, 2, RED);
+
+            DrawRectangleLinesEx(musicRect, 2, RED);
+            DrawRectangleLinesEx(soundFxRect, 2, RED);
+            DrawRectangleLinesEx(fullscreenRect, 2, RED);
+            DrawRectangleLinesEx(debugRect, 2, RED);
+        }
+
         DrawOuterWorld();
 
         if (options->showDebug)
@@ -1143,8 +1162,6 @@ void MainMenuUpdate(Camera2D* camera, bool playFade)
         Rectangle optionsButtonRect = { baseX + 50 - transitionOffset, baseY + 600 + 160, 400, 100 };
         Rectangle exitButtonRect = { baseX + 50 - transitionOffset, baseY + 600 + 350, 400, 100 };
 
-        Rectangle buttons[] = { startButtonRect, optionsButtonRect, exitButtonRect };
-
         // Convert mouse position from screen space to world space
         Vector2 mouseWorldPos = GetScreenToWorld2D(GetMousePosition(), *camera);
 
@@ -1229,13 +1246,6 @@ void MainMenuUpdate(Camera2D* camera, bool playFade)
         // Draw the background with the scaled dimensions
         DrawTextureEx(backgroundTexture, (Vector2) { baseX, baseY }, 0.0f, fmax(scaleX, scaleY), WHITE);
 
-        // Draw buttons
-        /*
-        DrawRectangleRec(startButtonRect, isStartButtonHovered ? SKYBLUE : BLUE);
-        DrawRectangleRec(optionsButtonRect, isOptionsButtonHovered ? SKYBLUE : BLUE);
-        DrawRectangleRec(exitButtonRect, isExitButtonHovered ? SKYBLUE : BLUE);
-        */
-
         // Draw falling items behind the menu
         DrawMenuFallingItems(deltaTime, true);
 
@@ -1292,6 +1302,14 @@ void MainMenuUpdate(Camera2D* camera, bool playFade)
         DrawTextEx(meowFont, "Start Game", (Vector2) { (int)(startButtonRect.x + 40), (int)(startButtonRect.y + 15) }, 60, 2, isStartButtonHovered ? MAIN_ORANGE : MAIN_BROWN);
         DrawTextEx(meowFont, "Settings", (Vector2) { (int)(optionsButtonRect.x + 40), (int)(optionsButtonRect.y + 15) }, 60, 2, isOptionsButtonHovered ? MAIN_ORANGE : MAIN_BROWN);
         DrawTextEx(meowFont, "Exit", (Vector2) { (int)(exitButtonRect.x + 40), (int)(exitButtonRect.y + 15) }, 60, 2, isExitButtonHovered ? MAIN_ORANGE : MAIN_BROWN);
+
+        // Draw debug
+        if (options->showDebug)
+        {
+            DrawRectangleLinesEx(startButtonRect, 1, RED);
+            DrawRectangleLinesEx(optionsButtonRect, 1, RED);
+            DrawRectangleLinesEx(exitButtonRect, 1, RED);
+        }
 
         DrawOuterWorld();
 
