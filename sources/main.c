@@ -926,20 +926,20 @@ void OptionsUpdate(Camera2D* camera)
         // Draw debug
         if (options->showDebug)
         {
-            DrawRectangleLinesEx(difficultyRect, 2, RED);
-            DrawRectangleLinesEx(difficultyDecrementRect, 2, RED);
-            DrawRectangleLinesEx(difficultyIncrementRect, 2, RED);
-            DrawRectangleLinesEx(resolutionRect, 2, RED);
-            DrawRectangleLinesEx(resolutionDecrementRect, 2, RED);
-            DrawRectangleLinesEx(resolutionIncrementRect, 2, RED);
-            DrawRectangleLinesEx(fpsRect, 2, RED);
-            DrawRectangleLinesEx(fpsDecrementRect, 2, RED);
-            DrawRectangleLinesEx(fpsIncrementRect, 2, RED);
+            DrawRectangleLinesEx(difficultyRect, 1, RED);
+            DrawRectangleLinesEx(difficultyDecrementRect, 1, RED);
+            DrawRectangleLinesEx(difficultyIncrementRect, 1, RED);
+            DrawRectangleLinesEx(resolutionRect, 1, RED);
+            DrawRectangleLinesEx(resolutionDecrementRect, 1, RED);
+            DrawRectangleLinesEx(resolutionIncrementRect, 1, RED);
+            DrawRectangleLinesEx(fpsRect, 1, RED);
+            DrawRectangleLinesEx(fpsDecrementRect, 1, RED);
+            DrawRectangleLinesEx(fpsIncrementRect, 1, RED);
 
-            DrawRectangleLinesEx(musicRect, 2, RED);
-            DrawRectangleLinesEx(soundFxRect, 2, RED);
-            DrawRectangleLinesEx(fullscreenRect, 2, RED);
-            DrawRectangleLinesEx(debugRect, 2, RED);
+            DrawRectangleLinesEx(musicRect, 1, RED);
+            DrawRectangleLinesEx(soundFxRect, 1, RED);
+            DrawRectangleLinesEx(fullscreenRect, 1, RED);
+            DrawRectangleLinesEx(debugRect, 1, RED);
         }
 
         DrawOuterWorld();
