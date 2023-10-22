@@ -86,6 +86,9 @@ Font meowFont;
 Sound select;
 Sound hover;
 
+// BGMs
+Music menuBgm;
+
 // Menu falling items
 Texture2D menuFallingItemTextures[8];
 
@@ -195,6 +198,10 @@ Customer menuCustomer2;
 #define menuFallingItemsNumber 8
 MenuFallingItem menuFallingItems[20];
 GameOptions *options;
+
+// Current BGM
+Music* currentBgm = NULL;
+bool isCurrentBgmPaused = false;
 
 double GetRandomDoubleValue(double min, double max)
 {
@@ -513,6 +520,9 @@ void WindowUpdate(Camera2D* camera)
         SetRuntimeResolution(camera, BASE_SCREEN_WIDTH, BASE_SCREEN_HEIGHT);
         ToggleFullscreen();
     }
+
+    if(currentBgm != NULL)
+        UpdateMusicStream(*currentBgm);
 }
 
 void LoadGlobalAssets()
@@ -559,6 +569,8 @@ void LoadGlobalAssets()
         customersImageData[i].angryEyesClosed = LoadTexture(TextFormat(ASSETS_PATH"image/sprite/customer_%d/angry_eyes_closed.png", i + 1));
 	}
 
+    menuBgm = LoadMusicStream(ASSETS_PATH"audio/bgm/Yojo_Summer_My_Heart.wav");
+
     menuCustomer1 = createCustomer(EMOTION_HAPPY, 2.0, 4.0, 0.25, true);
     menuCustomer2 = createCustomer(EMOTION_HAPPY, 0.4, 5.2, 0.3, true);
 }
@@ -595,12 +607,69 @@ void UnloadGlobalAssets()
 		UnloadTexture(customersImageData[i].angry);
 		UnloadTexture(customersImageData[i].angryEyesClosed);
     }
+
+    UnloadMusicStream(menuBgm);
 }
 
 void ExitApplication()
 {
     UnloadGlobalAssets();
     exit(0);
+}
+
+void PlayBgm(Music *bgm)
+{
+    if (bgm == currentBgm)
+    {
+        if (isCurrentBgmPaused)
+        {
+            PlayMusicStream(*bgm);
+            bgm->looping = true;
+            isCurrentBgmPaused = false;
+        }
+        return;
+    }
+
+    currentBgm = bgm;
+	StopMusicStream(*currentBgm);
+	PlayMusicStream(*currentBgm);
+    bgm->looping = true;
+    isCurrentBgmPaused = false;
+}
+
+void PlayBgmIfStopped(Music* bgm)
+{
+    if (bgm == currentBgm)
+    {
+        if (isCurrentBgmPaused)
+        {
+            PlayMusicStream(*bgm);
+            bgm->looping = true;
+            isCurrentBgmPaused = false;
+        }
+        return;
+    }
+
+    currentBgm = bgm;
+    PlayMusicStream(*currentBgm);
+    bgm->looping = true;
+    isCurrentBgmPaused = false;
+}
+
+void PauseBgm(Music *bgm)
+{
+	if (bgm != currentBgm) return;
+	if (isCurrentBgmPaused) return;
+
+	PauseMusicStream(*bgm);
+	isCurrentBgmPaused = true;
+}
+
+void StopBgm(Music *bgm)
+{
+	StopMusicStream(*bgm);
+    isCurrentBgmPaused = false;
+    currentBgm = NULL;
 }
 
 void OptionsUpdate(Camera2D* camera)
@@ -630,6 +699,8 @@ void OptionsUpdate(Camera2D* camera)
 
     bool isHovering = false;
     int currentHoveredButton = NULL;
+
+    PlayBgmIfStopped(&menuBgm);
 
     while (!WindowShouldClose())
     {
@@ -775,10 +846,10 @@ void OptionsUpdate(Camera2D* camera)
 				// Toggle music
 				options->musicEnabled = !options->musicEnabled;
                 PlaySelectSound();
-				//if (options->musicEnabled)
-				//	PlayMusicStream(music);
-				//else
-				//	StopMusicStream(music);
+                if (options->musicEnabled)
+                    PlayBgm(&menuBgm);
+				else
+                    PauseBgm(&menuBgm);
 			}
 			else if (isSoundFxHovered) {
 				// Toggle sound fx
@@ -1159,6 +1230,8 @@ void MainMenuUpdate(Camera2D* camera, bool playFade)
     if(isTransitioningIn)
         transitionOffset = BASE_SCREEN_WIDTH / 2;
 
+    PlayBgmIfStopped(&menuBgm);
+
     if(playFade)
     {
         for (int i = 0; i < 20; i++) {
@@ -1503,7 +1576,6 @@ void SplashUpdate(Camera2D* camera)
 
 int main()
 {
-    
     SetConfigFlags(FLAG_WINDOW_RESIZABLE);
     SetConfigFlags(FLAG_MSAA_4X_HINT);
 
