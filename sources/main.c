@@ -13,7 +13,7 @@
 
 // Debug flags
 #define DEBUG_SHOW true
-#define DEBUG_FASTLOAD true
+#define DEBUG_FASTLOAD !true
 #define DEBUG_MAX_FPS_HISTORY 500
 #define DEBUG_MAX_LOGS_HISTORY 25
 
