@@ -983,7 +983,6 @@ void OptionsUpdate(Camera2D* camera)
 				options->soundFxEnabled = !options->soundFxEnabled;
                 PlaySelectSound();
 			}
-			PlaySelectSound();
         }
 
         // Play sound when hovering over a button, but only once
