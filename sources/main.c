@@ -605,22 +605,22 @@ void ExitApplication()
 
 void OptionsUpdate(Camera2D* camera)
 {
-    Rectangle difficultyRect = { baseX + 780, baseY + 595, 200, 70 };
-    Rectangle difficultyDecrementRect = { difficultyRect.x, difficultyRect.y + 10, 50, 50 };
-    Rectangle difficultyIncrementRect = { difficultyRect.x + 280, difficultyRect.y + 10, 50, 50 };
+    Rectangle difficultyRect = { baseX + 780, baseY + 595, 340, 70 };
+    Rectangle difficultyDecrementRect = { difficultyRect.x, difficultyRect.y, 60, 70 };
+    Rectangle difficultyIncrementRect = { difficultyRect.x + 280, difficultyRect.y, 60, 70 };
     
-    Rectangle resolutionRect = { baseX + 780, baseY + 675, 200, 70 };
-    Rectangle resolutionDecrementRect = { resolutionRect.x, resolutionRect.y + 10, 50, 50 };
-    Rectangle resolutionIncrementRect = { resolutionRect.x + 280, resolutionRect.y + 10, 50, 50 };
+    Rectangle resolutionRect = { baseX + 780, baseY + 675, 340, 70 };
+    Rectangle resolutionDecrementRect = { resolutionRect.x, resolutionRect.y, 60, 70 };
+    Rectangle resolutionIncrementRect = { resolutionRect.x + 280, resolutionRect.y, 60, 70 };
 
-    Rectangle fpsRect = { baseX + 1200, baseY + 595, 200, 70 };
-    Rectangle fpsDecrementRect = { fpsRect.x, fpsRect.y + 10, 50, 50 };
-    Rectangle fpsIncrementRect = { fpsRect.x + 280, fpsRect.y + 10, 50, 50 };
+    Rectangle fpsRect = { baseX + 1200, baseY + 595, 340, 70 };
+    Rectangle fpsDecrementRect = { fpsRect.x, fpsRect.y, 60, 70 };
+    Rectangle fpsIncrementRect = { fpsRect.x + 280, fpsRect.y, 60, 70 };
 
     Rectangle musicRect = { baseX + 100, baseY + 595, 200, 70 };
-    Rectangle soundFxRect = { baseX + 100, baseY + 675, 200, 70 };
+    Rectangle soundFxRect = { baseX + 100, baseY + 675, 250, 70 };
 
-    Rectangle fullscreenRect = { baseX + 400, baseY + 595, 200, 70 };
+    Rectangle fullscreenRect = { baseX + 400, baseY + 595, 300, 70 };
     Rectangle debugRect = { baseX + 400, baseY + 675, 200, 70 };
 
     Rectangle backRect = { baseX + 100, baseY + 430, 200, 70 };
@@ -649,7 +649,6 @@ void OptionsUpdate(Camera2D* camera)
 
         bool isFpsIncrementHovered = CheckCollisionPointRec(mouseWorldPos, fpsIncrementRect);
         bool isFpsDecrementHovered = CheckCollisionPointRec(mouseWorldPos, fpsDecrementRect);
-        
         
         bool isMusicHovered = CheckCollisionPointRec(mouseWorldPos, musicRect);
         bool isSoundFxHovered = CheckCollisionPointRec(mouseWorldPos, soundFxRect);
