@@ -394,7 +394,7 @@ void DrawFpsGraph(Camera2D* camera) {
     }
 
     DrawTextEx(meowFont, "FPS", (Vector2) { baseX + BASE_SCREEN_WIDTH - 50, baseY + 5 }, 20, 2, GRAY);
-    DrawTextEx(meowFont, TextFormat("%d", options->targetFps), (Vector2) { graphX + 10, graphY + 10 }, 15, 2, WHITE);
+    DrawTextEx(meowFont, TextFormat("%.2f", maxFpsValue > options->targetFps ? maxFpsValue : options->targetFps), (Vector2) { graphX + 10, graphY + 10 }, 15, 2, WHITE);
     DrawTextEx(meowFont, "0", (Vector2) { graphX + 10, graphY + graphHeight - 30 }, 15, 2, WHITE);
 }
 
@@ -449,7 +449,7 @@ void DrawFrameTime(Camera2D* camera) {
     }
 
     DrawTextEx(meowFont, "Frame Time (ms)", (Vector2) { baseX - 130 + BASE_SCREEN_WIDTH - 50, graphY - 25 }, 20, 2, GRAY);
-    DrawTextEx(meowFont, TextFormat("%.2f", targetFrameTime), (Vector2) { graphX + 10, graphY + 10 }, 15, 2, WHITE);
+    DrawTextEx(meowFont, TextFormat("%.2f", maxFrameTime > expectedFrameTime ? maxFrameTime : expectedFrameTime), (Vector2) { graphX + 10, graphY + 10 }, 15, 2, WHITE);
     DrawTextEx(meowFont, "0", (Vector2) { graphX + 10, graphY + graphHeight - 30 }, 15, 2, WHITE);
 }
 
