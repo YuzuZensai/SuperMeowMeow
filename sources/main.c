@@ -25,6 +25,10 @@ const int targetFps = 300;
 int DebugFpsHistory[DEBUG_MAX_FPS_HISTORY];
 int DebugFpsHistoryIndex = 0;
 
+// Debug frame time history
+int DebugFrameTimeHistory[DEBUG_MAX_FPS_HISTORY];
+int DebugFrameTimeHistoryIndex = 0;
+
 // Runtime resolution
 typedef struct Resolution {
     int x;
@@ -349,23 +353,100 @@ void DrawFpsGraph(Camera2D* camera) {
 
     DrawRectangle(graphX, graphY, graphWidth, graphHeight, Fade(GRAY, 0.7));
 
-    // Draw the FPS history graph
+    // Draw the FPS history graph with color based on target FPS
     for (int i = 1; i < DEBUG_MAX_FPS_HISTORY; i++) {
         int x1 = graphX + i - 1;
         int x2 = graphX + i;
         int y1 = graphY + graphHeight - (DebugFpsHistory[(DebugFpsHistoryIndex + i - 1) % DEBUG_MAX_FPS_HISTORY] * fpsScale);
         int y2 = graphY + graphHeight - (DebugFpsHistory[(DebugFpsHistoryIndex + i) % DEBUG_MAX_FPS_HISTORY] * fpsScale);
-        DrawLine(x1, y1, x2, y2, GREEN);
+
+        // Calculate the ratio of actual FPS to target FPS
+        float fpsRatio = (float)DebugFpsHistory[(DebugFpsHistoryIndex + i) % DEBUG_MAX_FPS_HISTORY] / (float)options->targetFps;
+
+        // Set color based on the ratio to target FPS
+        Color lineColor;
+        if (fpsRatio >= 0.9f) {
+            lineColor = GREEN; // FPS close to or exceeding target
+        }
+        else if (fpsRatio >= 0.7f) {
+            lineColor = YELLOW; // FPS above 70% of target
+        }
+        else {
+            lineColor = RED; // FPS below 70% of target
+        }
+
+        DrawLine(x1, y1, x2, y2, lineColor);
     }
 
     DrawTextEx(meowFont, "FPS", (Vector2) { baseX + BASE_SCREEN_WIDTH - 50, baseY + 5 }, 20, 2, GRAY);
-	DrawTextEx(meowFont, TextFormat("%d", options->targetFps), (Vector2) { graphX + 10, graphY + 10 }, 15, 2, WHITE);
+    DrawTextEx(meowFont, TextFormat("%d", options->targetFps), (Vector2) { graphX + 10, graphY + 10 }, 15, 2, WHITE);
     DrawTextEx(meowFont, "0", (Vector2) { graphX + 10, graphY + graphHeight - 30 }, 15, 2, WHITE);
 }
+
+
+void DrawFrameTime(Camera2D* camera) {
+    int graphWidth = DEBUG_MAX_FPS_HISTORY;
+    int graphHeight = 200;
+    int graphX = baseX + BASE_SCREEN_WIDTH - 15 - graphWidth;
+    int graphY = baseY + 280;
+
+    float targetFrameTime = 1000.0f / options->targetFps;
+
+    // Find the maximum value in the DebugFrameTimeHistory array
+    float maxFrameTime = 0.0f;
+    for (int i = 0; i < DEBUG_MAX_FPS_HISTORY; i++) {
+        if (DebugFrameTimeHistory[i] > maxFrameTime) {
+            maxFrameTime = DebugFrameTimeHistory[i];
+        }
+    }
+
+    // Calculate the expected value based on the target FPS
+    float expectedFrameTime = 1000.0f / options->targetFps;
+
+    // Adjust the frameTimeScale based on the maximum value
+    float frameTimeScale = (maxFrameTime > 0) ? (float)graphHeight / maxFrameTime : 1.0f;
+
+    DrawRectangle(graphX, graphY, graphWidth, graphHeight, Fade(GRAY, 0.7));
+
+    // Draw the frame time history graph with color based on expected value
+    for (int i = 1; i < DEBUG_MAX_FPS_HISTORY; i++) {
+        int x1 = graphX + i - 1;
+        int x2 = graphX + i;
+        int y1 = graphY + graphHeight - (DebugFrameTimeHistory[(DebugFrameTimeHistoryIndex + i - 1) % DEBUG_MAX_FPS_HISTORY] * frameTimeScale);
+        int y2 = graphY + graphHeight - (DebugFrameTimeHistory[(DebugFrameTimeHistoryIndex + i) % DEBUG_MAX_FPS_HISTORY] * frameTimeScale);
+
+        // Calculate the ratio of the frame time to the expected frame time
+        float ratioToExpected = DebugFrameTimeHistory[(DebugFrameTimeHistoryIndex + i) % DEBUG_MAX_FPS_HISTORY] / expectedFrameTime;
+
+        // Set color based on the ratio to expected value
+        Color lineColor;
+        if (ratioToExpected <= 1.0f) {
+            lineColor = GREEN;
+        }
+        else if (ratioToExpected <= 1.5f) {
+            lineColor = YELLOW;
+        }
+        else {
+            lineColor = RED;
+        }
+
+        DrawLine(x1, y1, x2, y2, lineColor);
+    }
+
+    DrawTextEx(meowFont, "Frame Time (ms)", (Vector2) { baseX - 130 + BASE_SCREEN_WIDTH - 50, graphY - 25 }, 20, 2, GRAY);
+    DrawTextEx(meowFont, TextFormat("%.2f", targetFrameTime), (Vector2) { graphX + 10, graphY + 10 }, 15, 2, WHITE);
+    DrawTextEx(meowFont, "0", (Vector2) { graphX + 10, graphY + graphHeight - 30 }, 15, 2, WHITE);
+}
+
 
 void UpdateDebugFpsHistory() {
     DebugFpsHistory[DebugFpsHistoryIndex] = GetFPS();
     DebugFpsHistoryIndex = (DebugFpsHistoryIndex + 1) % DEBUG_MAX_FPS_HISTORY;
+}
+
+void UpdateDebugFrameTimeHistory() {
+	DebugFrameTimeHistory[DebugFrameTimeHistoryIndex] = GetFrameTime() * 1000;
+	DebugFrameTimeHistoryIndex = (DebugFrameTimeHistoryIndex + 1) % DEBUG_MAX_FPS_HISTORY;
 }
 
 void DrawDebugOverlay(Camera2D *camera)
@@ -380,11 +461,13 @@ void DrawDebugOverlay(Camera2D *camera)
     Vector2 mouseWorldPos = GetScreenToWorld2D(mousePosition, *camera);
 
     UpdateDebugFpsHistory();
+    UpdateDebugFrameTimeHistory();
     
     DrawTextEx(meowFont, TextFormat("%d FPS | Target FPS %d | Window (%dx%d) | Render (%dx%d) | Fullscreen ", fps, options->targetFps, options->resolution.x, options->resolution.y, BASE_SCREEN_WIDTH, BASE_SCREEN_HEIGHT, options->fullscreen ? "Yes" : "No"), (Vector2) { baseX + 10, baseY + 5 }, 20, 2, color);
     DrawTextEx(meowFont, TextFormat("Cursor %.2f,%.2f (%dx%d) | World %.2f,%.2f (%dx%d) | R Base World %.2f,%.2f", mousePosition.x, mousePosition.y, options->resolution.x, options->resolution.y, mouseWorldPos.x, mouseWorldPos.y, BASE_SCREEN_WIDTH, BASE_SCREEN_HEIGHT, mouseWorldPos.x - baseX, mouseWorldPos.y - baseY), (Vector2) { baseX + 10, baseY + 25 }, 20, 2, color);
     DrawTextEx(meowFont, TextFormat("Zoom %.2f | In View %s", camera->zoom, IsMousePositionInGameWindow(camera) ? "[Yes]" : "[No]"), (Vector2) { baseX + 10, baseY + 45 }, 20, 2, color);
     DrawFpsGraph(camera);
+    DrawFrameTime(camera);
 }
 
 /* Definitions of branch customers */
