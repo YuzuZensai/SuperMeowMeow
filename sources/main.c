@@ -207,6 +207,10 @@ GameOptions *options;
 Music* currentBgm = NULL;
 bool isCurrentBgmPaused = false;
 
+// Load duration timer
+double loadDurationTimer = 0.0;
+bool isGlobalAssetsLoadFinished = false;
+
 double GetRandomDoubleValue(double min, double max)
 {
     return min + (rand() / (double)RAND_MAX) * (max - min);
@@ -646,6 +650,7 @@ void WindowUpdate(Camera2D* camera)
 
 void LoadGlobalAssets()
 {
+    double startTime = GetTime();
     backgroundTexture = LoadTexture(ASSETS_PATH"image/backgrounds/main.png");
     backgroundOverlayTexture = LoadTexture(ASSETS_PATH"image/backgrounds/main_overlay_1.png");
     backgroundOverlaySidebarTexture = LoadTexture(ASSETS_PATH"image/backgrounds/main_overlay_2.png");
@@ -692,6 +697,9 @@ void LoadGlobalAssets()
 
     menuCustomer1 = createCustomer(EMOTION_HAPPY, 2.0, 4.0, 0.25, true);
     menuCustomer2 = createCustomer(EMOTION_HAPPY, 0.4, 5.2, 0.3, true);
+
+    loadDurationTimer = GetTime() - startTime;
+    isGlobalAssetsLoadFinished = true;
 }
 
 void UnloadGlobalAssets()
@@ -1572,14 +1580,17 @@ void SplashUpdate(Camera2D* camera)
 {
 #if DEBUG_FASTLOAD
     const double beforeStart = 0;
-    const double splashDuration = 0;
+    double splashDuration = 0;
     const double fadeInDuration = 0;
     const double stayDuration = 0;
     const double fadeOutDuration = 0;
     const double afterEnd = 0;
+
+    LoadGlobalAssets();
+    MainMenuUpdate(camera, true);
 #else
     const double beforeStart = 1.0;
-    const double splashDuration = 8.0;
+    double splashDuration = 8.0;
     const double fadeInDuration = 2.0;
     const double stayDuration = 3.0;
     const double fadeOutDuration = 2.0;
@@ -1624,12 +1635,10 @@ void SplashUpdate(Camera2D* camera)
         EndDrawing();
     }
 
-#if !DEBUG_FASTLOAD
     const Sound systemLoad = LoadSound(ASSETS_PATH"audio/Meow1.mp3");
     PlaySound(systemLoad);
-#endif
 
-    LoadGlobalAssets();
+    bool doLoadGlobalAssets = true;
 
     // Reset time
     startTime = GetTime();
@@ -1649,11 +1658,22 @@ void SplashUpdate(Camera2D* camera)
         else if (currentTime < fadeInDuration + stayDuration) {
             // Fully visible (staying)
             alpha = 255;
+            if(doLoadGlobalAssets)
+			{
+				LoadGlobalAssets();
+				doLoadGlobalAssets = false;
+			}
         }
         else {
             // Fading out
             alpha = (int)(255.0 * (1.0 - fmin((currentTime - fadeInDuration - stayDuration) / fadeOutDuration, 1.0)));
         }
+
+        // Extends splash screen duration if loading takes too long
+        if (currentTime > fadeInDuration + stayDuration && doLoadGlobalAssets)
+		{
+			splashDuration += 0.1;
+		}
 
         BeginDrawing();
         BeginMode2D(*camera);
@@ -1667,8 +1687,6 @@ void SplashUpdate(Camera2D* camera)
         EndMode2D();
         EndDrawing();
     }
-
-    
 
     // Reset time
     startTime = GetTime();
