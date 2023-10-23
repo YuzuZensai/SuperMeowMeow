@@ -8,7 +8,6 @@
 #include <time.h> 
 #include <string.h>
 
-
 // Render resolution
 #define BASE_SCREEN_WIDTH 1920
 #define BASE_SCREEN_HEIGHT 1080
@@ -506,7 +505,6 @@ void UpdateCup(Cup* cup, Ingredient* ingredient) {
 
     // Check what type of ingredient it is and update the cup accordingly
     if (ingredient == &teaPowder && cup->powderType == NONE) {
-        LogDebug("GREEN TEA!!!\n");
         cup->powderType = GREEN_TEA;
     }
     else if (ingredient == &cocoaPowder && cup->powderType == NONE) {
@@ -536,9 +534,6 @@ void UpdateCup(Cup* cup, Ingredient* ingredient) {
     else if (ingredient == &hotWater) {
         cup->hasWater = true;
     }
-
-
-    
 
     UpdateCupImage(cup, ingredient);
 
