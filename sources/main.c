@@ -24,6 +24,7 @@ const float baseY = -(BASE_SCREEN_HEIGHT / 2);
 const float targetAspectRatio = (float)BASE_SCREEN_WIDTH / (float)BASE_SCREEN_HEIGHT;
 const int targetFps = 300;
 const float bgmVolume = 0.1f;
+const float gameDuration = 60.0f * 2.0f;
 
 // Debug FPS history
 int DebugFpsHistory[DEBUG_MAX_FPS_HISTORY];
@@ -193,7 +194,7 @@ typedef struct Customer {
     //int patience; //To be removed. 
     bool visible;
     char order[20];
-    int currentTime;
+    double currentTime;
     int orderEnd;
     Vector2 position;
     int textureType;
@@ -335,6 +336,7 @@ void boilWater(Ingredient* item) {
     }
 }
 
+void RemoveCustomer(Customer* customer);
 bool validiator(Customer* customer, char* order);
 Texture2D* DragAndDropCup(Cup* cup, const DropArea* dropArea, Camera2D* camera, Customers *customers)
 {
@@ -415,9 +417,11 @@ Texture2D* DragAndDropCup(Cup* cup, const DropArea* dropArea, Camera2D* camera, 
                         {
                             global_score += 50;
                             customerToCheck[i]->visible = false;
+                            RemoveCustomer(customerToCheck[i]);
                         }
                         else
                             global_score -= 50;
+
                         // Reset cup state
                         cup->texture = LoadTexture(ASSETS_PATH"combination/EMPTY.png");
                         cup->powderType = NONE;
@@ -974,7 +978,84 @@ void DrawMenuFallingItems(double deltaTime, bool behide)
     }
 }
 
-void randomGenerateOrder(char *order)
+double RandomCustomerTimeoutBasedOnDifficulty()
+{
+    switch (options->difficulty)
+    {
+    case FREEPLAY_EASY:
+    case EASY:
+        return GetRandomDoubleValue(80, 150);
+        break;
+    case FREEPLAY_MEDIUM:
+    case MEDIUM:
+        return GetRandomDoubleValue(40, 60);
+        break;
+    case FREEPLAY_HARD:
+    case HARD:
+        return GetRandomDoubleValue(20, 40);
+        break;
+    default:
+        return GetRandomDoubleValue(80, 150);
+        break;
+    }
+}
+
+void RandomCustomerInitialResetBasedOnDifficulty(double *values) {
+
+    switch (options->difficulty)
+	{
+        case FREEPLAY_EASY:
+        case EASY:
+        	values[0] = GetRandomDoubleValue(4, 6);
+        	values[1] = GetRandomDoubleValue(5, 15);
+        	values[2] = GetRandomDoubleValue(10, 25);
+        	break;
+        case FREEPLAY_MEDIUM:
+        case MEDIUM:
+        	values[0] = GetRandomDoubleValue(2, 6);
+        	values[1] = GetRandomDoubleValue(4, 10);
+        	values[2] = GetRandomDoubleValue(12, 20);
+        	break;
+        case FREEPLAY_HARD:
+        case HARD:
+        	values[0] = GetRandomDoubleValue(2, 4);
+        	values[1] = GetRandomDoubleValue(3, 6);
+        	values[2] = GetRandomDoubleValue(6, 10);
+        	break;
+        default:
+            values[0] = GetRandomDoubleValue(4, 6);
+            values[1] = GetRandomDoubleValue(5, 15);
+            values[2] = GetRandomDoubleValue(10, 25);
+        	break;
+    }
+
+
+}
+
+
+double RandomCustomerResetBasedOnDifficulty()
+{
+    switch (options->difficulty)
+    {
+    case FREEPLAY_EASY:
+    case EASY:
+        return GetRandomDoubleValue(30, 50);
+        break;
+    case FREEPLAY_MEDIUM:
+    case MEDIUM:
+        return GetRandomDoubleValue(15, 30);
+        break;
+    case FREEPLAY_HARD:
+    case HARD:
+        return GetRandomDoubleValue(1, 10);
+        break;
+    default:
+        return GetRandomDoubleValue(30, 50);
+        break;
+    }
+}
+
+void RandomGenerateOrder(char *order)
 {
     int random = GetRandomValue(0, 2);
     order[0] = '\0'; // Initialize the string
@@ -1086,9 +1167,9 @@ void DrawCustomer(Customer* customer)
         DrawRectangle(pos.x, pos.y - 20, 500, 60, Fade(GRAY, 0.7));
         DrawTextEx(meowFont, TextFormat("%s | Blink %s (%.2f) %.2f/%.2f", StringFromCustomerEmotionEnum(customer->emotion), customer->eyesClosed ? "[Yes]" : "[No]", customer->blinkDuration, customer->blinkTimer, customer->normalDuration), (Vector2) { pos.x, pos.y - 20 }, 20, 1, WHITE);
         if (customer->visible)
-            DrawTextEx(meowFont, TextFormat("Timeout %.2f/%.2f", (float)customer->currentTime / 1000.0f, (float)customer->orderEnd / 1000.0f), (Vector2) { pos.x, pos.y }, 20, 1, WHITE);
+            DrawTextEx(meowFont, TextFormat("Timeout %.2f/%.2f", (float)customer->currentTime, (float)customer->orderEnd), (Vector2) { pos.x, pos.y }, 20, 1, WHITE);
         else
-            DrawTextEx(meowFont, TextFormat("Reset %.2f/%.2f", (float)customer->currentTime / 1000.0f, (float)customer->resetTimer / 1000.0f), (Vector2) { pos.x, pos.y }, 20, 1, WHITE);
+            DrawTextEx(meowFont, TextFormat("Reset %.2f/%.2f", (float)customer->currentTime, (float)customer->resetTimer), (Vector2) { pos.x, pos.y }, 20, 1, WHITE);
         DrawTextEx(meowFont, TextFormat("Visible %s | Order %s", customer->visible ? "[Yes]" : "[No]", customer->order), (Vector2) { pos.x, pos.y + 20 }, 20, 1, WHITE);
     }
 
@@ -1376,14 +1457,14 @@ void DrawDebugOverlay(Camera2D *camera)
 
 }
 
-Customer CreateCustomerWithOrder(int patience, int currentTime, int orderEnd, Vector2 pos, int textureType, double resetTimer) {
+Customer CreateCustomerWithOrder(int patience, double currentTime, int orderEnd, Vector2 pos, int textureType, double resetTimer) {
     Customer newCustomer = CreateCustomer(EMOTION_HAPPY, 0, 0, 0.25, true, pos, textureType, resetTimer);
     RandomCustomerBlinkTime(&newCustomer);
 
     newCustomer.currentTime = currentTime;
     newCustomer.orderEnd = orderEnd * patience;
 	strcpy(newCustomer.order, "");
-	randomGenerateOrder(newCustomer.order);
+	RandomGenerateOrder(newCustomer.order);
     return newCustomer;
 }
 
@@ -1440,18 +1521,21 @@ void render_customers(Customers *customers)
 
 //Yandere dev inspired programming.
 
-void remove_customers(Customer *customer)
+void RemoveCustomer(Customer *customer)
 {
 	customer->visible = false;
     customer->currentTime = 0;
-    customer->resetTimer = GetRandomDoubleValue(1000, 10000);
+    customer->orderEnd = 0;
+    customer->resetTimer = RandomCustomerResetBasedOnDifficulty();
 }
 
-void update_customer_state(Customer* customer) {
-    if (customer->visible == true) {
-        if ((float)customer->currentTime < (float)customer->orderEnd) {
-            customer->currentTime++;
+void UpdateCustomerState(Customer* customer, float deltaTime) {
 
+    customer->currentTime += deltaTime;
+
+    if (customer->visible == true) {
+
+        if ((float)customer->currentTime < (float)customer->orderEnd) {
             // Calculate a ratio of how close to the orderEnd the currentTime is
             float ratio = (float)customer->currentTime / (float)customer->orderEnd;
 
@@ -1466,28 +1550,28 @@ void update_customer_state(Customer* customer) {
             }
         }
         else {
-            remove_customers(customer);
+            RemoveCustomer(customer);
             global_score -= 50;
         }
     }
-    else
-    {
-        customer->currentTime++;
-        if((float)customer->currentTime > customer->resetTimer)
-		{
-			customer->currentTime = 0;
-			customer->visible = true;
-			strcpy(customer->order, "");
-			randomGenerateOrder(customer->order);
-		}
+    else {
+
+        if ((float)customer->currentTime > customer->resetTimer) {
+            customer->currentTime = 0;
+            customer->orderEnd = RandomCustomerTimeoutBasedOnDifficulty();
+            customer->visible = true;
+            strcpy(customer->order, "");
+            RandomGenerateOrder(customer->order);
+        }
     }
 }
 
 
-void Tick(Customers *customers) {
-    update_customer_state(&customers->customer1);
-    update_customer_state(&customers->customer2);
-    update_customer_state(&customers->customer3);
+
+void Tick(Customers *customers, float deltaTime) {
+    UpdateCustomerState(&customers->customer1, deltaTime);
+    UpdateCustomerState(&customers->customer2, deltaTime);
+    UpdateCustomerState(&customers->customer3, deltaTime);
 }
 
 /* Definitions terminates*/
@@ -2233,6 +2317,12 @@ void GameUpdate(Camera2D *camera)
     bool isHovering = false;
     bool hoversoundPlayed = false;
 
+    // Start from night
+    int currentColorIndex = 3;
+
+    dayNightCycleDuration = gameDuration * 3;
+    float colorTransitionTime = dayNightCycleDuration / 3;
+
     Cup cup = {
         LoadTexture(ASSETS_PATH"combination/EMPTY.png"),
         (Vector2) {0, 0},
@@ -2318,11 +2408,15 @@ void GameUpdate(Camera2D *camera)
 
     Rectangle endScene = { 752, -532, 200, 70 };
 
+    double initialReset[3];
+    RandomCustomerInitialResetBasedOnDifficulty(&initialReset);
 
-
-    customer1 = CreateCustomerWithOrder(1, 0, 5000, customer1Position, RandomCustomerTexture(), GetRandomDoubleValue(1000, 10000));
-    customer2 = CreateCustomerWithOrder(1, 0, 8000, customer2Position, RandomCustomerTexture(), GetRandomDoubleValue(1000, 10000));
-    customer3 = CreateCustomerWithOrder(1, 0, 10000, customer3Position, RandomCustomerTexture(), GetRandomDoubleValue(1000, 10000));
+    customer1 = CreateCustomerWithOrder(1, 0, RandomCustomerTimeoutBasedOnDifficulty(), customer1Position, RandomCustomerTexture(), initialReset[0]);
+    customer2 = CreateCustomerWithOrder(1, 0, RandomCustomerTimeoutBasedOnDifficulty(), customer2Position, RandomCustomerTexture(), initialReset[1]);
+    customer3 = CreateCustomerWithOrder(1, 0, RandomCustomerTimeoutBasedOnDifficulty(), customer3Position, RandomCustomerTexture(), initialReset[2]);
+    customer1.visible = false;
+    customer2.visible = false;
+    customer3.visible = false;
 
     customers.customer1 = customer1;
     customers.customer2 = customer2;
@@ -2401,7 +2495,7 @@ void GameUpdate(Camera2D *camera)
         bool isendSceneHovered = CheckCollisionPointRec(mouseWorldPos, endScene);
         void (*transitionCallback)(Camera2D * camera) = NULL;
         
-        Tick(&customers);
+        Tick(&customers, deltaTime);
         tickBoil(&hotWater);
 
         // Draw
