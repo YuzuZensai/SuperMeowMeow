@@ -1154,7 +1154,7 @@ void create_customer(Customer *customer, int patience, int currentTime, int orde
 	customer->visible = true;
 	customer->currentTime = currentTime;
 	customer->orderEnd = orderEnd * patience;
-	customer->order = (char *)malloc(sizeof(char) * 10);
+	*customer->order = (char *)malloc(sizeof(char) * 10);
 	strcpy(customer->order, "");
 	randomGenerateOrder(customer->order);
 	printf("%s\n", customer->order);
