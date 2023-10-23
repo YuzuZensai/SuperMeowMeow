@@ -304,8 +304,12 @@ Texture2D* DragAndDropCup(Cup* cup, const DropArea* dropArea, Camera2D* camera) 
         current_dragging = NULL;
 
         if (CheckCollisionRecs(objectBounds, dropBounds)) {
-            cup->position.x = dropArea->position.x;
-            cup->position.y = dropArea->position.y;
+            // center of cup to center of drop area
+            int offset_x = 10;
+            int offset_y = -40;
+            
+            cup->position.x = dropArea->position.x + offset_x + dropArea->texture.width / 2 - cup->texture.width / 2;
+            cup->position.y = dropArea->position.y + offset_y + dropArea->texture.height / 2 - cup->texture.height / 2;
         }
         else {
             cup->position.x = cup->originalPosition.x;
