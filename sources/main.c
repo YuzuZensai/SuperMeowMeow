@@ -2155,7 +2155,7 @@ void GameUpdate(Camera2D *camera)
         if (options->showDebug && debugToolToggles.showObjects)
         {
             // Cup
-            DrawRectangleLinesEx((Rectangle) { cup.position.x, cup.position.y, cup.texture.width, cup.texture.height }, 1, RED);
+            DrawRectangleLinesEx((Rectangle) { cup.position.x, cup.position.y, cup.frameRectangle.width, cup.frameRectangle.height }, 1, RED);
             DrawRectangle(cup.position.x, cup.position.y - 20, 300, 20, Fade(GRAY, 0.7));
             DrawTextEx(meowFont, TextFormat("%s | XY %.2f,%.2f", "Cup", cup.position.x, cup.position.y), (Vector2) { cup.position.x, cup.position.y - 20 }, 20, 1, WHITE);
 
