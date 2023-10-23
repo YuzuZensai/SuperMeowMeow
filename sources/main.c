@@ -2522,24 +2522,29 @@ void GameUpdate(Camera2D *camera)
         DrawTextureEx(backgroundOverlayTexture, (Vector2) { baseX, baseY }, 0.0f, fmax(scaleX, scaleY), WHITE);
 
         DrawTexture(plate.texture, oriplatePosition.x, oriplatePosition.y, WHITE);
-        DrawDragableItemFrame(cocoaPowder);
-        DrawDragableItemFrame(teaPowder);
-        DrawDragableItemFrame(caramelSauce);
-        DrawDragableItemFrame(chocolateSauce);
+
+
+        DrawDragableItemFrame(hotWater);
         DrawDragableItemFrame(condensedMilk);
         DrawDragableItemFrame(normalMilk);
+        DrawTexture(cups, oricupsPostion.x, oricupsPostion.y, WHITE);
+
+        DrawDragableItemFrame(cocoaPowder);
+        DrawDragableItemFrame(teaPowder);
+
+        DrawDragableItemFrame(chocolateSauce);
+        DrawDragableItemFrame(caramelSauce);
+
         DrawDragableItemFrame(marshMellow);
         DrawDragableItemFrame(whippedCream);
-        DrawDragableItemFrame(hotWater);
 
-        DrawTexture(cups, oricupsPostion.x, oricupsPostion.y, WHITE);
         // DrawTexture(cup.texture, cup.position.x, cup.position.y, WHITE);
-
-        if(cup.active)
-            DrawTextureRec(cup.texture, cup.frameRectangle, cup.position, WHITE);
 
         DrawTexture(greenChon.texture, greenChon.position.x, greenChon.position.y, WHITE);
         DrawTexture(cocoaChon.texture, cocoaChon.position.x, cocoaChon.position.y, WHITE);
+
+        if (cup.active)
+            DrawTextureRec(cup.texture, cup.frameRectangle, cup.position, WHITE);
 
         // Draw debug for cup
         if (options->showDebug && debugToolToggles.showObjects)
