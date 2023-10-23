@@ -65,7 +65,10 @@ typedef struct Resolution {
 typedef enum {
     EASY,
     MEDIUM,
-    HARD
+    HARD,
+    FREEPLAY_EASY,
+    FREEPLAY_MEDIUM,
+    FREEPLAY_HARD
 } Difficulty;
 
 // Game options
@@ -139,7 +142,7 @@ Texture2D cocoaChonTexture;
 
 static inline char* StringFromDifficultyEnum(Difficulty difficulty)
 {
-    static const char* strings[] = { "Easy", "Medium", "Hard" };
+    static const char* strings[] = { "Easy", "Medium", "Hard", "Freeplay (E)", "Freeplay (M)", "Freeplay (H)" };
     return strings[difficulty];
 }
 
@@ -1111,22 +1114,25 @@ void DrawCustomerInMenu(double deltaTime) {
     // Update customer emotions according to difficulty
     switch (options->difficulty)
     {
+        case FREEPLAY_EASY:
         case EASY:
             menuCustomer1.emotion = EMOTION_HAPPY;
             menuCustomer2.emotion = EMOTION_HAPPY;
             break;
+        case FREEPLAY_MEDIUM:
         case MEDIUM:
             menuCustomer1.emotion = EMOTION_FRUSTRATED;
             menuCustomer2.emotion = EMOTION_FRUSTRATED;
             break;
+        case FREEPLAY_HARD:
         case HARD:
             menuCustomer1.emotion = EMOTION_ANGRY;
             menuCustomer2.emotion = EMOTION_ANGRY;
             break;
+            break;
         default:
             menuCustomer1.emotion = EMOTION_HAPPY;
             menuCustomer2.emotion = EMOTION_HAPPY;
-            break;
             break;
     }
     DrawCustomer(&menuCustomer1);
@@ -1858,18 +1864,36 @@ void OptionsUpdate(Camera2D* camera)
         if (!firstRender && IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && !isFadingIn && !isFadingOut) {
             if (isDifficultyIncrementHovered) {
                 if (options->difficulty == EASY) {
-					options->difficulty = MEDIUM;
+					options->difficulty = FREEPLAY_EASY;
 				}
-				else if (options->difficulty == MEDIUM) {
-					options->difficulty = HARD;
-				}
+                else if (options->difficulty == FREEPLAY_EASY) {
+                    options->difficulty = MEDIUM;
+                }
+                else if (options->difficulty == MEDIUM) {
+                    options->difficulty = FREEPLAY_MEDIUM;
+                }
+                else if (options->difficulty == FREEPLAY_MEDIUM) {
+                    options->difficulty = HARD;
+                }
+                else if (options->difficulty == HARD) {
+                    options->difficulty = FREEPLAY_HARD;
+                }
                 PlaySelectSound();
             }
             else if (isDifficultyDecrementHovered) {
-				if (options->difficulty == HARD) {
+                if (options->difficulty == FREEPLAY_HARD) {
+                    options->difficulty = HARD;
+                }
+                else if (options->difficulty == HARD) {
+                    options->difficulty = FREEPLAY_MEDIUM;
+                }
+                else if (options->difficulty == FREEPLAY_MEDIUM) {
                     options->difficulty = MEDIUM;
+                }
+				else if (options->difficulty == MEDIUM) {
+                    options->difficulty = FREEPLAY_EASY;
 				}
-                else if (options->difficulty == MEDIUM) {
+                else if (options->difficulty == FREEPLAY_EASY) {
                     options->difficulty = EASY;
 				}
                 PlaySelectSound();
@@ -2457,14 +2481,22 @@ void GameUpdate(Camera2D *camera)
         if (options->showDebug)
             DrawDebugOverlay(camera);
 
-        //Score page
-        DrawRectangleRec(endScene, RED);
-        DrawTextEx(meowFont, "Score", (Vector2) { endScene.x + 40, endScene.y + 22 }, 32, 2, WHITE);
-        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)){
-            if(isendSceneHovered){
-                endgameUpdate(camera);
-            }
-        }
+        // End game
+        if(options->difficulty == FREEPLAY_EASY || options->difficulty == FREEPLAY_MEDIUM || options->difficulty == FREEPLAY_HARD)
+		{
+            DrawRectangleRec(endScene, RED);
+            DrawTextEx(meowFont, "End", (Vector2) { endScene.x + 40, endScene.y + 22 }, 32, 2, WHITE);
+
+			if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && (isendSceneHovered))
+			{
+                if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+                    if (isendSceneHovered) {
+                        endgameUpdate(camera);
+                    }
+                }
+
+			}
+		}
 
         EndMode2D();
         EndDrawing();
