@@ -108,7 +108,7 @@ Texture2D customerTexture_third_angry;
 Font meowFont;
 
 // Sounds
-Sound select;
+Sound selectFx;
 Sound hover;
 
 // BGMs
@@ -765,7 +765,7 @@ void PlayHoverSound()
 void PlaySelectSound()
 {
     if(options->soundFxEnabled)
-        PlaySound(select);
+        PlaySound(selectFx);
 }
 
 void WindowUpdate(Camera2D* camera)
@@ -822,7 +822,7 @@ void LoadGlobalAssets()
 	customerTexture_third_angry = LoadTexture(ASSETS_PATH"image/sprite/customer_angry.png");
 
     hover = LoadSound(ASSETS_PATH"audio/hover.wav");
-    select = LoadSound(ASSETS_PATH"audio/select.wav");
+    selectFx = LoadSound(ASSETS_PATH"audio/select.wav");
 
     menuFallingItemTextures[0] = LoadTexture(ASSETS_PATH"image/falling_items/cara.png");
     menuFallingItemTextures[1] = LoadTexture(ASSETS_PATH"image/falling_items/cmilk.png");
@@ -866,7 +866,7 @@ void UnloadGlobalAssets()
     UnloadTexture(right_arrow);
 
     UnloadSound(hover);
-    UnloadSound(select);
+    UnloadSound(selectFx);
 
     for(int i = 0; i < 8; i++)
 		UnloadTexture(menuFallingItemTextures[i]);
