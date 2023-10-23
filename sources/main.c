@@ -198,47 +198,53 @@ Customer createCustomer(CustomerEmotion emotion, double blinkTimer, double norma
 
 char *randomGenerateOrder()
 {
-	int random = GetRandomValue(0, 3);
-	char *order = "";
-	//base case, either CP or GP
-	if (GetRandomValue(0, 1))
-		order = "CP";
-	else
-		order = "GP";
-	
-	strcat(order, "Y");
-	if (random >= 1)
-	{	
-		if (GetRandomValue(0, 1))
-		{
-			if (GetRandomValue(0, 1))
-				strcat(order, "CM");
-			else
-				strcat(order, "MI");
-		}
-	}
-	if (random >= 2)
-	{
-		if (GetRandomValue(0, 1))
-		{
-			if (GetRandomValue(0, 1))
-				strcat(order, "MA");
-			else
-				strcat(order, "WC");
-		}
-	}
-	if (random >= 3)
-	{
-		if (GetRandomValue(0, 1))
-		{
-			if (GetRandomValue(0, 1))
-				strcat(order, "CA");
-			else
-				strcat(order, "CH");
-		}
-	}
-	return order;
+    int random = GetRandomValue(0, 3);
+    char *order = malloc(20); // Allocate memory for the string
+    if (order == NULL) { // Check if memory allocation was successful
+        return NULL;
+    }
+    order[0] = '\0'; // Initialize the string
+
+    //base case, either CP or GP
+    if (GetRandomValue(0, 1))
+        strcat(order, "CP");
+    else
+        strcat(order, "GP");
+
+    strcat(order, "Y");
+    if (random >= 1)
+    {   
+        if (GetRandomValue(0, 1))
+        {
+            if (GetRandomValue(0, 1))
+                strcat(order, "CM");
+            else
+                strcat(order, "MI");
+        }
+    }
+    if (random >= 2)
+    {
+        if (GetRandomValue(0, 1))
+        {
+            if (GetRandomValue(0, 1))
+                strcat(order, "MA");
+            else
+                strcat(order, "WC");
+        }
+    }
+    if (random >= 3)
+    {
+        if (GetRandomValue(0, 1))
+        {
+            if (GetRandomValue(0, 1))
+                strcat(order, "CA");
+            else
+                strcat(order, "CH");
+        }
+    }
+    return order;
 }
+
 
 
 // Customers
@@ -2109,9 +2115,9 @@ void GameUpdate(Camera2D *camera)
 
 			placeholder_static = 0;
 			//print customer orders
-			//printf("Customer 1 order: %d\n", customers.customer1.order);
-			//printf("Customer 2 order: %d\n", customers.customer2.order);
-			//printf("Customer 3 order: %d\n", customers.customer3.order);
+			printf("Customer 1 order: %d\n", customers.customer1.order);
+			printf("Customer 2 order: %d\n", customers.customer2.order);
+			printf("Customer 3 order: %d\n", customers.customer3.order);
 		}
 
 		Tick(&customers);
