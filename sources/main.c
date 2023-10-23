@@ -234,6 +234,9 @@ typedef struct {
     int currentFrame; // not use right now but later
 } Ingredient;
 
+// Ingredients
+Ingredient teaPowder, cocoaPowder, normalMilk, condensedMilk, marshMellow, whippedCream, caramelSauce, chocolateSauce, hotWater;
+Ingredient greenChon, cocoaChon;
 
 // Cup
 typedef struct {
@@ -254,6 +257,8 @@ typedef struct {
     Texture2D texture;
     Vector2 position;
 } DropArea;
+
+DropArea plate;
 
 // Original position
 const Vector2 oricupPosition = { 351,109 };
@@ -321,6 +326,163 @@ Texture2D* DragAndDropCup(Cup* cup, const DropArea* dropArea, Camera2D* camera) 
 
 }
 
+void UpdateCup(Cup* cup, Ingredient* ingredient) {
+    // Check what type of ingredient it is and update the cup accordingly
+    if (ingredient == &teaPowder && cup->powderType == NONE) {
+        cup->powderType = GREEN_TEA;
+    }
+    else if (ingredient == &cocoaPowder && cup->powderType == NONE) {
+        cup->powderType = COCOA;
+    }
+    else if (ingredient == &hotWater && cup->powderType != NONE) {
+        cup->hasWater = true;
+    }
+    else if (ingredient == &condensedMilk && cup->hasWater == true) {
+        cup->creamerType = CONDENSED_MILK;
+    }
+    else if (ingredient == &normalMilk && cup->hasWater == true) {
+        cup->creamerType = MILK;
+    }
+    else if (ingredient == &marshMellow && cup->creamerType != NONE) {
+        cup->toppingType = MARSHMELLOW;
+    }
+    else if (ingredient == &whippedCream && cup->creamerType != NONE) {
+        cup->toppingType = WHIPPED_CREAM;
+    }
+    else if (ingredient == &caramelSauce && cup->toppingType != NONE) {
+        cup->sauceType = CARAMEL;
+    }
+    else if (ingredient == &chocolateSauce && cup->toppingType != NONE) {
+        cup->sauceType = CHOCOLATE;
+    }
+    else if (ingredient == &hotWater) {
+        cup->hasWater = true;
+    }
+
+}
+
+void UpdateCupImage(Cup* cup, Ingredient* ingredient) {
+    // Check what type of ingredient it is and update the cup accordingly
+    // if (ingredient == &teaPowder) {
+    //     cup->hasPowder = true;
+    //     cup->texture = LoadTexture(ASSETS_PATH"/combination/milktea.png"); // Change to the tea cup texture
+    // } else if (ingredient == &cocoaPowder) {
+    //     cup->hasPowder = true;
+    //     cup->texture = LoadTexture(ASSETS_PATH"/combination/milkcocoa.png"); // Change to the cocoa cup texture
+    // }
+
+    // this is a naming standard for combination
+    // {POWDER}{CREAMER}{TOPPING}{SAUCE}.png
+
+    // POWDER:
+    // -Cocoa Powder: CP
+    // -Green Tea Powder: GP
+
+    // WATER:
+    // -Yes: Y
+    // -No: N
+
+    // CREAMER:
+    // -Condensed Milk: CM
+    // -Milk: MI
+
+    // TOPPING:
+    // -Marshmallow: MA
+    // -Whipped Cream: WC
+
+    // SAUCE:
+    // -Caramel: CA
+    // -Chocolate: CH
+
+    char filename[100];
+
+    // Initialize filename to empty string
+    strcpy(filename, "");
+
+    UpdateCup(cup, ingredient);
+
+    switch (cup->powderType)
+    {
+    case GREEN_TEA:
+        // cup->texture = LoadTexture(ASSETS_PATH"/combination/milktea.png"); // Change to the tea cup texture
+        strcat(filename, "GP");
+        break;
+    case COCOA:
+        // cup->texture = LoadTexture(ASSETS_PATH"/combination/milkcocoa.png"); // Change to the cocoa cup texture
+        strcat(filename, "CP");
+        break;
+    default:
+        break;
+    }
+
+    if (cup->powderType != NONE) {
+        switch (cup->hasWater)
+        {
+        case true:
+            strcat(filename, "Y");
+            break;
+        case false:
+            strcat(filename, "N");
+            break;
+        default:
+            break;
+        }
+    }
+    if (cup->hasWater == true) {
+        switch (cup->creamerType)
+        {
+        case CONDENSED_MILK:
+            strcat(filename, "CM");
+            break;
+        case MILK:
+            strcat(filename, "MI");
+            break;
+        default:
+            break;
+        }
+    }
+
+    if (cup->creamerType != NONE) {
+        switch (cup->toppingType)
+        {
+        case MARSHMELLOW:
+            strcat(filename, "MA");
+            break;
+        case WHIPPED_CREAM:
+            strcat(filename, "WC");
+            break;
+        default:
+            break;
+        }
+    }
+
+    if (cup->toppingType != NONE) {
+        switch (cup->sauceType)
+        {
+        case CARAMEL:
+            strcat(filename, "CA");
+            break;
+        case CHOCOLATE:
+            strcat(filename, "CH");
+            break;
+        default:
+            break;
+        }
+    }
+    // if empty then set filename to EMPTY
+    if (strcmp(filename, "") == 0) {
+        strcat(filename, "EMPTY");
+    }
+    strcat(filename, ".png");
+    char path[1000];
+    strcpy(path, ASSETS_PATH"combination/");
+    strcat(path, filename);
+    // set cup texture to the filename
+    printf("Powder type: %d, Water: %d, Creamer: %d, Topping: %d, Sauce: %d\n", cup->powderType, cup->hasWater, cup->creamerType, cup->toppingType, cup->sauceType);
+    printf("NEW CUP IMAGE IS %s\n", path);
+    cup->texture = LoadTexture(path);
+}
+
 Texture2D* DragAndDropIngredient(Ingredient* object, const DropArea* dropArea, Cup* cup, Camera2D* camera) {
     static bool isObjectBeingDragged = false;
     static Texture2D* current_dragging = NULL;
@@ -356,7 +518,7 @@ Texture2D* DragAndDropIngredient(Ingredient* object, const DropArea* dropArea, C
 
         if (CheckCollisionRecs(objectBounds, dropBounds)) {
             if (object->canChangeCupTexture) {
-                // UpdateCupImage(cup,object);
+                UpdateCupImage(cup,object);
 
                 object->position.x = object->originalPosition.x;
                 object->position.y = object->originalPosition.y;
@@ -408,7 +570,7 @@ Texture2D* DragAndDropIngredientPop(Ingredient* object, Ingredient* popObject, c
 
         if (CheckCollisionRecs(objectBounds, dropBounds)) {
             if (object->canChangeCupTexture) {
-                // UpdateCupImage(cup,object);
+                UpdateCupImage(cup,object);
                 popObject->position.x = popObject->originalPosition.x;
                 popObject->position.y = popObject->originalPosition.y;
             }
@@ -468,11 +630,6 @@ int currentColorIndex = 3;
 float dayNightCycleDuration = 120.0f;
 // Skip to 1/2 of the night, so that the first transition is from night to morning
 float colorTransitionTime = 0.5f;
-
-// Ingredients
-Ingredient teaPowder, cocoaPowder, normalMilk, condensedMilk, marshMellow, whippedCream, caramelSauce, chocolateSauce, hotWater;
-Ingredient greenChon, cocoaChon;
-DropArea plate;
 
 
 void CustomLogger(int msgType, const char* text, va_list args)
@@ -1220,6 +1377,51 @@ Color ColorLerp(Color a, Color b, float t) {
 }
 
 
+void DrawDayNightCycle()
+{
+    const Color dayNightColors[] = {
+        (Color){173, 216, 230, 255},  // Morning (Anime Light Blue)
+        (Color){0, 102, 204, 255},    // Afternoon (Anime Blue)
+        (Color){245, 161, 59, 255},    // Evening (Anime Orange)
+        (Color){0, 0, 102, 255}       // Night (Anime Dark Blue)
+    };
+
+    float colorTransitionSpeed = (float)(sizeof(dayNightColors) / sizeof(dayNightColors[0])) / dayNightCycleDuration;
+
+    // Determine the color to interpolate from and to
+    int fromColorIndex = currentColorIndex;
+    int toColorIndex = (currentColorIndex + 1) % (sizeof(dayNightColors) / sizeof(dayNightColors[0]));
+
+    // Calculate the interpolation factor (0 to 1) based on colorTransitionTime
+    float t = fmin(colorTransitionTime, 1.0f);
+
+    // Interpolate between the colors
+    Color fromColor = dayNightColors[fromColorIndex];
+    Color toColor = dayNightColors[toColorIndex];
+    Color currentColor = ColorLerp(fromColor, toColor, t);
+
+    // Draw the day/night color overlay with the scaled dimensions
+    DrawRectangle(baseX, baseY, BASE_SCREEN_WIDTH, BASE_SCREEN_HEIGHT, currentColor);
+
+    // Draw day/night cycle debug overlay
+    if (options->showDebug && debugToolToggles.showObjects)
+    {
+        DrawTextEx(meowFont, TextFormat("Time %.2f/%.2f | Phrase %d/%d", colorTransitionTime * dayNightCycleDuration, dayNightCycleDuration, currentColorIndex + 1, (sizeof(dayNightColors) / sizeof(dayNightColors[0]))), (Vector2) { baseX + BASE_SCREEN_WIDTH - 500, baseY + 20 }, 20, 2, WHITE);
+    }
+
+    // Update the colorTransitionTime
+    if (colorTransitionTime >= 1.0f)
+    {
+        currentColorIndex = toColorIndex;
+        colorTransitionTime = 0;
+    }
+    else
+    {
+        colorTransitionTime += GetFrameTime() * colorTransitionSpeed;
+    }
+}
+
+
 void OptionsUpdate(Camera2D* camera)
 {
     Rectangle difficultyRect = { baseX + 780, baseY + 595, 340, 70 };
@@ -1560,7 +1762,9 @@ void OptionsUpdate(Camera2D* camera)
         float scaleY = (float)BASE_SCREEN_HEIGHT / imageHeight;
 
         // Draw the background with the scaled dimensions
-        DrawTextureEx(backgroundTexture, (Vector2) { baseX, baseY }, 0.0f, fmax(scaleX, scaleY), WHITE);
+        //DrawTextureEx(backgroundTexture, (Vector2) { baseX, baseY }, 0.0f, fmax(scaleX, scaleY), WHITE);
+
+        DrawDayNightCycle();
 
         // Draw falling items behind the menu
         DrawMenuFallingItems(deltaTime, true);
@@ -1878,7 +2082,7 @@ void GameUpdate(Camera2D *camera)
 		}
 
 		Tick(&customers);
-		render_customers(&customers);
+		//render_customers(&customers);
 
 		/* Customers TEST AREA END*/
 
@@ -1905,50 +2109,6 @@ void GameUpdate(Camera2D *camera)
     UnloadTexture(backgroundTexture);
     CloseWindow();
 
-}
-
-void DrawDayNightCycle()
-{
-    const Color dayNightColors[] = {
-    (Color){173, 216, 230, 255},  // Morning (Anime Light Blue)
-    (Color){0, 102, 204, 255},    // Afternoon (Anime Blue)
-    (Color){245, 161, 59, 255},    // Evening (Anime Orange)
-    (Color){0, 0, 102, 255}       // Night (Anime Dark Blue)
-    };
-
-    float colorTransitionSpeed = (float)(sizeof(dayNightColors) / sizeof(dayNightColors[0])) / dayNightCycleDuration;
-
-    // Determine the color to interpolate from and to
-    int fromColorIndex = currentColorIndex;
-    int toColorIndex = (currentColorIndex + 1) % (sizeof(dayNightColors) / sizeof(dayNightColors[0]));
-
-    // Calculate the interpolation factor (0 to 1) based on colorTransitionTime
-    float t = fmin(colorTransitionTime, 1.0f);
-
-    // Interpolate between the colors
-    Color fromColor = dayNightColors[fromColorIndex];
-    Color toColor = dayNightColors[toColorIndex];
-    Color currentColor = ColorLerp(fromColor, toColor, t);
-
-    // Draw the day/night color overlay with the scaled dimensions
-    DrawRectangle(baseX, baseY, BASE_SCREEN_WIDTH, BASE_SCREEN_HEIGHT, currentColor);
-
-    // Draw day/night cycle debug overlay
-    if (options->showDebug && debugToolToggles.showObjects)
-    {
-        DrawTextEx(meowFont, TextFormat("Time %.2f/%.2f | Phrase %d/%d", colorTransitionTime * dayNightCycleDuration, dayNightCycleDuration, currentColorIndex + 1, (sizeof(dayNightColors) / sizeof(dayNightColors[0]))), (Vector2) { baseX + BASE_SCREEN_WIDTH - 500, baseY + 20 }, 20, 2, WHITE);
-    }
-
-    // Update the colorTransitionTime
-    if (colorTransitionTime >= 1.0f)
-    {
-        currentColorIndex = toColorIndex;
-        colorTransitionTime = 0;
-    }
-    else
-    {
-        colorTransitionTime += GetFrameTime() * colorTransitionSpeed;
-    }
 }
 
 void MainMenuUpdate(Camera2D* camera, bool playFade)
