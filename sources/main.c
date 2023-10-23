@@ -1686,10 +1686,10 @@ Color ColorLerp(Color a, Color b, float t) {
 void DrawDayNightCycle()
 {
     const Color dayNightColors[] = {
-        (Color){173, 216, 230, 255},  // Morning (Anime Light Blue)
-        (Color){0, 102, 204, 255},    // Afternoon (Anime Blue)
-        (Color){245, 161, 59, 255},    // Evening (Anime Orange)
-        (Color){0, 0, 102, 255}       // Night (Anime Dark Blue)
+    (Color){173, 216, 230, 255},  // Morning (Anime Light Blue)
+    (Color){0, 102, 204, 255},    // Afternoon (Anime Blue)
+    (Color){245, 161, 59, 255},    // Evening (Anime Orange)
+    (Color){0, 0, 102, 255}       // Night (Anime Dark Blue)
     };
 
     float colorTransitionSpeed = (float)(sizeof(dayNightColors) / sizeof(dayNightColors[0])) / dayNightCycleDuration;
@@ -2466,7 +2466,7 @@ void endgameUpdate(Camera2D *camera){
         Vector2 scorePos;
         scorePos.x = centerX - (MeasureText("Score", 55) / 2);
         scorePos.y = centerY - 150; 
-        DrawTextEx(meowFont, "Score", (Vector2)scorePos, 55, 2, WHITE);
+        DrawTextEx(meowFont, "Score", scorePos, 55, 2, WHITE);
 
         char *scoreText = TextFormat("%d", global_score);
         Vector2 scoreTextPos;
@@ -2475,59 +2475,16 @@ void endgameUpdate(Camera2D *camera){
         DrawTextEx(meowFont, scoreText, scoreTextPos, 100, 2, WHITE);
 
         DrawRectangleRec(tryagain, RED);
-        DrawTextEx(meowFont, "Try again", (Vector2) {-45,50}, 32, 2, WHITE);
+        DrawTextEx(meowFont, "Menu", (Vector2) {-45,50}, 32, 2, WHITE);
 
-        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && (istryagainHovered)){
-                //Play again
-                MainMenuUpdate(camera, true);
+        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && (istryagainHovered))
+        {
+             MainMenuUpdate(camera, false);
         }
 
 
         EndMode2D();
         EndDrawing();
-    }
-}
-void DrawDayNightCycle()
-{
-    const Color dayNightColors[] = {
-    (Color){173, 216, 230, 255},  // Morning (Anime Light Blue)
-    (Color){0, 102, 204, 255},    // Afternoon (Anime Blue)
-    (Color){245, 161, 59, 255},    // Evening (Anime Orange)
-    (Color){0, 0, 102, 255}       // Night (Anime Dark Blue)
-    };
-
-    float colorTransitionSpeed = (float)(sizeof(dayNightColors) / sizeof(dayNightColors[0])) / dayNightCycleDuration;
-
-    // Determine the color to interpolate from and to
-    int fromColorIndex = currentColorIndex;
-    int toColorIndex = (currentColorIndex + 1) % (sizeof(dayNightColors) / sizeof(dayNightColors[0]));
-
-    // Calculate the interpolation factor (0 to 1) based on colorTransitionTime
-    float t = fmin(colorTransitionTime, 1.0f);
-
-    // Interpolate between the colors
-    Color fromColor = dayNightColors[fromColorIndex];
-    Color toColor = dayNightColors[toColorIndex];
-    Color currentColor = ColorLerp(fromColor, toColor, t);
-
-    // Draw the day/night color overlay with the scaled dimensions
-    DrawRectangle(baseX, baseY, BASE_SCREEN_WIDTH, BASE_SCREEN_HEIGHT, currentColor);
-
-    // Draw day/night cycle debug overlay
-    if (options->showDebug && debugToolToggles.showObjects)
-    {
-        DrawTextEx(meowFont, TextFormat("Time %.2f/%.2f | Phrase %d/%d", colorTransitionTime * dayNightCycleDuration, dayNightCycleDuration, currentColorIndex + 1, (sizeof(dayNightColors) / sizeof(dayNightColors[0]))), (Vector2) { baseX + BASE_SCREEN_WIDTH - 500, baseY + 20 }, 20, 2, WHITE);
-    }
-
-    // Update the colorTransitionTime
-    if (colorTransitionTime >= 1.0f)
-    {
-        currentColorIndex = toColorIndex;
-        colorTransitionTime = 0;
-    }
-    else
-    {
-        colorTransitionTime += GetFrameTime() * colorTransitionSpeed;
     }
 }
 
