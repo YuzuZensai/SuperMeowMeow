@@ -154,6 +154,7 @@ Sound stir1Fx;
 Sound stir2Fx;
 Sound stir3Fx;
 
+Sound flickFx;
 
 typedef enum {
     FX_HOVER,
@@ -166,7 +167,8 @@ typedef enum {
     FX_PICKUP,
     FX_POUR,
     FX_STIR,
-    FX_BOONG
+    FX_BOONG,
+    FX_FLICK
 } SoundFxType;
 
 // BGMs
@@ -714,6 +716,7 @@ Texture2D* DragAndDropIngredient(Ingredient* object, Cup* cup, Camera2D* camera)
 
             if (object == &hotWater && object->canChangeCupTexture == false) {
                 object->canChangeCupTexture = false;
+                PlaySoundFx(FX_FLICK);
                 boilWater(object);
             }
 
@@ -1707,6 +1710,8 @@ void PlaySoundFx(SoundFxType type) {
     case FX_SELECT:
         PlaySound(selectFx);
         break;
+    case FX_FLICK:
+        PlaySound(flickFx);
     }
 }
 void WindowUpdate(Camera2D* camera)
@@ -1803,6 +1808,8 @@ void LoadGlobalAssets()
     stir1Fx = LoadSound(ASSETS_PATH"audio/stir_1.wav");
     stir2Fx = LoadSound(ASSETS_PATH"audio/stir_2.wav");
     stir3Fx = LoadSound(ASSETS_PATH"audio/stir_3.wav");
+
+    flickFx = LoadSound(ASSETS_PATH"audio/flick.wav");
 
     menuFallingItemTextures[0] = LoadTexture(ASSETS_PATH"image/falling_items/cara.png");
     menuFallingItemTextures[1] = LoadTexture(ASSETS_PATH"image/falling_items/cmilk.png");
