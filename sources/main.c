@@ -1027,8 +1027,10 @@ void DrawCustomer(Customer* customer)
     if (options->showDebug && debugToolToggles.showObjects)
     {
         DrawRectangleLinesEx((Rectangle) { pos.x, pos.y, customersImageData[frame].happy.width / 2, customersImageData[frame].happy.height / 2 }, 1, RED);
-        DrawRectangle(pos.x, pos.y - 20, 500, 20, Fade(GRAY, 0.7));
+        DrawRectangle(pos.x, pos.y - 20, 500, 60, Fade(GRAY, 0.7));
         DrawTextEx(meowFont, TextFormat("%s | Blink %s (%.2f) %.2f/%.2f", StringFromCustomerEmotionEnum(customer->emotion), customer->eyesClosed ? "[Yes]" : "[No]", customer->blinkDuration, customer->blinkTimer, customer->normalDuration), (Vector2) { pos.x, pos.y - 20 }, 20, 1, WHITE);
+        DrawTextEx(meowFont, TextFormat("Visible %s | Timeout %.2f/%.2f", customer->visible ? "[Yes]" : "[No]", (float)customer->currentTime / 1000.0f, (float)customer->orderEnd / 1000.0f), (Vector2) { pos.x, pos.y }, 20, 1, WHITE);
+        DrawTextEx(meowFont, TextFormat("Order %s", customer->order), (Vector2) { pos.x, pos.y + 20 }, 20, 1, WHITE);
     }
     if (!customer->visible) return;
 
@@ -1427,21 +1429,31 @@ void remove_customers(Customer *customer)
 	customer->visible = false;
 }
 
-void update_customer_state(Customer *customer) {
+void update_customer_state(Customer* customer) {
     if (customer->visible == true) {
-        if (customer->currentTime < customer->orderEnd) {
+        if ((float)customer->currentTime < (float)customer->orderEnd) {
             customer->currentTime++;
-            if (customer->currentTime > customer->orderEnd / 2) {
-                customer->emotion = EMOTION_FRUSTRATED;
-            } else if (customer->currentTime > customer->orderEnd / 4) {
+
+            // Calculate a ratio of how close to the orderEnd the currentTime is
+            float ratio = (float)customer->currentTime / (float)customer->orderEnd;
+
+            if (ratio > 0.75) {
                 customer->emotion = EMOTION_ANGRY;
             }
-        } else {
+            else if (ratio > 0.5) {
+                customer->emotion = EMOTION_FRUSTRATED;
+            }
+            else {
+                customer->emotion = EMOTION_HAPPY;
+            }
+        }
+        else {
             remove_customers(customer);
             global_score -= 50;
         }
     }
 }
+
 
 void Tick(Customers *customers) {
     update_customer_state(&customers->customer1);
@@ -2340,6 +2352,9 @@ void GameUpdate(Camera2D *camera)
         bool isendSceneHovered = CheckCollisionPointRec(mouseWorldPos, endScene);
         void (*transitionCallback)(Camera2D * camera) = NULL;
         
+        Tick(&customers);
+        tickBoil(&hotWater);
+
         // Draw
 
         BeginDrawing();
@@ -2357,8 +2372,6 @@ void GameUpdate(Camera2D *camera)
 
         DrawDayNightCycle();
 
-		Tick(&customers);
-        tickBoil(&hotWater);
 		render_customers(&customers);
 
         DrawTextureEx(backgroundOverlayTexture, (Vector2) { baseX, baseY }, 0.0f, fmax(scaleX, scaleY), WHITE);
