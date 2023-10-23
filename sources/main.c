@@ -1434,7 +1434,7 @@ void update_customer_state(Customer *customer) {
             if (customer->currentTime > customer->orderEnd / 2) {
                 customer->emotion = EMOTION_FRUSTRATED;
             } else if (customer->currentTime > customer->orderEnd / 4) {
-                customer->eyesClosed = EMOTION_ANGRY;
+                customer->emotion = EMOTION_ANGRY;
             }
         } else {
             remove_customers(customer);
