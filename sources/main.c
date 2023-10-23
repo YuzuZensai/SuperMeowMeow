@@ -104,9 +104,7 @@ Texture2D customerTexture_third_normal;
 Texture2D customerTexture_first_angry;
 Texture2D customerTexture_second_angry;
 Texture2D customerTexture_third_angry;
-Texture2D bubbles_first;
-Texture2D bubbles_second;
-Texture2D bubbles_third;
+Texture2D bubbles;
 
 // Font
 Font meowFont;
@@ -173,7 +171,7 @@ typedef struct Customer {
 
     //int patience; //To be removed. 
     bool visible;
-    char *order;
+    char order[20];
     int currentTime;
     int orderEnd;
 } Customer;
@@ -192,63 +190,12 @@ Customer createCustomer(CustomerEmotion emotion, double blinkTimer, double norma
     newCustomer.blinkDuration = blinkDuration;
     newCustomer.eyesClosed = false;
     newCustomer.visible = visible;
-    newCustomer.order = NULL;
+	newCustomer.order[0] = '\0';
     newCustomer.currentTime = 0;
     newCustomer.orderEnd = 0;
 
     return newCustomer;
 }
-
-char *randomGenerateOrder()
-{
-    int random = GetRandomValue(0, 3);
-    char order[20] = "";
-	//order = "";
-    if (order == NULL) { // Check if memory allocation was successful
-        return NULL;
-    }
-    order[0] = '\0'; // Initialize the string
-
-    //base case, either CP or GP
-    if (GetRandomValue(0, 1))
-        strcat(order, "CP");
-    else
-        strcat(order, "GP");
-
-    strcat(order, "Y");
-    if (random >= 1)
-    {   
-        if (GetRandomValue(0, 1))
-        {
-            if (GetRandomValue(0, 1))
-                strcat(order, "CM");
-            else
-                strcat(order, "MI");
-        }
-    }
-    if (random >= 2)
-    {
-        if (GetRandomValue(0, 1))
-        {
-            if (GetRandomValue(0, 1))
-                strcat(order, "MA");
-            else
-                strcat(order, "WC");
-        }
-    }
-    if (random >= 3)
-    {
-        if (GetRandomValue(0, 1))
-        {
-            if (GetRandomValue(0, 1))
-                strcat(order, "CA");
-            else
-                strcat(order, "CH");
-        }
-    }
-    return order;
-}
-
 
 
 // Customers
@@ -817,6 +764,51 @@ void DrawMenuFallingItems(double deltaTime, bool behide)
     }
 }
 
+void randomGenerateOrder(char *order)
+{
+    int random = GetRandomValue(0, 3);
+    order[0] = '\0'; // Initialize the string
+
+    //base case, either CP or GP
+    if (GetRandomValue(0, 1))
+        strcat(order, "CP");
+    else
+        strcat(order, "GP");
+
+    strcat(order, "Y");
+    if (random >= 1)
+    {   
+        if (GetRandomValue(0, 1))
+        {
+            if (GetRandomValue(0, 1))
+                strcat(order, "CM");
+            else
+                strcat(order, "MI");
+        }
+    }
+    if (random >= 2)
+    {
+        if (GetRandomValue(0, 1))
+        {
+            if (GetRandomValue(0, 1))
+                strcat(order, "MA");
+            else
+                strcat(order, "WC");
+        }
+    }
+    if (random >= 3)
+    {
+        if (GetRandomValue(0, 1))
+        {
+            if (GetRandomValue(0, 1))
+                strcat(order, "CA");
+            else
+                strcat(order, "CH");
+        }
+    }
+}
+
+
 void DrawCustomer(Customer* customer, int frame, Vector2 pos)
 {
     if (options->showDebug && debugToolToggles.showObjects)
@@ -841,6 +833,7 @@ void DrawCustomer(Customer* customer, int frame, Vector2 pos)
     default:
         break;
     }
+	DrawTextureEx(bubbles, (Vector2) {pos.x + 350, pos.y + 100} , 0.0f, 1.0f / 2.0f, WHITE);
 }
 
 void UpdateMenuCustomerBlink(Customer* customer, double deltaTime) {
@@ -1130,9 +1123,11 @@ static int global_score = 0;
 
 void create_customer(Customer *customer, int patience, int currentTime, int orderEnd) {
     Customer newCustomer = createCustomer(EMOTION_HAPPY, 2.0, 4.0, 0.25, true);
-    *customer = newCustomer;
+	strcpy(customer->order, "");
+	randomGenerateOrder(customer->order);
+	printf("%s\n", customer->order);
+	*customer = newCustomer;
 	customer->visible = true;
-	customer->order = randomGenerateOrder();
 	customer->currentTime = currentTime;
 	customer->orderEnd = orderEnd * patience;
 }
@@ -1182,10 +1177,10 @@ void render_customers(Customers *customers)
 {
     if(&customers->customer1 != NULL)
         DrawCustomer(&customers->customer1, 0, (Vector2) { baseX + 50, baseY + 100 });
-    if (&customers->customer2 != NULL)
-        DrawCustomer(&customers->customer2, 1, (Vector2) { baseX + 650, baseY + 100 });
-    if (&customers->customer3 != NULL)
-        DrawCustomer(&customers->customer3, 2, (Vector2) { baseX + 1250, baseY + 100 });
+	if (&customers->customer2 != NULL)
+		DrawCustomer(&customers->customer2, 1, (Vector2) { baseX + 650, baseY + 100 });
+	if (&customers->customer3 != NULL)
+		DrawCustomer(&customers->customer3, 2, (Vector2) { baseX + 1250, baseY + 100 });
 }
 
 //Yandere dev inspired programming.
@@ -1309,9 +1304,7 @@ void LoadGlobalAssets()
 	}
 
 	//orders
-	bubbles_first = LoadTexture(ASSETS_PATH"image/elements/bubbles.png");
-	bubbles_second = LoadTexture(ASSETS_PATH"image/elements/bubbles.png");
-	bubbles_third = LoadTexture(ASSETS_PATH"image/elements/bubbles.png");
+	bubbles = LoadTexture(ASSETS_PATH"image/elements/bubbles.png");
 
 	//
 
@@ -2126,11 +2119,8 @@ void GameUpdate(Camera2D *camera)
 			customers.customer2 = customer2;
 			customers.customer3 = customer3;
 
+			//printf("customer1: %s\n", &customer1.order[0]);
 			placeholder_static = 0;
-			//print customer orders
-			printf("Customer 1 order: %s\n", customers.customer1.order);
-			printf("Customer 2 order: %s\n", customers.customer2.order);
-			printf("Customer 3 order: %s\n", customers.customer3.order);
 		}
 
 		Tick(&customers);
