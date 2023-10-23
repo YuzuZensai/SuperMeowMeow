@@ -1911,21 +1911,15 @@ void endgameUpdate(Camera2D *camera){
     float scaleY = (float)BASE_SCREEN_HEIGHT / imageHeight;
 
     Rectangle scoreRec = {-277,-241,600,450};
-    Color MAIN_BROWN = { 150, 104, 81, 255 };
-
-
-
     float centerX = scoreRec.x + (scoreRec.width / 2);
     float centerY = scoreRec.y + (scoreRec.height / 2);
     Rectangle tryagain = { centerX - 90 , centerY + 50, 200, 70 };
 
-    Vector2 mouseWorldPos = GetScreenToWorld2D(GetMousePosition(), *camera);
-    bool istryagainHovered = CheckCollisionPointRec(mouseWorldPos, tryagain);
-    DrawRectangleRec(tryagain, RED);
 
     while (!WindowShouldClose()){
         WindowUpdate(camera);
-
+        Vector2 mouseWorldPos = GetScreenToWorld2D(GetMousePosition(), *camera);
+        bool istryagainHovered = CheckCollisionPointRec(mouseWorldPos, tryagain);
 
         BeginDrawing();
         ClearBackground(RAYWHITE);
@@ -1947,12 +1941,11 @@ void endgameUpdate(Camera2D *camera){
         DrawTextEx(meowFont, scoreText, scoreTextPos, 100, 2, WHITE);
 
         DrawRectangleRec(tryagain, RED);
-        DrawTextEx(meowFont, "Try Again", (Vector2) {-45,50}, 32, 2, WHITE);
+        DrawTextEx(meowFont, "Try again", (Vector2) {-45,50}, 32, 2, WHITE);
 
-        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)){
-            if(istryagainHovered){
+        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && (istryagainHovered)){
                 //Play again
-            }
+                MainMenuUpdate(camera, true);
         }
 
 
