@@ -104,6 +104,9 @@ Texture2D customerTexture_third_normal;
 Texture2D customerTexture_first_angry;
 Texture2D customerTexture_second_angry;
 Texture2D customerTexture_third_angry;
+Texture2D bubbles_first;
+Texture2D bubbles_second;
+Texture2D bubbles_third;
 
 // Font
 Font meowFont;
@@ -199,7 +202,8 @@ Customer createCustomer(CustomerEmotion emotion, double blinkTimer, double norma
 char *randomGenerateOrder()
 {
     int random = GetRandomValue(0, 3);
-    char *order = malloc(20); // Allocate memory for the string
+    char order[20] = "";
+	//order = "";
     if (order == NULL) { // Check if memory allocation was successful
         return NULL;
     }
@@ -1189,7 +1193,6 @@ void render_customers(Customers *customers)
 void remove_customers(Customer *customer)
 {
 	customer->visible = false;
-	free(customer->order);
 }
 
 void update_customer_state(Customer *customer) {
@@ -1293,6 +1296,8 @@ void LoadGlobalAssets()
     menuFallingItemTextures[6] = LoadTexture(ASSETS_PATH"image/falling_items/milk.png");
     menuFallingItemTextures[7] = LoadTexture(ASSETS_PATH"image/falling_items/wcream.png");
 
+	
+
     for (int i = 0; i < 3; i++)
     {
         customersImageData[i].happy = LoadTexture(TextFormat(ASSETS_PATH"image/sprite/customer_%d/happy.png", i + 1));
@@ -1302,6 +1307,13 @@ void LoadGlobalAssets()
         customersImageData[i].angry = LoadTexture(TextFormat(ASSETS_PATH"image/sprite/customer_%d/angry.png", i + 1));
         customersImageData[i].angryEyesClosed = LoadTexture(TextFormat(ASSETS_PATH"image/sprite/customer_%d/angry_eyes_closed.png", i + 1));
 	}
+
+	//orders
+	bubbles_first = LoadTexture(ASSETS_PATH"image/elements/bubbles.png");
+	bubbles_second = LoadTexture(ASSETS_PATH"image/elements/bubbles.png");
+	bubbles_third = LoadTexture(ASSETS_PATH"image/elements/bubbles.png");
+
+	//
 
     menuBgm = LoadMusicStream(ASSETS_PATH"audio/bgm/Yojo_Summer_My_Heart.wav");
 
@@ -2116,9 +2128,9 @@ void GameUpdate(Camera2D *camera)
 
 			placeholder_static = 0;
 			//print customer orders
-			printf("Customer 1 order: %d\n", customers.customer1.order);
-			printf("Customer 2 order: %d\n", customers.customer2.order);
-			printf("Customer 3 order: %d\n", customers.customer3.order);
+			printf("Customer 1 order: %s\n", customers.customer1.order);
+			printf("Customer 2 order: %s\n", customers.customer2.order);
+			printf("Customer 3 order: %s\n", customers.customer3.order);
 		}
 
 		Tick(&customers);
