@@ -441,6 +441,7 @@ bool highlightItem(Ingredient* item, Camera2D* camera) {
 // Function prototype
 void MainMenuUpdate(Camera2D* camera, bool playFade);
 void OptionsUpdate(Camera2D* camera);
+void endgameUpdate(Camera2D* camera);
 
 // Menu customers
 Customer menuCustomer1;
@@ -1709,6 +1710,8 @@ void GameUpdate(Camera2D *camera)
 
     Texture2D* currentDrag = NULL;
 
+    //End reg
+    Rectangle endScene = { 752, -532, 200, 70 };
     while (!WindowShouldClose())
     {
         // Calculate delta time
@@ -1769,6 +1772,10 @@ void GameUpdate(Camera2D *camera)
             hoversoundPlayed = false;
         }
 
+        Vector2 mouseWorldPos = GetScreenToWorld2D(GetMousePosition(), *camera);
+        bool isendSceneHovered = CheckCollisionPointRec(mouseWorldPos, endScene);
+        void (*transitionCallback)(Camera2D * camera) = NULL;
+        
         // Draw
 
         BeginDrawing();
@@ -1776,7 +1783,7 @@ void GameUpdate(Camera2D *camera)
 
 
         BeginMode2D(*camera);
-
+        
 
         int imageWidth = backgroundTexture.width;
         int imageHeight = backgroundTexture.height;
@@ -1871,11 +1878,20 @@ void GameUpdate(Camera2D *camera)
 
 		char *scoreText = TextFormat("Score: %d", global_score);
         DrawTextEx(GetFontDefault(), scoreText, (Vector2) { baseX + 20, baseY + 20 }, 20, 2, WHITE);
-
+        
         DrawOuterWorld();
 
         if (options->showDebug)
             DrawDebugOverlay(camera);
+
+        //Score page
+        DrawRectangleRec(endScene, RED);
+        DrawTextEx(meowFont, "Score", (Vector2) { endScene.x + 40, endScene.y + 22 }, 32, 2, WHITE);
+        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)){
+            if(isendSceneHovered){
+                endgameUpdate(camera);
+            }
+        }
 
         EndMode2D();
         EndDrawing();
@@ -1886,6 +1902,64 @@ void GameUpdate(Camera2D *camera)
 
 }
 
+void endgameUpdate(Camera2D *camera){
+
+    int imageWidth = backgroundTexture.width;
+    int imageHeight = backgroundTexture.height;
+
+    float scaleX = (float)BASE_SCREEN_WIDTH / imageWidth;
+    float scaleY = (float)BASE_SCREEN_HEIGHT / imageHeight;
+
+    Rectangle scoreRec = {-277,-241,600,450};
+    Color MAIN_BROWN = { 150, 104, 81, 255 };
+
+
+
+    float centerX = scoreRec.x + (scoreRec.width / 2);
+    float centerY = scoreRec.y + (scoreRec.height / 2);
+    Rectangle tryagain = { centerX - 90 , centerY + 50, 200, 70 };
+
+    Vector2 mouseWorldPos = GetScreenToWorld2D(GetMousePosition(), *camera);
+    bool istryagainHovered = CheckCollisionPointRec(mouseWorldPos, tryagain);
+    DrawRectangleRec(tryagain, RED);
+
+    while (!WindowShouldClose()){
+        WindowUpdate(camera);
+
+
+        BeginDrawing();
+        ClearBackground(RAYWHITE);
+        BeginMode2D(*camera);
+
+        DrawTextureEx(backgroundTexture, (Vector2) { baseX, baseY }, 0.0f, fmax(scaleX, scaleY), WHITE);
+        DrawRectangleRec(scoreRec, MAIN_BROWN);
+        DrawRectangleLinesEx((Rectangle) {-217,-195, 480, 360}, 5, WHITE);
+
+        Vector2 scorePos;
+        scorePos.x = centerX - (MeasureText("Score", 55) / 2);
+        scorePos.y = centerY - 150; 
+        DrawTextEx(meowFont, "Score", (Vector2)scorePos, 55, 2, WHITE);
+
+        char *scoreText = TextFormat("%d", global_score);
+        Vector2 scoreTextPos;
+        scoreTextPos.x = centerX - (MeasureText(scoreText, 100) / 2);
+        scoreTextPos.y = centerY - 80; 
+        DrawTextEx(meowFont, scoreText, scoreTextPos, 100, 2, WHITE);
+
+        DrawRectangleRec(tryagain, RED);
+        DrawTextEx(meowFont, "Try Again", (Vector2) {-45,50}, 32, 2, WHITE);
+
+        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)){
+            if(istryagainHovered){
+                //Play again
+            }
+        }
+
+
+        EndMode2D();
+        EndDrawing();
+    }
+}
 void DrawDayNightCycle()
 {
     const Color dayNightColors[] = {
