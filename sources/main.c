@@ -194,6 +194,7 @@ typedef struct Customer {
     int orderEnd;
     Vector2 position;
     int textureType;
+    bool isDummy;
 } Customer;
 
 static inline char* StringFromCustomerEmotionEnum(CustomerEmotion emotion)
@@ -216,6 +217,7 @@ Customer createCustomer(CustomerEmotion emotion, double blinkTimer, double norma
     newCustomer.orderEnd = 0;
     newCustomer.position = position;
     newCustomer.textureType = textureType;
+    newCustomer.isDummy = false;
 
     return newCustomer;
 }
@@ -1039,6 +1041,8 @@ void DrawCustomer(Customer* customer)
         break;
     }
 
+    if (customer->isDummy) return;
+
 	DrawTextureEx(bubbles, (Vector2) {pos.x + 350, pos.y + 100} , 0.0f, 1.0f / 2.0f, WHITE);
 
     if (strstr(customer->order, "CPY") != NULL)
@@ -1556,6 +1560,8 @@ void LoadGlobalAssets()
 
     menuCustomer1 = createCustomer(EMOTION_HAPPY, 2.0, 4.0, 0.25, true, (Vector2) { baseX + 650, baseY + 55 }, 1);
     menuCustomer2 = createCustomer(EMOTION_HAPPY, 0.4, 5.2, 0.3, true, (Vector2) { baseX + 1200, baseY + 52 }, 2);
+    menuCustomer1.isDummy = true;
+    menuCustomer2.isDummy = true;
 
     loadDurationTimer = GetTime() - startTime;
     isGlobalAssetsLoadFinished = true;
