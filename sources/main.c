@@ -1623,6 +1623,7 @@ void WindowUpdate(Camera2D* camera)
         ToggleFullscreen();
     }
 
+    // ESC - Exit application
     if (IsKeyPressed(KEY_ESCAPE))
 	{
         ExitApplication();
@@ -1749,7 +1750,7 @@ void PlayBgm(Music *bgm)
 {
     if (bgm == currentBgm)
     {
-        if (isCurrentBgmPaused)
+        if (isCurrentBgmPaused && options->musicEnabled)
         {
             PlayMusicStream(*bgm);
             bgm->looping = true;
@@ -1770,7 +1771,7 @@ void PlayBgmIfStopped(Music* bgm)
 {
     if (bgm == currentBgm)
     {
-        if (isCurrentBgmPaused)
+        if (isCurrentBgmPaused && options->musicEnabled)
         {
             PlayMusicStream(*bgm);
             SetMusicVolume(*bgm, bgmVolume);
@@ -1869,7 +1870,6 @@ void DrawDayNightCycle()
         colorTransitionTime += GetFrameTime() * colorTransitionSpeed;
     }
 }
-
 
 void OptionsUpdate(Camera2D* camera)
 {
