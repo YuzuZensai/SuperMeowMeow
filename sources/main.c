@@ -195,6 +195,7 @@ typedef struct Customer {
     Vector2 position;
     int textureType;
     bool isDummy;
+    double resetTimer;
 } Customer;
 
 static inline char* StringFromCustomerEmotionEnum(CustomerEmotion emotion)
@@ -213,7 +214,7 @@ void RandomCustomerBlinkTime(Customer* customer) {
     customer->normalDuration = GetRandomDoubleValue(2.0, 6.0);
 }
 
-Customer CreateCustomer(CustomerEmotion emotion, double blinkTimer, double normalDuration, double blinkDuration, bool visible, Vector2 position, int textureType) {
+Customer CreateCustomer(CustomerEmotion emotion, double blinkTimer, double normalDuration, double blinkDuration, bool visible, Vector2 position, int textureType, double resetTimer) {
     Customer newCustomer;
 
     newCustomer.emotion = emotion;
@@ -228,6 +229,7 @@ Customer CreateCustomer(CustomerEmotion emotion, double blinkTimer, double norma
     newCustomer.position = position;
     newCustomer.textureType = textureType;
     newCustomer.isDummy = false;
+    newCustomer.resetTimer = resetTimer;
 
     return newCustomer;
 }
@@ -1024,60 +1026,68 @@ void DrawCustomer(Customer* customer)
 
     if (customer == NULL) return;
 
+    if (customer->visible)
+    {
+
+        switch (customer->emotion)
+        {
+        case EMOTION_HAPPY:
+            DrawTextureEx(!customer->eyesClosed ? customersImageData[frame].happy : customersImageData[frame].happyEyesClosed, pos, 0.0f, 1.0f / 2.0f, WHITE);
+            break;
+        case EMOTION_FRUSTRATED:
+            DrawTextureEx(!customer->eyesClosed ? customersImageData[frame].frustrated : customersImageData[frame].frustratedEyesClosed, pos, 0.0f, 1.0f / 2.0f, WHITE);
+            break;
+        case EMOTION_ANGRY:
+            DrawTextureEx(!customer->eyesClosed ? customersImageData[frame].angry : customersImageData[frame].angryEyesClosed, pos, 0.0f, 1.0f / 2.0f, WHITE);
+            break;
+        default:
+            break;
+        }
+
+    }
+
+    if (!customer->isDummy)
+    {
+        DrawTextureEx(bubbles, (Vector2) { pos.x + 350, pos.y + 100 }, 0.0f, 1.0f / 2.0f, WHITE);
+
+        if (strstr(customer->order, "CPY") != NULL)
+            DrawTextureEx(cocoaChon.texture, (Vector2) { pos.x + 375, pos.y + 100 }, 0.0f, 1.0f / 2.0f, WHITE);
+        else if (strstr(customer->order, "GPY") != NULL)
+            DrawTextureEx(greenChon.texture, (Vector2) { pos.x + 375, pos.y + 100 }, 0.0f, 1.0f / 2.0f, WHITE);
+
+        if (strstr(customer->order, "CM") != NULL)
+            // DrawTextureEx(condensedMilk.texture, (Vector2) {pos.x + 425, pos.y + 100}, 0.0f, 1.0f / 2.0f, WHITE);
+            DrawTextureRec(condensedMilk.texture, condensedMilk.frameRectangle, (Vector2) { pos.x + 425, pos.y + 100 }, RAYWHITE);
+        else if (strstr(customer->order, "MI") != NULL)
+            // DrawTextureEx(normalMilk.texture, (Vector2) {pos.x + 425, pos.y + 100}, 0.0f, 1.0f / 2.0f, WHITE);
+            DrawTextureRec(normalMilk.texture, normalMilk.frameRectangle, (Vector2) { pos.x + 425, pos.y + 100 }, RAYWHITE);
+
+        if (strstr(customer->order, "MA") != NULL)
+            // DrawTextureEx(marshMellow.texture, (Vector2) {pos.x + 375, pos.y + 150}, 0.0f, 1.0f / 2.0f, WHITE);
+            DrawTextureRec(marshMellow.texture, marshMellow.frameRectangle, (Vector2) { pos.x + 375, pos.y + 150 }, RAYWHITE);
+        else if (strstr(customer->order, "WC") != NULL)
+            // DrawTextureEx(whippedCream.texture, (Vector2) {pos.x + 375, pos.y + 150}, 0.0f, 1.0f / 2.0f, WHITE);
+            DrawTextureRec(whippedCream.texture, whippedCream.frameRectangle, (Vector2) { pos.x + 375, pos.y + 150 }, RAYWHITE);
+
+        if (strstr(customer->order, "CA") != NULL)
+            // DrawTextureEx(caramelSauce.texture, (Vector2) {pos.x + 425, pos.y + 150}, 0.0f, 1.0f / 2.0f, WHITE);
+            DrawTextureRec(caramelSauce.texture, caramelSauce.frameRectangle, (Vector2) { pos.x + 425, pos.y + 150 }, RAYWHITE);
+        else if (strstr(customer->order, "CH") != NULL)
+            // DrawTextureEx(chocolateSauce.texture, (Vector2) {pos.x + 425, pos.y + 150}, 0.0f, 1.0f / 2.0f, WHITE);
+            DrawTextureRec(chocolateSauce.texture, chocolateSauce.frameRectangle, (Vector2) { pos.x + 425, pos.y + 150 }, RAYWHITE);
+    }
+
     if (options->showDebug && debugToolToggles.showObjects)
     {
         DrawRectangleLinesEx((Rectangle) { pos.x, pos.y, customersImageData[frame].happy.width / 2, customersImageData[frame].happy.height / 2 }, 1, RED);
         DrawRectangle(pos.x, pos.y - 20, 500, 60, Fade(GRAY, 0.7));
         DrawTextEx(meowFont, TextFormat("%s | Blink %s (%.2f) %.2f/%.2f", StringFromCustomerEmotionEnum(customer->emotion), customer->eyesClosed ? "[Yes]" : "[No]", customer->blinkDuration, customer->blinkTimer, customer->normalDuration), (Vector2) { pos.x, pos.y - 20 }, 20, 1, WHITE);
-        DrawTextEx(meowFont, TextFormat("Visible %s | Timeout %.2f/%.2f", customer->visible ? "[Yes]" : "[No]", (float)customer->currentTime / 1000.0f, (float)customer->orderEnd / 1000.0f), (Vector2) { pos.x, pos.y }, 20, 1, WHITE);
-        DrawTextEx(meowFont, TextFormat("Order %s", customer->order), (Vector2) { pos.x, pos.y + 20 }, 20, 1, WHITE);
+        if (customer->visible)
+            DrawTextEx(meowFont, TextFormat("Timeout %.2f/%.2f", (float)customer->currentTime / 1000.0f, (float)customer->orderEnd / 1000.0f), (Vector2) { pos.x, pos.y }, 20, 1, WHITE);
+        else
+            DrawTextEx(meowFont, TextFormat("Reset %.2f/%.2f", (float)customer->currentTime / 1000.0f, (float)customer->resetTimer / 1000.0f), (Vector2) { pos.x, pos.y }, 20, 1, WHITE);
+        DrawTextEx(meowFont, TextFormat("Visible %s | Order %s", customer->visible ? "[Yes]" : "[No]", customer->order), (Vector2) { pos.x, pos.y + 20 }, 20, 1, WHITE);
     }
-    if (!customer->visible) return;
-
-    switch (customer->emotion)
-    {
-    case EMOTION_HAPPY:
-        DrawTextureEx(!customer->eyesClosed ? customersImageData[frame].happy : customersImageData[frame].happyEyesClosed, pos, 0.0f, 1.0f / 2.0f, WHITE);
-        break;
-    case EMOTION_FRUSTRATED:
-        DrawTextureEx(!customer->eyesClosed ? customersImageData[frame].frustrated : customersImageData[frame].frustratedEyesClosed, pos, 0.0f, 1.0f / 2.0f, WHITE);
-        break;
-    case EMOTION_ANGRY:
-        DrawTextureEx(!customer->eyesClosed ? customersImageData[frame].angry : customersImageData[frame].angryEyesClosed, pos, 0.0f, 1.0f / 2.0f, WHITE);
-        break;
-    default:
-        break;
-    }
-
-    if (customer->isDummy) return;
-
-	DrawTextureEx(bubbles, (Vector2) {pos.x + 350, pos.y + 100} , 0.0f, 1.0f / 2.0f, WHITE);
-
-    if (strstr(customer->order, "CPY") != NULL)
-        DrawTextureEx(cocoaChon.texture, (Vector2) { pos.x + 375, pos.y + 100 }, 0.0f, 1.0f / 2.0f, WHITE);
-    else if (strstr(customer->order, "GPY") != NULL)
-        DrawTextureEx(greenChon.texture, (Vector2) { pos.x + 375, pos.y + 100 }, 0.0f, 1.0f / 2.0f, WHITE);
-
-    if (strstr(customer->order, "CM") != NULL)
-        // DrawTextureEx(condensedMilk.texture, (Vector2) {pos.x + 425, pos.y + 100}, 0.0f, 1.0f / 2.0f, WHITE);
-        DrawTextureRec(condensedMilk.texture, condensedMilk.frameRectangle, (Vector2) { pos.x + 425, pos.y + 100 }, RAYWHITE);
-    else if (strstr(customer->order, "MI") != NULL)
-        // DrawTextureEx(normalMilk.texture, (Vector2) {pos.x + 425, pos.y + 100}, 0.0f, 1.0f / 2.0f, WHITE);
-        DrawTextureRec(normalMilk.texture, normalMilk.frameRectangle, (Vector2) { pos.x + 425, pos.y + 100 }, RAYWHITE);
-
-    if (strstr(customer->order, "MA") != NULL)
-        // DrawTextureEx(marshMellow.texture, (Vector2) {pos.x + 375, pos.y + 150}, 0.0f, 1.0f / 2.0f, WHITE);
-        DrawTextureRec(marshMellow.texture, marshMellow.frameRectangle, (Vector2) { pos.x + 375, pos.y + 150 }, RAYWHITE);
-    else if (strstr(customer->order, "WC") != NULL)
-        // DrawTextureEx(whippedCream.texture, (Vector2) {pos.x + 375, pos.y + 150}, 0.0f, 1.0f / 2.0f, WHITE);
-        DrawTextureRec(whippedCream.texture, whippedCream.frameRectangle, (Vector2) { pos.x + 375, pos.y + 150 }, RAYWHITE);
-
-    if (strstr(customer->order, "CA") != NULL)
-        // DrawTextureEx(caramelSauce.texture, (Vector2) {pos.x + 425, pos.y + 150}, 0.0f, 1.0f / 2.0f, WHITE);
-        DrawTextureRec(caramelSauce.texture, caramelSauce.frameRectangle, (Vector2) { pos.x + 425, pos.y + 150 }, RAYWHITE);
-    else if (strstr(customer->order, "CH") != NULL)
-        // DrawTextureEx(chocolateSauce.texture, (Vector2) {pos.x + 425, pos.y + 150}, 0.0f, 1.0f / 2.0f, WHITE);
-        DrawTextureRec(chocolateSauce.texture, chocolateSauce.frameRectangle, (Vector2) { pos.x + 425, pos.y + 150 }, RAYWHITE);
 
 }
 
@@ -1360,8 +1370,8 @@ void DrawDebugOverlay(Camera2D *camera)
 
 }
 
-Customer CreateCustomerWithOrder(int patience, int currentTime, int orderEnd, Vector2 pos, int textureType) {
-    Customer newCustomer = CreateCustomer(EMOTION_HAPPY, 0, 0, 0.25, true, pos, textureType);
+Customer CreateCustomerWithOrder(int patience, int currentTime, int orderEnd, Vector2 pos, int textureType, double resetTimer) {
+    Customer newCustomer = CreateCustomer(EMOTION_HAPPY, 0, 0, 0.25, true, pos, textureType, resetTimer);
     RandomCustomerBlinkTime(&newCustomer);
 
     newCustomer.currentTime = currentTime;
@@ -1427,6 +1437,8 @@ void render_customers(Customers *customers)
 void remove_customers(Customer *customer)
 {
 	customer->visible = false;
+    customer->currentTime = 0;
+    customer->resetTimer = GetRandomDoubleValue(1000, 10000);
 }
 
 void update_customer_state(Customer* customer) {
@@ -1451,6 +1463,17 @@ void update_customer_state(Customer* customer) {
             remove_customers(customer);
             global_score -= 50;
         }
+    }
+    else
+    {
+        customer->currentTime++;
+        if((float)customer->currentTime > customer->resetTimer)
+		{
+			customer->currentTime = 0;
+			customer->visible = true;
+			strcpy(customer->order, "");
+			randomGenerateOrder(customer->order);
+		}
     }
 }
 
@@ -1570,8 +1593,8 @@ void LoadGlobalAssets()
 
     menuBgm = LoadMusicStream(ASSETS_PATH"audio/bgm/Yojo_Summer_My_Heart.wav");
 
-    menuCustomer1 = CreateCustomer(EMOTION_HAPPY, 2.0, 4.0, 0.25, true, (Vector2) { baseX + 650, baseY + 55 }, 1);
-    menuCustomer2 = CreateCustomer(EMOTION_HAPPY, 0.4, 5.2, 0.3, true, (Vector2) { baseX + 1200, baseY + 52 }, 2);
+    menuCustomer1 = CreateCustomer(EMOTION_HAPPY, 2.0, 4.0, 0.25, true, (Vector2) { baseX + 650, baseY + 55 }, 1, 0);
+    menuCustomer2 = CreateCustomer(EMOTION_HAPPY, 0.4, 5.2, 0.3, true, (Vector2) { baseX + 1200, baseY + 52 }, 2, 0);
     RandomCustomerBlinkTime(&menuCustomer1);
     RandomCustomerBlinkTime(&menuCustomer2);
     menuCustomer1.isDummy = true;
@@ -2271,9 +2294,11 @@ void GameUpdate(Camera2D *camera)
 
     Rectangle endScene = { 752, -532, 200, 70 };
 
-    customer1 = CreateCustomerWithOrder(1, 0, 5000, customer1Position, RandomCustomerTexture());
-    customer2 = CreateCustomerWithOrder(1, 0, 8000, customer2Position, RandomCustomerTexture());
-    customer3 = CreateCustomerWithOrder(1, 0, 10000, customer3Position, RandomCustomerTexture());
+
+
+    customer1 = CreateCustomerWithOrder(1, 0, 5000, customer1Position, RandomCustomerTexture(), GetRandomDoubleValue(1000, 10000));
+    customer2 = CreateCustomerWithOrder(1, 0, 8000, customer2Position, RandomCustomerTexture(), GetRandomDoubleValue(1000, 10000));
+    customer3 = CreateCustomerWithOrder(1, 0, 10000, customer3Position, RandomCustomerTexture(), GetRandomDoubleValue(1000, 10000));
 
     customers.customer1 = customer1;
     customers.customer2 = customer2;
