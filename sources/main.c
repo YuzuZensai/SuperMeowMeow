@@ -1078,17 +1078,19 @@ void RandomGenerateOrder(char *order)
     else
         strcat(order, "MI");
 
+    bool hasTopping = false;
     if (random >= 1)
     {
         if (GetRandomValue(0, 1))
         {
+            hasTopping = true;
             if (GetRandomValue(0, 1))
                 strcat(order, "MA");
             else
                 strcat(order, "WC");
         }
     }
-    if (random >= 2)
+    if (hasTopping && random >= 2)
     {
         if (GetRandomValue(0, 1))
         {
