@@ -467,7 +467,7 @@ float colorTransitionTime = 0.5f;
 
 // Ingredients
 Ingredient teaPowder, cocoaPowder, normalMilk, condensedMilk, marshMellow, whippedCream, caramelSauce, chocolateSauce, hotWater;
-Ingredient greenChon;
+Ingredient greenChon, cocoaChon;
 DropArea plate;
 
 
@@ -1707,6 +1707,11 @@ void GameUpdate(Camera2D *camera)
     greenChon.currentFrame = 1;
     greenChon.frameRectangle = frameRect(greenChon, greenChon.totalFrames, greenChon.currentFrame);
 
+    cocoaChon = (Ingredient){ LoadTexture(ASSETS_PATH"/spritesheets/cocoachon.png"), false, hiddenPosition, hiddenPosition };
+    cocoaChon.totalFrames = 1;
+    cocoaChon.currentFrame = 1;
+	cocoaChon.frameRectangle = frameRect(cocoaChon, cocoaChon.totalFrames, cocoaChon.currentFrame);
+
     Texture2D* currentDrag = NULL;
 
     while (!WindowShouldClose())
@@ -1721,7 +1726,8 @@ void GameUpdate(Camera2D *camera)
         if (currentDrag == NULL || currentDrag == &teaPowder.texture) {
             currentDrag = DragAndDropIngredientPop(&teaPowder, &greenChon, &plate, &cup, camera);
         }if (currentDrag == NULL || currentDrag == &cocoaPowder.texture) {
-            currentDrag = DragAndDropIngredient(&cocoaPowder, &plate, &cup, camera);
+            // currentDrag = DragAndDropIngredient(&cocoaPowder, &plate, &cup, camera);
+            currentDrag = DragAndDropIngredientPop(&cocoaPowder, &cocoaChon, &plate, &cup, camera);
         }if (currentDrag == NULL || currentDrag == &condensedMilk.texture) {
             currentDrag = DragAndDropIngredient(&condensedMilk, &plate, &cup, camera);
         }if (currentDrag == NULL || currentDrag == &normalMilk.texture) {
@@ -1788,6 +1794,7 @@ void GameUpdate(Camera2D *camera)
         DrawTextureEx(backgroundTexture, (Vector2) { baseX, baseY }, 0.0f, fmax(scaleX, scaleY), WHITE);
 
         DrawTexture(plate.texture, oriplatePosition.x, oriplatePosition.y, WHITE);
+        DrawRectangleLinesEx((Rectangle) { oriplatePosition.x, oriplatePosition.y, plate.texture.width, plate.texture.height }, 1, RED);
         DrawDragableItemFrame(cocoaPowder);
         DrawDragableItemFrame(teaPowder);
         DrawDragableItemFrame(caramelSauce);
