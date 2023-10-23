@@ -792,6 +792,7 @@ bool highlightItem(Ingredient* item, Camera2D* camera) {
 // Function prototype
 void MainMenuUpdate(Camera2D* camera, bool playFade);
 void OptionsUpdate(Camera2D* camera);
+void endgameUpdate(Camera2D* camera);
 
 // Menu customers
 Customer menuCustomer1;
@@ -2248,6 +2249,9 @@ void GameUpdate(Camera2D *camera)
     Vector2 customer2Position = { baseX + 650, baseY + 100 };
     Vector2 customer3Position = { baseX + 1250, baseY + 100 };
 
+    //End reg
+    Rectangle endScene = { 752, -532, 200, 70 };
+    
     while (!WindowShouldClose())
     {
         // Calculate delta time
@@ -2317,6 +2321,10 @@ void GameUpdate(Camera2D *camera)
             cup.frameRectangle = frameRectCup(cup, 2, 1);
         }
 
+        Vector2 mouseWorldPos = GetScreenToWorld2D(GetMousePosition(), *camera);
+        bool isendSceneHovered = CheckCollisionPointRec(mouseWorldPos, endScene);
+        void (*transitionCallback)(Camera2D * camera) = NULL;
+        
         // Draw
 
         BeginDrawing();
@@ -2324,7 +2332,7 @@ void GameUpdate(Camera2D *camera)
 
 
         BeginMode2D(*camera);
-
+        
 
         int imageWidth = backgroundTexture.width;
         int imageHeight = backgroundTexture.height;
@@ -2410,6 +2418,15 @@ void GameUpdate(Camera2D *camera)
         if (options->showDebug)
             DrawDebugOverlay(camera);
 
+        //Score page
+        DrawRectangleRec(endScene, RED);
+        DrawTextEx(meowFont, "Score", (Vector2) { endScene.x + 40, endScene.y + 22 }, 32, 2, WHITE);
+        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)){
+            if(isendSceneHovered){
+                endgameUpdate(camera);
+            }
+        }
+
         EndMode2D();
         EndDrawing();
     }
@@ -2417,6 +2434,101 @@ void GameUpdate(Camera2D *camera)
     UnloadTexture(backgroundTexture);
     CloseWindow();
 
+}
+
+void endgameUpdate(Camera2D *camera){
+
+    int imageWidth = backgroundTexture.width;
+    int imageHeight = backgroundTexture.height;
+
+    float scaleX = (float)BASE_SCREEN_WIDTH / imageWidth;
+    float scaleY = (float)BASE_SCREEN_HEIGHT / imageHeight;
+
+    Rectangle scoreRec = {-277,-241,600,450};
+    float centerX = scoreRec.x + (scoreRec.width / 2);
+    float centerY = scoreRec.y + (scoreRec.height / 2);
+    Rectangle tryagain = { centerX - 90 , centerY + 50, 200, 70 };
+
+
+    while (!WindowShouldClose()){
+        WindowUpdate(camera);
+        Vector2 mouseWorldPos = GetScreenToWorld2D(GetMousePosition(), *camera);
+        bool istryagainHovered = CheckCollisionPointRec(mouseWorldPos, tryagain);
+
+        BeginDrawing();
+        ClearBackground(RAYWHITE);
+        BeginMode2D(*camera);
+
+        DrawTextureEx(backgroundTexture, (Vector2) { baseX, baseY }, 0.0f, fmax(scaleX, scaleY), WHITE);
+        DrawRectangleRec(scoreRec, MAIN_BROWN);
+        DrawRectangleLinesEx((Rectangle) {-217,-195, 480, 360}, 5, WHITE);
+
+        Vector2 scorePos;
+        scorePos.x = centerX - (MeasureText("Score", 55) / 2);
+        scorePos.y = centerY - 150; 
+        DrawTextEx(meowFont, "Score", (Vector2)scorePos, 55, 2, WHITE);
+
+        char *scoreText = TextFormat("%d", global_score);
+        Vector2 scoreTextPos;
+        scoreTextPos.x = centerX - (MeasureText(scoreText, 100) / 2);
+        scoreTextPos.y = centerY - 80; 
+        DrawTextEx(meowFont, scoreText, scoreTextPos, 100, 2, WHITE);
+
+        DrawRectangleRec(tryagain, RED);
+        DrawTextEx(meowFont, "Try again", (Vector2) {-45,50}, 32, 2, WHITE);
+
+        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && (istryagainHovered)){
+                //Play again
+                MainMenuUpdate(camera, true);
+        }
+
+
+        EndMode2D();
+        EndDrawing();
+    }
+}
+void DrawDayNightCycle()
+{
+    const Color dayNightColors[] = {
+    (Color){173, 216, 230, 255},  // Morning (Anime Light Blue)
+    (Color){0, 102, 204, 255},    // Afternoon (Anime Blue)
+    (Color){245, 161, 59, 255},    // Evening (Anime Orange)
+    (Color){0, 0, 102, 255}       // Night (Anime Dark Blue)
+    };
+
+    float colorTransitionSpeed = (float)(sizeof(dayNightColors) / sizeof(dayNightColors[0])) / dayNightCycleDuration;
+
+    // Determine the color to interpolate from and to
+    int fromColorIndex = currentColorIndex;
+    int toColorIndex = (currentColorIndex + 1) % (sizeof(dayNightColors) / sizeof(dayNightColors[0]));
+
+    // Calculate the interpolation factor (0 to 1) based on colorTransitionTime
+    float t = fmin(colorTransitionTime, 1.0f);
+
+    // Interpolate between the colors
+    Color fromColor = dayNightColors[fromColorIndex];
+    Color toColor = dayNightColors[toColorIndex];
+    Color currentColor = ColorLerp(fromColor, toColor, t);
+
+    // Draw the day/night color overlay with the scaled dimensions
+    DrawRectangle(baseX, baseY, BASE_SCREEN_WIDTH, BASE_SCREEN_HEIGHT, currentColor);
+
+    // Draw day/night cycle debug overlay
+    if (options->showDebug && debugToolToggles.showObjects)
+    {
+        DrawTextEx(meowFont, TextFormat("Time %.2f/%.2f | Phrase %d/%d", colorTransitionTime * dayNightCycleDuration, dayNightCycleDuration, currentColorIndex + 1, (sizeof(dayNightColors) / sizeof(dayNightColors[0]))), (Vector2) { baseX + BASE_SCREEN_WIDTH - 500, baseY + 20 }, 20, 2, WHITE);
+    }
+
+    // Update the colorTransitionTime
+    if (colorTransitionTime >= 1.0f)
+    {
+        currentColorIndex = toColorIndex;
+        colorTransitionTime = 0;
+    }
+    else
+    {
+        colorTransitionTime += GetFrameTime() * colorTransitionSpeed;
+    }
 }
 
 void MainMenuUpdate(Camera2D* camera, bool playFade)
