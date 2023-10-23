@@ -1847,7 +1847,8 @@ void DrawDayNightCycle()
     // Draw day/night cycle debug overlay
     if (options->showDebug && debugToolToggles.showObjects)
     {
-        DrawTextEx(meowFont, TextFormat("Time %.2f/%.2f | Phrase %d/%d", colorTransitionTime * dayNightCycleDuration, dayNightCycleDuration, currentColorIndex + 1, (sizeof(dayNightColors) / sizeof(dayNightColors[0]))), (Vector2) { baseX + BASE_SCREEN_WIDTH - 500, baseY + 20 }, 20, 2, WHITE);
+        DrawRectangle(baseX + BASE_SCREEN_WIDTH - 500, baseY + 25, 400, 20, Fade(GRAY, 0.7));
+        DrawTextEx(meowFont, TextFormat("Time %.2f/%.2f | Phrase %d/%d", colorTransitionTime * dayNightCycleDuration, dayNightCycleDuration, currentColorIndex + 1, (sizeof(dayNightColors) / sizeof(dayNightColors[0]))), (Vector2) { baseX + BASE_SCREEN_WIDTH - 500, baseY + 25 }, 20, 2, WHITE);
     }
 
     // Update the colorTransitionTime
