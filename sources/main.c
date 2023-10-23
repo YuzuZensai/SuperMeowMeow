@@ -375,6 +375,7 @@ static int global_score = 0;
 bool triggerHotWater = false;
 double boilingTime = 2.5;
 double lastBoongBoongBoongTime = 0;
+bool dragAndDropLocked = false;
 
 void UnloadGlobalAssets();
 void ExitApplication()
@@ -391,7 +392,6 @@ void boilWater(Ingredient* item) {
 }
 
 void PlaySoundFx(SoundFxType type);
-
 void RemoveCustomer(Customer* customer);
 bool validiator(Customer* customer, char* order);
 Texture2D* DragAndDropCup(Cup* cup, const DropArea* dropArea, Camera2D* camera, Customers *customers)
@@ -2587,32 +2587,56 @@ void GameUpdate(Camera2D *camera)
 
         WindowUpdate(camera);
 
-        bool isPreviousIsDraggingBottle = false;
+        bool anyDragDetected = false;
 
-        // Dragable items
-        if (currentDrag == NULL || currentDrag == &teaPowder.texture) {
-            currentDrag = DragAndDropIngredientPop(&teaPowder, &greenChon, &cup, camera);
-        }if (currentDrag == NULL || currentDrag == &cocoaPowder.texture) {
-            // currentDrag = DragAndDropIngredient(&cocoaPowder, &plate, &cup, camera);
-            currentDrag = DragAndDropIngredientPop(&cocoaPowder, &cocoaChon, &cup, camera);
-        }if (currentDrag == NULL || currentDrag == &condensedMilk.texture) {
-            currentDrag = DragAndDropIngredient(&condensedMilk, &cup, camera);
-        }if (currentDrag == NULL || currentDrag == &normalMilk.texture) {
-            currentDrag = DragAndDropIngredient(&normalMilk, &cup, camera);
-        }if (currentDrag == NULL || currentDrag == &whippedCream.texture) {
-            currentDrag = DragAndDropIngredient(&whippedCream, &cup, camera);
-        }if (currentDrag == NULL || currentDrag == &marshMellow.texture) {
-            currentDrag = DragAndDropIngredient(&marshMellow, &cup, camera);
-        }if (currentDrag == NULL || currentDrag == &caramelSauce.texture) {
-            currentDrag = DragAndDropIngredient(&caramelSauce, &cup, camera);
-        }if (currentDrag == NULL || currentDrag == &chocolateSauce.texture) {
-            currentDrag = DragAndDropIngredient(&chocolateSauce, &cup, camera);
-        }if (currentDrag == NULL || currentDrag == &hotWater.texture) {
-            currentDrag = DragAndDropIngredient(&hotWater, &cup, camera);
+        if (!IsMouseButtonDown(MOUSE_LEFT_BUTTON))
+        {
+            dragAndDropLocked = false;
         }
 
-        if (currentDrag == NULL || currentDrag == &cup.texture) {
-            currentDrag = DragAndDropCup(&cup, &plate, camera, &customers);
+        if (!dragAndDropLocked)
+        {
+            // Dragable items
+            if (currentDrag == NULL || currentDrag == &teaPowder.texture) {
+                currentDrag = DragAndDropIngredientPop(&teaPowder, &greenChon, &cup, camera);
+                if (currentDrag != NULL) anyDragDetected = true;
+            }if (currentDrag == NULL || currentDrag == &cocoaPowder.texture) {
+                // currentDrag = DragAndDropIngredient(&cocoaPowder, &plate, &cup, camera);
+                currentDrag = DragAndDropIngredientPop(&cocoaPowder, &cocoaChon, &cup, camera);
+                if (currentDrag != NULL) anyDragDetected = true;
+            }if (currentDrag == NULL || currentDrag == &condensedMilk.texture) {
+                currentDrag = DragAndDropIngredient(&condensedMilk, &cup, camera);
+                if (currentDrag != NULL) anyDragDetected = true;
+            }if (currentDrag == NULL || currentDrag == &normalMilk.texture) {
+                currentDrag = DragAndDropIngredient(&normalMilk, &cup, camera);
+                if (currentDrag != NULL) anyDragDetected = true;
+            }if (currentDrag == NULL || currentDrag == &whippedCream.texture) {
+                currentDrag = DragAndDropIngredient(&whippedCream, &cup, camera);
+                if (currentDrag != NULL) anyDragDetected = true;
+            }if (currentDrag == NULL || currentDrag == &marshMellow.texture) {
+                currentDrag = DragAndDropIngredient(&marshMellow, &cup, camera);
+                if (currentDrag != NULL) anyDragDetected = true;
+            }if (currentDrag == NULL || currentDrag == &caramelSauce.texture) {
+                currentDrag = DragAndDropIngredient(&caramelSauce, &cup, camera);
+                if (currentDrag != NULL) anyDragDetected = true;
+            }if (currentDrag == NULL || currentDrag == &chocolateSauce.texture) {
+                currentDrag = DragAndDropIngredient(&chocolateSauce, &cup, camera);
+                if (currentDrag != NULL) anyDragDetected = true;
+            }if (currentDrag == NULL || currentDrag == &hotWater.texture) {
+                currentDrag = DragAndDropIngredient(&hotWater, &cup, camera);
+                if (currentDrag != NULL) anyDragDetected = true;
+            }
+            if (currentDrag == NULL || currentDrag == &cup.texture) {
+                currentDrag = DragAndDropCup(&cup, &plate, camera, &customers);
+                if (currentDrag != NULL) anyDragDetected = true;
+            }
+        }
+
+        
+
+        if (!dragAndDropLocked && !anyDragDetected && IsMouseButtonDown(MOUSE_LEFT_BUTTON))
+        {
+            dragAndDropLocked = true;
         }
 
         bool previousIsDragging = isDragging;
