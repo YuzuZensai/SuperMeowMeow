@@ -116,6 +116,7 @@ Font meowFont;
 // Sounds
 Sound selectFx;
 Sound hover;
+Sound boong;
 
 // BGMs
 Music menuBgm;
@@ -289,7 +290,7 @@ DropArea plate;
 
 // Original position
 const Vector2 oricupPosition = { 351,109 };
-const Vector2 oriwaterPosition = { 679, 243 };
+const Vector2 oriwaterPosition = { 600, 210 };
 
 const Vector2 oricaramelPosition = { -770,108 };
 const Vector2 orichocolatePosition = { -904,138 };
@@ -299,12 +300,23 @@ const Vector2 oriplatePosition = { -175,300 };
 const Vector2 oriplateCupPosition = { -28, 300 };
 const Vector2 oricondensedmilkPosition = { 283,316 };
 const Vector2 orimilkPosition = { 160,342 };
-const Vector2 orimarshmellowPosition = { -394,424 };
-const Vector2 oriwhippedPosition = { -677,391 };
-const Vector2 oricupsPostion = { 432,97 };
+const Vector2 orimarshmellowPosition = { -481,320 };
+const Vector2 oriwhippedPosition = { -644,320 };
+const Vector2 oricupsPostion = { 390,80 };
 const Vector2 hiddenPosition = { -3000, -3000 };
 
 static int global_score = 0;
+
+bool triggerHotWater = false;
+double boilingTime = 2.5;
+double lastBoongBoongBoongTime = 0;
+
+void boilWater(Ingredient* item) {
+    if (!item->canChangeCupTexture) {
+        triggerHotWater = true;
+        boilingTime = GetTime();
+    }
+}
 
 bool validiator(Customer* customer, char* order);
 Texture2D* DragAndDropCup(Cup* cup, const DropArea* dropArea, Camera2D* camera, Customers *customers)
@@ -576,22 +588,22 @@ void UpdateCup(Cup* cup, Ingredient* ingredient) {
     else if (ingredient == &hotWater && cup->powderType != NONE) {
         cup->hasWater = true;
     }
-    else if (ingredient == &condensedMilk && cup->hasWater == true && cup->creamerType == NULL) {
+    else if (ingredient == &condensedMilk && cup->hasWater == true && cup->creamerType == NONE) {
         cup->creamerType = CONDENSED_MILK;
     }
-    else if (ingredient == &normalMilk && cup->hasWater == true && cup->creamerType == NULL) {
+    else if (ingredient == &normalMilk && cup->hasWater == true && cup->creamerType == NONE) {
         cup->creamerType = MILK;
     }
-    else if (ingredient == &marshMellow && cup->creamerType != NONE && cup->toppingType == NULL) {
+    else if (ingredient == &marshMellow && cup->creamerType != NONE && cup->toppingType == NONE) {
         cup->toppingType = MARSHMELLOW;
     }
-    else if (ingredient == &whippedCream && cup->creamerType != NONE && cup->toppingType == NULL) {
+    else if (ingredient == &whippedCream && cup->creamerType != NONE && cup->toppingType == NONE) {
         cup->toppingType = WHIPPED_CREAM;
     }
-    else if (ingredient == &caramelSauce && cup->toppingType != NONE && cup->sauceType == NULL) {
+    else if (ingredient == &caramelSauce && cup->toppingType != NONE && cup->sauceType == NONE) {
         cup->sauceType = CARAMEL;
     }
-    else if (ingredient == &chocolateSauce && cup->toppingType != NONE && cup->sauceType == NULL) {
+    else if (ingredient == &chocolateSauce && cup->toppingType != NONE && cup->sauceType == NONE) {
         cup->sauceType = CHOCOLATE;
     }
 
@@ -611,16 +623,25 @@ Texture2D* DragAndDropIngredient(Ingredient* object, Cup* cup, Camera2D* camera)
     if (IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {
         Vector2 mousePos = GetScreenToWorld2D(GetMousePosition(), *camera);
         if (CheckCollisionPointRec(mousePos, objectBounds) && (current_dragging == NULL || current_dragging == &object->texture)) {
-            isObjectBeingDragged = true;
-            offsetX = object->frameRectangle.width / 2;
-            offsetY = object->frameRectangle.height / 2;
-            float mouseX = mousePos.x;
-            float mouseY = mousePos.y;
 
-            object->position.x = mouseX - offsetX;
-            object->position.y = mouseY - offsetY;
-            current_dragging = &object->texture;
-            return &object->texture;
+            if (object == &hotWater && object->canChangeCupTexture == false) {
+                object->canChangeCupTexture = false;
+                boilWater(object);
+            }
+
+            else
+            {
+                isObjectBeingDragged = true;
+                offsetX = object->frameRectangle.width / 2;
+                offsetY = object->frameRectangle.height / 2;
+                float mouseX = mousePos.x;
+                float mouseY = mousePos.y;
+
+                object->position.x = mouseX - offsetX;
+                object->position.y = mouseY - offsetY;
+                current_dragging = &object->texture;
+                return &object->texture;
+            }
         }
     }
 
@@ -630,6 +651,13 @@ Texture2D* DragAndDropIngredient(Ingredient* object, Cup* cup, Camera2D* camera)
 
         if (CheckCollisionRecs(objectBounds, cupBounds)) {
             if (object->canChangeCupTexture) {
+
+                if (object == &hotWater && cup->powderType != NONE) {
+                    triggerHotWater = false;
+                    object->canChangeCupTexture = false;
+                    object->currentFrame = 1;
+                }
+
                 UpdateCup(cup,object);
 
                 object->position.x = object->originalPosition.x;
@@ -726,10 +754,32 @@ Rectangle frameRectCup(Cup i, int frameNum, int frameToShow) {
     return frameRect;
 }
 
+void tickBoil(Ingredient* boiler) {
+
+    if (triggerHotWater) {
+        if (boilingTime + 3 > GetTime()) {
+            boiler->currentFrame = boiler->totalFrames;
+            return;
+        }
+        if (lastBoongBoongBoongTime + 0.5 < GetTime()) {
+            StopSound(boong);
+            PlaySound(boong);
+            boiler->canChangeCupTexture = true;
+            lastBoongBoongBoongTime = GetTime();
+            int nextFrame = boiler->currentFrame + 2;
+            if (nextFrame > boiler->totalFrames) {
+                nextFrame = 1;
+            }
+            boiler->currentFrame = nextFrame;
+        }
+    }
+}
+
+
 bool highlightItem(Ingredient* item, Camera2D* camera) {
     Vector2 mousePos = GetScreenToWorld2D(GetMousePosition(), *camera);
     static bool isHovering;
-    if (CheckCollisionPointRec(mousePos, (Rectangle) { item->position.x, item->position.y, item->frameRectangle.width, item->frameRectangle.height }) && item->totalFrames > 1) {
+    if (CheckCollisionPointRec(mousePos, (Rectangle) { item->position.x, item->position.y, item->frameRectangle.width, item->frameRectangle.height }) && item->totalFrames > item->currentFrame) {
         item->frameRectangle = frameRect(*item, item->totalFrames, item->currentFrame + 1);
         return true;
     }
@@ -1463,6 +1513,7 @@ void LoadGlobalAssets()
 
     hover = LoadSound(ASSETS_PATH"audio/hover.wav");
     selectFx = LoadSound(ASSETS_PATH"audio/select.wav");
+    boong = LoadSound(ASSETS_PATH"audio/boong.wav");
 
     menuFallingItemTextures[0] = LoadTexture(ASSETS_PATH"image/falling_items/cara.png");
     menuFallingItemTextures[1] = LoadTexture(ASSETS_PATH"image/falling_items/cmilk.png");
@@ -2131,7 +2182,9 @@ void GameUpdate(Camera2D *camera)
 
     teaPowder = (Ingredient){ teaPowderTexture, true, oriteapowderPosition, oriteapowderPosition };
     teaPowder.totalFrames = 3;
+    teaPowder.currentFrame = 1;
     teaPowder.frameRectangle = frameRect(teaPowder, teaPowder.totalFrames, teaPowder.currentFrame);
+
     cocoaPowder = (Ingredient){ cocoaPowderTexture, true, oricocoapowderPosition, oricocoapowderPosition };
     cocoaPowder.totalFrames = 3;
     cocoaPowder.currentFrame = 1;
@@ -2168,9 +2221,10 @@ void GameUpdate(Camera2D *camera)
     whippedCream.frameRectangle = frameRect(whippedCream, whippedCream.totalFrames, whippedCream.currentFrame);
 
     hotWater = (Ingredient){ hotWaterTexture, true, oriwaterPosition, oriwaterPosition };
-    hotWater.totalFrames = 3;
+    hotWater.totalFrames = 17;
     hotWater.currentFrame = 1;
     hotWater.frameRectangle = frameRect(hotWater, hotWater.totalFrames, hotWater.currentFrame);
+    hotWater.canChangeCupTexture = false;
 
     greenChon = (Ingredient){ greenChonTexture, false, hiddenPosition, hiddenPosition };
     greenChon.totalFrames = 1;
@@ -2295,6 +2349,7 @@ void GameUpdate(Camera2D *camera)
 		}
 
 		Tick(&customers);
+        tickBoil(&hotWater);
 		render_customers(&customers);
 
         DrawTextureEx(backgroundOverlayTexture, (Vector2) { baseX, baseY }, 0.0f, fmax(scaleX, scaleY), WHITE);
