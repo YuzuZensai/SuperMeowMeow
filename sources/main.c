@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <time.h> 
+#include <string.h>
 
 // Render resolution
 #define BASE_SCREEN_WIDTH 1920
@@ -152,12 +153,12 @@ typedef enum {
 } CustomerEmotion;
 
 // Order
-typedef struct Order { //text-based-combinations
-    char* first;
-    char* second;
-    char* third;
-    char* fourth;
-} Order;
+// typedef struct Order { //text-based-combinations
+//     char* first;
+//     char* second;
+//     char* third;
+//     char* fourth;
+// } Order;
 
 // Customer
 typedef struct Customer {
@@ -169,7 +170,7 @@ typedef struct Customer {
 
     //int patience; //To be removed. 
     bool visible;
-    Order* order;
+    char *order;
     int currentTime;
     int orderEnd;
 } Customer;
@@ -189,11 +190,56 @@ Customer createCustomer(CustomerEmotion emotion, double blinkTimer, double norma
     newCustomer.eyesClosed = false;
     newCustomer.visible = visible;
     newCustomer.order = NULL;
-    newCustomer.currentTime = NULL;
-    newCustomer.orderEnd = NULL;
+    newCustomer.currentTime = 0;
+    newCustomer.orderEnd = 0;
 
     return newCustomer;
 }
+
+void randomGenerateOrder(Customer *customer)
+{
+	int random = GetRandomValue(0, 3);
+	char *order = "";
+	//base case, either CP or GP
+	if (GetRandomValue(0, 1))
+		order = "CP";
+	else
+		order = "GP";
+	
+	strcat(order, "Y");
+	if (random >= 1)
+	{	
+		if (GetRandomValue(0, 1))
+		{
+			if (GetRandomValue(0, 1))
+				strcat(order, "CM");
+			else
+				strcat(order, "MI");
+		}
+	}
+	if (random >= 2)
+	{
+		if (GetRandomValue(0, 1))
+		{
+			if (GetRandomValue(0, 1))
+				strcat(order, "MA");
+			else
+				strcat(order, "WC");
+		}
+	}
+	if (random >= 3)
+	{
+		if (GetRandomValue(0, 1))
+		{
+			if (GetRandomValue(0, 1))
+				strcat(order, "CA");
+			else
+				strcat(order, "CH");
+		}
+	}
+
+}
+
 
 // Customers
 typedef struct Customers {
@@ -1073,64 +1119,64 @@ void DrawDebugOverlay(Camera2D *camera)
 static int placeholder_static = 1;
 static int global_score = 0;
 
-void create_customer(Customer *customer, int patience, Order order, int currentTime, int orderEnd) {
+void create_customer(Customer *customer, int patience, char *order, int currentTime, int orderEnd) {
     Customer newCustomer = createCustomer(EMOTION_HAPPY, 2.0, 4.0, 0.25, true);
     *customer = newCustomer;
 	customer->visible = true;
-	customer->order = &order;
+	customer->order = order;
 	customer->currentTime = currentTime;
 	customer->orderEnd = orderEnd * patience;
 }
 
-void create_order(Order *order, char *first, char *second, char *third, char *fourth) {
-	order->first = first;
-	order->second = second;
-	order->third = third;
-	order->fourth = fourth;
-}
+// void create_order(Order *order, char *first, char *second, char *third, char *fourth) {
+// 	order->first = first;
+// 	order->second = second;
+// 	order->third = third;
+// 	order->fourth = fourth;
+// }
 
-void distribute_points(Order* order, char* first, char* second, char* third, char* fourth)
-{
-    if (first)
-    {
-        global_score += 50;
-    }
-    if (second)
-    {
-        global_score += 50;
-    }
-    if (third)
-    {
-        global_score += 50;
-    }
-    if (fourth)
-    {
-        global_score += 50;
-    }
-}
+// void distribute_points(Order* order, char* first, char* second, char* third, char* fourth)
+// {
+//     if (first)
+//     {
+//         global_score += 50;
+//     }
+//     if (second)
+//     {
+//         global_score += 50;
+//     }
+//     if (third)
+//     {
+//         global_score += 50;
+//     }
+//     if (fourth)
+//     {
+//         global_score += 50;
+//     }
+// }
 
-void validiator(Order *order, char *first, char *second, char *third, char *fourth)
-{
-	//if order is valid, call distribute points
-	if (strcmp(order->first, first) == 0 && strcmp(order->second, second) == 0 && strcmp(order->third, third) == 0 && strcmp(order->fourth, fourth) == 0)
-	{
-		distribute_points(order, first, second, third, fourth);
-	}
-	else
-	{
-		//To be implemented, waiting for mixture parts.
-	}
-}
+// void validiator(Order *order, char *first, char *second, char *third, char *fourth)
+// {
+// 	//if order is valid, call distribute points
+// 	if (strcmp(order->first, first) == 0 && strcmp(order->second, second) == 0 && strcmp(order->third, third) == 0 && strcmp(order->fourth, fourth) == 0)
+// 	{
+// 		distribute_points(order, first, second, third, fourth);
+// 	}
+// 	else
+// 	{
+// 		//To be implemented, waiting for mixture parts.
+// 	}
+// }
 
 //create customer image at either position 1 2 or 3
 void render_customers(Customers *customers)
 {
     if(&customers->customer1 != NULL)
-        DrawCustomer(&customers->customer1, 0, (Vector2) { baseX, baseY + 100 });
+        DrawCustomer(&customers->customer1, 0, (Vector2) { baseX + 50, baseY + 100 });
     if (&customers->customer2 != NULL)
-        DrawCustomer(&customers->customer2, 1, (Vector2) { baseX + 500, baseY + 100 });
+        DrawCustomer(&customers->customer2, 1, (Vector2) { baseX + 650, baseY + 100 });
     if (&customers->customer3 != NULL)
-        DrawCustomer(&customers->customer3, 2, (Vector2) { baseX + 1100, baseY + 100 });
+        DrawCustomer(&customers->customer3, 2, (Vector2) { baseX + 1250, baseY + 100 });
 }
 
 //Yandere dev inspired programming.
@@ -2049,32 +2095,14 @@ void GameUpdate(Camera2D *camera)
         Customer customer2;
         Customer customer3;
 
-        Order order1;
-        Order order2;
-        Order order3;
 
         Customers customers;
 
 		if (placeholder_static == 1)
 		{
-			order1.first = PLACEHOLDER_ORDER;
-			order1.second = PLACEHOLDER_ORDER;
-			order1.third = PLACEHOLDER_ORDER;
-			order1.fourth = PLACEHOLDER_ORDER;
-			create_customer(&customer1, 1, order1 , 0, 1000);
-		
-			order2.first = PLACEHOLDER_ORDER;
-			order2.second = PLACEHOLDER_ORDER;
-			order2.third = PLACEHOLDER_ORDER;
-			order2.fourth = PLACEHOLDER_ORDER;
-			create_customer(&customer2, 1, order2, 0, 5000);
-
-
-			order3.first = PLACEHOLDER_ORDER;
-			order3.second = PLACEHOLDER_ORDER;
-			order3.third = PLACEHOLDER_ORDER;
-			order3.fourth = PLACEHOLDER_ORDER;
-			create_customer(&customer3, 1, order3, 0, 10000);
+			create_customer(&customer1, 1, "CPY" , 0, 5000);
+			create_customer(&customer2, 1, "GPYCMWC", 0, 8000);
+			create_customer(&customer3, 1, "CPYCM", 0, 10000);
 
 			customers.customer1 = customer1;
 			customers.customer2 = customer2;
