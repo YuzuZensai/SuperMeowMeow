@@ -35,12 +35,12 @@ int DebugFrameTimeHistory[DEBUG_MAX_FPS_HISTORY];
 int DebugFrameTimeHistoryIndex = 0;
 
 // Debug logs history
-typedef struct DebugLog {
+typedef struct DebugLogEntry {
 	int type;
 	char* text;
-} DebugLog;
+} DebugLogEntry;
 
-DebugLog DebugLogs[DEBUG_MAX_LOGS_HISTORY];
+DebugLogEntry DebugLogs[DEBUG_MAX_LOGS_HISTORY];
 int DebugLogsIndex = 0;
 
 // Debug tool toggles states
@@ -52,6 +52,9 @@ typedef struct DebugToolToggles {
 } DebugToolToggles;
 
 DebugToolToggles debugToolToggles = { false, true, false, false };
+
+void LogDebug(const char* text, ...);
+void Log(int msgType, const char* text, ...);
 
 // Runtime resolution
 typedef struct Resolution {
@@ -305,7 +308,6 @@ Texture2D* DragAndDropCup(Cup* cup, const DropArea* dropArea, Camera2D* camera) 
     Rectangle dropBounds = { dropArea->position.x, dropArea->position.y, (float)dropArea->texture.width, (float)dropArea->texture.height };
 
     if (IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {
-        // printf("MOUSE DOWN");
         Vector2 mousePos = GetScreenToWorld2D(GetMousePosition(), *camera);
         if (cup->active && CheckCollisionPointRec(mousePos, objectBounds) && (current_dragging == NULL || current_dragging == &cup->texture)) {
             isObjectBeingDragged = true;
@@ -410,7 +412,7 @@ void UpdateCupImage(Cup* cup, Ingredient* ingredient) {
     // -Caramel: CA
     // -Chocolate: CH
 
-    printf("update CUP IMAGE \n");
+    LogDebug("update CUP IMAGE \n");
     char filename[100];
 
     // Initialize filename to empty string
@@ -493,8 +495,8 @@ void UpdateCupImage(Cup* cup, Ingredient* ingredient) {
     strcpy(path, ASSETS_PATH"combination/");
     strcat(path, filename);
     // set cup texture to the filename
-    printf("Powder type: %d, Water: %d, Creamer: %d, Topping: %d, Sauce: %d\n", cup->powderType, cup->hasWater, cup->creamerType, cup->toppingType, cup->sauceType);
-    printf("NEW CUP IMAGE IS %s\n", path);
+    LogDebug("Powder type: %d, Water: %d, Creamer: %d, Topping: %d, Sauce: %d\n", cup->powderType, cup->hasWater, cup->creamerType, cup->toppingType, cup->sauceType);
+    LogDebug("NEW CUP IMAGE IS %s\n", path);
     cup->texture = LoadTexture(path);
 }
 
@@ -504,7 +506,7 @@ void UpdateCup(Cup* cup, Ingredient* ingredient) {
 
     // Check what type of ingredient it is and update the cup accordingly
     if (ingredient == &teaPowder && cup->powderType == NONE) {
-        printf("GREEN TEA!!!\n");
+        LogDebug("GREEN TEA!!!\n");
         cup->powderType = GREEN_TEA;
     }
     else if (ingredient == &cocoaPowder && cup->powderType == NONE) {
@@ -548,16 +550,12 @@ Texture2D* DragAndDropIngredient(Ingredient* object, const DropArea* dropArea, C
     static float offsetX = 0;
     static float offsetY = 0;
 
-
     Rectangle objectBounds = { object->position.x, object->position.y, (float)object->frameRectangle.width, (float)object->frameRectangle.height };
     Rectangle dropBounds = { dropArea->position.x, dropArea->position.y, (float)dropArea->texture.width, (float)dropArea->texture.height };
 
-
     if (IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {
-        // printf("MOUSE DOWN");
         Vector2 mousePos = GetScreenToWorld2D(GetMousePosition(), *camera);
         if (CheckCollisionPointRec(mousePos, objectBounds) && (current_dragging == NULL || current_dragging == &object->texture)) {
-            // printf("SEND HELP");
             isObjectBeingDragged = true;
             offsetX = object->frameRectangle.width / 2;
             offsetY = object->frameRectangle.height / 2;
@@ -616,10 +614,8 @@ Texture2D* DragAndDropIngredientPop(Ingredient* object, Ingredient* popObject, c
 
 
     if (IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {
-        // printf("MOUSE DOWN");
         Vector2 mousePos = GetScreenToWorld2D(GetMousePosition(), *camera);
         if ((CheckCollisionPointRec(mousePos, objectBounds) || CheckCollisionPointRec(mousePos, popObjectBounds)) && (current_dragging == NULL || current_dragging == &object->texture)) {
-            // printf("SEND HELP");
             isObjectBeingDragged = true;
             offsetX = popObject->frameRectangle.width / 2;
             offsetY = popObject->frameRectangle.height / 2;
@@ -757,6 +753,22 @@ void CustomLogger(int msgType, const char* text, va_list args)
     DebugLogsIndex++;
 
     printf("%s\n", logMessage);
+}
+
+void LogDebug(const char* text, ...)
+{
+    va_list args;
+    va_start(args, text);
+    CustomLogger(LOG_DEBUG, text, args);
+    va_end(args);
+}
+
+void Log(int msgType, const char* text, ...)
+{
+    va_list args;
+    va_start(args, text);
+    CustomLogger(msgType, text, args);
+    va_end(args);
 }
 
 Color GetTextColorFromLogType(TraceLogLevel level)
@@ -2032,9 +2044,6 @@ void GameUpdate(Camera2D *camera)
         lastFrameTime = GetTime();
 
         WindowUpdate(camera);
-
-        // Printf currentDrag
-        printf("currentDrag: %s\n", currentDrag == NULL ? "NULL" : "YES");
         
         // Dragable items
         if (currentDrag == NULL || currentDrag == &teaPowder.texture) {
