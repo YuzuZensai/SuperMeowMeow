@@ -119,6 +119,19 @@ Music menuBgm;
 // Menu falling items
 Texture2D menuFallingItemTextures[8];
 
+// Ingredients
+Texture2D teaPowderTexture;
+Texture2D cocoaPowderTexture;
+Texture2D caramelSauceTexture;
+Texture2D chocolateSauceTexture;
+Texture2D condensedMilkTexture;
+Texture2D normalMilkTexture;
+Texture2D marshMellowTexture;
+Texture2D whippedCreamTexture;
+Texture2D hotWaterTexture;
+Texture2D greenChonTexture;
+Texture2D cocoaChonTexture;
+
 static inline char* StringFromDifficultyEnum(Difficulty difficulty)
 {
     static const char* strings[] = { "Easy", "Medium", "Hard" };
@@ -327,6 +340,7 @@ Texture2D* DragAndDropCup(Cup* cup, const DropArea* dropArea, Camera2D* camera) 
     return NULL;
 
 }
+void UpdateCupImage(Cup* cup, Ingredient* ingredient);
 
 void UpdateCupImage(Cup* cup, Ingredient* ingredient) {
     // Check what type of ingredient it is and update the cup accordingly
@@ -1245,6 +1259,18 @@ void LoadGlobalAssets()
     menuFallingItemTextures[6] = LoadTexture(ASSETS_PATH"image/falling_items/milk.png");
     menuFallingItemTextures[7] = LoadTexture(ASSETS_PATH"image/falling_items/wcream.png");
 
+    teaPowderTexture = LoadTexture(ASSETS_PATH"/spritesheets/GP.png");
+    cocoaPowderTexture = LoadTexture(ASSETS_PATH"/spritesheets/CP.png");
+    caramelSauceTexture = LoadTexture(ASSETS_PATH"/spritesheets/CA.png");
+    chocolateSauceTexture = LoadTexture(ASSETS_PATH"/spritesheets/CH.png");
+    condensedMilkTexture = LoadTexture(ASSETS_PATH"/spritesheets/CM.png");
+    normalMilkTexture = LoadTexture(ASSETS_PATH"/spritesheets/MI.png");
+    marshMellowTexture = LoadTexture(ASSETS_PATH"/spritesheets/MA.png");
+    whippedCreamTexture = LoadTexture(ASSETS_PATH"/spritesheets/WC.png");
+    hotWaterTexture = LoadTexture(ASSETS_PATH"/spritesheets/GAR.png");
+    greenChonTexture = LoadTexture(ASSETS_PATH"/spritesheets/greenchon.png");
+    cocoaChonTexture = LoadTexture(ASSETS_PATH"/spritesheets/cocoachon.png");
+
     for (int i = 0; i < 3; i++)
     {
         customersImageData[i].happy = LoadTexture(TextFormat(ASSETS_PATH"image/sprite/customer_%d/happy.png", i + 1));
@@ -1873,55 +1899,55 @@ void GameUpdate(Camera2D *camera)
     plate = (DropArea){ LoadTexture(ASSETS_PATH"/spritesheets/MAT.png"), oriplatePosition };
     Texture2D cups = LoadTexture(ASSETS_PATH"/spritesheets/CUPS.png");
 
-    teaPowder = (Ingredient){ LoadTexture(ASSETS_PATH"/spritesheets/GP.png"), true, oriteapowderPosition, oriteapowderPosition };
+    teaPowder = (Ingredient){ teaPowderTexture, true, oriteapowderPosition, oriteapowderPosition };
     teaPowder.totalFrames = 3;
     teaPowder.frameRectangle = frameRect(teaPowder, teaPowder.totalFrames, teaPowder.currentFrame);
-    cocoaPowder = (Ingredient){ LoadTexture(ASSETS_PATH"/spritesheets/CP.png"), true, oricocoapowderPosition, oricocoapowderPosition };
+    cocoaPowder = (Ingredient){ cocoaPowderTexture, true, oricocoapowderPosition, oricocoapowderPosition };
     cocoaPowder.totalFrames = 3;
     cocoaPowder.currentFrame = 1;
     cocoaPowder.frameRectangle = frameRect(cocoaPowder, cocoaPowder.totalFrames, cocoaPowder.currentFrame);
 
-    caramelSauce = (Ingredient){ LoadTexture(ASSETS_PATH"/spritesheets/CA.png"), true, oricaramelPosition, oricaramelPosition };
+    caramelSauce = (Ingredient){ caramelSauceTexture, true, oricaramelPosition, oricaramelPosition };
     caramelSauce.totalFrames = 3;
     caramelSauce.currentFrame = 1;
     caramelSauce.frameRectangle = frameRect(caramelSauce, caramelSauce.totalFrames, caramelSauce.currentFrame);
 
-    chocolateSauce = (Ingredient){ LoadTexture(ASSETS_PATH"/spritesheets/CH.png"), true, orichocolatePosition, orichocolatePosition };
+    chocolateSauce = (Ingredient){ chocolateSauceTexture, true, orichocolatePosition, orichocolatePosition };
     chocolateSauce.totalFrames = 3;
     chocolateSauce.currentFrame = 1;
     chocolateSauce.frameRectangle = frameRect(chocolateSauce, chocolateSauce.totalFrames, chocolateSauce.currentFrame);
 
-    condensedMilk = (Ingredient){ LoadTexture(ASSETS_PATH"/spritesheets/CM.png"), true, oricondensedmilkPosition, oricondensedmilkPosition };
+    condensedMilk = (Ingredient){ condensedMilkTexture, true, oricondensedmilkPosition, oricondensedmilkPosition };
     condensedMilk.totalFrames = 2;
     condensedMilk.currentFrame = 1;
     condensedMilk.frameRectangle = frameRect(condensedMilk, condensedMilk.totalFrames, condensedMilk.currentFrame);
 
-    normalMilk = (Ingredient){ LoadTexture(ASSETS_PATH"/spritesheets/MI.png"), true, orimilkPosition, orimilkPosition };
+    normalMilk = (Ingredient){ normalMilkTexture, true, orimilkPosition, orimilkPosition };
     normalMilk.totalFrames = 2;
     normalMilk.currentFrame = 1;
     normalMilk.frameRectangle = frameRect(normalMilk, normalMilk.totalFrames, normalMilk.currentFrame);
 
-    marshMellow = (Ingredient){ LoadTexture(ASSETS_PATH"/spritesheets/MA.png"), true, orimarshmellowPosition, orimarshmellowPosition };
+    marshMellow = (Ingredient){ marshMellowTexture, true, orimarshmellowPosition, orimarshmellowPosition };
     marshMellow.totalFrames = 2;
     marshMellow.currentFrame = 1;
     marshMellow.frameRectangle = frameRect(marshMellow, marshMellow.totalFrames, marshMellow.currentFrame);
 
-    whippedCream = (Ingredient){ LoadTexture(ASSETS_PATH"/spritesheets/WC.png"), true, oriwhippedPosition, oriwhippedPosition };
+    whippedCream = (Ingredient){ whippedCreamTexture, true, oriwhippedPosition, oriwhippedPosition };
     whippedCream.totalFrames = 2;
     whippedCream.currentFrame = 1;
     whippedCream.frameRectangle = frameRect(whippedCream, whippedCream.totalFrames, whippedCream.currentFrame);
 
-    hotWater = (Ingredient){ LoadTexture(ASSETS_PATH"/spritesheets/GAR.png"), true, oriwaterPosition, oriwaterPosition };
+    hotWater = (Ingredient){ hotWaterTexture, true, oriwaterPosition, oriwaterPosition };
     hotWater.totalFrames = 3;
     hotWater.currentFrame = 1;
     hotWater.frameRectangle = frameRect(hotWater, hotWater.totalFrames, hotWater.currentFrame);
 
-    greenChon = (Ingredient){ LoadTexture(ASSETS_PATH"/spritesheets/greenchon.png"), false, hiddenPosition, hiddenPosition };
+    greenChon = (Ingredient){ greenChonTexture, false, hiddenPosition, hiddenPosition };
     greenChon.totalFrames = 1;
     greenChon.currentFrame = 1;
     greenChon.frameRectangle = frameRect(greenChon, greenChon.totalFrames, greenChon.currentFrame);
 
-    cocoaChon = (Ingredient){ LoadTexture(ASSETS_PATH"/spritesheets/cocoachon.png"), false, hiddenPosition, hiddenPosition };
+    cocoaChon = (Ingredient){ cocoaChonTexture, false, hiddenPosition, hiddenPosition };
     cocoaChon.totalFrames = 1;
     cocoaChon.currentFrame = 1;
 	cocoaChon.frameRectangle = frameRect(cocoaChon, cocoaChon.totalFrames, cocoaChon.currentFrame);
