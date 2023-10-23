@@ -24,6 +24,7 @@ const float baseX = -(BASE_SCREEN_WIDTH / 2);
 const float baseY = -(BASE_SCREEN_HEIGHT / 2);
 const float targetAspectRatio = (float)BASE_SCREEN_WIDTH / (float)BASE_SCREEN_HEIGHT;
 const int targetFps = 300;
+const float bgmVolume = 0.1f;
 
 // Debug FPS history
 int DebugFpsHistory[DEBUG_MAX_FPS_HISTORY];
@@ -363,6 +364,7 @@ Texture2D* DragAndDropCup(Cup* cup, const DropArea* dropArea, Camera2D* camera) 
     return NULL;
 
 }
+
 void UpdateCupImage(Cup* cup, Ingredient* ingredient);
 
 void UpdateCupImage(Cup* cup, Ingredient* ingredient) {
@@ -1383,6 +1385,7 @@ void PlayBgm(Music *bgm)
     currentBgm = bgm;
 	StopMusicStream(*currentBgm);
 	PlayMusicStream(*currentBgm);
+    SetMusicVolume(*currentBgm, bgmVolume);
     bgm->looping = true;
     isCurrentBgmPaused = false;
 }
@@ -1394,6 +1397,7 @@ void PlayBgmIfStopped(Music* bgm)
         if (isCurrentBgmPaused)
         {
             PlayMusicStream(*bgm);
+            SetMusicVolume(*bgm, bgmVolume);
             bgm->looping = true;
             isCurrentBgmPaused = false;
         }
@@ -1402,6 +1406,7 @@ void PlayBgmIfStopped(Music* bgm)
 
     currentBgm = bgm;
     PlayMusicStream(*currentBgm);
+    SetMusicVolume(*currentBgm, bgmVolume);
     bgm->looping = true;
     isCurrentBgmPaused = false;
 }
