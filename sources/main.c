@@ -203,7 +203,17 @@ static inline char* StringFromCustomerEmotionEnum(CustomerEmotion emotion)
     return strings[emotion];
 }
 
-Customer createCustomer(CustomerEmotion emotion, double blinkTimer, double normalDuration, double blinkDuration, bool visible, Vector2 position, int textureType) {
+double GetRandomDoubleValue(double min, double max)
+{
+    return min + (rand() / (double)RAND_MAX) * (max - min);
+}
+
+void RandomCustomerBlinkTime(Customer* customer) {
+    customer->blinkDuration = GetRandomDoubleValue(0.2, 0.5);
+    customer->normalDuration = GetRandomDoubleValue(2.0, 6.0);
+}
+
+Customer CreateCustomer(CustomerEmotion emotion, double blinkTimer, double normalDuration, double blinkDuration, bool visible, Vector2 position, int textureType) {
     Customer newCustomer;
 
     newCustomer.emotion = emotion;
@@ -891,12 +901,6 @@ Color GetTextColorFromLogType(TraceLogLevel level)
 	}
 }
 
-double GetRandomDoubleValue(double min, double max)
-{
-    return min + (rand() / (double)RAND_MAX) * (max - min);
-}
-
-
 void DrawDragableItemFrame(Ingredient i) {
     DrawTextureRec(i.texture, i.frameRectangle, i.position, RAYWHITE);
     if (options->showDebug && debugToolToggles.showObjects)
@@ -1017,6 +1021,8 @@ void DrawCustomer(Customer* customer)
 {
     Vector2 pos = customer->position;
     int frame = customer->textureType;
+
+    if (customer == NULL) return;
 
     if (options->showDebug && debugToolToggles.showObjects)
     {
@@ -1352,21 +1358,15 @@ void DrawDebugOverlay(Camera2D *camera)
 
 }
 
-/* Definitions of branch customers */
+Customer CreateCustomerWithOrder(int patience, int currentTime, int orderEnd, Vector2 pos, int textureType) {
+    Customer newCustomer = CreateCustomer(EMOTION_HAPPY, 0, 0, 0.25, true, pos, textureType);
+    RandomCustomerBlinkTime(&newCustomer);
 
-// TO BE DESTROYED
-static int placeholder_static = 1;
-
-void create_customer(Customer *customer, int patience, int currentTime, int orderEnd, Vector2 pos, int textureType) {
-    Customer newCustomer = createCustomer(EMOTION_HAPPY, 2.0, 4.0, 0.25, true, pos, textureType);
-	
-	*customer = newCustomer;
-	customer->visible = true;
-	customer->currentTime = currentTime;
-	customer->orderEnd = orderEnd * patience;
-	strcpy(customer->order, "");
-	randomGenerateOrder(customer->order);
-	printf("%s\n", customer->order);
+    newCustomer.currentTime = currentTime;
+    newCustomer.orderEnd = orderEnd * patience;
+	strcpy(newCustomer.order, "");
+	randomGenerateOrder(newCustomer.order);
+    return newCustomer;
 }
 
 // void create_order(Order *order, char *first, char *second, char *third, char *fourth) {
@@ -1558,8 +1558,10 @@ void LoadGlobalAssets()
 
     menuBgm = LoadMusicStream(ASSETS_PATH"audio/bgm/Yojo_Summer_My_Heart.wav");
 
-    menuCustomer1 = createCustomer(EMOTION_HAPPY, 2.0, 4.0, 0.25, true, (Vector2) { baseX + 650, baseY + 55 }, 1);
-    menuCustomer2 = createCustomer(EMOTION_HAPPY, 0.4, 5.2, 0.3, true, (Vector2) { baseX + 1200, baseY + 52 }, 2);
+    menuCustomer1 = CreateCustomer(EMOTION_HAPPY, 2.0, 4.0, 0.25, true, (Vector2) { baseX + 650, baseY + 55 }, 1);
+    menuCustomer2 = CreateCustomer(EMOTION_HAPPY, 0.4, 5.2, 0.3, true, (Vector2) { baseX + 1200, baseY + 52 }, 2);
+    RandomCustomerBlinkTime(&menuCustomer1);
+    RandomCustomerBlinkTime(&menuCustomer2);
     menuCustomer1.isDummy = true;
     menuCustomer2.isDummy = true;
 
@@ -2255,8 +2257,15 @@ void GameUpdate(Camera2D *camera)
     Vector2 customer2Position = { baseX + 650, baseY + 100 };
     Vector2 customer3Position = { baseX + 1250, baseY + 100 };
 
-    //End reg
     Rectangle endScene = { 752, -532, 200, 70 };
+
+    customer1 = CreateCustomerWithOrder(1, 0, 5000, customer1Position, RandomCustomerTexture());
+    customer2 = CreateCustomerWithOrder(1, 0, 8000, customer2Position, RandomCustomerTexture());
+    customer3 = CreateCustomerWithOrder(1, 0, 10000, customer3Position, RandomCustomerTexture());
+
+    customers.customer1 = customer1;
+    customers.customer2 = customer2;
+    customers.customer3 = customer3;
     
     while (!WindowShouldClose())
     {
@@ -2347,20 +2356,6 @@ void GameUpdate(Camera2D *camera)
         float scaleY = (float)BASE_SCREEN_HEIGHT / imageHeight;
 
         DrawDayNightCycle();
-
-		if (placeholder_static == 1)
-		{
-			create_customer(&customer1, 1, 0, 5000, customer1Position, RandomCustomerTexture());
-			create_customer(&customer2, 1, 0, 8000, customer2Position, RandomCustomerTexture());
-			create_customer(&customer3, 1, 0, 10000, customer3Position, RandomCustomerTexture());
-
-			customers.customer1 = customer1;
-			customers.customer2 = customer2;
-			customers.customer3 = customer3;
-
-			//printf("customer1: %s\n", &customer1.order[0]);
-			placeholder_static = 0;
-		}
 
 		Tick(&customers);
         tickBoil(&hotWater);
