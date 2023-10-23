@@ -191,6 +191,8 @@ typedef struct Customer {
     char order[20];
     int currentTime;
     int orderEnd;
+    Vector2 position;
+    int textureType;
 } Customer;
 
 static inline char* StringFromCustomerEmotionEnum(CustomerEmotion emotion)
@@ -199,8 +201,9 @@ static inline char* StringFromCustomerEmotionEnum(CustomerEmotion emotion)
     return strings[emotion];
 }
 
-Customer createCustomer(CustomerEmotion emotion, double blinkTimer, double normalDuration, double blinkDuration, bool visible) {
+Customer createCustomer(CustomerEmotion emotion, double blinkTimer, double normalDuration, double blinkDuration, bool visible, Vector2 position, int textureType) {
     Customer newCustomer;
+
     newCustomer.emotion = emotion;
     newCustomer.blinkTimer = blinkTimer;
     newCustomer.normalDuration = normalDuration;
@@ -210,10 +213,11 @@ Customer createCustomer(CustomerEmotion emotion, double blinkTimer, double norma
 	newCustomer.order[0] = '\0';
     newCustomer.currentTime = 0;
     newCustomer.orderEnd = 0;
+    newCustomer.position = position;
+    newCustomer.textureType = textureType;
 
     return newCustomer;
 }
-
 
 // Customers
 typedef struct Customers {
@@ -271,6 +275,7 @@ typedef struct {
     enum IngredientType toppingType;
     enum IngredientType sauceType;
     bool active;
+    char* order[20];
 } Cup;
 
 // Drop area
@@ -299,7 +304,11 @@ const Vector2 oriwhippedPosition = { -677,391 };
 const Vector2 oricupsPostion = { 432,97 };
 const Vector2 hiddenPosition = { -3000, -3000 };
 
-Texture2D* DragAndDropCup(Cup* cup, const DropArea* dropArea, Camera2D* camera) {
+static int global_score = 0;
+
+bool validiator(Customer* customer, char* order);
+Texture2D* DragAndDropCup(Cup* cup, const DropArea* dropArea, Camera2D* camera, Customers *customers)
+{
     static bool isObjectBeingDragged = false;
     static Texture2D* current_dragging = NULL;
     static float offsetX = 0;
@@ -349,19 +358,58 @@ Texture2D* DragAndDropCup(Cup* cup, const DropArea* dropArea, Camera2D* camera) 
     if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
         isObjectBeingDragged = false;
         current_dragging = NULL;
+        Vector2 mousePos = GetScreenToWorld2D(GetMousePosition(), *camera);
 
-        if (CheckCollisionRecs(objectBounds, dropBounds)) {
+        Customer* customerToCheck[3] = { &customers->customer1, &customers->customer2, &customers->customer3, };
+
+        // Only check if world mouse position is more than y= 15
+        if (mousePos.y <= 15)
+        {
+            // If cup is being given to customers
+            for (int i = 0; i < 3; i++) {
+                // If customer is visible
+                if (customerToCheck[i]->visible) {
+                    // If cup is being given to customer
+                    if (CheckCollisionRecs(objectBounds, (Rectangle) { customerToCheck[i]->position.x, customerToCheck[i]->position.y, customersImageData[customerToCheck[i]->textureType].happy.width, customersImageData[customerToCheck[i]->textureType].happy.height })) {
+                        bool correct = validiator(customerToCheck[i], cup->order);
+                        if (correct)
+                        {
+                            global_score += 50;
+                            customerToCheck[i]->visible = false;
+                        }
+                        else
+                            global_score -= 50;
+                        // Reset cup state
+                        cup->texture = LoadTexture(ASSETS_PATH"combination/EMPTY.png");
+                        cup->powderType = NONE;
+                        cup->creamerType = NONE;
+                        cup->toppingType = NONE;
+                        cup->sauceType = NONE;
+                        cup->hasWater = false;
+                        cup->active = false;
+                        return &cup->texture;
+                    }
+                }
+            }
+        }
+
+
+        // Return cup to the drop area if it is not inside the drop area
+        int offset_x = 10;
+        int offset_y = -40;
+
+        cup->position.x = dropArea->position.x + offset_x + dropArea->texture.width / 2 - cup->frameRectangle.width / 2;
+        cup->position.y = dropArea->position.y + offset_y + dropArea->texture.height / 2 - cup->frameRectangle.height / 2;
+
+        //if (CheckCollisionRecs(objectBounds, dropBounds)) {
             // center of cup to center of drop area
-            int offset_x = 10;
-            int offset_y = -40;
-            
-            cup->position.x = dropArea->position.x + offset_x + dropArea->texture.width / 2 - cup->frameRectangle.width / 2;
-            cup->position.y = dropArea->position.y + offset_y + dropArea->texture.height / 2 - cup->frameRectangle.height / 2;
-        }
-        else {
-            cup->position.x = cup->originalPosition.x;
-            cup->position.y = cup->originalPosition.y;
-        }
+       
+       // }
+       //else {
+            //cup->position.x = cup->originalPosition.x;
+            //cup->position.y = cup->originalPosition.y;
+       // }
+
     }
 
     // Apply drag-and-drop with time-dependent positioning
@@ -377,8 +425,6 @@ Texture2D* DragAndDropCup(Cup* cup, const DropArea* dropArea, Camera2D* camera) 
         return NULL;
 
 }
-
-void UpdateCupImage(Cup* cup, Ingredient* ingredient);
 
 void UpdateCupImage(Cup* cup, Ingredient* ingredient) {
     // Check what type of ingredient it is and update the cup accordingly
@@ -491,6 +537,10 @@ void UpdateCupImage(Cup* cup, Ingredient* ingredient) {
     if (strcmp(filename, "") == 0) {
         strcat(filename, "EMPTY");
     }
+
+    // Save filename to cup->order
+    strcpy(cup->order, filename);
+
     strcat(filename, ".png");
     char path[1000];
     strcpy(path, ASSETS_PATH"combination/");
@@ -498,6 +548,7 @@ void UpdateCupImage(Cup* cup, Ingredient* ingredient) {
     // set cup texture to the filename
     LogDebug("Powder type: %d, Water: %d, Creamer: %d, Topping: %d, Sauce: %d\n", cup->powderType, cup->hasWater, cup->creamerType, cup->toppingType, cup->sauceType);
     LogDebug("NEW CUP IMAGE IS %s\n", path);
+
     cup->texture = LoadTexture(path);
 }
 
@@ -853,7 +904,7 @@ void DrawMenuFallingItems(double deltaTime, bool behide)
 
 void randomGenerateOrder(char *order)
 {
-    int random = GetRandomValue(0, 3);
+    int random = GetRandomValue(0, 2);
     order[0] = '\0'; // Initialize the string
 
     //base case, either CP or GP
@@ -863,17 +914,18 @@ void randomGenerateOrder(char *order)
         strcat(order, "GP");
 
     strcat(order, "Y");
+
+    // Very very small chance just to order tea without any creamer lol
+    if (GetRandomValue(0, 100) == 0)
+		return;
+
+    // another base case, either CM or MI
+    if (GetRandomValue(0, 1))
+        strcat(order, "CM");
+    else
+        strcat(order, "MI");
+
     if (random >= 1)
-    {   
-        if (GetRandomValue(0, 1))
-        {
-            if (GetRandomValue(0, 1))
-                strcat(order, "CM");
-            else
-                strcat(order, "MI");
-        }
-    }
-    if (random >= 2)
     {
         if (GetRandomValue(0, 1))
         {
@@ -883,7 +935,7 @@ void randomGenerateOrder(char *order)
                 strcat(order, "WC");
         }
     }
-    if (random >= 3)
+    if (random >= 2)
     {
         if (GetRandomValue(0, 1))
         {
@@ -893,11 +945,16 @@ void randomGenerateOrder(char *order)
                 strcat(order, "CH");
         }
     }
+    // Log the order
+    LogDebug(TextFormat("New order: %s", order));
 }
 
 
-void DrawCustomer(Customer* customer, int frame, Vector2 pos)
+void DrawCustomer(Customer* customer)
 {
+    Vector2 pos = customer->position;
+    int frame = customer->textureType;
+
     if (options->showDebug && debugToolToggles.showObjects)
     {
         DrawRectangleLinesEx((Rectangle) { pos.x, pos.y, customersImageData[frame].happy.width / 2, customersImageData[frame].happy.height / 2 }, 1, RED);
@@ -920,6 +977,7 @@ void DrawCustomer(Customer* customer, int frame, Vector2 pos)
     default:
         break;
     }
+
 	DrawTextureEx(bubbles, (Vector2) {pos.x + 350, pos.y + 100} , 0.0f, 1.0f / 2.0f, WHITE);
 
     if (strstr(customer->order, "CPY") != NULL)
@@ -988,8 +1046,8 @@ void DrawCustomerInMenu(double deltaTime) {
             break;
             break;
     }
-    DrawCustomer(&menuCustomer1, 1, (Vector2) { baseX + 650, baseY + 55 });
-    DrawCustomer(&menuCustomer2, 2, (Vector2) { baseX + 1200, baseY + 52 });
+    DrawCustomer(&menuCustomer1);
+    DrawCustomer(&menuCustomer2);
 }
 
 void DrawOuterWorld()
@@ -1233,10 +1291,9 @@ void DrawDebugOverlay(Camera2D *camera)
 
 // TO BE DESTROYED
 static int placeholder_static = 1;
-static int global_score = 0;
 
-void create_customer(Customer *customer, int patience, int currentTime, int orderEnd) {
-    Customer newCustomer = createCustomer(EMOTION_HAPPY, 2.0, 4.0, 0.25, true);
+void create_customer(Customer *customer, int patience, int currentTime, int orderEnd, Vector2 pos, int textureType) {
+    Customer newCustomer = createCustomer(EMOTION_HAPPY, 2.0, 4.0, 0.25, true, pos, textureType);
 	
 	*customer = newCustomer;
 	customer->visible = true;
@@ -1274,15 +1331,16 @@ void create_customer(Customer *customer, int patience, int currentTime, int orde
 //     }
 // }
 
-void validiator(Customer *customer, char *order)
+bool validiator(Customer *customer, char *order)
 {
+    LogDebug("Validating order: %s against %s", order, customer->order);
 	if (strcmp(customer->order, order) == 0)
 	{
-		global_score += 50;
+        return true;
 	}
 	else
 	{
-		global_score -= 50;
+        return false;
 	}
 }
 
@@ -1290,11 +1348,11 @@ void validiator(Customer *customer, char *order)
 void render_customers(Customers *customers)
 {
     if(&customers->customer1 != NULL)
-        DrawCustomer(&customers->customer1, 0, (Vector2) { baseX + 50, baseY + 100 });
+        DrawCustomer(&customers->customer1, 0);
 	if (&customers->customer2 != NULL)
-		DrawCustomer(&customers->customer2, 1, (Vector2) { baseX + 650, baseY + 100 });
+		DrawCustomer(&customers->customer2, 1);
 	if (&customers->customer3 != NULL)
-		DrawCustomer(&customers->customer3, 2, (Vector2) { baseX + 1250, baseY + 100 });
+		DrawCustomer(&customers->customer3, 2);
 }
 
 //Yandere dev inspired programming.
@@ -1434,8 +1492,8 @@ void LoadGlobalAssets()
 
     menuBgm = LoadMusicStream(ASSETS_PATH"audio/bgm/Yojo_Summer_My_Heart.wav");
 
-    menuCustomer1 = createCustomer(EMOTION_HAPPY, 2.0, 4.0, 0.25, true);
-    menuCustomer2 = createCustomer(EMOTION_HAPPY, 0.4, 5.2, 0.3, true);
+    menuCustomer1 = createCustomer(EMOTION_HAPPY, 2.0, 4.0, 0.25, true, (Vector2) { baseX + 650, baseY + 55 }, 1);
+    menuCustomer2 = createCustomer(EMOTION_HAPPY, 0.4, 5.2, 0.3, true, (Vector2) { baseX + 1200, baseY + 52 }, 2);
 
     loadDurationTimer = GetTime() - startTime;
     isGlobalAssetsLoadFinished = true;
@@ -2032,6 +2090,12 @@ void OptionsUpdate(Camera2D* camera)
     ExitApplication();
 }
 
+int RandomCustomerTexture()
+{
+    int randomIndex = GetRandomValue(0, (sizeof(customersImageData) / sizeof(customersImageData[0])) - 1);
+    return randomIndex;
+}
+
 void GameUpdate(Camera2D *camera)
 {
     double lastFrameTime = GetTime();
@@ -2048,7 +2112,8 @@ void GameUpdate(Camera2D *camera)
         NONE,
         NONE,
         NONE,
-        false
+        false,
+        '\0'
     };
 
     plate = (DropArea){ LoadTexture(ASSETS_PATH"/spritesheets/MAT.png"), oriplatePosition };
@@ -2109,6 +2174,16 @@ void GameUpdate(Camera2D *camera)
 
     Texture2D* currentDrag = NULL;
 
+    Customer customer1;
+    Customer customer2;
+    Customer customer3;
+
+    Customers customers;
+
+    Vector2 customer1Position = { baseX + 50, baseY + 100 };
+    Vector2 customer2Position = { baseX + 650, baseY + 100 };
+    Vector2 customer3Position = { baseX + 1250, baseY + 100 };
+
     while (!WindowShouldClose())
     {
         // Calculate delta time
@@ -2140,7 +2215,7 @@ void GameUpdate(Camera2D *camera)
         }
 
         if (currentDrag == NULL || currentDrag == &cup.texture) {
-            currentDrag = DragAndDropCup(&cup, &plate, camera);
+            currentDrag = DragAndDropCup(&cup, &plate, camera, &customers);
         }
 
         isHovering = false;
@@ -2195,30 +2270,11 @@ void GameUpdate(Camera2D *camera)
 
         DrawDayNightCycle();
 
-		/* Customers */
-		//Customer customer1 = createCustomer(EMOTION_HAPPY, 2.0, 4.0, 0.25, true);
-		//Order order1;
-		//Customer customer2 = createCustomer(EMOTION_HAPPY, 2.0, 4.0, 0.25, true);
-		//Order order2;
-		//Customer customer3 = createCustomer(EMOTION_HAPPY, 2.0, 4.0, 0.25, true);
-		//Order order3;
-		//Customers customers;
-        //customers.customer1 = customer1;
-        //customers.customer2 = customer2;
-        //customers.customer3 = customer3;
-
-        Customer customer1;
-        Customer customer2;
-        Customer customer3;
-
-
-        Customers customers;
-
 		if (placeholder_static == 1)
 		{
-			create_customer(&customer1, 1, 0, 5000);
-			create_customer(&customer2, 1, 0, 8000);
-			create_customer(&customer3, 1, 0, 10000);
+			create_customer(&customer1, 1, 0, 5000, customer1Position, RandomCustomerTexture());
+			create_customer(&customer2, 1, 0, 8000, customer2Position, RandomCustomerTexture());
+			create_customer(&customer3, 1, 0, 10000, customer3Position, RandomCustomerTexture());
 
 			customers.customer1 = customer1;
 			customers.customer2 = customer2;
