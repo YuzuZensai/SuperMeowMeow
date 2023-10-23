@@ -196,7 +196,7 @@ Customer createCustomer(CustomerEmotion emotion, double blinkTimer, double norma
     return newCustomer;
 }
 
-void randomGenerateOrder(Customer *customer)
+char *randomGenerateOrder()
 {
 	int random = GetRandomValue(0, 3);
 	char *order = "";
@@ -237,7 +237,7 @@ void randomGenerateOrder(Customer *customer)
 				strcat(order, "CH");
 		}
 	}
-
+	return order;
 }
 
 
@@ -1115,15 +1115,14 @@ void DrawDebugOverlay(Camera2D *camera)
 /* Definitions of branch customers */
 
 // TO BE DESTROYED
-#define PLACEHOLDER_ORDER "PLACEHOLDER_ORDER"
 static int placeholder_static = 1;
 static int global_score = 0;
 
-void create_customer(Customer *customer, int patience, char *order, int currentTime, int orderEnd) {
+void create_customer(Customer *customer, int patience, int currentTime, int orderEnd) {
     Customer newCustomer = createCustomer(EMOTION_HAPPY, 2.0, 4.0, 0.25, true);
     *customer = newCustomer;
 	customer->visible = true;
-	customer->order = order;
+	customer->order = randomGenerateOrder();
 	customer->currentTime = currentTime;
 	customer->orderEnd = orderEnd * patience;
 }
@@ -2100,15 +2099,19 @@ void GameUpdate(Camera2D *camera)
 
 		if (placeholder_static == 1)
 		{
-			create_customer(&customer1, 1, "CPY" , 0, 5000);
-			create_customer(&customer2, 1, "GPYCMWC", 0, 8000);
-			create_customer(&customer3, 1, "CPYCM", 0, 10000);
+			create_customer(&customer1, 1, 0, 5000);
+			create_customer(&customer2, 1, 0, 8000);
+			create_customer(&customer3, 1, 0, 10000);
 
 			customers.customer1 = customer1;
 			customers.customer2 = customer2;
 			customers.customer3 = customer3;
 
 			placeholder_static = 0;
+			//print customer orders
+			//printf("Customer 1 order: %d\n", customers.customer1.order);
+			//printf("Customer 2 order: %d\n", customers.customer2.order);
+			//printf("Customer 3 order: %d\n", customers.customer3.order);
 		}
 
 		Tick(&customers);
