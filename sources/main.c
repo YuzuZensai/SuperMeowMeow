@@ -1273,18 +1273,17 @@ void create_customer(Customer *customer, int patience, int currentTime, int orde
 //     }
 // }
 
-// void validiator(Order *order, char *first, char *second, char *third, char *fourth)
-// {
-// 	//if order is valid, call distribute points
-// 	if (strcmp(order->first, first) == 0 && strcmp(order->second, second) == 0 && strcmp(order->third, third) == 0 && strcmp(order->fourth, fourth) == 0)
-// 	{
-// 		distribute_points(order, first, second, third, fourth);
-// 	}
-// 	else
-// 	{
-// 		//To be implemented, waiting for mixture parts.
-// 	}
-// }
+void validiator(Customer *customer, char *order)
+{
+	if (strcmp(customer->order, order) == 0)
+	{
+		global_score += 50;
+	}
+	else
+	{
+		global_score -= 50;
+	}
+}
 
 //create customer image at either position 1 2 or 3
 void render_customers(Customers *customers)
