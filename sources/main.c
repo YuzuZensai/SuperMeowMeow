@@ -2348,8 +2348,7 @@ void GameUpdate(Camera2D *camera)
             UpdateMenuCustomerBlink(&customers.customer3, deltaTime);
 
 
-		char *scoreText = TextFormat("Score: %d", global_score);
-        DrawTextEx(GetFontDefault(), scoreText, (Vector2) { baseX + 20, baseY + 20 }, 20, 2, WHITE);
+        DrawTextEx(meowFont, TextFormat("Score: %d", global_score), (Vector2) { baseX + 20, baseY + 20 }, 26, 2, WHITE);
 
         DrawOuterWorld();
 
