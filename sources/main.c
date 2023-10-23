@@ -258,6 +258,7 @@ typedef struct {
     Texture2D texture;
     Vector2 position;
     Vector2 originalPosition;
+    Rectangle frameRectangle;
     // Add properties to represent cup state
     enum IngredientType powderType;
     bool hasWater;
@@ -288,7 +289,7 @@ const Vector2 oriplateCupPosition = { -28, 300 };
 const Vector2 oricondensedmilkPosition = { 283,316 };
 const Vector2 orimilkPosition = { 160,342 };
 const Vector2 orimarshmellowPosition = { -394,424 };
-const Vector2 oriwhippedPosition = { -277,391 };
+const Vector2 oriwhippedPosition = { -677,391 };
 const Vector2 oricupsPostion = { 432,97 };
 const Vector2 hiddenPosition = { -3000, -3000 };
 
@@ -298,7 +299,7 @@ Texture2D* DragAndDropCup(Cup* cup, const DropArea* dropArea, Camera2D* camera) 
     static float offsetX = 0;
     static float offsetY = 0;
 
-    Rectangle objectBounds = { cup->position.x, cup->position.y, (float)cup->texture.width, (float)cup->texture.height };
+    Rectangle objectBounds = { cup->position.x, cup->position.y, (float)cup->frameRectangle.width, (float)cup->frameRectangle.height };
     Rectangle dropBounds = { dropArea->position.x, dropArea->position.y, (float)dropArea->texture.width, (float)dropArea->texture.height };
 
     if (IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {
@@ -307,8 +308,8 @@ Texture2D* DragAndDropCup(Cup* cup, const DropArea* dropArea, Camera2D* camera) 
         if (CheckCollisionPointRec(mousePos, objectBounds) && (current_dragging == NULL || current_dragging == &cup->texture)) {
             // printf("SEND HELP");
             isObjectBeingDragged = true;
-            offsetX = cup->texture.width / 2;
-            offsetY = cup->texture.height / 2;
+            offsetX = cup->frameRectangle.width / 2;
+            offsetY = cup->frameRectangle.height / 2;
             float mouseX = mousePos.x;
             float mouseY = mousePos.y;
 
@@ -328,8 +329,8 @@ Texture2D* DragAndDropCup(Cup* cup, const DropArea* dropArea, Camera2D* camera) 
             int offset_x = 10;
             int offset_y = -40;
             
-            cup->position.x = dropArea->position.x + offset_x + dropArea->texture.width / 2 - cup->texture.width / 2;
-            cup->position.y = dropArea->position.y + offset_y + dropArea->texture.height / 2 - cup->texture.height / 2;
+            cup->position.x = dropArea->position.x + offset_x + dropArea->texture.width / 2 - cup->frameRectangle.width / 2;
+            cup->position.y = dropArea->position.y + offset_y + dropArea->texture.height / 2 - cup->frameRectangle.height / 2;
         }
         else {
             cup->position.x = cup->originalPosition.x;
@@ -497,6 +498,9 @@ void UpdateCup(Cup* cup, Ingredient* ingredient) {
         cup->hasWater = true;
     }
 
+
+    
+
     UpdateCupImage(cup, ingredient);
 
 }
@@ -604,6 +608,12 @@ Texture2D* DragAndDropIngredientPop(Ingredient* object, Ingredient* popObject, c
 }
 
 Rectangle frameRect(Ingredient i, int frameNum, int frameToShow) {
+    int frameWidth = i.texture.width / frameNum;
+    Rectangle frameRect = { frameWidth * (frameToShow - 1), 0, frameWidth, i.texture.height };
+    return frameRect;
+}
+
+Rectangle frameRectCup(Cup i, int frameNum, int frameToShow) {
     int frameWidth = i.texture.width / frameNum;
     Rectangle frameRect = { frameWidth * (frameToShow - 1), 0, frameWidth, i.texture.height };
     return frameRect;
@@ -1887,7 +1897,7 @@ void GameUpdate(Camera2D *camera)
     bool hoversoundPlayed = false;
 
     Cup cup = {
-        LoadTexture(ASSETS_PATH"spritesheets/PINKCUP.png"),
+        LoadTexture(ASSETS_PATH"combination/EMPTY.png"),
         (Vector2) {0, 0},
         NONE,
         false,
@@ -2015,6 +2025,14 @@ void GameUpdate(Camera2D *camera)
             hoversoundPlayed = false;
         }
 
+        Vector2 mousePos = GetScreenToWorld2D(GetMousePosition(), *camera);
+        if (CheckCollisionPointRec(mousePos, (Rectangle) { cup.position.x, cup.position.y, cup.frameRectangle.width, cup.frameRectangle.height })) {
+            cup.frameRectangle = frameRectCup(cup, 2, 2);
+        }
+        else {
+            cup.frameRectangle = frameRectCup(cup, 2, 1);
+        }
+
         // Draw
 
         BeginDrawing();
@@ -2099,7 +2117,8 @@ void GameUpdate(Camera2D *camera)
         DrawDragableItemFrame(hotWater);
 
         DrawTexture(cups, oricupsPostion.x, oricupsPostion.y, WHITE);
-        DrawTexture(cup.texture, cup.position.x, cup.position.y, WHITE);
+        // DrawTexture(cup.texture, cup.position.x, cup.position.y, WHITE);
+        DrawTextureRec(cup.texture, cup.frameRectangle, cup.position, WHITE);
 
         DrawTexture(greenChon.texture, greenChon.position.x, greenChon.position.y, WHITE);
         DrawTexture(cocoaChon.texture, cocoaChon.position.x, cocoaChon.position.y, WHITE);
