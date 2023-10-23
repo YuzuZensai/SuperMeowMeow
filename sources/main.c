@@ -909,7 +909,7 @@ void DrawDebugOverlay(Camera2D *camera)
 
 // TO BE DESTROYED
 #define PLACEHOLDER_ORDER "PLACEHOLDER_ORDER"
-static int placeholder_static = 0;
+static int placeholder_static = 1;
 static int global_score = 0;
 
 void create_customer(Customer *customer, int patience, Order order, int currentTime, int orderEnd) {
@@ -972,7 +972,7 @@ void render_customers(Customers *customers)
 
 //Yandere dev inspired programming.
 
-void remove_customers(Customer *customer, int position)
+void remove_customers(Customer *customer)
 {
 	customer->visible = false;
 }
@@ -987,7 +987,7 @@ void update_customer_state(Customer *customer) {
                 customer->eyesClosed = EMOTION_ANGRY;
             }
         } else {
-            remove_customers(customer, 1);
+            remove_customers(customer);
             global_score -= 50;
         }
     }
@@ -1822,18 +1822,28 @@ void GameUpdate(Camera2D *camera)
 		}
 
         DrawTexture(greenChon.texture, greenChon.position.x, greenChon.position.y, WHITE);
-
+        DrawTexture(cocoaChon.texture, cocoaChon.position.x, cocoaChon.position.y, WHITE);
 		/* Customers */
-		Customer customer1 = createCustomer(EMOTION_HAPPY, 2.0, 4.0, 0.25, true);
-		Order order1;
-		Customer customer2 = createCustomer(EMOTION_HAPPY, 2.0, 4.0, 0.25, true);
-		Order order2;
-		Customer customer3 = createCustomer(EMOTION_HAPPY, 2.0, 4.0, 0.25, true);
-		Order order3;
-		Customers customers;
-        customers.customer1 = customer1;
-        customers.customer2 = customer2;
-        customers.customer3 = customer3;
+		//Customer customer1 = createCustomer(EMOTION_HAPPY, 2.0, 4.0, 0.25, true);
+		//Order order1;
+		//Customer customer2 = createCustomer(EMOTION_HAPPY, 2.0, 4.0, 0.25, true);
+		//Order order2;
+		//Customer customer3 = createCustomer(EMOTION_HAPPY, 2.0, 4.0, 0.25, true);
+		//Order order3;
+		//Customers customers;
+        //customers.customer1 = customer1;
+        //customers.customer2 = customer2;
+        //customers.customer3 = customer3;
+
+        Customer customer1;
+        Customer customer2;
+        Customer customer3;
+
+        Order order1;
+        Order order2;
+        Order order3;
+
+        Customers customers;
 
 		if (placeholder_static == 1)
 		{
