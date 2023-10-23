@@ -119,8 +119,55 @@ Font meowFont;
 
 // Sounds
 Sound selectFx;
-Sound hover;
-Sound boong;
+Sound hoverFx;
+Sound boongFx;
+
+Sound angry1Fx;
+Sound angry2Fx;
+Sound angry3Fx;
+Sound angry4Fx;
+      
+Sound bottle1Fx;
+Sound bottle2Fx;
+Sound bottle3Fx;
+
+Sound confused1Fx;
+Sound confused2Fx;
+Sound confused3Fx;
+Sound confused4Fx;
+
+Sound correctFx;
+
+Sound drop1Fx;
+Sound drop2Fx;
+Sound drop3Fx;
+
+Sound pickup1Fx;
+Sound pickup2Fx;
+Sound pickup3Fx;
+
+Sound pour1Fx;
+Sound pour2Fx;
+Sound pour3Fx;
+
+Sound stir1Fx;
+Sound stir2Fx;
+Sound stir3Fx;
+
+
+typedef enum {
+    FX_HOVER,
+    FX_SELECT,
+    FX_ANGRY,
+    FX_BOTTLE,
+    FX_CONFUSED,
+    FX_CORRECT,
+    FX_DROP,
+    FX_PICKUP,
+    FX_POUR,
+    FX_STIR,
+    FX_BOONG
+} SoundFxType;
 
 // BGMs
 Music menuBgm;
@@ -343,6 +390,8 @@ void boilWater(Ingredient* item) {
     }
 }
 
+void PlaySoundFx(SoundFxType type);
+
 void RemoveCustomer(Customer* customer);
 bool validiator(Customer* customer, char* order);
 Texture2D* DragAndDropCup(Cup* cup, const DropArea* dropArea, Camera2D* camera, Customers *customers)
@@ -404,7 +453,7 @@ Texture2D* DragAndDropCup(Cup* cup, const DropArea* dropArea, Camera2D* camera, 
         Rectangle cupRect = { cup->position.x, cup->position.y, cup->frameRectangle.width, cup->frameRectangle.height };
 
         // Only check if world mouse position is more than y= 15
-        if (mousePos.y <= 15)
+        if (mousePos.y <= 15 && cup->active)
         {
             // If cup is being given to customers
             for (int i = 0; i < 3; i++) {
@@ -423,11 +472,16 @@ Texture2D* DragAndDropCup(Cup* cup, const DropArea* dropArea, Camera2D* camera, 
                         if (correct)
                         {
                             global_score += 50;
+                            PlaySoundFx(FX_CORRECT);
+
                             customerToCheck[i]->visible = false;
                             RemoveCustomer(customerToCheck[i]);
                         }
                         else
+                        {
                             global_score -= 50;
+                            PlaySoundFx(FX_CONFUSED);
+                        }
 
                         // Reset cup state
                         cup->texture = LoadTexture(ASSETS_PATH"combination/EMPTY.png");
@@ -615,12 +669,16 @@ void UpdateCup(Cup* cup, Ingredient* ingredient) {
     }
     else if (ingredient == &hotWater && cup->powderType != NONE) {
         cup->hasWater = true;
+
+        PlaySoundFx(FX_POUR);
+        PlaySoundFx(FX_STIR);
     }
     else if (ingredient == &condensedMilk && cup->hasWater == true && cup->creamerType == NONE) {
         cup->creamerType = CONDENSED_MILK;
     }
     else if (ingredient == &normalMilk && cup->hasWater == true && cup->creamerType == NONE) {
         cup->creamerType = MILK;
+        PlaySoundFx(FX_POUR);
     }
     else if (ingredient == &marshMellow && cup->creamerType != NONE && cup->toppingType == NONE) {
         cup->toppingType = MARSHMELLOW;
@@ -630,9 +688,11 @@ void UpdateCup(Cup* cup, Ingredient* ingredient) {
     }
     else if (ingredient == &caramelSauce && cup->toppingType != NONE && cup->sauceType == NONE) {
         cup->sauceType = CARAMEL;
+        PlaySoundFx(FX_BOTTLE);
     }
     else if (ingredient == &chocolateSauce && cup->toppingType != NONE && cup->sauceType == NONE) {
         cup->sauceType = CHOCOLATE;
+        PlaySoundFx(FX_BOTTLE);
     }
 
     UpdateCupImage(cup, ingredient);
@@ -790,8 +850,8 @@ void tickBoil(Ingredient* boiler) {
             return;
         }
         if (lastBoongBoongBoongTime + 0.5 < GetTime()) {
-            StopSound(boong);
-            PlaySound(boong);
+            StopSound(boongFx);
+            PlaySoundFx(FX_BOONG);
             boiler->canChangeCupTexture = true;
             lastBoongBoongBoongTime = GetTime();
             int nextFrame = boiler->currentFrame + 2;
@@ -1559,6 +1619,7 @@ void UpdateCustomerState(Customer* customer, float deltaTime) {
             }
         }
         else {
+            PlaySoundFx(FX_ANGRY);
             RemoveCustomer(customer);
             global_score -= 50;
         }
@@ -1585,18 +1646,69 @@ void Tick(Customers *customers, float deltaTime) {
 
 /* Definitions terminates*/
 
-void PlayHoverSound()
-{
-    if(options->soundFxEnabled)
-	    PlaySound(hover);
-}
 
-void PlaySelectSound()
-{
-    if(options->soundFxEnabled)
+void PlaySoundFx(SoundFxType type) {
+    int randomIndex = 0;
+
+    if (!options->soundFxEnabled) return;
+
+    switch (type) {
+    case FX_ANGRY: {
+        Sound angrySounds[] = { angry1Fx, angry2Fx, angry3Fx, angry4Fx };
+        randomIndex = rand() % (sizeof(angrySounds) / sizeof(angrySounds[0]));
+        PlaySound(angrySounds[randomIndex]);
+        break;
+    }
+    case FX_BOTTLE: {
+        Sound bottleSounds[] = { bottle1Fx, bottle2Fx, bottle3Fx };
+        randomIndex = rand() % (sizeof(bottleSounds) / sizeof(bottleSounds[0]));
+        PlaySound(bottleSounds[randomIndex]);
+        break;
+    }
+    case FX_CONFUSED: {
+        Sound confusedSounds[] = { confused1Fx, confused2Fx, confused3Fx, confused4Fx };
+        randomIndex = rand() % (sizeof(confusedSounds) / sizeof(confusedSounds[0]));
+        PlaySound(confusedSounds[randomIndex]);
+        break;
+    }
+    case FX_CORRECT:
+        PlaySound(correctFx);
+        break;
+    case FX_DROP: {
+        Sound dropSounds[] = { drop1Fx, drop2Fx, drop3Fx };
+        randomIndex = rand() % (sizeof(dropSounds) / sizeof(dropSounds[0]));
+        PlaySound(dropSounds[randomIndex]);
+        break;
+    }
+    case FX_PICKUP: {
+        Sound pickupSounds[] = { pickup1Fx, pickup2Fx, pickup3Fx };
+        randomIndex = rand() % (sizeof(pickupSounds) / sizeof(pickupSounds[0]));
+        PlaySound(pickupSounds[randomIndex]);
+        break;
+    }
+    case FX_POUR: {
+        Sound pourSounds[] = { pour1Fx, pour2Fx, pour3Fx };
+        randomIndex = rand() % (sizeof(pourSounds) / sizeof(pourSounds[0]));
+        PlaySound(pourSounds[randomIndex]);
+        break;
+    }
+    case FX_STIR: {
+        Sound stirSounds[] = { stir1Fx, stir2Fx, stir3Fx };
+        randomIndex = rand() % (sizeof(stirSounds) / sizeof(stirSounds[0]));
+        PlaySound(stirSounds[randomIndex]);
+        break;
+    }
+    case FX_BOONG:
+        PlaySound(boongFx);
+        break;
+    case FX_HOVER:
+        PlaySound(hoverFx);
+        break;
+    case FX_SELECT:
         PlaySound(selectFx);
+        break;
+    }
 }
-
 void WindowUpdate(Camera2D* camera)
 {
     if (IsWindowResized())
@@ -1656,9 +1768,41 @@ void LoadGlobalAssets()
 	customerTexture_second_angry = LoadTexture(ASSETS_PATH"image/sprite/customer_angry.png");
 	customerTexture_third_angry = LoadTexture(ASSETS_PATH"image/sprite/customer_angry.png");
 
-    hover = LoadSound(ASSETS_PATH"audio/hover.wav");
+    hoverFx = LoadSound(ASSETS_PATH"audio/hover.wav");
     selectFx = LoadSound(ASSETS_PATH"audio/select.wav");
-    boong = LoadSound(ASSETS_PATH"audio/boong.wav");
+    boongFx = LoadSound(ASSETS_PATH"audio/boong.wav");
+
+    angry1Fx = LoadSound(ASSETS_PATH"audio/angry_1.wav");
+    angry2Fx = LoadSound(ASSETS_PATH"audio/angry_2.wav");
+    angry3Fx = LoadSound(ASSETS_PATH"audio/angry_3.wav");
+    angry4Fx = LoadSound(ASSETS_PATH"audio/angry_4.wav");
+
+    bottle1Fx = LoadSound(ASSETS_PATH"audio/bottle_1.wav");
+    bottle2Fx = LoadSound(ASSETS_PATH"audio/bottle_2.wav");
+    bottle3Fx = LoadSound(ASSETS_PATH"audio/bottle_3.wav");
+
+    confused1Fx = LoadSound(ASSETS_PATH"audio/confused_1.wav");
+    confused2Fx = LoadSound(ASSETS_PATH"audio/confused_2.wav");
+    confused3Fx = LoadSound(ASSETS_PATH"audio/confused_3.wav");
+    confused4Fx = LoadSound(ASSETS_PATH"audio/confused_4.wav");
+
+    correctFx = LoadSound(ASSETS_PATH"audio/correct.wav");
+
+    drop1Fx = LoadSound(ASSETS_PATH"audio/drop_1.wav");
+    drop2Fx = LoadSound(ASSETS_PATH"audio/drop_2.wav");
+    drop3Fx = LoadSound(ASSETS_PATH"audio/drop_3.wav");
+
+    pickup1Fx = LoadSound(ASSETS_PATH"audio/pickup_1.wav");
+    pickup2Fx = LoadSound(ASSETS_PATH"audio/pickup_2.wav");
+    pickup3Fx = LoadSound(ASSETS_PATH"audio/pickup_3.wav");
+
+    pour1Fx = LoadSound(ASSETS_PATH"audio/pour_1.wav");
+    pour2Fx = LoadSound(ASSETS_PATH"audio/pour_2.wav");
+    pour3Fx = LoadSound(ASSETS_PATH"audio/pour_3.wav");
+
+    stir1Fx = LoadSound(ASSETS_PATH"audio/stir_1.wav");
+    stir2Fx = LoadSound(ASSETS_PATH"audio/stir_2.wav");
+    stir3Fx = LoadSound(ASSETS_PATH"audio/stir_3.wav");
 
     menuFallingItemTextures[0] = LoadTexture(ASSETS_PATH"image/falling_items/cara.png");
     menuFallingItemTextures[1] = LoadTexture(ASSETS_PATH"image/falling_items/cmilk.png");
@@ -1722,7 +1866,7 @@ void UnloadGlobalAssets()
     UnloadTexture(left_arrow);
     UnloadTexture(right_arrow);
 
-    UnloadSound(hover);
+    UnloadSound(hoverFx);
     UnloadSound(selectFx);
 
     for(int i = 0; i < 8; i++)
@@ -1972,7 +2116,7 @@ void OptionsUpdate(Camera2D* camera)
                 else if (options->difficulty == HARD) {
                     options->difficulty = FREEPLAY_HARD;
                 }
-                PlaySelectSound();
+                PlaySoundFx(FX_SELECT);
             }
             else if (isDifficultyDecrementHovered) {
                 if (options->difficulty == FREEPLAY_HARD) {
@@ -1990,7 +2134,7 @@ void OptionsUpdate(Camera2D* camera)
                 else if (options->difficulty == FREEPLAY_EASY) {
                     options->difficulty = EASY;
 				}
-                PlaySelectSound();
+                PlaySoundFx(FX_SELECT);
 			}
             else if (isResolutionIncrementHovered) {
                 // 720p -> 1080p
@@ -2008,7 +2152,7 @@ void OptionsUpdate(Camera2D* camera)
 					}
 				}
                 SetRuntimeResolution(camera, options->resolution.x, options->resolution.y);
-                PlaySelectSound();
+                PlaySoundFx(FX_SELECT);
             }
             else if (isResolutionDecrementHovered) {
                 // 1080p -> 720p
@@ -2025,7 +2169,7 @@ void OptionsUpdate(Camera2D* camera)
                     }
                 }
                 SetRuntimeResolution(camera, options->resolution.x, options->resolution.y);
-                PlaySelectSound();
+                PlaySoundFx(FX_SELECT);
             }
             else if (isFpsIncrementHovered) {
                 // Change target FPS 30, 60, 120, 144, 240, Basically Unlimited (1000)
@@ -2046,7 +2190,7 @@ void OptionsUpdate(Camera2D* camera)
                 }
 
                 SetTargetFPS(options->targetFps);
-                PlaySelectSound();
+                PlaySoundFx(FX_SELECT);
             }
             else if (isFpsDecrementHovered) {
                 // Change target FPS 30, 60, 120, 144, 240, Basically Unlimited (1000)
@@ -2067,29 +2211,29 @@ void OptionsUpdate(Camera2D* camera)
 				}
 
                 SetTargetFPS(options->targetFps);
-                PlaySelectSound();
+                PlaySoundFx(FX_SELECT);
             }
             else if (isFullscreenHovered) {
                 // Toggle fullscreen
                 options->fullscreen = !options->fullscreen;
                 SetRuntimeResolution(camera, options->resolution.x, options->resolution.y);
                 ToggleFullscreen();
-                PlaySelectSound();
+                PlaySoundFx(FX_SELECT);
             }
             else if (isDebugHovered) {
 				// Toggle debug
 				options->showDebug = !options->showDebug;
-                PlaySelectSound();
+                PlaySoundFx(FX_SELECT);
 			}
 			else if (isBackHovered) {
 				// Go back to main menu
                 isFadingOut = true;
-                PlaySelectSound();
+                PlaySoundFx(FX_SELECT);
 			}
 		    else if (isMusicHovered) {
 				// Toggle music
 				options->musicEnabled = !options->musicEnabled;
-                PlaySelectSound();
+                PlaySoundFx(FX_SELECT);
                 if (options->musicEnabled)
                     PlayBgm(&menuBgm);
 				else
@@ -2098,7 +2242,7 @@ void OptionsUpdate(Camera2D* camera)
 			else if (isSoundFxHovered) {
 				// Toggle sound fx
 				options->soundFxEnabled = !options->soundFxEnabled;
-                PlaySelectSound();
+                PlaySoundFx(FX_SELECT);
 			}
         }
 
@@ -2109,7 +2253,7 @@ void OptionsUpdate(Camera2D* camera)
             {
                 if (!isHovering || currentHoveredButton != 0)
                 {
-                    PlayHoverSound();
+                    PlaySoundFx(FX_HOVER);
                     isHovering = true;
                 }
                 currentHoveredButton = 0;
@@ -2118,7 +2262,7 @@ void OptionsUpdate(Camera2D* camera)
             {
                 if (!isHovering || currentHoveredButton != 1)
                 {
-                    PlayHoverSound();
+                    PlaySoundFx(FX_HOVER);
                     isHovering = true;
                 }
                 currentHoveredButton = 1;
@@ -2127,7 +2271,7 @@ void OptionsUpdate(Camera2D* camera)
             {
                 if (!isHovering || currentHoveredButton != 2)
                 {
-                    PlayHoverSound();
+                    PlaySoundFx(FX_HOVER);
                     isHovering = true;
                 }
                 currentHoveredButton = 2;
@@ -2136,7 +2280,7 @@ void OptionsUpdate(Camera2D* camera)
             {
                 if (!isHovering || currentHoveredButton != 3)
                 {
-                    PlayHoverSound();
+                    PlaySoundFx(FX_HOVER);
                     isHovering = true;
                 }
                 currentHoveredButton = 3;
@@ -2145,7 +2289,7 @@ void OptionsUpdate(Camera2D* camera)
             {
                 if (!isHovering || currentHoveredButton != 4)
                 {
-                    PlayHoverSound();
+                    PlaySoundFx(FX_HOVER);
                     isHovering = true;
                 }
                 currentHoveredButton = 4;
@@ -2154,7 +2298,7 @@ void OptionsUpdate(Camera2D* camera)
             {
                 if (!isHovering || currentHoveredButton != 5)
                 {
-                    PlayHoverSound();
+                    PlaySoundFx(FX_HOVER);
                     isHovering = true;
                 }
                 currentHoveredButton = 5;
@@ -2163,7 +2307,7 @@ void OptionsUpdate(Camera2D* camera)
             {
                 if (!isHovering || currentHoveredButton != 6)
                 {
-                    PlayHoverSound();
+                    PlaySoundFx(FX_HOVER);
                     isHovering = true;
                 }
                 currentHoveredButton = 6;
@@ -2172,7 +2316,7 @@ void OptionsUpdate(Camera2D* camera)
             {
                 if (!isHovering || currentHoveredButton != 7)
                 {
-                    PlayHoverSound();
+                    PlaySoundFx(FX_HOVER);
                     isHovering = true;
                 }
                 currentHoveredButton = 7;
@@ -2181,7 +2325,7 @@ void OptionsUpdate(Camera2D* camera)
             {
                 if (!isHovering || currentHoveredButton != 8)
                 {
-                    PlayHoverSound();
+                    PlaySoundFx(FX_HOVER);
                     isHovering = true;
                 }
                 currentHoveredButton = 8;
@@ -2190,7 +2334,7 @@ void OptionsUpdate(Camera2D* camera)
             {
                 if (!isHovering || currentHoveredButton != 9)
                 {
-                    PlayHoverSound();
+                    PlaySoundFx(FX_HOVER);
                     isHovering = true;
                 }
                 currentHoveredButton = 9;
@@ -2199,7 +2343,7 @@ void OptionsUpdate(Camera2D* camera)
             {
                 if (!isHovering || currentHoveredButton != 10)
                 {
-                    PlayHoverSound();
+                    PlaySoundFx(FX_HOVER);
                     isHovering = true;
                 }
                 currentHoveredButton = 10;
@@ -2323,6 +2467,7 @@ void GameUpdate(Camera2D *camera)
 {
     double lastFrameTime = GetTime();
     bool isDragging = false;
+    bool isDraggingOnce = false;
 
     bool isHovering = false;
     bool hoversoundPlayed = false;
@@ -2442,6 +2587,8 @@ void GameUpdate(Camera2D *camera)
 
         WindowUpdate(camera);
 
+        bool isPreviousIsDraggingBottle = false;
+
         // Dragable items
         if (currentDrag == NULL || currentDrag == &teaPowder.texture) {
             currentDrag = DragAndDropIngredientPop(&teaPowder, &greenChon, &cup, camera);
@@ -2467,6 +2614,22 @@ void GameUpdate(Camera2D *camera)
         if (currentDrag == NULL || currentDrag == &cup.texture) {
             currentDrag = DragAndDropCup(&cup, &plate, camera, &customers);
         }
+
+        bool previousIsDragging = isDragging;
+
+        // If something is dragged now, play sound
+        if (currentDrag != NULL && !isDraggingOnce)
+		{
+            PlaySoundFx(FX_PICKUP);
+            isDraggingOnce = true;
+		}
+		else if (currentDrag == NULL)
+		{
+            if(previousIsDragging != isDraggingOnce)
+                PlaySoundFx(FX_DROP);
+
+            isDraggingOnce = false;
+		}
 
         isHovering = false;
         // check mouse not down
@@ -2772,13 +2935,13 @@ void MainMenuUpdate(Camera2D* camera, bool playFade)
         {
             if (isStartButtonHovered)
             {
-                PlaySelectSound();
+                PlaySoundFx(FX_SELECT);
                 transitionCallback = GameUpdate;
                 isTransitioningOut = true;
             }
             else if (isOptionsButtonHovered)
             {
-                PlaySelectSound();
+                PlaySoundFx(FX_SELECT);
                 transitionCallback = OptionsUpdate;
                 isTransitioningOut = true;
             }
@@ -2793,7 +2956,7 @@ void MainMenuUpdate(Camera2D* camera, bool playFade)
         {
             if (!isHovering || currentHoveredButton != 0)
             {
-                PlayHoverSound();
+                PlaySoundFx(FX_HOVER);
                 isHovering = true;
             }
             currentHoveredButton = 0;
@@ -2802,7 +2965,7 @@ void MainMenuUpdate(Camera2D* camera, bool playFade)
         {
             if (!isHovering || currentHoveredButton != 1)
             {
-                PlayHoverSound();
+                PlaySoundFx(FX_HOVER);
                 isHovering = true;
             }
             currentHoveredButton = 1;
@@ -2811,7 +2974,7 @@ void MainMenuUpdate(Camera2D* camera, bool playFade)
         {
             if (!isHovering || currentHoveredButton != 2)
             {
-                PlayHoverSound();
+                PlaySoundFx(FX_HOVER);
                 isHovering = true;
             }
             currentHoveredButton = 2;
