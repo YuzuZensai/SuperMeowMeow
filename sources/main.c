@@ -2088,7 +2088,6 @@ void GameUpdate(Camera2D *camera)
         DrawTextureEx(backgroundOverlayTexture, (Vector2) { baseX, baseY }, 0.0f, fmax(scaleX, scaleY), WHITE);
 
         DrawTexture(plate.texture, oriplatePosition.x, oriplatePosition.y, WHITE);
-        DrawRectangleLinesEx((Rectangle) { oriplatePosition.x, oriplatePosition.y, plate.texture.width, plate.texture.height }, 1, RED);
         DrawDragableItemFrame(cocoaPowder);
         DrawDragableItemFrame(teaPowder);
         DrawDragableItemFrame(caramelSauce);
@@ -2115,6 +2114,10 @@ void GameUpdate(Camera2D *camera)
             DrawRectangleLinesEx((Rectangle) { cup.position.x, cup.position.y, cup.texture.width, cup.texture.height }, 1, RED);
             DrawRectangle(cup.position.x, cup.position.y - 20, 300, 20, Fade(GRAY, 0.7));
             DrawTextEx(meowFont, TextFormat("%s | XY %.2f,%.2f", "Cup", cup.position.x, cup.position.y), (Vector2) { cup.position.x, cup.position.y - 20 }, 20, 1, WHITE);
+
+            DrawRectangleLinesEx((Rectangle) { oriplatePosition.x, oriplatePosition.y, plate.texture.width, plate.texture.height }, 1, RED);
+            DrawRectangle(oriplatePosition.x, oriplatePosition.y - 20, 300, 20, Fade(GRAY, 0.7));
+            DrawTextEx(meowFont, TextFormat("%s | XY %.2f,%.2f", "Plate", oriplatePosition.x, oriplatePosition.y), (Vector2) { oriplatePosition.x, oriplatePosition.y - 20 }, 20, 1, WHITE);
         }
 
 		/* Customers TEST AREA END*/
