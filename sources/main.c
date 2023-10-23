@@ -329,6 +329,7 @@ Texture2D* DragAndDropCup(Cup* cup, const DropArea* dropArea, Camera2D* camera) 
 void UpdateCup(Cup* cup, Ingredient* ingredient) {
     // Check what type of ingredient it is and update the cup accordingly
     if (ingredient == &teaPowder && cup->powderType == NONE) {
+        printf("GREEN TEA!!!\n");
         cup->powderType = GREEN_TEA;
     }
     else if (ingredient == &cocoaPowder && cup->powderType == NONE) {
@@ -358,6 +359,8 @@ void UpdateCup(Cup* cup, Ingredient* ingredient) {
     else if (ingredient == &hotWater) {
         cup->hasWater = true;
     }
+
+    UpdateCupImage(cup, ingredient);
 
 }
 
@@ -394,12 +397,11 @@ void UpdateCupImage(Cup* cup, Ingredient* ingredient) {
     // -Caramel: CA
     // -Chocolate: CH
 
+    printf("update CUP IMAGE \n");
     char filename[100];
 
     // Initialize filename to empty string
     strcpy(filename, "");
-
-    UpdateCup(cup, ingredient);
 
     switch (cup->powderType)
     {
@@ -518,7 +520,7 @@ Texture2D* DragAndDropIngredient(Ingredient* object, const DropArea* dropArea, C
 
         if (CheckCollisionRecs(objectBounds, dropBounds)) {
             if (object->canChangeCupTexture) {
-                UpdateCupImage(cup,object);
+                UpdateCup(cup,object);
 
                 object->position.x = object->originalPosition.x;
                 object->position.y = object->originalPosition.y;
@@ -568,9 +570,9 @@ Texture2D* DragAndDropIngredientPop(Ingredient* object, Ingredient* popObject, c
         isObjectBeingDragged = false;
         current_dragging = NULL;
 
-        if (CheckCollisionRecs(objectBounds, dropBounds)) {
+        if (CheckCollisionRecs(popObjectBounds, dropBounds)) {
             if (object->canChangeCupTexture) {
-                UpdateCupImage(cup,object);
+                UpdateCup(cup,object);
                 popObject->position.x = popObject->originalPosition.x;
                 popObject->position.y = popObject->originalPosition.y;
             }
