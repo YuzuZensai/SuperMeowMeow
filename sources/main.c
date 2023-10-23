@@ -329,6 +329,13 @@ bool triggerHotWater = false;
 double boilingTime = 2.5;
 double lastBoongBoongBoongTime = 0;
 
+void UnloadGlobalAssets();
+void ExitApplication()
+{
+    UnloadGlobalAssets();
+    exit(0);
+}
+
 void boilWater(Ingredient* item) {
     if (!item->canChangeCupTexture) {
         triggerHotWater = true;
@@ -1616,6 +1623,11 @@ void WindowUpdate(Camera2D* camera)
         ToggleFullscreen();
     }
 
+    if (IsKeyPressed(KEY_ESCAPE))
+	{
+        ExitApplication();
+	}
+
     if(currentBgm != NULL)
         UpdateMusicStream(*currentBgm);
 }
@@ -1732,11 +1744,6 @@ void UnloadGlobalAssets()
     UnloadMusicStream(menuBgm);
 }
 
-void ExitApplication()
-{
-    UnloadGlobalAssets();
-    exit(0);
-}
 
 void PlayBgm(Music *bgm)
 {
@@ -3101,6 +3108,9 @@ int main()
     logoTexture = LoadTexture(ASSETS_PATH"image/elements/studio_logo.png");
     splashBackgroundTexture = LoadTexture(ASSETS_PATH"image/backgrounds/splash.png");
     splashOverlayTexture = LoadTexture(ASSETS_PATH"image/backgrounds/splash_overlay.png");
+
+
+    SetExitKey(KEY_NULL);
 
     SplashUpdate(&camera);
     UnloadGlobalAssets();
