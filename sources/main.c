@@ -6,6 +6,8 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <time.h> 
+#include <string.h>
+
 
 // Render resolution
 #define BASE_SCREEN_WIDTH 1920
@@ -326,44 +328,6 @@ Texture2D* DragAndDropCup(Cup* cup, const DropArea* dropArea, Camera2D* camera) 
 
 }
 
-void UpdateCup(Cup* cup, Ingredient* ingredient) {
-    // Check what type of ingredient it is and update the cup accordingly
-    if (ingredient == &teaPowder && cup->powderType == NONE) {
-        printf("GREEN TEA!!!\n");
-        cup->powderType = GREEN_TEA;
-    }
-    else if (ingredient == &cocoaPowder && cup->powderType == NONE) {
-        cup->powderType = COCOA;
-    }
-    else if (ingredient == &hotWater && cup->powderType != NONE) {
-        cup->hasWater = true;
-    }
-    else if (ingredient == &condensedMilk && cup->hasWater == true) {
-        cup->creamerType = CONDENSED_MILK;
-    }
-    else if (ingredient == &normalMilk && cup->hasWater == true) {
-        cup->creamerType = MILK;
-    }
-    else if (ingredient == &marshMellow && cup->creamerType != NONE) {
-        cup->toppingType = MARSHMELLOW;
-    }
-    else if (ingredient == &whippedCream && cup->creamerType != NONE) {
-        cup->toppingType = WHIPPED_CREAM;
-    }
-    else if (ingredient == &caramelSauce && cup->toppingType != NONE) {
-        cup->sauceType = CARAMEL;
-    }
-    else if (ingredient == &chocolateSauce && cup->toppingType != NONE) {
-        cup->sauceType = CHOCOLATE;
-    }
-    else if (ingredient == &hotWater) {
-        cup->hasWater = true;
-    }
-
-    UpdateCupImage(cup, ingredient);
-
-}
-
 void UpdateCupImage(Cup* cup, Ingredient* ingredient) {
     // Check what type of ingredient it is and update the cup accordingly
     // if (ingredient == &teaPowder) {
@@ -483,6 +447,44 @@ void UpdateCupImage(Cup* cup, Ingredient* ingredient) {
     printf("Powder type: %d, Water: %d, Creamer: %d, Topping: %d, Sauce: %d\n", cup->powderType, cup->hasWater, cup->creamerType, cup->toppingType, cup->sauceType);
     printf("NEW CUP IMAGE IS %s\n", path);
     cup->texture = LoadTexture(path);
+}
+
+void UpdateCup(Cup* cup, Ingredient* ingredient) {
+    // Check what type of ingredient it is and update the cup accordingly
+    if (ingredient == &teaPowder && cup->powderType == NONE) {
+        printf("GREEN TEA!!!\n");
+        cup->powderType = GREEN_TEA;
+    }
+    else if (ingredient == &cocoaPowder && cup->powderType == NONE) {
+        cup->powderType = COCOA;
+    }
+    else if (ingredient == &hotWater && cup->powderType != NONE) {
+        cup->hasWater = true;
+    }
+    else if (ingredient == &condensedMilk && cup->hasWater == true) {
+        cup->creamerType = CONDENSED_MILK;
+    }
+    else if (ingredient == &normalMilk && cup->hasWater == true) {
+        cup->creamerType = MILK;
+    }
+    else if (ingredient == &marshMellow && cup->creamerType != NONE) {
+        cup->toppingType = MARSHMELLOW;
+    }
+    else if (ingredient == &whippedCream && cup->creamerType != NONE) {
+        cup->toppingType = WHIPPED_CREAM;
+    }
+    else if (ingredient == &caramelSauce && cup->toppingType != NONE) {
+        cup->sauceType = CARAMEL;
+    }
+    else if (ingredient == &chocolateSauce && cup->toppingType != NONE) {
+        cup->sauceType = CHOCOLATE;
+    }
+    else if (ingredient == &hotWater) {
+        cup->hasWater = true;
+    }
+
+    UpdateCupImage(cup, ingredient);
+
 }
 
 Texture2D* DragAndDropIngredient(Ingredient* object, const DropArea* dropArea, Cup* cup, Camera2D* camera) {
