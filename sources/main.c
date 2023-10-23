@@ -834,6 +834,32 @@ void DrawCustomer(Customer* customer, int frame, Vector2 pos)
         break;
     }
 	DrawTextureEx(bubbles, (Vector2) {pos.x + 350, pos.y + 100} , 0.0f, 1.0f / 2.0f, WHITE);
+
+	if (strstr(customer->order, "CPY") == 0)
+		DrawTextureEx(cocoaChon.texture, (Vector2) {pos.x + 375, pos.y + 100} , 0.0f, 1.0f / 2.0f, WHITE);
+	else if (strstr(customer->order, "GPY" == 0))
+		DrawTextureEx(greenChon.texture, (Vector2) {pos.x + 375, pos.y + 100} , 0.0f, 1.0f / 2.0f, WHITE);
+	
+	if (strstr(customer->order, "CM") == 0)
+		//DrawTextureEx(condensedMilk.texture, (Vector2) {pos.x + 425, pos.y + 100} , 0.0f, 1.0f / 2.0f, WHITE);
+		DrawTextureRec(condensedMilk.texture, condensedMilk.frameRectangle,(Vector2) {pos.x + 425, pos.y + 100}, RAYWHITE);
+	else if (strstr(customer->order, "MI") == 0)
+		// DrawTextureEx(normalMilk.texture, (Vector2) {pos.x + 425, pos.y + 100} , 0.0f, 1.0f / 2.0f, WHITE);
+		DrawTextureRec(normalMilk.texture, normalMilk.frameRectangle,(Vector2) {pos.x + 425, pos.y + 100}, RAYWHITE);
+
+	if (strstr(customer->order, "MA") == 0)
+		// DrawTextureEx(marshMellow.texture, (Vector2) {pos.x + 375, pos.y + 150} , 0.0f, 1.0f / 2.0f, WHITE);
+		DrawTextureRec(marshMellow.texture, marshMellow.frameRectangle,(Vector2) {pos.x + 375, pos.y + 150}, RAYWHITE);
+	else if (strstr(customer->order, "WC") == 0)
+		// DrawTextureEx(whippedCream.texture, (Vector2) {pos.x + 375, pos.y + 150} , 0.0f, 1.0f / 2.0f, WHITE);
+		DrawTextureRec(whippedCream.texture, whippedCream.frameRectangle,(Vector2) {pos.x + 375, pos.y + 150}, RAYWHITE);
+
+	if (strstr(customer->order, "CA") == 0)
+		// DrawTextureEx(caramelSauce.texture, (Vector2) {pos.x + 425, pos.y + 150} , 0.0f, 1.0f / 2.0f, WHITE);
+		DrawTextureRec(caramelSauce.texture, caramelSauce.frameRectangle,(Vector2) {pos.x + 425, pos.y + 150}, RAYWHITE);
+	else if (strstr(customer->order, "CH") == 0)
+		// DrawTextureEx(chocolateSauce.texture, (Vector2) {pos.x + 425, pos.y + 150} , 0.0f, 1.0f / 2.0f, WHITE);
+		DrawTextureRec(chocolateSauce.texture, chocolateSauce.frameRectangle,(Vector2) {pos.x + 425, pos.y + 150}, RAYWHITE);
 }
 
 void UpdateMenuCustomerBlink(Customer* customer, double deltaTime) {
@@ -1123,13 +1149,15 @@ static int global_score = 0;
 
 void create_customer(Customer *customer, int patience, int currentTime, int orderEnd) {
     Customer newCustomer = createCustomer(EMOTION_HAPPY, 2.0, 4.0, 0.25, true);
-	strcpy(customer->order, "");
-	randomGenerateOrder(customer->order);
-	printf("%s\n", customer->order);
+	
 	*customer = newCustomer;
 	customer->visible = true;
 	customer->currentTime = currentTime;
 	customer->orderEnd = orderEnd * patience;
+	customer->order = (char *)malloc(sizeof(char) * 10);
+	strcpy(customer->order, "");
+	randomGenerateOrder(customer->order);
+	printf("%s\n", customer->order);
 }
 
 // void create_order(Order *order, char *first, char *second, char *third, char *fourth) {
