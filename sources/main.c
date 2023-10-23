@@ -2032,20 +2032,6 @@ void GameUpdate(Camera2D *camera)
 
         DrawDayNightCycle();
 
-        // Draw debug for cup
-        if (options->showDebug && debugToolToggles.showObjects)
-		{
-            DrawRectangleLinesEx((Rectangle) { oricupsPostion.x, oricupsPostion.y, cup.texture.width, cup.texture.height }, 1, RED);
-            DrawRectangle(oricupsPostion.x, oricupsPostion.y - 20, 300, 20, Fade(GRAY, 0.7));
-            DrawTextEx(meowFont, TextFormat("%s | XY %.2f,%.2f", "Cups", oricupsPostion.x, oricupsPostion.y), (Vector2) { oricupsPostion.x, oricupsPostion.y - 20 }, 20, 1, WHITE);
-
-            DrawRectangleLinesEx((Rectangle) { cup.position.x, cup.position.y, cup.texture.width, cup.texture.height }, 1, RED);
-            DrawRectangle(cup.position.x, cup.position.y - 20, 300, 20, Fade(GRAY, 0.7));
-            DrawTextEx(meowFont, TextFormat("%s | XY %.2f,%.2f", "Cup", cup.position.x, cup.position.y), (Vector2) { cup.position.x, cup.position.y - 20 }, 20, 1, WHITE);
-		}
-
-        DrawTexture(greenChon.texture, greenChon.position.x, greenChon.position.y, WHITE);
-        DrawTexture(cocoaChon.texture, cocoaChon.position.x, cocoaChon.position.y, WHITE);
 		/* Customers */
 		//Customer customer1 = createCustomer(EMOTION_HAPPY, 2.0, 4.0, 0.25, true);
 		//Order order1;
@@ -2116,6 +2102,20 @@ void GameUpdate(Camera2D *camera)
         DrawTexture(cups, oricupsPostion.x, oricupsPostion.y, WHITE);
         DrawTexture(cup.texture, cup.position.x, cup.position.y, WHITE);
 
+        DrawTexture(greenChon.texture, greenChon.position.x, greenChon.position.y, WHITE);
+        DrawTexture(cocoaChon.texture, cocoaChon.position.x, cocoaChon.position.y, WHITE);
+
+        // Draw debug for cup
+        if (options->showDebug && debugToolToggles.showObjects)
+        {
+            DrawRectangleLinesEx((Rectangle) { oricupsPostion.x, oricupsPostion.y, cup.texture.width, cup.texture.height }, 1, RED);
+            DrawRectangle(oricupsPostion.x, oricupsPostion.y - 20, 300, 20, Fade(GRAY, 0.7));
+            DrawTextEx(meowFont, TextFormat("%s | XY %.2f,%.2f", "Cups", oricupsPostion.x, oricupsPostion.y), (Vector2) { oricupsPostion.x, oricupsPostion.y - 20 }, 20, 1, WHITE);
+
+            DrawRectangleLinesEx((Rectangle) { cup.position.x, cup.position.y, cup.texture.width, cup.texture.height }, 1, RED);
+            DrawRectangle(cup.position.x, cup.position.y - 20, 300, 20, Fade(GRAY, 0.7));
+            DrawTextEx(meowFont, TextFormat("%s | XY %.2f,%.2f", "Cup", cup.position.x, cup.position.y), (Vector2) { cup.position.x, cup.position.y - 20 }, 20, 1, WHITE);
+        }
 
 		/* Customers TEST AREA END*/
         if(&customers.customer1 != NULL)
