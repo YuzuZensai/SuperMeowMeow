@@ -361,7 +361,17 @@ Texture2D* DragAndDropCup(Cup* cup, const DropArea* dropArea, Camera2D* camera) 
         }
     }
 
-    return NULL;
+    // Apply drag-and-drop with time-dependent positioning
+    if (isObjectBeingDragged) {
+        Vector2 mousePos = GetScreenToWorld2D(GetMousePosition(), *camera);
+        cup->position.x = mousePos.x - offsetX;
+        cup->position.y = mousePos.y - offsetY;
+    }
+
+    if(current_dragging)
+        return current_dragging;
+    else
+        return NULL;
 
 }
 
@@ -580,7 +590,17 @@ Texture2D* DragAndDropIngredient(Ingredient* object, const DropArea* dropArea, C
         }
     }
 
-    return NULL;
+    // Apply drag-and-drop with time-dependent positioning
+    if (isObjectBeingDragged) {
+        Vector2 mousePos = GetScreenToWorld2D(GetMousePosition(), *camera);
+        object->position.x = mousePos.x - offsetX;
+        object->position.y = mousePos.y - offsetY;
+    }
+
+    if(current_dragging)
+        return current_dragging;
+	else
+        return NULL;
 }
 
 Texture2D* DragAndDropIngredientPop(Ingredient* object, Ingredient* popObject, const DropArea* dropArea, Cup* cup, Camera2D* camera) {
@@ -631,7 +651,17 @@ Texture2D* DragAndDropIngredientPop(Ingredient* object, Ingredient* popObject, c
         }
     }
 
-    return NULL;
+    // Apply drag-and-drop with time-dependent positioning
+    if (isObjectBeingDragged) {
+        Vector2 mousePos = GetScreenToWorld2D(GetMousePosition(), *camera);
+        popObject->position.x = mousePos.x - offsetX;
+        popObject->position.y = mousePos.y - offsetY;
+    }
+
+    if(current_dragging)
+	    return current_dragging;
+    else
+        return NULL;
 }
 
 Rectangle frameRect(Ingredient i, int frameNum, int frameToShow) {
@@ -2002,6 +2032,9 @@ void GameUpdate(Camera2D *camera)
         lastFrameTime = GetTime();
 
         WindowUpdate(camera);
+
+        // Printf currentDrag
+        printf("currentDrag: %s\n", currentDrag == NULL ? "NULL" : "YES");
         
         // Dragable items
         if (currentDrag == NULL || currentDrag == &teaPowder.texture) {
