@@ -362,6 +362,9 @@ Texture2D* DragAndDropCup(Cup* cup, const DropArea* dropArea, Camera2D* camera, 
 
         Customer* customerToCheck[3] = { &customers->customer1, &customers->customer2, &customers->customer3, };
 
+        
+        Rectangle cupRect = { cup->position.x, cup->position.y, cup->frameRectangle.width, cup->frameRectangle.height };
+
         // Only check if world mouse position is more than y= 15
         if (mousePos.y <= 15)
         {
@@ -370,7 +373,14 @@ Texture2D* DragAndDropCup(Cup* cup, const DropArea* dropArea, Camera2D* camera, 
                 // If customer is visible
                 if (customerToCheck[i]->visible) {
                     // If cup is being given to customer
-                    if (CheckCollisionRecs(objectBounds, (Rectangle) { customerToCheck[i]->position.x, customerToCheck[i]->position.y, customersImageData[customerToCheck[i]->textureType].happy.width, customersImageData[customerToCheck[i]->textureType].happy.height })) {
+
+                    Rectangle customerRect = { customerToCheck[i]->position.x, customerToCheck[i]->position.y, customersImageData[i].happy.width / 2, customersImageData[i].happy.height / 2 };
+
+                if (cupRect.x >= customerRect.x &&
+                    cupRect.y >= customerRect.y &&
+                    (cupRect.x + cupRect.width) <= (customerRect.x + customerRect.width) &&
+                    (cupRect.y + cupRect.height) <= (customerRect.y + customerRect.height))
+                {
                         bool correct = validiator(customerToCheck[i], cup->order);
                         if (correct)
                         {
