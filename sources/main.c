@@ -2002,26 +2002,9 @@ void GameUpdate(Camera2D *camera)
         float scaleX = (float)BASE_SCREEN_WIDTH / imageWidth;
         float scaleY = (float)BASE_SCREEN_HEIGHT / imageHeight;
 
-        // Draw the background with the scaled dimensions
-        DrawTextureEx(backgroundTexture, (Vector2) { baseX, baseY }, 0.0f, fmax(scaleX, scaleY), WHITE);
-
-        DrawTexture(plate.texture, oriplatePosition.x, oriplatePosition.y, WHITE);
-        DrawRectangleLinesEx((Rectangle) { oriplatePosition.x, oriplatePosition.y, plate.texture.width, plate.texture.height }, 1, RED);
-        DrawDragableItemFrame(cocoaPowder);
-        DrawDragableItemFrame(teaPowder);
-        DrawDragableItemFrame(caramelSauce);
-        DrawDragableItemFrame(chocolateSauce);
-        DrawDragableItemFrame(condensedMilk);
-        DrawDragableItemFrame(normalMilk);
-        DrawDragableItemFrame(marshMellow);
-        DrawDragableItemFrame(whippedCream);
-        DrawDragableItemFrame(hotWater);
-
-        DrawTexture(cups, oricupsPostion.x, oricupsPostion.y, WHITE);
-        DrawTexture(cup.texture, cup.position.x, cup.position.y, WHITE);
+        DrawDayNightCycle();
 
         // Draw debug for cup
-
         if (options->showDebug && debugToolToggles.showObjects)
 		{
             DrawRectangleLinesEx((Rectangle) { oricupsPostion.x, oricupsPostion.y, cup.texture.width, cup.texture.height }, 1, RED);
@@ -2088,8 +2071,25 @@ void GameUpdate(Camera2D *camera)
 		Tick(&customers);
 		render_customers(&customers);
 
-		/* Customers TEST AREA END*/
+        DrawTextureEx(backgroundOverlayTexture, (Vector2) { baseX, baseY }, 0.0f, fmax(scaleX, scaleY), WHITE);
 
+        DrawTexture(plate.texture, oriplatePosition.x, oriplatePosition.y, WHITE);
+        DrawRectangleLinesEx((Rectangle) { oriplatePosition.x, oriplatePosition.y, plate.texture.width, plate.texture.height }, 1, RED);
+        DrawDragableItemFrame(cocoaPowder);
+        DrawDragableItemFrame(teaPowder);
+        DrawDragableItemFrame(caramelSauce);
+        DrawDragableItemFrame(chocolateSauce);
+        DrawDragableItemFrame(condensedMilk);
+        DrawDragableItemFrame(normalMilk);
+        DrawDragableItemFrame(marshMellow);
+        DrawDragableItemFrame(whippedCream);
+        DrawDragableItemFrame(hotWater);
+
+        DrawTexture(cups, oricupsPostion.x, oricupsPostion.y, WHITE);
+        DrawTexture(cup.texture, cup.position.x, cup.position.y, WHITE);
+
+
+		/* Customers TEST AREA END*/
         if(&customers.customer1 != NULL)
             UpdateMenuCustomerBlink(&customers.customer1, deltaTime);
         if (&customers.customer2 != NULL)
