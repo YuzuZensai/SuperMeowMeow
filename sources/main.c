@@ -2107,14 +2107,17 @@ void GameUpdate(Camera2D *camera)
         // Draw debug for cup
         if (options->showDebug && debugToolToggles.showObjects)
         {
-            DrawRectangleLinesEx((Rectangle) { oricupsPostion.x, oricupsPostion.y, cup.texture.width, cup.texture.height }, 1, RED);
-            DrawRectangle(oricupsPostion.x, oricupsPostion.y - 20, 300, 20, Fade(GRAY, 0.7));
-            DrawTextEx(meowFont, TextFormat("%s | XY %.2f,%.2f", "Cups", oricupsPostion.x, oricupsPostion.y), (Vector2) { oricupsPostion.x, oricupsPostion.y - 20 }, 20, 1, WHITE);
-
+            // Cup
             DrawRectangleLinesEx((Rectangle) { cup.position.x, cup.position.y, cup.texture.width, cup.texture.height }, 1, RED);
             DrawRectangle(cup.position.x, cup.position.y - 20, 300, 20, Fade(GRAY, 0.7));
             DrawTextEx(meowFont, TextFormat("%s | XY %.2f,%.2f", "Cup", cup.position.x, cup.position.y), (Vector2) { cup.position.x, cup.position.y - 20 }, 20, 1, WHITE);
 
+            // Cups
+            DrawRectangleLinesEx((Rectangle) { oricupsPostion.x, oricupsPostion.y, cups.width, cups.height }, 1, RED);
+            DrawRectangle(oricupsPostion.x, oricupsPostion.y - 20, 300, 20, Fade(GRAY, 0.7));
+            DrawTextEx(meowFont, TextFormat("%s | XY %.2f,%.2f", "Cups", oricupsPostion.x, oricupsPostion.y), (Vector2) { oricupsPostion.x, oricupsPostion.y - 20 }, 20, 1, WHITE);
+
+            // Plate
             DrawRectangleLinesEx((Rectangle) { oriplatePosition.x, oriplatePosition.y, plate.texture.width, plate.texture.height }, 1, RED);
             DrawRectangle(oriplatePosition.x, oriplatePosition.y - 20, 300, 20, Fade(GRAY, 0.7));
             DrawTextEx(meowFont, TextFormat("%s | XY %.2f,%.2f", "Plate", oriplatePosition.x, oriplatePosition.y), (Vector2) { oriplatePosition.x, oriplatePosition.y - 20 }, 20, 1, WHITE);
