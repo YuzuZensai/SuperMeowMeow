@@ -1132,7 +1132,7 @@ void DrawCustomer(Customer* customer)
 
     }
 
-    if (!customer->isDummy)
+    if (customer->visible && !customer->isDummy)
     {
         DrawTextureEx(bubbles, (Vector2) { pos.x + 350, pos.y + 100 }, 0.0f, 1.0f / 2.0f, WHITE);
 
