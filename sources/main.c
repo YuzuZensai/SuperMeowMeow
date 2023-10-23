@@ -837,7 +837,7 @@ void DrawCustomer(Customer* customer, int frame, Vector2 pos)
 
 	if (strstr(customer->order, "CPY") == 0)
 		DrawTextureEx(cocoaChon.texture, (Vector2) {pos.x + 375, pos.y + 100} , 0.0f, 1.0f / 2.0f, WHITE);
-	else if (strstr(customer->order, "GPY" == 0))
+	else if (strstr(customer->order, "GPY") == 0)
 		DrawTextureEx(greenChon.texture, (Vector2) {pos.x + 375, pos.y + 100} , 0.0f, 1.0f / 2.0f, WHITE);
 	
 	if (strstr(customer->order, "CM") == 0)
@@ -1154,7 +1154,6 @@ void create_customer(Customer *customer, int patience, int currentTime, int orde
 	customer->visible = true;
 	customer->currentTime = currentTime;
 	customer->orderEnd = orderEnd * patience;
-	*customer->order = (char *)malloc(sizeof(char) * 10);
 	strcpy(customer->order, "");
 	randomGenerateOrder(customer->order);
 	printf("%s\n", customer->order);
