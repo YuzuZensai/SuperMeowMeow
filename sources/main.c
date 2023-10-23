@@ -265,6 +265,7 @@ typedef struct {
     enum IngredientType creamerType;
     enum IngredientType toppingType;
     enum IngredientType sauceType;
+    bool active;
 } Cup;
 
 // Drop area
@@ -305,8 +306,7 @@ Texture2D* DragAndDropCup(Cup* cup, const DropArea* dropArea, Camera2D* camera) 
     if (IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {
         // printf("MOUSE DOWN");
         Vector2 mousePos = GetScreenToWorld2D(GetMousePosition(), *camera);
-        if (CheckCollisionPointRec(mousePos, objectBounds) && (current_dragging == NULL || current_dragging == &cup->texture)) {
-            // printf("SEND HELP");
+        if (cup->active && CheckCollisionPointRec(mousePos, objectBounds) && (current_dragging == NULL || current_dragging == &cup->texture)) {
             isObjectBeingDragged = true;
             offsetX = cup->frameRectangle.width / 2;
             offsetY = cup->frameRectangle.height / 2;
@@ -318,6 +318,28 @@ Texture2D* DragAndDropCup(Cup* cup, const DropArea* dropArea, Camera2D* camera) 
             current_dragging = &cup->texture;
             return &cup->texture;
         }
+        // If being drag from cups, then change the cup position to the cursor
+        else if (!cup->active && CheckCollisionPointRec(mousePos, (Rectangle) { oricupsPostion.x, oricupsPostion.y, cup->texture.width, cup->texture.height })) {
+			// Reset cup state            
+            isObjectBeingDragged = true;
+			offsetX = cup->texture.width / 2;
+			offsetY = cup->texture.height / 2;
+			float mouseX = mousePos.x;
+			float mouseY = mousePos.y;
+
+			cup->position.x = mouseX - offsetX;
+			cup->position.y = mouseY - offsetY;
+            cup->texture = LoadTexture(ASSETS_PATH"spritesheets/PINKCUP.png");
+			current_dragging = &cup->texture;
+            cup->powderType = NONE;
+            cup->creamerType = NONE;
+            cup->toppingType = NONE;
+            cup->sauceType = NONE;
+            cup->hasWater = false;
+            cup->active = true;
+			return &cup->texture;
+		}
+
     }
 
     if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
@@ -465,6 +487,9 @@ void UpdateCupImage(Cup* cup, Ingredient* ingredient) {
 }
 
 void UpdateCup(Cup* cup, Ingredient* ingredient) {
+    // If cup is not active, return
+    if (!cup->active) return;
+
     // Check what type of ingredient it is and update the cup accordingly
     if (ingredient == &teaPowder && cup->powderType == NONE) {
         printf("GREEN TEA!!!\n");
@@ -1904,6 +1929,7 @@ void GameUpdate(Camera2D *camera)
         NONE,
         NONE,
         NONE,
+        false
     };
 
     plate = (DropArea){ LoadTexture(ASSETS_PATH"/spritesheets/MAT.png"), oriplatePosition };
@@ -2118,7 +2144,9 @@ void GameUpdate(Camera2D *camera)
 
         DrawTexture(cups, oricupsPostion.x, oricupsPostion.y, WHITE);
         // DrawTexture(cup.texture, cup.position.x, cup.position.y, WHITE);
-        DrawTextureRec(cup.texture, cup.frameRectangle, cup.position, WHITE);
+
+        if(cup.active)
+            DrawTextureRec(cup.texture, cup.frameRectangle, cup.position, WHITE);
 
         DrawTexture(greenChon.texture, greenChon.position.x, greenChon.position.y, WHITE);
         DrawTexture(cocoaChon.texture, cocoaChon.position.x, cocoaChon.position.y, WHITE);
