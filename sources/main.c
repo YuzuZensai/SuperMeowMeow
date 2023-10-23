@@ -232,6 +232,12 @@ bool isCurrentBgmPaused = false;
 double loadDurationTimer = 0.0;
 bool isGlobalAssetsLoadFinished = false;
 
+// Start from night
+int currentColorIndex = 3;
+float dayNightCycleDuration = 120.0f;
+// Skip to 1/2 of the night, so that the first transition is from night to morning
+float colorTransitionTime = 0.5f;
+
 void CustomLogger(int msgType, const char* text, va_list args)
 {
     char timeStr[64] = { 0 };
@@ -1529,6 +1535,50 @@ void GameUpdate(Camera2D *camera)
 
 }
 
+void DrawDayNightCycle()
+{
+    const Color dayNightColors[] = {
+    (Color){173, 216, 230, 255},  // Morning (Anime Light Blue)
+    (Color){0, 102, 204, 255},    // Afternoon (Anime Blue)
+    (Color){245, 161, 59, 255},    // Evening (Anime Orange)
+    (Color){0, 0, 102, 255}       // Night (Anime Dark Blue)
+    };
+
+    float colorTransitionSpeed = (float)(sizeof(dayNightColors) / sizeof(dayNightColors[0])) / dayNightCycleDuration;
+
+    // Determine the color to interpolate from and to
+    int fromColorIndex = currentColorIndex;
+    int toColorIndex = (currentColorIndex + 1) % (sizeof(dayNightColors) / sizeof(dayNightColors[0]));
+
+    // Calculate the interpolation factor (0 to 1) based on colorTransitionTime
+    float t = fmin(colorTransitionTime, 1.0f);
+
+    // Interpolate between the colors
+    Color fromColor = dayNightColors[fromColorIndex];
+    Color toColor = dayNightColors[toColorIndex];
+    Color currentColor = ColorLerp(fromColor, toColor, t);
+
+    // Draw the day/night color overlay with the scaled dimensions
+    DrawRectangle(baseX, baseY, BASE_SCREEN_WIDTH, BASE_SCREEN_HEIGHT, currentColor);
+
+    // Draw day/night cycle debug overlay
+    if (options->showDebug && debugToolToggles.showObjects)
+    {
+        DrawTextEx(meowFont, TextFormat("Time %.2f/%.2f | Phrase %d/%d", colorTransitionTime * dayNightCycleDuration, dayNightCycleDuration, currentColorIndex + 1, (sizeof(dayNightColors) / sizeof(dayNightColors[0]))), (Vector2) { baseX + BASE_SCREEN_WIDTH - 500, baseY + 20 }, 20, 2, WHITE);
+    }
+
+    // Update the colorTransitionTime
+    if (colorTransitionTime >= 1.0f)
+    {
+        currentColorIndex = toColorIndex;
+        colorTransitionTime = 0;
+    }
+    else
+    {
+        colorTransitionTime += GetFrameTime() * colorTransitionSpeed;
+    }
+}
+
 void MainMenuUpdate(Camera2D* camera, bool playFade)
 {
     float fadeOutDuration = 1.0f;
@@ -1579,20 +1629,6 @@ void MainMenuUpdate(Camera2D* camera, bool playFade)
     void (*transitionCallback)(Camera2D * camera) = NULL;
 
     bool isHovering = false;
-
-    Color dayNightColors[] = {
-        (Color){173, 216, 230, 255},  // Morning (Anime Light Blue)
-        (Color){0, 102, 204, 255},    // Afternoon (Anime Blue)
-        (Color){245, 161, 59, 255},    // Evening (Anime Orange)
-        (Color){0, 0, 102, 255}       // Night (Anime Dark Blue)
-    };
-
-    // Start from night
-    int currentColorIndex = 3;
-    float dayNightCycleDuration = 120.0f;
-    float colorTransitionSpeed = (float)(sizeof(dayNightColors) / sizeof(dayNightColors[0])) / dayNightCycleDuration;
-    // Skip to 1/2 of the night, so that the first transition is from night to morning
-    float colorTransitionTime = 0.5f;
 
     while (!WindowShouldClose())
     {
@@ -1672,18 +1708,6 @@ void MainMenuUpdate(Camera2D* camera, bool playFade)
             isHovering = false;
         }
 
-        // Determine the color to interpolate from and to
-        int fromColorIndex = currentColorIndex;
-        int toColorIndex = (currentColorIndex + 1) % (sizeof(dayNightColors) / sizeof(dayNightColors[0]));
-
-        // Calculate the interpolation factor (0 to 1) based on colorTransitionTime
-        float t = fmin(colorTransitionTime, 1.0f);
-
-        // Interpolate between the colors
-        Color fromColor = dayNightColors[fromColorIndex];
-        Color toColor = dayNightColors[toColorIndex];
-        Color currentColor = ColorLerp(fromColor, toColor, t);
-
         // Draw
 
         BeginDrawing();
@@ -1705,14 +1729,7 @@ void MainMenuUpdate(Camera2D* camera, bool playFade)
         // Draw the background with the scaled dimensions
         // DrawTextureEx(backgroundTexture, (Vector2) { baseX, baseY }, 0.0f, fmax(scaleX, scaleY), WHITE);
         
-        // Draw the day/night color overlay with the scaled dimensions
-        DrawRectangle(baseX, baseY, BASE_SCREEN_WIDTH, BASE_SCREEN_HEIGHT, currentColor);
-
-        // Draw day/night cycle debug overlay
-        if(options->showDebug && debugToolToggles.showObjects)
-		{
-            DrawTextEx(meowFont, TextFormat("Time %.2f/%.2f | Phrase %d/%d", colorTransitionTime * dayNightCycleDuration, dayNightCycleDuration, currentColorIndex + 1 , (sizeof(dayNightColors) / sizeof(dayNightColors[0]))), (Vector2) { baseX + BASE_SCREEN_WIDTH - 500, baseY + 20 }, 20, 2, WHITE);
-		}
+        DrawDayNightCycle();
 
         // Draw falling items behind the menu
         DrawMenuFallingItems(deltaTime, true);
@@ -1780,17 +1797,6 @@ void MainMenuUpdate(Camera2D* camera, bool playFade)
         }
 
         DrawOuterWorld();
-
-        // Update the colorTransitionTime
-        if (colorTransitionTime >= 1.0f)
-        {
-            currentColorIndex = toColorIndex;
-            colorTransitionTime = 0;
-        }
-        else
-        {
-            colorTransitionTime += GetFrameTime() * colorTransitionSpeed;
-        }
 
         // Calculate alpha based on the current time
         if (playFade)
