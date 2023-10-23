@@ -329,7 +329,7 @@ Texture2D* DragAndDropCup(Cup* cup, const DropArea* dropArea, Camera2D* camera) 
 
 			cup->position.x = mouseX - offsetX;
 			cup->position.y = mouseY - offsetY;
-            cup->texture = LoadTexture(ASSETS_PATH"spritesheets/PINKCUP.png");
+            cup->texture = LoadTexture(ASSETS_PATH"combination/EMPTY.png");
 			current_dragging = &cup->texture;
             cup->powderType = NONE;
             cup->creamerType = NONE;
