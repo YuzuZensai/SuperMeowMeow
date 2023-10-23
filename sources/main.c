@@ -2442,6 +2442,16 @@ void GameUpdate(Camera2D *camera)
 
 }
 
+void ResetGameState()
+{
+    global_score = 0;
+
+    // Reset hotWater boiling
+    triggerHotWater = false;
+    hotWater.canChangeCupTexture = false;
+    hotWater.currentFrame = 1;
+}
+
 void endgameUpdate(Camera2D *camera){
 
     int imageWidth = backgroundTexture.width;
@@ -2485,9 +2495,9 @@ void endgameUpdate(Camera2D *camera){
 
         if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && (istryagainHovered))
         {
-             MainMenuUpdate(camera, false);
+            ResetGameState();
+            MainMenuUpdate(camera, false);
         }
-
 
         EndMode2D();
         EndDrawing();
