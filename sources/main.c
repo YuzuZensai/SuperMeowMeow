@@ -2320,10 +2320,12 @@ void GameUpdate(Camera2D *camera)
     bool hoversoundPlayed = false;
 
     // Start from night
-    int currentColorIndex = 3;
+    currentColorIndex = 3;
 
     dayNightCycleDuration = gameDuration * 3;
-    float colorTransitionTime = dayNightCycleDuration / 3;
+    colorTransitionTime = 0.2f;
+
+    bool passedInitialPhrase = false;
 
     Cup cup = {
         LoadTexture(ASSETS_PATH"combination/EMPTY.png"),
@@ -2431,7 +2433,7 @@ void GameUpdate(Camera2D *camera)
         lastFrameTime = GetTime();
 
         WindowUpdate(camera);
-        
+
         // Dragable items
         if (currentDrag == NULL || currentDrag == &teaPowder.texture) {
             currentDrag = DragAndDropIngredientPop(&teaPowder, &greenChon, &cup, camera);
@@ -2496,6 +2498,19 @@ void GameUpdate(Camera2D *camera)
         Vector2 mouseWorldPos = GetScreenToWorld2D(GetMousePosition(), *camera);
         bool isendSceneHovered = CheckCollisionPointRec(mouseWorldPos, endScene);
         void (*transitionCallback)(Camera2D * camera) = NULL;
+
+        if (!passedInitialPhrase && currentColorIndex == 0)
+            passedInitialPhrase = true;
+
+        // Day ended, show end scene
+        if (passedInitialPhrase && currentColorIndex >= 2)
+        {
+            // If not freeplay
+            if (options->difficulty != FREEPLAY_EASY && options->difficulty != FREEPLAY_MEDIUM && options->difficulty != FREEPLAY_HARD)
+			{
+                endgameUpdate(camera);
+			}
+        }
         
         Tick(&customers, deltaTime);
         tickBoil(&hotWater);
