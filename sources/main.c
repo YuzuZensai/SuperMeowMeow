@@ -1189,6 +1189,7 @@ void render_customers(Customers *customers)
 void remove_customers(Customer *customer)
 {
 	customer->visible = false;
+	free(customer->order)
 }
 
 void update_customer_state(Customer *customer) {
