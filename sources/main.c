@@ -513,26 +513,23 @@ void UpdateCup(Cup* cup, Ingredient* ingredient) {
     else if (ingredient == &hotWater && cup->powderType != NONE) {
         cup->hasWater = true;
     }
-    else if (ingredient == &condensedMilk && cup->hasWater == true) {
+    else if (ingredient == &condensedMilk && cup->hasWater == true && cup->creamerType == NULL) {
         cup->creamerType = CONDENSED_MILK;
     }
-    else if (ingredient == &normalMilk && cup->hasWater == true) {
+    else if (ingredient == &normalMilk && cup->hasWater == true && cup->creamerType == NULL) {
         cup->creamerType = MILK;
     }
-    else if (ingredient == &marshMellow && cup->creamerType != NONE) {
+    else if (ingredient == &marshMellow && cup->creamerType != NONE && cup->toppingType == NULL) {
         cup->toppingType = MARSHMELLOW;
     }
-    else if (ingredient == &whippedCream && cup->creamerType != NONE) {
+    else if (ingredient == &whippedCream && cup->creamerType != NONE && cup->toppingType == NULL) {
         cup->toppingType = WHIPPED_CREAM;
     }
-    else if (ingredient == &caramelSauce && cup->toppingType != NONE) {
+    else if (ingredient == &caramelSauce && cup->toppingType != NONE && cup->sauceType == NULL) {
         cup->sauceType = CARAMEL;
     }
-    else if (ingredient == &chocolateSauce && cup->toppingType != NONE) {
+    else if (ingredient == &chocolateSauce && cup->toppingType != NONE && cup->sauceType == NULL) {
         cup->sauceType = CHOCOLATE;
-    }
-    else if (ingredient == &hotWater) {
-        cup->hasWater = true;
     }
 
     UpdateCupImage(cup, ingredient);
