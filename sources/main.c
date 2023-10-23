@@ -536,14 +536,14 @@ void UpdateCup(Cup* cup, Ingredient* ingredient) {
 
 }
 
-Texture2D* DragAndDropIngredient(Ingredient* object, const DropArea* dropArea, Cup* cup, Camera2D* camera) {
+Texture2D* DragAndDropIngredient(Ingredient* object, Cup* cup, Camera2D* camera) {
     static bool isObjectBeingDragged = false;
     static Texture2D* current_dragging = NULL;
     static float offsetX = 0;
     static float offsetY = 0;
 
     Rectangle objectBounds = { object->position.x, object->position.y, (float)object->frameRectangle.width, (float)object->frameRectangle.height };
-    Rectangle dropBounds = { dropArea->position.x, dropArea->position.y, (float)dropArea->texture.width, (float)dropArea->texture.height };
+    Rectangle cupBounds = { cup->position.x, cup->position.y, (float)cup->texture.width, (float)cup->texture.height };
 
     if (IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {
         Vector2 mousePos = GetScreenToWorld2D(GetMousePosition(), *camera);
@@ -565,7 +565,7 @@ Texture2D* DragAndDropIngredient(Ingredient* object, const DropArea* dropArea, C
         isObjectBeingDragged = false;
         current_dragging = NULL;
 
-        if (CheckCollisionRecs(objectBounds, dropBounds)) {
+        if (CheckCollisionRecs(objectBounds, cupBounds)) {
             if (object->canChangeCupTexture) {
                 UpdateCup(cup,object);
 
@@ -593,7 +593,7 @@ Texture2D* DragAndDropIngredient(Ingredient* object, const DropArea* dropArea, C
         return NULL;
 }
 
-Texture2D* DragAndDropIngredientPop(Ingredient* object, Ingredient* popObject, const DropArea* dropArea, Cup* cup, Camera2D* camera) {
+Texture2D* DragAndDropIngredientPop(Ingredient* object, Ingredient* popObject, Cup* cup, Camera2D* camera) {
     static bool isObjectBeingDragged = false;
     static Texture2D* current_dragging = NULL;
     static float offsetX = 0;
@@ -602,8 +602,7 @@ Texture2D* DragAndDropIngredientPop(Ingredient* object, Ingredient* popObject, c
 
     Rectangle objectBounds = { object->position.x, object->position.y, (float)object->frameRectangle.width, (float)object->frameRectangle.height };
     Rectangle popObjectBounds = { popObject->position.x, popObject->position.y, (float)popObject->frameRectangle.width, (float)popObject->frameRectangle.height };
-    Rectangle dropBounds = { dropArea->position.x, dropArea->position.y, (float)dropArea->texture.width, (float)dropArea->texture.height };
-
+    Rectangle cupBounds = { cup->position.x, cup->position.y, (float)cup->texture.width, (float)cup->texture.height };
 
     if (IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {
         Vector2 mousePos = GetScreenToWorld2D(GetMousePosition(), *camera);
@@ -625,7 +624,7 @@ Texture2D* DragAndDropIngredientPop(Ingredient* object, Ingredient* popObject, c
         isObjectBeingDragged = false;
         current_dragging = NULL;
 
-        if (CheckCollisionRecs(popObjectBounds, dropBounds)) {
+        if (CheckCollisionRecs(popObjectBounds, cupBounds)) {
             if (object->canChangeCupTexture) {
                 UpdateCup(cup,object);
                 popObject->position.x = popObject->originalPosition.x;
@@ -2039,24 +2038,24 @@ void GameUpdate(Camera2D *camera)
         
         // Dragable items
         if (currentDrag == NULL || currentDrag == &teaPowder.texture) {
-            currentDrag = DragAndDropIngredientPop(&teaPowder, &greenChon, &plate, &cup, camera);
+            currentDrag = DragAndDropIngredientPop(&teaPowder, &greenChon, &cup, camera);
         }if (currentDrag == NULL || currentDrag == &cocoaPowder.texture) {
             // currentDrag = DragAndDropIngredient(&cocoaPowder, &plate, &cup, camera);
-            currentDrag = DragAndDropIngredientPop(&cocoaPowder, &cocoaChon, &plate, &cup, camera);
+            currentDrag = DragAndDropIngredientPop(&cocoaPowder, &cocoaChon, &cup, camera);
         }if (currentDrag == NULL || currentDrag == &condensedMilk.texture) {
-            currentDrag = DragAndDropIngredient(&condensedMilk, &plate, &cup, camera);
+            currentDrag = DragAndDropIngredient(&condensedMilk, &cup, camera);
         }if (currentDrag == NULL || currentDrag == &normalMilk.texture) {
-            currentDrag = DragAndDropIngredient(&normalMilk, &plate, &cup, camera);
+            currentDrag = DragAndDropIngredient(&normalMilk, &cup, camera);
         }if (currentDrag == NULL || currentDrag == &whippedCream.texture) {
-            currentDrag = DragAndDropIngredient(&whippedCream, &plate, &cup, camera);
+            currentDrag = DragAndDropIngredient(&whippedCream, &cup, camera);
         }if (currentDrag == NULL || currentDrag == &marshMellow.texture) {
-            currentDrag = DragAndDropIngredient(&marshMellow, &plate, &cup, camera);
+            currentDrag = DragAndDropIngredient(&marshMellow, &cup, camera);
         }if (currentDrag == NULL || currentDrag == &caramelSauce.texture) {
-            currentDrag = DragAndDropIngredient(&caramelSauce, &plate, &cup, camera);
+            currentDrag = DragAndDropIngredient(&caramelSauce, &cup, camera);
         }if (currentDrag == NULL || currentDrag == &chocolateSauce.texture) {
-            currentDrag = DragAndDropIngredient(&chocolateSauce, &plate, &cup, camera);
+            currentDrag = DragAndDropIngredient(&chocolateSauce, &cup, camera);
         }if (currentDrag == NULL || currentDrag == &hotWater.texture) {
-            currentDrag = DragAndDropIngredient(&hotWater, &plate, &cup, camera);
+            currentDrag = DragAndDropIngredient(&hotWater, &cup, camera);
         }
 
         if (currentDrag == NULL || currentDrag == &cup.texture) {
