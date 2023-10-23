@@ -1074,6 +1074,8 @@ static int placeholder_static = 1;
 static int global_score = 0;
 
 void create_customer(Customer *customer, int patience, Order order, int currentTime, int orderEnd) {
+    Customer newCustomer = createCustomer(EMOTION_HAPPY, 2.0, 4.0, 0.25, true);
+    *customer = newCustomer;
 	customer->visible = true;
 	customer->order = &order;
 	customer->currentTime = currentTime;
@@ -2082,7 +2084,7 @@ void GameUpdate(Camera2D *camera)
 		}
 
 		Tick(&customers);
-		//render_customers(&customers);
+		render_customers(&customers);
 
 		/* Customers TEST AREA END*/
 
