@@ -2049,7 +2049,7 @@ void GameUpdate(Camera2D *camera)
         if (isHovering && !hoversoundPlayed) {
 
             hoversoundPlayed = true;
-            PlaySound(hover);
+            //PlaySound(hover);
 
         }
         else if (!isHovering) {
@@ -2605,7 +2605,6 @@ int main()
     _options.soundFxEnabled = true;
 
     options = &_options;
-
 
     SetTargetFPS(options->targetFps);
     SetRuntimeResolution(&camera, options->resolution.x, options->resolution.y);
