@@ -834,7 +834,7 @@ void DrawMenuFallingItems(double deltaTime, bool behide)
             DrawLineEx(corners[3], corners[0], 1, RED);
 
             DrawRectangle(item->position.x, item->position.y, 550, 20, Fade(GRAY, 0.7));
-            DrawTextEx(meowFont, TextFormat("%d | XY %.2f,%.2f | R %.2f | G %.2f | Behide %s", i, item->position.x, item->position.y, item->rotation, item->fallingSpeed, behide ? "Yes": "No"), (Vector2) { item->position.x, item->position.y }, 20, 1, WHITE);
+            DrawTextEx(meowFont, TextFormat("%d | XY %.2f,%.2f | R %.2f | G %.2f | Behide %s", i, item->position.x, item->position.y, item->rotation, item->fallingSpeed, behide ? "[Yes]" : "[No]"), (Vector2) { item->position.x, item->position.y }, 20, 1, WHITE);
         }
 
         if (item->position.y > baseY + BASE_SCREEN_HEIGHT + 1000) {
@@ -1105,7 +1105,7 @@ void DrawDebugStats(Camera2D* camera)
     Vector2 mousePosition = GetMousePosition();
     Vector2 mouseWorldPos = GetScreenToWorld2D(mousePosition, *camera);
 
-    DrawTextEx(meowFont, TextFormat("%d FPS | Target FPS %d | Window (%dx%d) | Render (%dx%d) | Fullscreen ", fps, options->targetFps, options->resolution.x, options->resolution.y, BASE_SCREEN_WIDTH, BASE_SCREEN_HEIGHT, options->fullscreen ? "Yes" : "No"), (Vector2) { baseX + 10, baseY + 5 }, 20, 2, color);
+    DrawTextEx(meowFont, TextFormat("%d FPS | Target FPS %d | Window (%dx%d) | Render (%dx%d) | Fullscreen ", fps, options->targetFps, options->resolution.x, options->resolution.y, BASE_SCREEN_WIDTH, BASE_SCREEN_HEIGHT, options->fullscreen ? "[Yes]" : "[No]"), (Vector2) { baseX + 10, baseY + 5 }, 20, 2, color);
     DrawTextEx(meowFont, TextFormat("Cursor %.2f,%.2f (%dx%d) | World %.2f,%.2f (%dx%d) | R Base World %.2f,%.2f", mousePosition.x, mousePosition.y, options->resolution.x, options->resolution.y, mouseWorldPos.x, mouseWorldPos.y, BASE_SCREEN_WIDTH, BASE_SCREEN_HEIGHT, mouseWorldPos.x - baseX, mouseWorldPos.y - baseY), (Vector2) { baseX + 10, baseY + 25 }, 20, 2, WHITE);
     DrawTextEx(meowFont, TextFormat("Zoom %.2f | In View %s", camera->zoom, IsMousePositionInGameWindow(camera) ? "[Yes]" : "[No]"), (Vector2) { baseX + 10, baseY + 45 }, 20, 2, WHITE);
 }
@@ -2196,15 +2196,16 @@ void GameUpdate(Camera2D *camera)
         // Draw debug for cup
         if (options->showDebug && debugToolToggles.showObjects)
         {
-            // Cup
             DrawRectangleLinesEx((Rectangle) { cup.position.x, cup.position.y, cup.frameRectangle.width, cup.frameRectangle.height }, 1, RED);
-            DrawRectangle(cup.position.x, cup.position.y - 20, 300, 20, Fade(GRAY, 0.7));
-            DrawTextEx(meowFont, TextFormat("%s | XY %.2f,%.2f", "Cup", cup.position.x, cup.position.y), (Vector2) { cup.position.x, cup.position.y - 20 }, 20, 1, WHITE);
-
+            DrawRectangle(cup.position.x, cup.position.y - 60, 400, 60, Fade(GRAY, 0.7));
+            DrawTextEx(meowFont, TextFormat("Powder type: %d, Water: %d, Creamer: %d", cup.powderType, cup.hasWater, cup.creamerType), (Vector2) { cup.position.x, cup.position.y - 20 }, 20, 1, WHITE);
+            DrawTextEx(meowFont, TextFormat("Topping: %d, Sauce: %d", cup.toppingType, cup.sauceType), (Vector2) { cup.position.x, cup.position.y - 40 }, 20, 1, WHITE);
+			DrawTextEx(meowFont, TextFormat("%s | XY %.2f,%.2f | Active %s", "Cup", cup.position.x, cup.position.y, cup.active ? "[Yes]" : "[No]"), (Vector2) { cup.position.x, cup.position.y - 60 }, 20, 1, WHITE);
+            
             // Cups
             DrawRectangleLinesEx((Rectangle) { oricupsPostion.x, oricupsPostion.y, cups.width, cups.height }, 1, RED);
-            DrawRectangle(oricupsPostion.x, oricupsPostion.y - 20, 300, 20, Fade(GRAY, 0.7));
-            DrawTextEx(meowFont, TextFormat("%s | XY %.2f,%.2f", "Cups", oricupsPostion.x, oricupsPostion.y), (Vector2) { oricupsPostion.x, oricupsPostion.y - 20 }, 20, 1, WHITE);
+            DrawRectangle(oricupsPostion.x, oricupsPostion.y - 20, 400, 20, Fade(GRAY, 0.7));
+            DrawTextEx(meowFont, TextFormat("%s | XY %.2f,%.2f | Grabbable %s", "Cups", oricupsPostion.x, oricupsPostion.y, cup.active ? "[No]" : "[Yes]"), (Vector2) { oricupsPostion.x, oricupsPostion.y - 20 }, 20, 1, WHITE);
 
             // Plate
             DrawRectangleLinesEx((Rectangle) { oriplatePosition.x, oriplatePosition.y, plate.texture.width, plate.texture.height }, 1, RED);
