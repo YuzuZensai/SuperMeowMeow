@@ -171,7 +171,7 @@ typedef struct Customer {
 
     //int patience; //To be removed. 
     bool visible;
-    char order;
+    char order[20];
     int currentTime;
     int orderEnd;
 } Customer;
