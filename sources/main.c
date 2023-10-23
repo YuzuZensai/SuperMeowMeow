@@ -13,7 +13,7 @@
 
 // Debug flags
 #define DEBUG_SHOW true
-#define DEBUG_FASTLOAD !true
+#define DEBUG_FASTLOAD true
 #define DEBUG_MAX_FPS_HISTORY 500
 #define DEBUG_MAX_LOGS_HISTORY 25
 
@@ -211,6 +211,233 @@ typedef struct {
     float rotationSpeed;
 } MenuFallingItem;
 
+// Ingredient
+typedef enum IngredientType {
+    NONE,
+    GREEN_TEA,
+    COCOA,
+    CONDENSED_MILK,
+    MILK,
+    MARSHMELLOW,
+    WHIPPED_CREAM,
+    CARAMEL,
+    CHOCOLATE
+};
+
+typedef struct {
+    Texture2D texture;
+    bool canChangeCupTexture;
+    Vector2 position;
+    Vector2 originalPosition;
+    Rectangle frameRectangle;
+    int totalFrames;
+    int currentFrame; // not use right now but later
+} Ingredient;
+
+
+// Cup
+typedef struct {
+    Texture2D texture;
+    Vector2 position;
+    Vector2 originalPosition;
+    // Add properties to represent cup state
+    enum IngredientType powderType;
+    bool hasWater;
+    enum IngredientType creamerType;
+    enum IngredientType toppingType;
+    enum IngredientType sauceType;
+} Cup;
+
+// Drop area
+typedef struct {
+    /* data */
+    Texture2D texture;
+    Vector2 position;
+} DropArea;
+
+// Original position
+const Vector2 oricupPosition = { 351,109 };
+const Vector2 oriwaterPosition = { 679, 243 };
+
+const Vector2 oricaramelPosition = { -770,108 };
+const Vector2 orichocolatePosition = { -904,138 };
+const Vector2 oriteapowderPosition = { -421,145 };
+const Vector2 oricocoapowderPosition = { -564,177 };
+const Vector2 oriplatePosition = { -175,300 };
+const Vector2 oriplateCupPosition = { -28, 300 };
+const Vector2 oricondensedmilkPosition = { 283,316 };
+const Vector2 orimilkPosition = { 160,342 };
+const Vector2 orimarshmellowPosition = { -394,424 };
+const Vector2 oriwhippedPosition = { -277,391 };
+const Vector2 oricupsPostion = { 432,97 };
+const Vector2 hiddenPosition = { -3000, -3000 };
+
+Texture2D* DragAndDropCup(Cup* cup, const DropArea* dropArea, Camera2D* camera) {
+    static bool isObjectBeingDragged = false;
+    static Texture2D* current_dragging = NULL;
+    static float offsetX = 0;
+    static float offsetY = 0;
+
+    Rectangle objectBounds = { cup->position.x, cup->position.y, (float)cup->texture.width, (float)cup->texture.height };
+    Rectangle dropBounds = { dropArea->position.x, dropArea->position.y, (float)dropArea->texture.width, (float)dropArea->texture.height };
+
+    if (IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {
+        // printf("MOUSE DOWN");
+        Vector2 mousePos = GetScreenToWorld2D(GetMousePosition(), *camera);
+        if (CheckCollisionPointRec(mousePos, objectBounds) && (current_dragging == NULL || current_dragging == &cup->texture)) {
+            // printf("SEND HELP");
+            isObjectBeingDragged = true;
+            offsetX = cup->texture.width / 2;
+            offsetY = cup->texture.height / 2;
+            float mouseX = mousePos.x;
+            float mouseY = mousePos.y;
+
+            cup->position.x = mouseX - offsetX;
+            cup->position.y = mouseY - offsetY;
+            current_dragging = &cup->texture;
+            return &cup->texture;
+        }
+    }
+
+    if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
+        isObjectBeingDragged = false;
+        current_dragging = NULL;
+
+        if (CheckCollisionRecs(objectBounds, dropBounds)) {
+            cup->position.x = dropArea->position.x;
+            cup->position.y = dropArea->position.y;
+        }
+        else {
+            cup->position.x = cup->originalPosition.x;
+            cup->position.y = cup->originalPosition.y;
+        }
+    }
+
+    return NULL;
+
+}
+
+Texture2D* DragAndDropIngredient(Ingredient* object, const DropArea* dropArea, Cup* cup, Camera2D* camera) {
+    static bool isObjectBeingDragged = false;
+    static Texture2D* current_dragging = NULL;
+    static float offsetX = 0;
+    static float offsetY = 0;
+
+
+    Rectangle objectBounds = { object->position.x, object->position.y, (float)object->frameRectangle.width, (float)object->frameRectangle.height };
+    Rectangle dropBounds = { dropArea->position.x, dropArea->position.y, (float)dropArea->texture.width, (float)dropArea->texture.height };
+
+
+    if (IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {
+        // printf("MOUSE DOWN");
+        Vector2 mousePos = GetScreenToWorld2D(GetMousePosition(), *camera);
+        if (CheckCollisionPointRec(mousePos, objectBounds) && (current_dragging == NULL || current_dragging == &object->texture)) {
+            // printf("SEND HELP");
+            isObjectBeingDragged = true;
+            offsetX = object->frameRectangle.width / 2;
+            offsetY = object->frameRectangle.height / 2;
+            float mouseX = mousePos.x;
+            float mouseY = mousePos.y;
+
+            object->position.x = mouseX - offsetX;
+            object->position.y = mouseY - offsetY;
+            current_dragging = &object->texture;
+            return &object->texture;
+        }
+    }
+
+    if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
+        isObjectBeingDragged = false;
+        current_dragging = NULL;
+
+        if (CheckCollisionRecs(objectBounds, dropBounds)) {
+            if (object->canChangeCupTexture) {
+                // UpdateCupImage(cup,object);
+
+                object->position.x = object->originalPosition.x;
+                object->position.y = object->originalPosition.y;
+            }
+        }
+        else {
+            // Object is not inside the drop area, return it to the original position
+            object->position.x = object->originalPosition.x;
+            object->position.y = object->originalPosition.y;
+        }
+    }
+
+    return NULL;
+}
+
+Texture2D* DragAndDropIngredientPop(Ingredient* object, Ingredient* popObject, const DropArea* dropArea, Cup* cup, Camera2D* camera) {
+    static bool isObjectBeingDragged = false;
+    static Texture2D* current_dragging = NULL;
+    static float offsetX = 0;
+    static float offsetY = 0;
+
+
+    Rectangle objectBounds = { object->position.x, object->position.y, (float)object->frameRectangle.width, (float)object->frameRectangle.height };
+    Rectangle popObjectBounds = { popObject->position.x, popObject->position.y, (float)popObject->frameRectangle.width, (float)popObject->frameRectangle.height };
+    Rectangle dropBounds = { dropArea->position.x, dropArea->position.y, (float)dropArea->texture.width, (float)dropArea->texture.height };
+
+
+    if (IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {
+        // printf("MOUSE DOWN");
+        Vector2 mousePos = GetScreenToWorld2D(GetMousePosition(), *camera);
+        if ((CheckCollisionPointRec(mousePos, objectBounds) || CheckCollisionPointRec(mousePos, popObjectBounds)) && (current_dragging == NULL || current_dragging == &object->texture)) {
+            // printf("SEND HELP");
+            isObjectBeingDragged = true;
+            offsetX = popObject->frameRectangle.width / 2;
+            offsetY = popObject->frameRectangle.height / 2;
+            float mouseX = mousePos.x;
+            float mouseY = mousePos.y;
+
+            popObject->position.x = mouseX - offsetX;
+            popObject->position.y = mouseY - offsetY;
+            current_dragging = &object->texture;
+            return &object->texture;
+        }
+    }
+
+    if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
+        isObjectBeingDragged = false;
+        current_dragging = NULL;
+
+        if (CheckCollisionRecs(objectBounds, dropBounds)) {
+            if (object->canChangeCupTexture) {
+                // UpdateCupImage(cup,object);
+                popObject->position.x = popObject->originalPosition.x;
+                popObject->position.y = popObject->originalPosition.y;
+            }
+        }
+        else {
+            // Object is not inside the drop area, return it to the original position
+            popObject->position.x = popObject->originalPosition.x;
+            popObject->position.y = popObject->originalPosition.y;
+        }
+    }
+
+    return NULL;
+}
+
+Rectangle frameRect(Ingredient i, int frameNum, int frameToShow) {
+    int frameWidth = i.texture.width / frameNum;
+    Rectangle frameRect = { frameWidth * (frameToShow - 1), 0, frameWidth, i.texture.height };
+    return frameRect;
+}
+
+bool highlightItem(Ingredient* item, Camera2D* camera) {
+    Vector2 mousePos = GetScreenToWorld2D(GetMousePosition(), *camera);
+    static bool isHovering;
+    if (CheckCollisionPointRec(mousePos, (Rectangle) { item->position.x, item->position.y, item->frameRectangle.width, item->frameRectangle.height }) && item->totalFrames > 1) {
+        item->frameRectangle = frameRect(*item, item->totalFrames, item->currentFrame + 1);
+        return true;
+    }
+    else {
+        item->frameRectangle = frameRect(*item, item->totalFrames, item->currentFrame);
+        return false;
+    }
+}
+
 // Function prototype
 void MainMenuUpdate(Camera2D* camera, bool playFade);
 void OptionsUpdate(Camera2D* camera);
@@ -237,6 +464,12 @@ int currentColorIndex = 3;
 float dayNightCycleDuration = 120.0f;
 // Skip to 1/2 of the night, so that the first transition is from night to morning
 float colorTransitionTime = 0.5f;
+
+// Ingredients
+Ingredient teaPowder, cocoaPowder, normalMilk, condensedMilk, marshMellow, whippedCream, caramelSauce, chocolateSauce, hotWater;
+Ingredient greenChon;
+DropArea plate;
+
 
 void CustomLogger(int msgType, const char* text, va_list args)
 {
@@ -297,6 +530,18 @@ double GetRandomDoubleValue(double min, double max)
 {
     return min + (rand() / (double)RAND_MAX) * (max - min);
 }
+
+
+void DrawDragableItemFrame(Ingredient i) {
+    DrawTextureRec(i.texture, i.frameRectangle, i.position, RAYWHITE);
+    if (options->showDebug && debugToolToggles.showObjects)
+    {
+        DrawRectangleLinesEx((Rectangle) { i.position.x, i.position.y, i.frameRectangle.width, i.frameRectangle.height }, 1, RED);
+        DrawRectangle(i.position.x, i.position.y - 20, 300, 20, Fade(GRAY, 0.7));
+        DrawTextEx(meowFont, TextFormat("%s | XY %.2f,%.2f", "Ingredient", i.position.x, i.position.y), (Vector2) { i.position.x, i.position.y - 20 }, 20, 1, WHITE);
+    }
+}
+
 
 void DrawMenuFallingItems(double deltaTime, bool behide)
 {
@@ -1395,11 +1640,74 @@ void OptionsUpdate(Camera2D* camera)
 
 void GameUpdate(Camera2D *camera)
 {
-
     double lastFrameTime = GetTime();
-    float circleRadius = 30.0f;
-    Vector2 circlePosition = { 100, 50 };
     bool isDragging = false;
+
+    bool isHovering = false;
+    bool hoversoundPlayed = false;
+
+    Cup cup = {
+        LoadTexture(ASSETS_PATH"spritesheets/PINKCUP.png"),
+        (Vector2) {0, 0},
+        NONE,
+        false,
+        NONE,
+        NONE,
+        NONE,
+    };
+
+    plate = (DropArea){ LoadTexture(ASSETS_PATH"/spritesheets/MAT.png"), oriplatePosition };
+    Texture2D cups = LoadTexture(ASSETS_PATH"/spritesheets/CUPS.png");
+
+    teaPowder = (Ingredient){ LoadTexture(ASSETS_PATH"/spritesheets/GP.png"), true, oriteapowderPosition, oriteapowderPosition };
+    teaPowder.totalFrames = 3;
+    teaPowder.frameRectangle = frameRect(teaPowder, teaPowder.totalFrames, teaPowder.currentFrame);
+    cocoaPowder = (Ingredient){ LoadTexture(ASSETS_PATH"/spritesheets/CP.png"), true, oricocoapowderPosition, oricocoapowderPosition };
+    cocoaPowder.totalFrames = 3;
+    cocoaPowder.currentFrame = 1;
+    cocoaPowder.frameRectangle = frameRect(cocoaPowder, cocoaPowder.totalFrames, cocoaPowder.currentFrame);
+
+    caramelSauce = (Ingredient){ LoadTexture(ASSETS_PATH"/spritesheets/CA.png"), true, oricaramelPosition, oricaramelPosition };
+    caramelSauce.totalFrames = 3;
+    caramelSauce.currentFrame = 1;
+    caramelSauce.frameRectangle = frameRect(caramelSauce, caramelSauce.totalFrames, caramelSauce.currentFrame);
+
+    chocolateSauce = (Ingredient){ LoadTexture(ASSETS_PATH"/spritesheets/CH.png"), true, orichocolatePosition, orichocolatePosition };
+    chocolateSauce.totalFrames = 3;
+    chocolateSauce.currentFrame = 1;
+    chocolateSauce.frameRectangle = frameRect(chocolateSauce, chocolateSauce.totalFrames, chocolateSauce.currentFrame);
+
+    condensedMilk = (Ingredient){ LoadTexture(ASSETS_PATH"/spritesheets/CM.png"), true, oricondensedmilkPosition, oricondensedmilkPosition };
+    condensedMilk.totalFrames = 2;
+    condensedMilk.currentFrame = 1;
+    condensedMilk.frameRectangle = frameRect(condensedMilk, condensedMilk.totalFrames, condensedMilk.currentFrame);
+
+    normalMilk = (Ingredient){ LoadTexture(ASSETS_PATH"/spritesheets/MI.png"), true, orimilkPosition, orimilkPosition };
+    normalMilk.totalFrames = 2;
+    normalMilk.currentFrame = 1;
+    normalMilk.frameRectangle = frameRect(normalMilk, normalMilk.totalFrames, normalMilk.currentFrame);
+
+    marshMellow = (Ingredient){ LoadTexture(ASSETS_PATH"/spritesheets/MA.png"), true, orimarshmellowPosition, orimarshmellowPosition };
+    marshMellow.totalFrames = 2;
+    marshMellow.currentFrame = 1;
+    marshMellow.frameRectangle = frameRect(marshMellow, marshMellow.totalFrames, marshMellow.currentFrame);
+
+    whippedCream = (Ingredient){ LoadTexture(ASSETS_PATH"/spritesheets/WC.png"), true, oriwhippedPosition, oriwhippedPosition };
+    whippedCream.totalFrames = 2;
+    whippedCream.currentFrame = 1;
+    whippedCream.frameRectangle = frameRect(whippedCream, whippedCream.totalFrames, whippedCream.currentFrame);
+
+    hotWater = (Ingredient){ LoadTexture(ASSETS_PATH"/spritesheets/GAR.png"), true, oriwaterPosition, oriwaterPosition };
+    hotWater.totalFrames = 3;
+    hotWater.currentFrame = 1;
+    hotWater.frameRectangle = frameRect(hotWater, hotWater.totalFrames, hotWater.currentFrame);
+
+    greenChon = (Ingredient){ LoadTexture(ASSETS_PATH"/spritesheets/greenchon.png"), false, hiddenPosition, hiddenPosition };
+    greenChon.totalFrames = 1;
+    greenChon.currentFrame = 1;
+    greenChon.frameRectangle = frameRect(greenChon, greenChon.totalFrames, greenChon.currentFrame);
+
+    Texture2D* currentDrag = NULL;
 
     while (!WindowShouldClose())
     {
@@ -1408,39 +1716,58 @@ void GameUpdate(Camera2D *camera)
         lastFrameTime = GetTime();
 
         WindowUpdate(camera);
-        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
-        {
-            //Vector2 mousePos = GetMousePosition();
-
-            // Convert mouse position to world space, taking into account camera zoom
-            //mousePos.x = (mousePos.x - GetScreenWidth() / 2.0f) / camera->zoom + camera->target.x;
-            //mousePos.y = (mousePos.y - GetScreenHeight() / 2.0f) / camera->zoom + camera->target.y;
-
-            // Convert mouse position from screen space to world space
-            Vector2 mouseWorldPos = GetScreenToWorld2D(GetMousePosition(), *camera);
-
-            // Calculate the vector from the circle's center to the mouse position
-            Vector2 circleToMouse = Vector2Subtract(mouseWorldPos, circlePosition);
-
-            // Check if the mouse click is within the circle (distance <= circleRadius)
-            if (Vector2Length(circleToMouse) <= circleRadius)
-            {
-                isDragging = true;
-            }
-        }
-        else if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON))
-        {
-            isDragging = false;
+        
+        // Dragable items
+        if (currentDrag == NULL || currentDrag == &teaPowder.texture) {
+            currentDrag = DragAndDropIngredientPop(&teaPowder, &greenChon, &plate, &cup, camera);
+        }if (currentDrag == NULL || currentDrag == &cocoaPowder.texture) {
+            currentDrag = DragAndDropIngredient(&cocoaPowder, &plate, &cup, camera);
+        }if (currentDrag == NULL || currentDrag == &condensedMilk.texture) {
+            currentDrag = DragAndDropIngredient(&condensedMilk, &plate, &cup, camera);
+        }if (currentDrag == NULL || currentDrag == &normalMilk.texture) {
+            currentDrag = DragAndDropIngredient(&normalMilk, &plate, &cup, camera);
+        }if (currentDrag == NULL || currentDrag == &whippedCream.texture) {
+            currentDrag = DragAndDropIngredient(&whippedCream, &plate, &cup, camera);
+        }if (currentDrag == NULL || currentDrag == &marshMellow.texture) {
+            currentDrag = DragAndDropIngredient(&marshMellow, &plate, &cup, camera);
+        }if (currentDrag == NULL || currentDrag == &caramelSauce.texture) {
+            currentDrag = DragAndDropIngredient(&caramelSauce, &plate, &cup, camera);
+        }if (currentDrag == NULL || currentDrag == &chocolateSauce.texture) {
+            currentDrag = DragAndDropIngredient(&chocolateSauce, &plate, &cup, camera);
+        }if (currentDrag == NULL || currentDrag == &hotWater.texture) {
+            currentDrag = DragAndDropIngredient(&hotWater, &plate, &cup, camera);
         }
 
-        if (isDragging)
-        {
-            // Update circle position during dragging, considering camera zoom
-            circlePosition = GetMousePosition();
-            circlePosition.x = (circlePosition.x - GetScreenWidth() / 2.0f) / camera->zoom + camera->target.x;
-            circlePosition.y = (circlePosition.y - GetScreenHeight() / 2.0f) / camera->zoom + camera->target.y;
+        if (currentDrag == NULL || currentDrag == &cup.texture) {
+            currentDrag = DragAndDropCup(&cup, &plate, camera);
         }
 
+        isHovering = false;
+        // check mouse not down
+        if (IsMouseButtonUp(MOUSE_LEFT_BUTTON)) {
+            // call highlightItem for each item
+            isHovering = highlightItem(&teaPowder, camera) || isHovering;
+            isHovering = highlightItem(&cocoaPowder, camera) || isHovering;
+            isHovering = highlightItem(&condensedMilk, camera) || isHovering;
+            isHovering = highlightItem(&normalMilk, camera) || isHovering;
+            isHovering = highlightItem(&whippedCream, camera) || isHovering;
+            isHovering = highlightItem(&marshMellow, camera) || isHovering;
+            isHovering = highlightItem(&caramelSauce, camera) || isHovering;
+            isHovering = highlightItem(&chocolateSauce, camera) || isHovering;
+            isHovering = highlightItem(&hotWater, camera) || isHovering;
+        }
+        else {
+            isHovering = false;
+        }
+        if (isHovering && !hoversoundPlayed) {
+
+            hoversoundPlayed = true;
+            PlaySound(hover);
+
+        }
+        else if (!isHovering) {
+            hoversoundPlayed = false;
+        }
 
         // Draw
 
@@ -1460,9 +1787,36 @@ void GameUpdate(Camera2D *camera)
         // Draw the background with the scaled dimensions
         DrawTextureEx(backgroundTexture, (Vector2) { baseX, baseY }, 0.0f, fmax(scaleX, scaleY), WHITE);
 
-		/* Customers */
+        DrawTexture(plate.texture, oriplatePosition.x, oriplatePosition.y, WHITE);
+        DrawDragableItemFrame(cocoaPowder);
+        DrawDragableItemFrame(teaPowder);
+        DrawDragableItemFrame(caramelSauce);
+        DrawDragableItemFrame(chocolateSauce);
+        DrawDragableItemFrame(condensedMilk);
+        DrawDragableItemFrame(normalMilk);
+        DrawDragableItemFrame(marshMellow);
+        DrawDragableItemFrame(whippedCream);
+        DrawDragableItemFrame(hotWater);
 
-		
+        DrawTexture(cups, oricupsPostion.x, oricupsPostion.y, WHITE);
+        DrawTexture(cup.texture, cup.position.x, cup.position.y, WHITE);
+
+        // Draw debug for cup
+
+        if (options->showDebug && debugToolToggles.showObjects)
+		{
+            DrawRectangleLinesEx((Rectangle) { oricupsPostion.x, oricupsPostion.y, cup.texture.width, cup.texture.height }, 1, RED);
+            DrawRectangle(oricupsPostion.x, oricupsPostion.y - 20, 300, 20, Fade(GRAY, 0.7));
+            DrawTextEx(meowFont, TextFormat("%s | XY %.2f,%.2f", "Cups", oricupsPostion.x, oricupsPostion.y), (Vector2) { oricupsPostion.x, oricupsPostion.y - 20 }, 20, 1, WHITE);
+
+            DrawRectangleLinesEx((Rectangle) { cup.position.x, cup.position.y, cup.texture.width, cup.texture.height }, 1, RED);
+            DrawRectangle(cup.position.x, cup.position.y - 20, 300, 20, Fade(GRAY, 0.7));
+            DrawTextEx(meowFont, TextFormat("%s | XY %.2f,%.2f", "Cup", cup.position.x, cup.position.y), (Vector2) { cup.position.x, cup.position.y - 20 }, 20, 1, WHITE);
+		}
+
+        DrawTexture(greenChon.texture, greenChon.position.x, greenChon.position.y, WHITE);
+
+		/* Customers */
 		Customer customer1 = createCustomer(EMOTION_HAPPY, 2.0, 4.0, 0.25, true);
 		Order order1;
 		Customer customer2 = createCustomer(EMOTION_HAPPY, 2.0, 4.0, 0.25, true);
@@ -1514,9 +1868,6 @@ void GameUpdate(Camera2D *camera)
         if (&customers.customer3 != NULL)
             UpdateMenuCustomerBlink(&customers.customer3, deltaTime);
 
-
-        // Draw circle
-        DrawCircleV(circlePosition, circleRadius, BLUE);
 
 		char *scoreText = TextFormat("Score: %d", global_score);
         DrawTextEx(GetFontDefault(), scoreText, (Vector2) { baseX + 20, baseY + 20 }, 20, 2, WHITE);
