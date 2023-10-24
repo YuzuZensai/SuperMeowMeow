@@ -394,8 +394,7 @@ const Vector2 orimarshmellowPosition = { -481,320 };
 const Vector2 oriwhippedPosition = { -644,320 };
 const Vector2 oricupsPostion = { 390,80 };
 const Vector2 hiddenPosition = { -3000, -3000 };
-
-const Vector2 trashCanPosition = { baseX , baseY + BASE_SCREEN_HEIGHT - 200 };
+Vector2 trashCanPosition = { 0, 0 };
 
 static int global_score = 0;
 
@@ -3065,6 +3064,8 @@ void MainMenuUpdate(Camera2D* camera, bool playFade)
 
     if(isTransitioningIn)
         transitionOffset = BASE_SCREEN_WIDTH / 2;
+
+    trashCanPosition = (Vector2){baseX , baseY + BASE_SCREEN_HEIGHT - 200};
 
     PlayBgmIfStopped(&menuBgm);
 
