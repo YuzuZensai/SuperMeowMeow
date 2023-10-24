@@ -261,11 +261,13 @@ static inline char* StringFromCustomerEmotionEnum(CustomerEmotion emotion)
     return strings[emotion];
 }
 
+// LOGIC
 double GetRandomDoubleValue(double min, double max)
 {
     return min + (rand() / (double)RAND_MAX) * (max - min);
 }
 
+// LOGIC
 void RandomCustomerBlinkTime(Customer* customer) {
     customer->blinkDuration = GetRandomDoubleValue(0.2, 0.5);
     customer->normalDuration = GetRandomDoubleValue(2.0, 6.0);
@@ -410,6 +412,7 @@ void ExitApplication()
     exit(0);
 }
 
+// LOGIC
 void boilWater(Ingredient* item) {
     if (!item->canChangeCupTexture) {
         triggerHotWater = true;
@@ -420,6 +423,8 @@ void boilWater(Ingredient* item) {
 void PlaySoundFx(SoundFxType type);
 void RemoveCustomer(Customer* customer);
 bool validiator(Customer* customer, char* order);
+
+// LOGIC
 Texture2D* DragAndDropCup(Cup* cup, const DropArea* dropArea, Camera2D* camera, Customers *customers, Ingredient* trashCan)
 {
     static bool isObjectBeingDragged = false;
@@ -571,6 +576,7 @@ Texture2D* DragAndDropCup(Cup* cup, const DropArea* dropArea, Camera2D* camera, 
 
 }
 
+// LOGIC
 void UpdateCupImage(Cup* cup, Ingredient* ingredient) {
     // Check what type of ingredient it is and update the cup accordingly
     // if (ingredient == &teaPowder) {
@@ -697,6 +703,7 @@ void UpdateCupImage(Cup* cup, Ingredient* ingredient) {
     cup->texture = LoadTexture(path);
 }
 
+// LOGIC
 void UpdateCup(Cup* cup, Ingredient* ingredient) {
     // If cup is not active, return
     if (!cup->active) return;
@@ -739,6 +746,7 @@ void UpdateCup(Cup* cup, Ingredient* ingredient) {
 
 }
 
+// LOGIC
 Texture2D* DragAndDropIngredient(Ingredient* object, Cup* cup, Camera2D* camera) {
     static bool isObjectBeingDragged = false;
     static Texture2D* current_dragging = NULL;
@@ -813,6 +821,7 @@ Texture2D* DragAndDropIngredient(Ingredient* object, Cup* cup, Camera2D* camera)
         return NULL;
 }
 
+// LOGIC
 Texture2D* DragAndDropIngredientPop(Ingredient* object, Ingredient* popObject, Cup* cup, Camera2D* camera) {
     static bool isObjectBeingDragged = false;
     static Texture2D* current_dragging = NULL;
@@ -883,6 +892,7 @@ Rectangle frameRectCup(Cup i, int frameNum, int frameToShow) {
     return frameRect;
 }
 
+// LOGIC
 void tickBoil(Ingredient* boiler) {
 
     if (triggerHotWater) {
@@ -1092,6 +1102,7 @@ void DrawMenuFallingItems(double deltaTime, bool behide)
     }
 }
 
+// LOGIC
 bool IsNight()
 {
     return currentColorIndex == 3 && colorTransitionTime < 0.4;
@@ -1181,7 +1192,7 @@ void DrawMovingCloudAndStar(double deltaTime)
     }
    
 }
-
+// LOGIC
 double RandomCustomerTimeoutBasedOnDifficulty()
 {
     switch (options->difficulty)
@@ -1203,7 +1214,7 @@ double RandomCustomerTimeoutBasedOnDifficulty()
         break;
     }
 }
-
+// LOGIC
 void RandomCustomerInitialResetBasedOnDifficulty(double *values) {
 
     switch (options->difficulty)
@@ -1236,7 +1247,7 @@ void RandomCustomerInitialResetBasedOnDifficulty(double *values) {
 
 }
 
-
+// LOGIC
 double RandomCustomerResetBasedOnDifficulty()
 {
     switch (options->difficulty)
@@ -1259,6 +1270,7 @@ double RandomCustomerResetBasedOnDifficulty()
     }
 }
 
+// LOGIC
 void RandomGenerateOrder(char *order)
 {
     int random = GetRandomValue(0, 2);
@@ -1449,6 +1461,7 @@ void SetRuntimeResolution(Camera2D *camera, int screenWidth, int screenHeight)
     options->resolution.y = screenHeight;
 }
 
+// LOGIC
 bool IsMousePositionInGameWindow(Camera2D * camera)
 {
     Vector2 mouseWorldPos = GetScreenToWorld2D(GetMousePosition(), *camera);
@@ -1662,7 +1675,7 @@ void DrawDebugOverlay(Camera2D *camera)
     }
 
 }
-
+// LOGIC
 Customer CreateCustomerWithOrder(int patience, double currentTime, int orderEnd, Vector2 pos, int textureType, double resetTimer) {
     Customer newCustomer = CreateCustomer(EMOTION_HAPPY, 0, 0, 0.25, true, pos, textureType, resetTimer);
     RandomCustomerBlinkTime(&newCustomer);
@@ -1701,6 +1714,7 @@ Customer CreateCustomerWithOrder(int patience, double currentTime, int orderEnd,
 //     }
 // }
 
+// LOGIC
 bool validiator(Customer *customer, char *order)
 {
     LogDebug("Validating order: %s against %s", order, customer->order);
@@ -1713,6 +1727,7 @@ bool validiator(Customer *customer, char *order)
         return false;
 	}
 }
+
 
 //create customer image at either position 1 2 or 3
 void render_customers(Customers *customers)
@@ -1727,6 +1742,7 @@ void render_customers(Customers *customers)
 
 //Yandere dev inspired programming.
 
+// LOGIC
 void RemoveCustomer(Customer *customer)
 {
 	customer->visible = false;
@@ -1734,7 +1750,7 @@ void RemoveCustomer(Customer *customer)
     customer->orderEnd = 0;
     customer->resetTimer = RandomCustomerResetBasedOnDifficulty();
 }
-
+// LOGIC ?
 void UpdateCustomerState(Customer* customer, float deltaTime) {
 
     customer->currentTime += deltaTime;
@@ -1774,7 +1790,7 @@ void UpdateCustomerState(Customer* customer, float deltaTime) {
 }
 
 
-
+// LOGIC ?
 void Tick(Customers *customers, float deltaTime) {
     UpdateCustomerState(&customers->customer1, deltaTime);
     UpdateCustomerState(&customers->customer2, deltaTime);
@@ -1848,6 +1864,7 @@ void PlaySoundFx(SoundFxType type) {
         PlaySound(flickFx);
     }
 }
+// LOGIC ?
 void WindowUpdate(Camera2D* camera)
 {
     if (IsWindowResized())
@@ -2026,7 +2043,7 @@ void UnloadGlobalAssets()
     UnloadMusicStream(menuBgm);
 }
 
-
+// LOGIC
 void PlayBgm(Music *bgm)
 {
     if (bgm == currentBgm)
@@ -2047,7 +2064,7 @@ void PlayBgm(Music *bgm)
     bgm->looping = true;
     isCurrentBgmPaused = false;
 }
-
+// LOGIC
 void PlayBgmIfStopped(Music* bgm)
 {
     if (bgm == currentBgm)
@@ -2068,7 +2085,7 @@ void PlayBgmIfStopped(Music* bgm)
     bgm->looping = true;
     isCurrentBgmPaused = false;
 }
-
+// LOGIC
 void PauseBgm(Music *bgm)
 {
 	if (bgm != currentBgm) return;
@@ -2078,6 +2095,7 @@ void PauseBgm(Music *bgm)
 	isCurrentBgmPaused = true;
 }
 
+// LOGIC
 void StopBgm(Music *bgm)
 {
 	StopMusicStream(*bgm);
@@ -2609,6 +2627,7 @@ void OptionsUpdate(Camera2D* camera)
     ExitApplication();
 }
 
+// lOGIC
 int RandomCustomerTexture()
 {
     // Seed the random number generator with the current time
@@ -2982,6 +3001,8 @@ void GameUpdate(Camera2D *camera)
 
 }
 
+
+// LOGIC
 void ResetGameState()
 {
     global_score = 0;
