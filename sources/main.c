@@ -23,7 +23,7 @@ const float baseX = -(BASE_SCREEN_WIDTH / 2);
 const float baseY = -(BASE_SCREEN_HEIGHT / 2);
 const float targetAspectRatio = (float)BASE_SCREEN_WIDTH / (float)BASE_SCREEN_HEIGHT;
 const int targetFps = 300;
-const float bgmVolume = 0.1f;
+const float bgmVolume = 0.25f;
 const float gameDuration = 60.0f * 2.0f;
 
 // Debug FPS history
