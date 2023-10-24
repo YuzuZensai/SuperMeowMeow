@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <time.h> 
+#include <string.h>
 
 // Render resolution
 #define BASE_SCREEN_WIDTH 1920
@@ -22,6 +23,8 @@ const float baseX = -(BASE_SCREEN_WIDTH / 2);
 const float baseY = -(BASE_SCREEN_HEIGHT / 2);
 const float targetAspectRatio = (float)BASE_SCREEN_WIDTH / (float)BASE_SCREEN_HEIGHT;
 const int targetFps = 300;
+const float bgmVolume = 0.1f;
+const float gameDuration = 60.0f * 2.0f;
 
 // Debug FPS history
 int DebugFpsHistory[DEBUG_MAX_FPS_HISTORY];
@@ -32,12 +35,12 @@ int DebugFrameTimeHistory[DEBUG_MAX_FPS_HISTORY];
 int DebugFrameTimeHistoryIndex = 0;
 
 // Debug logs history
-typedef struct DebugLog {
+typedef struct DebugLogEntry {
 	int type;
 	char* text;
-} DebugLog;
+} DebugLogEntry;
 
-DebugLog DebugLogs[DEBUG_MAX_LOGS_HISTORY];
+DebugLogEntry DebugLogs[DEBUG_MAX_LOGS_HISTORY];
 int DebugLogsIndex = 0;
 
 // Debug tool toggles states
@@ -50,6 +53,9 @@ typedef struct DebugToolToggles {
 
 DebugToolToggles debugToolToggles = { false, true, false, false };
 
+void LogDebug(const char* text, ...);
+void Log(int msgType, const char* text, ...);
+
 // Runtime resolution
 typedef struct Resolution {
     int x;
@@ -60,7 +66,10 @@ typedef struct Resolution {
 typedef enum {
     EASY,
     MEDIUM,
-    HARD
+    HARD,
+    FREEPLAY_EASY,
+    FREEPLAY_MEDIUM,
+    FREEPLAY_HARD
 } Difficulty;
 
 // Game options
@@ -103,13 +112,64 @@ Texture2D customerTexture_third_normal;
 Texture2D customerTexture_first_angry;
 Texture2D customerTexture_second_angry;
 Texture2D customerTexture_third_angry;
+Texture2D bubbles;
 
 // Font
 Font meowFont;
 
 // Sounds
 Sound selectFx;
-Sound hover;
+Sound hoverFx;
+Sound boongFx;
+
+Sound angry1Fx;
+Sound angry2Fx;
+Sound angry3Fx;
+Sound angry4Fx;
+      
+Sound bottle1Fx;
+Sound bottle2Fx;
+Sound bottle3Fx;
+
+Sound confused1Fx;
+Sound confused2Fx;
+Sound confused3Fx;
+Sound confused4Fx;
+
+Sound correctFx;
+
+Sound drop1Fx;
+Sound drop2Fx;
+Sound drop3Fx;
+
+Sound pickup1Fx;
+Sound pickup2Fx;
+Sound pickup3Fx;
+
+Sound pour1Fx;
+Sound pour2Fx;
+Sound pour3Fx;
+
+Sound stir1Fx;
+Sound stir2Fx;
+Sound stir3Fx;
+
+Sound flickFx;
+
+typedef enum {
+    FX_HOVER,
+    FX_SELECT,
+    FX_ANGRY,
+    FX_BOTTLE,
+    FX_CONFUSED,
+    FX_CORRECT,
+    FX_DROP,
+    FX_PICKUP,
+    FX_POUR,
+    FX_STIR,
+    FX_BOONG,
+    FX_FLICK
+} SoundFxType;
 
 // BGMs
 Music menuBgm;
@@ -117,9 +177,22 @@ Music menuBgm;
 // Menu falling items
 Texture2D menuFallingItemTextures[8];
 
+// Ingredients
+Texture2D teaPowderTexture;
+Texture2D cocoaPowderTexture;
+Texture2D caramelSauceTexture;
+Texture2D chocolateSauceTexture;
+Texture2D condensedMilkTexture;
+Texture2D normalMilkTexture;
+Texture2D marshMellowTexture;
+Texture2D whippedCreamTexture;
+Texture2D hotWaterTexture;
+Texture2D greenChonTexture;
+Texture2D cocoaChonTexture;
+
 static inline char* StringFromDifficultyEnum(Difficulty difficulty)
 {
-    static const char* strings[] = { "Easy", "Medium", "Hard" };
+    static const char* strings[] = { "Easy", "Medium", "Hard", "Freeplay (E)", "Freeplay (M)", "Freeplay (H)" };
     return strings[difficulty];
 }
 
@@ -152,12 +225,12 @@ typedef enum {
 } CustomerEmotion;
 
 // Order
-typedef struct Order { //text-based-combinations
-    char* first;
-    char* second;
-    char* third;
-    char* fourth;
-} Order;
+// typedef struct Order { //text-based-combinations
+//     char* first;
+//     char* second;
+//     char* third;
+//     char* fourth;
+// } Order;
 
 // Customer
 typedef struct Customer {
@@ -169,9 +242,13 @@ typedef struct Customer {
 
     //int patience; //To be removed. 
     bool visible;
-    Order* order;
-    int currentTime;
+    char order[20];
+    double currentTime;
     int orderEnd;
+    Vector2 position;
+    int textureType;
+    bool isDummy;
+    double resetTimer;
 } Customer;
 
 static inline char* StringFromCustomerEmotionEnum(CustomerEmotion emotion)
@@ -180,17 +257,32 @@ static inline char* StringFromCustomerEmotionEnum(CustomerEmotion emotion)
     return strings[emotion];
 }
 
-Customer createCustomer(CustomerEmotion emotion, double blinkTimer, double normalDuration, double blinkDuration, bool visible) {
+double GetRandomDoubleValue(double min, double max)
+{
+    return min + (rand() / (double)RAND_MAX) * (max - min);
+}
+
+void RandomCustomerBlinkTime(Customer* customer) {
+    customer->blinkDuration = GetRandomDoubleValue(0.2, 0.5);
+    customer->normalDuration = GetRandomDoubleValue(2.0, 6.0);
+}
+
+Customer CreateCustomer(CustomerEmotion emotion, double blinkTimer, double normalDuration, double blinkDuration, bool visible, Vector2 position, int textureType, double resetTimer) {
     Customer newCustomer;
+
     newCustomer.emotion = emotion;
     newCustomer.blinkTimer = blinkTimer;
     newCustomer.normalDuration = normalDuration;
     newCustomer.blinkDuration = blinkDuration;
     newCustomer.eyesClosed = false;
     newCustomer.visible = visible;
-    newCustomer.order = NULL;
-    newCustomer.currentTime = NULL;
-    newCustomer.orderEnd = NULL;
+	newCustomer.order[0] = '\0';
+    newCustomer.currentTime = 0;
+    newCustomer.orderEnd = 0;
+    newCustomer.position = position;
+    newCustomer.textureType = textureType;
+    newCustomer.isDummy = false;
+    newCustomer.resetTimer = resetTimer;
 
     return newCustomer;
 }
@@ -243,12 +335,15 @@ typedef struct {
     Texture2D texture;
     Vector2 position;
     Vector2 originalPosition;
+    Rectangle frameRectangle;
     // Add properties to represent cup state
     enum IngredientType powderType;
     bool hasWater;
     enum IngredientType creamerType;
     enum IngredientType toppingType;
     enum IngredientType sauceType;
+    bool active;
+    char* order[20];
 } Cup;
 
 // Drop area
@@ -262,7 +357,7 @@ DropArea plate;
 
 // Original position
 const Vector2 oricupPosition = { 351,109 };
-const Vector2 oriwaterPosition = { 679, 243 };
+const Vector2 oriwaterPosition = { 600, 210 };
 
 const Vector2 oricaramelPosition = { -770,108 };
 const Vector2 orichocolatePosition = { -904,138 };
@@ -272,28 +367,51 @@ const Vector2 oriplatePosition = { -175,300 };
 const Vector2 oriplateCupPosition = { -28, 300 };
 const Vector2 oricondensedmilkPosition = { 283,316 };
 const Vector2 orimilkPosition = { 160,342 };
-const Vector2 orimarshmellowPosition = { -394,424 };
-const Vector2 oriwhippedPosition = { -277,391 };
-const Vector2 oricupsPostion = { 432,97 };
+const Vector2 orimarshmellowPosition = { -481,320 };
+const Vector2 oriwhippedPosition = { -644,320 };
+const Vector2 oricupsPostion = { 390,80 };
 const Vector2 hiddenPosition = { -3000, -3000 };
 
-Texture2D* DragAndDropCup(Cup* cup, const DropArea* dropArea, Camera2D* camera) {
+static int global_score = 0;
+
+bool triggerHotWater = false;
+double boilingTime = 2.5;
+double lastBoongBoongBoongTime = 0;
+bool dragAndDropLocked = false;
+
+void UnloadGlobalAssets();
+void ExitApplication()
+{
+    UnloadGlobalAssets();
+    exit(0);
+}
+
+void boilWater(Ingredient* item) {
+    if (!item->canChangeCupTexture) {
+        triggerHotWater = true;
+        boilingTime = GetTime();
+    }
+}
+
+void PlaySoundFx(SoundFxType type);
+void RemoveCustomer(Customer* customer);
+bool validiator(Customer* customer, char* order);
+Texture2D* DragAndDropCup(Cup* cup, const DropArea* dropArea, Camera2D* camera, Customers *customers)
+{
     static bool isObjectBeingDragged = false;
     static Texture2D* current_dragging = NULL;
     static float offsetX = 0;
     static float offsetY = 0;
 
-    Rectangle objectBounds = { cup->position.x, cup->position.y, (float)cup->texture.width, (float)cup->texture.height };
+    Rectangle objectBounds = { cup->position.x, cup->position.y, (float)cup->frameRectangle.width, (float)cup->frameRectangle.height };
     Rectangle dropBounds = { dropArea->position.x, dropArea->position.y, (float)dropArea->texture.width, (float)dropArea->texture.height };
 
     if (IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {
-        // printf("MOUSE DOWN");
         Vector2 mousePos = GetScreenToWorld2D(GetMousePosition(), *camera);
-        if (CheckCollisionPointRec(mousePos, objectBounds) && (current_dragging == NULL || current_dragging == &cup->texture)) {
-            // printf("SEND HELP");
+        if (cup->active && CheckCollisionPointRec(mousePos, objectBounds) && (current_dragging == NULL || current_dragging == &cup->texture)) {
             isObjectBeingDragged = true;
-            offsetX = cup->texture.width / 2;
-            offsetY = cup->texture.height / 2;
+            offsetX = cup->frameRectangle.width / 2;
+            offsetY = cup->frameRectangle.height / 2;
             float mouseX = mousePos.x;
             float mouseY = mousePos.y;
 
@@ -302,62 +420,115 @@ Texture2D* DragAndDropCup(Cup* cup, const DropArea* dropArea, Camera2D* camera) 
             current_dragging = &cup->texture;
             return &cup->texture;
         }
+        // If being drag from cups, then change the cup position to the cursor
+        else if (!cup->active && CheckCollisionPointRec(mousePos, (Rectangle) { oricupsPostion.x, oricupsPostion.y, cup->texture.width, cup->texture.height })) {
+			// Reset cup state            
+            isObjectBeingDragged = true;
+			offsetX = cup->texture.width / 2;
+			offsetY = cup->texture.height / 2;
+			float mouseX = mousePos.x;
+			float mouseY = mousePos.y;
+
+			cup->position.x = mouseX - offsetX;
+			cup->position.y = mouseY - offsetY;
+            cup->texture = LoadTexture(ASSETS_PATH"combination/EMPTY.png");
+			current_dragging = &cup->texture;
+            cup->powderType = NONE;
+            cup->creamerType = NONE;
+            cup->toppingType = NONE;
+            cup->sauceType = NONE;
+            cup->hasWater = false;
+            cup->active = true;
+			return &cup->texture;
+		}
+
     }
 
     if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
         isObjectBeingDragged = false;
         current_dragging = NULL;
+        Vector2 mousePos = GetScreenToWorld2D(GetMousePosition(), *camera);
 
-        if (CheckCollisionRecs(objectBounds, dropBounds)) {
+        Customer* customerToCheck[3] = { &customers->customer1, &customers->customer2, &customers->customer3, };
+
+        
+        Rectangle cupRect = { cup->position.x, cup->position.y, cup->frameRectangle.width, cup->frameRectangle.height };
+
+        // Only check if world mouse position is more than y= 15
+        if (mousePos.y <= 15 && cup->active)
+        {
+            // If cup is being given to customers
+            for (int i = 0; i < 3; i++) {
+                // If customer is visible
+                if (customerToCheck[i]->visible) {
+                    // If cup is being given to customer
+
+                    Rectangle customerRect = { customerToCheck[i]->position.x, customerToCheck[i]->position.y, customersImageData[i].happy.width / 2, customersImageData[i].happy.height / 2 };
+
+                if (cupRect.x >= customerRect.x &&
+                    cupRect.y >= customerRect.y &&
+                    (cupRect.x + cupRect.width) <= (customerRect.x + customerRect.width) &&
+                    (cupRect.y + cupRect.height) <= (customerRect.y + customerRect.height))
+                {
+                        bool correct = validiator(customerToCheck[i], cup->order);
+                        if (correct)
+                        {
+                            global_score += 50;
+                            PlaySoundFx(FX_CORRECT);
+
+                            customerToCheck[i]->visible = false;
+                            RemoveCustomer(customerToCheck[i]);
+                        }
+                        else
+                        {
+                            global_score -= 50;
+                            PlaySoundFx(FX_CONFUSED);
+                        }
+
+                        // Reset cup state
+                        cup->texture = LoadTexture(ASSETS_PATH"combination/EMPTY.png");
+                        cup->powderType = NONE;
+                        cup->creamerType = NONE;
+                        cup->toppingType = NONE;
+                        cup->sauceType = NONE;
+                        cup->hasWater = false;
+                        cup->active = false;
+                        return &cup->texture;
+                    }
+                }
+            }
+        }
+
+
+        // Return cup to the drop area if it is not inside the drop area
+        int offset_x = 10;
+        int offset_y = -40;
+
+        cup->position.x = dropArea->position.x + offset_x + dropArea->texture.width / 2 - cup->frameRectangle.width / 2;
+        cup->position.y = dropArea->position.y + offset_y + dropArea->texture.height / 2 - cup->frameRectangle.height / 2;
+
+        //if (CheckCollisionRecs(objectBounds, dropBounds)) {
             // center of cup to center of drop area
-            int offset_x = 10;
-            int offset_y = -40;
-            
-            cup->position.x = dropArea->position.x + offset_x + dropArea->texture.width / 2 - cup->texture.width / 2;
-            cup->position.y = dropArea->position.y + offset_y + dropArea->texture.height / 2 - cup->texture.height / 2;
-        }
-        else {
-            cup->position.x = cup->originalPosition.x;
-            cup->position.y = cup->originalPosition.y;
-        }
+       
+       // }
+       //else {
+            //cup->position.x = cup->originalPosition.x;
+            //cup->position.y = cup->originalPosition.y;
+       // }
+
     }
 
-    return NULL;
+    // Apply drag-and-drop with time-dependent positioning
+    if (isObjectBeingDragged) {
+        Vector2 mousePos = GetScreenToWorld2D(GetMousePosition(), *camera);
+        cup->position.x = mousePos.x - offsetX;
+        cup->position.y = mousePos.y - offsetY;
+    }
 
-}
-
-void UpdateCup(Cup* cup, Ingredient* ingredient) {
-    // Check what type of ingredient it is and update the cup accordingly
-    if (ingredient == &teaPowder && cup->powderType == NONE) {
-        cup->powderType = GREEN_TEA;
-    }
-    else if (ingredient == &cocoaPowder && cup->powderType == NONE) {
-        cup->powderType = COCOA;
-    }
-    else if (ingredient == &hotWater && cup->powderType != NONE) {
-        cup->hasWater = true;
-    }
-    else if (ingredient == &condensedMilk && cup->hasWater == true) {
-        cup->creamerType = CONDENSED_MILK;
-    }
-    else if (ingredient == &normalMilk && cup->hasWater == true) {
-        cup->creamerType = MILK;
-    }
-    else if (ingredient == &marshMellow && cup->creamerType != NONE) {
-        cup->toppingType = MARSHMELLOW;
-    }
-    else if (ingredient == &whippedCream && cup->creamerType != NONE) {
-        cup->toppingType = WHIPPED_CREAM;
-    }
-    else if (ingredient == &caramelSauce && cup->toppingType != NONE) {
-        cup->sauceType = CARAMEL;
-    }
-    else if (ingredient == &chocolateSauce && cup->toppingType != NONE) {
-        cup->sauceType = CHOCOLATE;
-    }
-    else if (ingredient == &hotWater) {
-        cup->hasWater = true;
-    }
+    if(current_dragging)
+        return current_dragging;
+    else
+        return NULL;
 
 }
 
@@ -394,12 +565,11 @@ void UpdateCupImage(Cup* cup, Ingredient* ingredient) {
     // -Caramel: CA
     // -Chocolate: CH
 
+    LogDebug("update CUP IMAGE \n");
     char filename[100];
 
     // Initialize filename to empty string
     strcpy(filename, "");
-
-    UpdateCup(cup, ingredient);
 
     switch (cup->powderType)
     {
@@ -473,42 +643,96 @@ void UpdateCupImage(Cup* cup, Ingredient* ingredient) {
     if (strcmp(filename, "") == 0) {
         strcat(filename, "EMPTY");
     }
+
+    // Save filename to cup->order
+    strcpy(cup->order, filename);
+
     strcat(filename, ".png");
     char path[1000];
     strcpy(path, ASSETS_PATH"combination/");
     strcat(path, filename);
     // set cup texture to the filename
-    printf("Powder type: %d, Water: %d, Creamer: %d, Topping: %d, Sauce: %d\n", cup->powderType, cup->hasWater, cup->creamerType, cup->toppingType, cup->sauceType);
-    printf("NEW CUP IMAGE IS %s\n", path);
+    LogDebug("Powder type: %d, Water: %d, Creamer: %d, Topping: %d, Sauce: %d\n", cup->powderType, cup->hasWater, cup->creamerType, cup->toppingType, cup->sauceType);
+    LogDebug("NEW CUP IMAGE IS %s\n", path);
+
     cup->texture = LoadTexture(path);
 }
 
-Texture2D* DragAndDropIngredient(Ingredient* object, const DropArea* dropArea, Cup* cup, Camera2D* camera) {
+void UpdateCup(Cup* cup, Ingredient* ingredient) {
+    // If cup is not active, return
+    if (!cup->active) return;
+
+    // Check what type of ingredient it is and update the cup accordingly
+    if (ingredient == &teaPowder && cup->powderType == NONE) {
+        cup->powderType = GREEN_TEA;
+    }
+    else if (ingredient == &cocoaPowder && cup->powderType == NONE) {
+        cup->powderType = COCOA;
+    }
+    else if (ingredient == &hotWater && cup->powderType != NONE) {
+        cup->hasWater = true;
+
+        PlaySoundFx(FX_POUR);
+        PlaySoundFx(FX_STIR);
+    }
+    else if (ingredient == &condensedMilk && cup->hasWater == true && cup->creamerType == NONE) {
+        cup->creamerType = CONDENSED_MILK;
+    }
+    else if (ingredient == &normalMilk && cup->hasWater == true && cup->creamerType == NONE) {
+        cup->creamerType = MILK;
+        PlaySoundFx(FX_POUR);
+    }
+    else if (ingredient == &marshMellow && cup->creamerType != NONE && cup->toppingType == NONE) {
+        cup->toppingType = MARSHMELLOW;
+    }
+    else if (ingredient == &whippedCream && cup->creamerType != NONE && cup->toppingType == NONE) {
+        cup->toppingType = WHIPPED_CREAM;
+    }
+    else if (ingredient == &caramelSauce && cup->toppingType != NONE && cup->sauceType == NONE) {
+        cup->sauceType = CARAMEL;
+        PlaySoundFx(FX_BOTTLE);
+    }
+    else if (ingredient == &chocolateSauce && cup->toppingType != NONE && cup->sauceType == NONE) {
+        cup->sauceType = CHOCOLATE;
+        PlaySoundFx(FX_BOTTLE);
+    }
+
+    UpdateCupImage(cup, ingredient);
+
+}
+
+Texture2D* DragAndDropIngredient(Ingredient* object, Cup* cup, Camera2D* camera) {
     static bool isObjectBeingDragged = false;
     static Texture2D* current_dragging = NULL;
     static float offsetX = 0;
     static float offsetY = 0;
 
-
     Rectangle objectBounds = { object->position.x, object->position.y, (float)object->frameRectangle.width, (float)object->frameRectangle.height };
-    Rectangle dropBounds = { dropArea->position.x, dropArea->position.y, (float)dropArea->texture.width, (float)dropArea->texture.height };
-
+    Rectangle cupBounds = { cup->position.x, cup->position.y, (float)cup->texture.width, (float)cup->texture.height };
 
     if (IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {
-        // printf("MOUSE DOWN");
         Vector2 mousePos = GetScreenToWorld2D(GetMousePosition(), *camera);
         if (CheckCollisionPointRec(mousePos, objectBounds) && (current_dragging == NULL || current_dragging == &object->texture)) {
-            // printf("SEND HELP");
-            isObjectBeingDragged = true;
-            offsetX = object->frameRectangle.width / 2;
-            offsetY = object->frameRectangle.height / 2;
-            float mouseX = mousePos.x;
-            float mouseY = mousePos.y;
 
-            object->position.x = mouseX - offsetX;
-            object->position.y = mouseY - offsetY;
-            current_dragging = &object->texture;
-            return &object->texture;
+            if (object == &hotWater && object->canChangeCupTexture == false) {
+                object->canChangeCupTexture = false;
+                PlaySoundFx(FX_FLICK);
+                boilWater(object);
+            }
+
+            else
+            {
+                isObjectBeingDragged = true;
+                offsetX = object->frameRectangle.width / 2;
+                offsetY = object->frameRectangle.height / 2;
+                float mouseX = mousePos.x;
+                float mouseY = mousePos.y;
+
+                object->position.x = mouseX - offsetX;
+                object->position.y = mouseY - offsetY;
+                current_dragging = &object->texture;
+                return &object->texture;
+            }
         }
     }
 
@@ -516,9 +740,16 @@ Texture2D* DragAndDropIngredient(Ingredient* object, const DropArea* dropArea, C
         isObjectBeingDragged = false;
         current_dragging = NULL;
 
-        if (CheckCollisionRecs(objectBounds, dropBounds)) {
+        if (CheckCollisionRecs(objectBounds, cupBounds)) {
             if (object->canChangeCupTexture) {
-                UpdateCupImage(cup,object);
+
+                if (object == &hotWater && cup->powderType != NONE) {
+                    triggerHotWater = false;
+                    object->canChangeCupTexture = false;
+                    object->currentFrame = 1;
+                }
+
+                UpdateCup(cup,object);
 
                 object->position.x = object->originalPosition.x;
                 object->position.y = object->originalPosition.y;
@@ -531,10 +762,20 @@ Texture2D* DragAndDropIngredient(Ingredient* object, const DropArea* dropArea, C
         }
     }
 
-    return NULL;
+    // Apply drag-and-drop with time-dependent positioning
+    if (isObjectBeingDragged) {
+        Vector2 mousePos = GetScreenToWorld2D(GetMousePosition(), *camera);
+        object->position.x = mousePos.x - offsetX;
+        object->position.y = mousePos.y - offsetY;
+    }
+
+    if(current_dragging)
+        return current_dragging;
+	else
+        return NULL;
 }
 
-Texture2D* DragAndDropIngredientPop(Ingredient* object, Ingredient* popObject, const DropArea* dropArea, Cup* cup, Camera2D* camera) {
+Texture2D* DragAndDropIngredientPop(Ingredient* object, Ingredient* popObject, Cup* cup, Camera2D* camera) {
     static bool isObjectBeingDragged = false;
     static Texture2D* current_dragging = NULL;
     static float offsetX = 0;
@@ -543,14 +784,11 @@ Texture2D* DragAndDropIngredientPop(Ingredient* object, Ingredient* popObject, c
 
     Rectangle objectBounds = { object->position.x, object->position.y, (float)object->frameRectangle.width, (float)object->frameRectangle.height };
     Rectangle popObjectBounds = { popObject->position.x, popObject->position.y, (float)popObject->frameRectangle.width, (float)popObject->frameRectangle.height };
-    Rectangle dropBounds = { dropArea->position.x, dropArea->position.y, (float)dropArea->texture.width, (float)dropArea->texture.height };
-
+    Rectangle cupBounds = { cup->position.x, cup->position.y, (float)cup->texture.width, (float)cup->texture.height };
 
     if (IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {
-        // printf("MOUSE DOWN");
         Vector2 mousePos = GetScreenToWorld2D(GetMousePosition(), *camera);
         if ((CheckCollisionPointRec(mousePos, objectBounds) || CheckCollisionPointRec(mousePos, popObjectBounds)) && (current_dragging == NULL || current_dragging == &object->texture)) {
-            // printf("SEND HELP");
             isObjectBeingDragged = true;
             offsetX = popObject->frameRectangle.width / 2;
             offsetY = popObject->frameRectangle.height / 2;
@@ -568,9 +806,9 @@ Texture2D* DragAndDropIngredientPop(Ingredient* object, Ingredient* popObject, c
         isObjectBeingDragged = false;
         current_dragging = NULL;
 
-        if (CheckCollisionRecs(objectBounds, dropBounds)) {
+        if (CheckCollisionRecs(popObjectBounds, cupBounds)) {
             if (object->canChangeCupTexture) {
-                UpdateCupImage(cup,object);
+                UpdateCup(cup,object);
                 popObject->position.x = popObject->originalPosition.x;
                 popObject->position.y = popObject->originalPosition.y;
             }
@@ -582,7 +820,17 @@ Texture2D* DragAndDropIngredientPop(Ingredient* object, Ingredient* popObject, c
         }
     }
 
-    return NULL;
+    // Apply drag-and-drop with time-dependent positioning
+    if (isObjectBeingDragged) {
+        Vector2 mousePos = GetScreenToWorld2D(GetMousePosition(), *camera);
+        popObject->position.x = mousePos.x - offsetX;
+        popObject->position.y = mousePos.y - offsetY;
+    }
+
+    if(current_dragging)
+	    return current_dragging;
+    else
+        return NULL;
 }
 
 Rectangle frameRect(Ingredient i, int frameNum, int frameToShow) {
@@ -591,10 +839,38 @@ Rectangle frameRect(Ingredient i, int frameNum, int frameToShow) {
     return frameRect;
 }
 
+Rectangle frameRectCup(Cup i, int frameNum, int frameToShow) {
+    int frameWidth = i.texture.width / frameNum;
+    Rectangle frameRect = { frameWidth * (frameToShow - 1), 0, frameWidth, i.texture.height };
+    return frameRect;
+}
+
+void tickBoil(Ingredient* boiler) {
+
+    if (triggerHotWater) {
+        if (boilingTime + 3 > GetTime()) {
+            boiler->currentFrame = boiler->totalFrames;
+            return;
+        }
+        if (lastBoongBoongBoongTime + 0.5 < GetTime()) {
+            StopSound(boongFx);
+            PlaySoundFx(FX_BOONG);
+            boiler->canChangeCupTexture = true;
+            lastBoongBoongBoongTime = GetTime();
+            int nextFrame = boiler->currentFrame + 2;
+            if (nextFrame > boiler->totalFrames) {
+                nextFrame = 1;
+            }
+            boiler->currentFrame = nextFrame;
+        }
+    }
+}
+
+
 bool highlightItem(Ingredient* item, Camera2D* camera) {
     Vector2 mousePos = GetScreenToWorld2D(GetMousePosition(), *camera);
     static bool isHovering;
-    if (CheckCollisionPointRec(mousePos, (Rectangle) { item->position.x, item->position.y, item->frameRectangle.width, item->frameRectangle.height }) && item->totalFrames > 1) {
+    if (CheckCollisionPointRec(mousePos, (Rectangle) { item->position.x, item->position.y, item->frameRectangle.width, item->frameRectangle.height }) && item->totalFrames > item->currentFrame) {
         item->frameRectangle = frameRect(*item, item->totalFrames, item->currentFrame + 1);
         return true;
     }
@@ -607,6 +883,7 @@ bool highlightItem(Ingredient* item, Camera2D* camera) {
 // Function prototype
 void MainMenuUpdate(Camera2D* camera, bool playFade);
 void OptionsUpdate(Camera2D* camera);
+void endgameUpdate(Camera2D* camera);
 
 // Menu customers
 Customer menuCustomer1;
@@ -674,6 +951,22 @@ void CustomLogger(int msgType, const char* text, va_list args)
     printf("%s\n", logMessage);
 }
 
+void LogDebug(const char* text, ...)
+{
+    va_list args;
+    va_start(args, text);
+    CustomLogger(LOG_DEBUG, text, args);
+    va_end(args);
+}
+
+void Log(int msgType, const char* text, ...)
+{
+    va_list args;
+    va_start(args, text);
+    CustomLogger(msgType, text, args);
+    va_end(args);
+}
+
 Color GetTextColorFromLogType(TraceLogLevel level)
 {
 	switch (level)
@@ -686,12 +979,6 @@ Color GetTextColorFromLogType(TraceLogLevel level)
 	default: return WHITE;
 	}
 }
-
-double GetRandomDoubleValue(double min, double max)
-{
-    return min + (rand() / (double)RAND_MAX) * (max - min);
-}
-
 
 void DrawDragableItemFrame(Ingredient i) {
     DrawTextureRec(i.texture, i.frameRectangle, i.position, RAYWHITE);
@@ -742,7 +1029,7 @@ void DrawMenuFallingItems(double deltaTime, bool behide)
             DrawLineEx(corners[3], corners[0], 1, RED);
 
             DrawRectangle(item->position.x, item->position.y, 550, 20, Fade(GRAY, 0.7));
-            DrawTextEx(meowFont, TextFormat("%d | XY %.2f,%.2f | R %.2f | G %.2f | Behide %s", i, item->position.x, item->position.y, item->rotation, item->fallingSpeed, behide ? "Yes": "No"), (Vector2) { item->position.x, item->position.y }, 20, 1, WHITE);
+            DrawTextEx(meowFont, TextFormat("%d | XY %.2f,%.2f | R %.2f | G %.2f | Behide %s", i, item->position.x, item->position.y, item->rotation, item->fallingSpeed, behide ? "[Yes]" : "[No]"), (Vector2) { item->position.x, item->position.y }, 20, 1, WHITE);
         }
 
         if (item->position.y > baseY + BASE_SCREEN_HEIGHT + 1000) {
@@ -761,30 +1048,203 @@ void DrawMenuFallingItems(double deltaTime, bool behide)
     }
 }
 
-void DrawCustomer(Customer* customer, int frame, Vector2 pos)
+double RandomCustomerTimeoutBasedOnDifficulty()
 {
+    switch (options->difficulty)
+    {
+    case FREEPLAY_EASY:
+    case EASY:
+        return GetRandomDoubleValue(80, 150);
+        break;
+    case FREEPLAY_MEDIUM:
+    case MEDIUM:
+        return GetRandomDoubleValue(40, 60);
+        break;
+    case FREEPLAY_HARD:
+    case HARD:
+        return GetRandomDoubleValue(20, 40);
+        break;
+    default:
+        return GetRandomDoubleValue(80, 150);
+        break;
+    }
+}
+
+void RandomCustomerInitialResetBasedOnDifficulty(double *values) {
+
+    switch (options->difficulty)
+	{
+        case FREEPLAY_EASY:
+        case EASY:
+        	values[0] = GetRandomDoubleValue(4, 6);
+        	values[1] = GetRandomDoubleValue(5, 15);
+        	values[2] = GetRandomDoubleValue(10, 25);
+        	break;
+        case FREEPLAY_MEDIUM:
+        case MEDIUM:
+        	values[0] = GetRandomDoubleValue(2, 6);
+        	values[1] = GetRandomDoubleValue(4, 10);
+        	values[2] = GetRandomDoubleValue(12, 20);
+        	break;
+        case FREEPLAY_HARD:
+        case HARD:
+        	values[0] = GetRandomDoubleValue(2, 4);
+        	values[1] = GetRandomDoubleValue(3, 6);
+        	values[2] = GetRandomDoubleValue(6, 10);
+        	break;
+        default:
+            values[0] = GetRandomDoubleValue(4, 6);
+            values[1] = GetRandomDoubleValue(5, 15);
+            values[2] = GetRandomDoubleValue(10, 25);
+        	break;
+    }
+
+
+}
+
+
+double RandomCustomerResetBasedOnDifficulty()
+{
+    switch (options->difficulty)
+    {
+    case FREEPLAY_EASY:
+    case EASY:
+        return GetRandomDoubleValue(30, 50);
+        break;
+    case FREEPLAY_MEDIUM:
+    case MEDIUM:
+        return GetRandomDoubleValue(15, 30);
+        break;
+    case FREEPLAY_HARD:
+    case HARD:
+        return GetRandomDoubleValue(1, 10);
+        break;
+    default:
+        return GetRandomDoubleValue(30, 50);
+        break;
+    }
+}
+
+void RandomGenerateOrder(char *order)
+{
+    int random = GetRandomValue(0, 2);
+    order[0] = '\0'; // Initialize the string
+
+    //base case, either CP or GP
+    if (GetRandomValue(0, 1))
+        strcat(order, "CP");
+    else
+        strcat(order, "GP");
+
+    strcat(order, "Y");
+
+    // Very very small chance just to order tea without any creamer lol
+    if (GetRandomValue(0, 100) == 0)
+		return;
+
+    // another base case, either CM or MI
+    if (GetRandomValue(0, 1))
+        strcat(order, "CM");
+    else
+        strcat(order, "MI");
+
+    bool hasTopping = false;
+    if (random >= 1)
+    {
+        if (GetRandomValue(0, 1))
+        {
+            hasTopping = true;
+            if (GetRandomValue(0, 1))
+                strcat(order, "MA");
+            else
+                strcat(order, "WC");
+        }
+    }
+    if (hasTopping && random >= 2)
+    {
+        if (GetRandomValue(0, 1))
+        {
+            if (GetRandomValue(0, 1))
+                strcat(order, "CA");
+            else
+                strcat(order, "CH");
+        }
+    }
+    // Log the order
+    LogDebug(TextFormat("New order: %s", order));
+}
+
+
+void DrawCustomer(Customer* customer)
+{
+    Vector2 pos = customer->position;
+    int frame = customer->textureType;
+
+    if (customer == NULL) return;
+
+    if (customer->visible)
+    {
+
+        switch (customer->emotion)
+        {
+        case EMOTION_HAPPY:
+            DrawTextureEx(!customer->eyesClosed ? customersImageData[frame].happy : customersImageData[frame].happyEyesClosed, pos, 0.0f, 1.0f / 2.0f, WHITE);
+            break;
+        case EMOTION_FRUSTRATED:
+            DrawTextureEx(!customer->eyesClosed ? customersImageData[frame].frustrated : customersImageData[frame].frustratedEyesClosed, pos, 0.0f, 1.0f / 2.0f, WHITE);
+            break;
+        case EMOTION_ANGRY:
+            DrawTextureEx(!customer->eyesClosed ? customersImageData[frame].angry : customersImageData[frame].angryEyesClosed, pos, 0.0f, 1.0f / 2.0f, WHITE);
+            break;
+        default:
+            break;
+        }
+
+    }
+
+    if (customer->visible && !customer->isDummy)
+    {
+        DrawTextureEx(bubbles, (Vector2) { pos.x + 350, pos.y + 100 }, 0.0f, 1.0f / 2.0f, WHITE);
+
+        if (strstr(customer->order, "CPY") != NULL)
+            DrawTextureEx(cocoaChon.texture, (Vector2) { pos.x + 375, pos.y + 100 }, 0.0f, 1.0f / 2.0f, WHITE);
+        else if (strstr(customer->order, "GPY") != NULL)
+            DrawTextureEx(greenChon.texture, (Vector2) { pos.x + 375, pos.y + 100 }, 0.0f, 1.0f / 2.0f, WHITE);
+
+        if (strstr(customer->order, "CM") != NULL)
+            // DrawTextureEx(condensedMilk.texture, (Vector2) {pos.x + 425, pos.y + 100}, 0.0f, 1.0f / 2.0f, WHITE);
+            DrawTextureRec(condensedMilk.texture, condensedMilk.frameRectangle, (Vector2) { pos.x + 425, pos.y + 100 }, RAYWHITE);
+        else if (strstr(customer->order, "MI") != NULL)
+            // DrawTextureEx(normalMilk.texture, (Vector2) {pos.x + 425, pos.y + 100}, 0.0f, 1.0f / 2.0f, WHITE);
+            DrawTextureRec(normalMilk.texture, normalMilk.frameRectangle, (Vector2) { pos.x + 425, pos.y + 100 }, RAYWHITE);
+
+        if (strstr(customer->order, "MA") != NULL)
+            // DrawTextureEx(marshMellow.texture, (Vector2) {pos.x + 375, pos.y + 150}, 0.0f, 1.0f / 2.0f, WHITE);
+            DrawTextureRec(marshMellow.texture, marshMellow.frameRectangle, (Vector2) { pos.x + 375, pos.y + 150 }, RAYWHITE);
+        else if (strstr(customer->order, "WC") != NULL)
+            // DrawTextureEx(whippedCream.texture, (Vector2) {pos.x + 375, pos.y + 150}, 0.0f, 1.0f / 2.0f, WHITE);
+            DrawTextureRec(whippedCream.texture, whippedCream.frameRectangle, (Vector2) { pos.x + 375, pos.y + 150 }, RAYWHITE);
+
+        if (strstr(customer->order, "CA") != NULL)
+            // DrawTextureEx(caramelSauce.texture, (Vector2) {pos.x + 425, pos.y + 150}, 0.0f, 1.0f / 2.0f, WHITE);
+            DrawTextureRec(caramelSauce.texture, caramelSauce.frameRectangle, (Vector2) { pos.x + 425, pos.y + 150 }, RAYWHITE);
+        else if (strstr(customer->order, "CH") != NULL)
+            // DrawTextureEx(chocolateSauce.texture, (Vector2) {pos.x + 425, pos.y + 150}, 0.0f, 1.0f / 2.0f, WHITE);
+            DrawTextureRec(chocolateSauce.texture, chocolateSauce.frameRectangle, (Vector2) { pos.x + 425, pos.y + 150 }, RAYWHITE);
+    }
+
     if (options->showDebug && debugToolToggles.showObjects)
     {
         DrawRectangleLinesEx((Rectangle) { pos.x, pos.y, customersImageData[frame].happy.width / 2, customersImageData[frame].happy.height / 2 }, 1, RED);
-        DrawRectangle(pos.x, pos.y - 20, 500, 20, Fade(GRAY, 0.7));
+        DrawRectangle(pos.x, pos.y - 20, 500, 60, Fade(GRAY, 0.7));
         DrawTextEx(meowFont, TextFormat("%s | Blink %s (%.2f) %.2f/%.2f", StringFromCustomerEmotionEnum(customer->emotion), customer->eyesClosed ? "[Yes]" : "[No]", customer->blinkDuration, customer->blinkTimer, customer->normalDuration), (Vector2) { pos.x, pos.y - 20 }, 20, 1, WHITE);
+        if (customer->visible)
+            DrawTextEx(meowFont, TextFormat("Timeout %.2f/%.2f", (float)customer->currentTime, (float)customer->orderEnd), (Vector2) { pos.x, pos.y }, 20, 1, WHITE);
+        else
+            DrawTextEx(meowFont, TextFormat("Reset %.2f/%.2f", (float)customer->currentTime, (float)customer->resetTimer), (Vector2) { pos.x, pos.y }, 20, 1, WHITE);
+        DrawTextEx(meowFont, TextFormat("Visible %s | Order %s", customer->visible ? "[Yes]" : "[No]", customer->order), (Vector2) { pos.x, pos.y + 20 }, 20, 1, WHITE);
     }
-    if (!customer->visible) return;
 
-    switch (customer->emotion)
-    {
-    case EMOTION_HAPPY:
-        DrawTextureEx(!customer->eyesClosed ? customersImageData[frame].happy : customersImageData[frame].happyEyesClosed, pos, 0.0f, 1.0f / 2.0f, WHITE);
-        break;
-    case EMOTION_FRUSTRATED:
-        DrawTextureEx(!customer->eyesClosed ? customersImageData[frame].frustrated : customersImageData[frame].frustratedEyesClosed, pos, 0.0f, 1.0f / 2.0f, WHITE);
-        break;
-    case EMOTION_ANGRY:
-        DrawTextureEx(!customer->eyesClosed ? customersImageData[frame].angry : customersImageData[frame].angryEyesClosed, pos, 0.0f, 1.0f / 2.0f, WHITE);
-        break;
-    default:
-        break;
-    }
 }
 
 void UpdateMenuCustomerBlink(Customer* customer, double deltaTime) {
@@ -807,26 +1267,29 @@ void DrawCustomerInMenu(double deltaTime) {
     // Update customer emotions according to difficulty
     switch (options->difficulty)
     {
+        case FREEPLAY_EASY:
         case EASY:
             menuCustomer1.emotion = EMOTION_HAPPY;
             menuCustomer2.emotion = EMOTION_HAPPY;
             break;
+        case FREEPLAY_MEDIUM:
         case MEDIUM:
             menuCustomer1.emotion = EMOTION_FRUSTRATED;
             menuCustomer2.emotion = EMOTION_FRUSTRATED;
             break;
+        case FREEPLAY_HARD:
         case HARD:
             menuCustomer1.emotion = EMOTION_ANGRY;
             menuCustomer2.emotion = EMOTION_ANGRY;
+            break;
             break;
         default:
             menuCustomer1.emotion = EMOTION_HAPPY;
             menuCustomer2.emotion = EMOTION_HAPPY;
             break;
-            break;
     }
-    DrawCustomer(&menuCustomer1, 1, (Vector2) { baseX + 650, baseY + 55 });
-    DrawCustomer(&menuCustomer2, 2, (Vector2) { baseX + 1200, baseY + 52 });
+    DrawCustomer(&menuCustomer1);
+    DrawCustomer(&menuCustomer2);
 }
 
 void DrawOuterWorld()
@@ -1013,7 +1476,7 @@ void DrawDebugStats(Camera2D* camera)
     Vector2 mousePosition = GetMousePosition();
     Vector2 mouseWorldPos = GetScreenToWorld2D(mousePosition, *camera);
 
-    DrawTextEx(meowFont, TextFormat("%d FPS | Target FPS %d | Window (%dx%d) | Render (%dx%d) | Fullscreen ", fps, options->targetFps, options->resolution.x, options->resolution.y, BASE_SCREEN_WIDTH, BASE_SCREEN_HEIGHT, options->fullscreen ? "Yes" : "No"), (Vector2) { baseX + 10, baseY + 5 }, 20, 2, color);
+    DrawTextEx(meowFont, TextFormat("%d FPS | Target FPS %d | Window (%dx%d) | Render (%dx%d) | Fullscreen ", fps, options->targetFps, options->resolution.x, options->resolution.y, BASE_SCREEN_WIDTH, BASE_SCREEN_HEIGHT, options->fullscreen ? "[Yes]" : "[No]"), (Vector2) { baseX + 10, baseY + 5 }, 20, 2, color);
     DrawTextEx(meowFont, TextFormat("Cursor %.2f,%.2f (%dx%d) | World %.2f,%.2f (%dx%d) | R Base World %.2f,%.2f", mousePosition.x, mousePosition.y, options->resolution.x, options->resolution.y, mouseWorldPos.x, mouseWorldPos.y, BASE_SCREEN_WIDTH, BASE_SCREEN_HEIGHT, mouseWorldPos.x - baseX, mouseWorldPos.y - baseY), (Vector2) { baseX + 10, baseY + 25 }, 20, 2, WHITE);
     DrawTextEx(meowFont, TextFormat("Zoom %.2f | In View %s", camera->zoom, IsMousePositionInGameWindow(camera) ? "[Yes]" : "[No]"), (Vector2) { baseX + 10, baseY + 45 }, 20, 2, WHITE);
 }
@@ -1066,59 +1529,54 @@ void DrawDebugOverlay(Camera2D *camera)
 
 }
 
-/* Definitions of branch customers */
+Customer CreateCustomerWithOrder(int patience, double currentTime, int orderEnd, Vector2 pos, int textureType, double resetTimer) {
+    Customer newCustomer = CreateCustomer(EMOTION_HAPPY, 0, 0, 0.25, true, pos, textureType, resetTimer);
+    RandomCustomerBlinkTime(&newCustomer);
 
-// TO BE DESTROYED
-#define PLACEHOLDER_ORDER "PLACEHOLDER_ORDER"
-static int placeholder_static = 1;
-static int global_score = 0;
-
-void create_customer(Customer *customer, int patience, Order order, int currentTime, int orderEnd) {
-    Customer newCustomer = createCustomer(EMOTION_HAPPY, 2.0, 4.0, 0.25, true);
-    *customer = newCustomer;
-	customer->visible = true;
-	customer->order = &order;
-	customer->currentTime = currentTime;
-	customer->orderEnd = orderEnd * patience;
+    newCustomer.currentTime = currentTime;
+    newCustomer.orderEnd = orderEnd * patience;
+	strcpy(newCustomer.order, "");
+	RandomGenerateOrder(newCustomer.order);
+    return newCustomer;
 }
 
-void create_order(Order *order, char *first, char *second, char *third, char *fourth) {
-	order->first = first;
-	order->second = second;
-	order->third = third;
-	order->fourth = fourth;
-}
+// void create_order(Order *order, char *first, char *second, char *third, char *fourth) {
+// 	order->first = first;
+// 	order->second = second;
+// 	order->third = third;
+// 	order->fourth = fourth;
+// }
 
-void distribute_points(Order* order, char* first, char* second, char* third, char* fourth)
+// void distribute_points(Order* order, char* first, char* second, char* third, char* fourth)
+// {
+//     if (first)
+//     {
+//         global_score += 50;
+//     }
+//     if (second)
+//     {
+//         global_score += 50;
+//     }
+//     if (third)
+//     {
+//         global_score += 50;
+//     }
+//     if (fourth)
+//     {
+//         global_score += 50;
+//     }
+// }
+
+bool validiator(Customer *customer, char *order)
 {
-    if (first)
-    {
-        global_score += 50;
-    }
-    if (second)
-    {
-        global_score += 50;
-    }
-    if (third)
-    {
-        global_score += 50;
-    }
-    if (fourth)
-    {
-        global_score += 50;
-    }
-}
-
-void validiator(Order *order, char *first, char *second, char *third, char *fourth)
-{
-	//if order is valid, call distribute points
-	if (strcmp(order->first, first) == 0 && strcmp(order->second, second) == 0 && strcmp(order->third, third) == 0 && strcmp(order->fourth, fourth) == 0)
+    LogDebug("Validating order: %s against %s", order, customer->order);
+	if (strcmp(customer->order, order) == 0)
 	{
-		distribute_points(order, first, second, third, fourth);
+        return true;
 	}
 	else
 	{
-		//To be implemented, waiting for mixture parts.
+        return false;
 	}
 }
 
@@ -1126,56 +1584,136 @@ void validiator(Order *order, char *first, char *second, char *third, char *four
 void render_customers(Customers *customers)
 {
     if(&customers->customer1 != NULL)
-        DrawCustomer(&customers->customer1, 0, (Vector2) { baseX, baseY + 100 });
-    if (&customers->customer2 != NULL)
-        DrawCustomer(&customers->customer2, 1, (Vector2) { baseX + 500, baseY + 100 });
-    if (&customers->customer3 != NULL)
-        DrawCustomer(&customers->customer3, 2, (Vector2) { baseX + 1100, baseY + 100 });
+        DrawCustomer(&customers->customer1, 0);
+	if (&customers->customer2 != NULL)
+		DrawCustomer(&customers->customer2, 1);
+	if (&customers->customer3 != NULL)
+		DrawCustomer(&customers->customer3, 2);
 }
 
 //Yandere dev inspired programming.
 
-void remove_customers(Customer *customer)
+void RemoveCustomer(Customer *customer)
 {
 	customer->visible = false;
+    customer->currentTime = 0;
+    customer->orderEnd = 0;
+    customer->resetTimer = RandomCustomerResetBasedOnDifficulty();
 }
 
-void update_customer_state(Customer *customer) {
+void UpdateCustomerState(Customer* customer, float deltaTime) {
+
+    customer->currentTime += deltaTime;
+
     if (customer->visible == true) {
-        if (customer->currentTime < customer->orderEnd) {
-            customer->currentTime++;
-            if (customer->currentTime > customer->orderEnd / 2) {
-                customer->emotion = EMOTION_FRUSTRATED;
-            } else if (customer->currentTime > customer->orderEnd / 4) {
-                customer->eyesClosed = EMOTION_ANGRY;
+
+        if ((float)customer->currentTime < (float)customer->orderEnd) {
+            // Calculate a ratio of how close to the orderEnd the currentTime is
+            float ratio = (float)customer->currentTime / (float)customer->orderEnd;
+
+            if (ratio > 0.75) {
+                customer->emotion = EMOTION_ANGRY;
             }
-        } else {
-            remove_customers(customer);
+            else if (ratio > 0.5) {
+                customer->emotion = EMOTION_FRUSTRATED;
+            }
+            else {
+                customer->emotion = EMOTION_HAPPY;
+            }
+        }
+        else {
+            PlaySoundFx(FX_ANGRY);
+            RemoveCustomer(customer);
             global_score -= 50;
+        }
+    }
+    else {
+
+        if ((float)customer->currentTime > customer->resetTimer) {
+            customer->currentTime = 0;
+            customer->orderEnd = RandomCustomerTimeoutBasedOnDifficulty();
+            customer->visible = true;
+            strcpy(customer->order, "");
+            RandomGenerateOrder(customer->order);
         }
     }
 }
 
-void Tick(Customers *customers) {
-    update_customer_state(&customers->customer1);
-    update_customer_state(&customers->customer2);
-    update_customer_state(&customers->customer3);
+
+
+void Tick(Customers *customers, float deltaTime) {
+    UpdateCustomerState(&customers->customer1, deltaTime);
+    UpdateCustomerState(&customers->customer2, deltaTime);
+    UpdateCustomerState(&customers->customer3, deltaTime);
 }
 
 /* Definitions terminates*/
 
-void PlayHoverSound()
-{
-    if(options->soundFxEnabled)
-	    PlaySound(hover);
-}
 
-void PlaySelectSound()
-{
-    if(options->soundFxEnabled)
+void PlaySoundFx(SoundFxType type) {
+    int randomIndex = 0;
+
+    if (!options->soundFxEnabled) return;
+
+    switch (type) {
+    case FX_ANGRY: {
+        Sound angrySounds[] = { angry1Fx, angry2Fx, angry3Fx, angry4Fx };
+        randomIndex = rand() % (sizeof(angrySounds) / sizeof(angrySounds[0]));
+        PlaySound(angrySounds[randomIndex]);
+        break;
+    }
+    case FX_BOTTLE: {
+        Sound bottleSounds[] = { bottle1Fx, bottle2Fx, bottle3Fx };
+        randomIndex = rand() % (sizeof(bottleSounds) / sizeof(bottleSounds[0]));
+        PlaySound(bottleSounds[randomIndex]);
+        break;
+    }
+    case FX_CONFUSED: {
+        Sound confusedSounds[] = { confused1Fx, confused2Fx, confused3Fx, confused4Fx };
+        randomIndex = rand() % (sizeof(confusedSounds) / sizeof(confusedSounds[0]));
+        PlaySound(confusedSounds[randomIndex]);
+        break;
+    }
+    case FX_CORRECT:
+        PlaySound(correctFx);
+        break;
+    case FX_DROP: {
+        Sound dropSounds[] = { drop1Fx, drop2Fx, drop3Fx };
+        randomIndex = rand() % (sizeof(dropSounds) / sizeof(dropSounds[0]));
+        PlaySound(dropSounds[randomIndex]);
+        break;
+    }
+    case FX_PICKUP: {
+        Sound pickupSounds[] = { pickup1Fx, pickup2Fx, pickup3Fx };
+        randomIndex = rand() % (sizeof(pickupSounds) / sizeof(pickupSounds[0]));
+        PlaySound(pickupSounds[randomIndex]);
+        break;
+    }
+    case FX_POUR: {
+        Sound pourSounds[] = { pour1Fx, pour2Fx, pour3Fx };
+        randomIndex = rand() % (sizeof(pourSounds) / sizeof(pourSounds[0]));
+        PlaySound(pourSounds[randomIndex]);
+        break;
+    }
+    case FX_STIR: {
+        Sound stirSounds[] = { stir1Fx, stir2Fx, stir3Fx };
+        randomIndex = rand() % (sizeof(stirSounds) / sizeof(stirSounds[0]));
+        PlaySound(stirSounds[randomIndex]);
+        break;
+    }
+    case FX_BOONG:
+        PlaySound(boongFx);
+        break;
+    case FX_HOVER:
+        PlaySound(hoverFx);
+        break;
+    case FX_SELECT:
         PlaySound(selectFx);
+        break;
+    case FX_FLICK:
+        PlaySound(flickFx);
+    }
 }
-
 void WindowUpdate(Camera2D* camera)
 {
     if (IsWindowResized())
@@ -1201,6 +1739,12 @@ void WindowUpdate(Camera2D* camera)
         SetRuntimeResolution(camera, BASE_SCREEN_WIDTH, BASE_SCREEN_HEIGHT);
         ToggleFullscreen();
     }
+
+    // ESC - Exit application
+    if (IsKeyPressed(KEY_ESCAPE))
+	{
+        ExitApplication();
+	}
 
     if(currentBgm != NULL)
         UpdateMusicStream(*currentBgm);
@@ -1229,8 +1773,43 @@ void LoadGlobalAssets()
 	customerTexture_second_angry = LoadTexture(ASSETS_PATH"image/sprite/customer_angry.png");
 	customerTexture_third_angry = LoadTexture(ASSETS_PATH"image/sprite/customer_angry.png");
 
-    hover = LoadSound(ASSETS_PATH"audio/hover.wav");
+    hoverFx = LoadSound(ASSETS_PATH"audio/hover.wav");
     selectFx = LoadSound(ASSETS_PATH"audio/select.wav");
+    boongFx = LoadSound(ASSETS_PATH"audio/boong.wav");
+
+    angry1Fx = LoadSound(ASSETS_PATH"audio/angry_1.wav");
+    angry2Fx = LoadSound(ASSETS_PATH"audio/angry_2.wav");
+    angry3Fx = LoadSound(ASSETS_PATH"audio/angry_3.wav");
+    angry4Fx = LoadSound(ASSETS_PATH"audio/angry_4.wav");
+
+    bottle1Fx = LoadSound(ASSETS_PATH"audio/bottle_1.wav");
+    bottle2Fx = LoadSound(ASSETS_PATH"audio/bottle_2.wav");
+    bottle3Fx = LoadSound(ASSETS_PATH"audio/bottle_3.wav");
+
+    confused1Fx = LoadSound(ASSETS_PATH"audio/confused_1.wav");
+    confused2Fx = LoadSound(ASSETS_PATH"audio/confused_2.wav");
+    confused3Fx = LoadSound(ASSETS_PATH"audio/confused_3.wav");
+    confused4Fx = LoadSound(ASSETS_PATH"audio/confused_4.wav");
+
+    correctFx = LoadSound(ASSETS_PATH"audio/correct.wav");
+
+    drop1Fx = LoadSound(ASSETS_PATH"audio/drop_1.wav");
+    drop2Fx = LoadSound(ASSETS_PATH"audio/drop_2.wav");
+    drop3Fx = LoadSound(ASSETS_PATH"audio/drop_3.wav");
+
+    pickup1Fx = LoadSound(ASSETS_PATH"audio/pickup_1.wav");
+    pickup2Fx = LoadSound(ASSETS_PATH"audio/pickup_2.wav");
+    pickup3Fx = LoadSound(ASSETS_PATH"audio/pickup_3.wav");
+
+    pour1Fx = LoadSound(ASSETS_PATH"audio/pour_1.wav");
+    pour2Fx = LoadSound(ASSETS_PATH"audio/pour_2.wav");
+    pour3Fx = LoadSound(ASSETS_PATH"audio/pour_3.wav");
+
+    stir1Fx = LoadSound(ASSETS_PATH"audio/stir_1.wav");
+    stir2Fx = LoadSound(ASSETS_PATH"audio/stir_2.wav");
+    stir3Fx = LoadSound(ASSETS_PATH"audio/stir_3.wav");
+
+    flickFx = LoadSound(ASSETS_PATH"audio/flick.wav");
 
     menuFallingItemTextures[0] = LoadTexture(ASSETS_PATH"image/falling_items/cara.png");
     menuFallingItemTextures[1] = LoadTexture(ASSETS_PATH"image/falling_items/cmilk.png");
@@ -1240,6 +1819,18 @@ void LoadGlobalAssets()
     menuFallingItemTextures[5] = LoadTexture(ASSETS_PATH"image/falling_items/matcha.png");
     menuFallingItemTextures[6] = LoadTexture(ASSETS_PATH"image/falling_items/milk.png");
     menuFallingItemTextures[7] = LoadTexture(ASSETS_PATH"image/falling_items/wcream.png");
+
+    teaPowderTexture = LoadTexture(ASSETS_PATH"/spritesheets/GP.png");
+    cocoaPowderTexture = LoadTexture(ASSETS_PATH"/spritesheets/CP.png");
+    caramelSauceTexture = LoadTexture(ASSETS_PATH"/spritesheets/CA.png");
+    chocolateSauceTexture = LoadTexture(ASSETS_PATH"/spritesheets/CH.png");
+    condensedMilkTexture = LoadTexture(ASSETS_PATH"/spritesheets/CM.png");
+    normalMilkTexture = LoadTexture(ASSETS_PATH"/spritesheets/MI.png");
+    marshMellowTexture = LoadTexture(ASSETS_PATH"/spritesheets/MA.png");
+    whippedCreamTexture = LoadTexture(ASSETS_PATH"/spritesheets/WC.png");
+    hotWaterTexture = LoadTexture(ASSETS_PATH"/spritesheets/GAR.png");
+    greenChonTexture = LoadTexture(ASSETS_PATH"/spritesheets/greenchon.png");
+    cocoaChonTexture = LoadTexture(ASSETS_PATH"/spritesheets/cocoachon.png");
 
     for (int i = 0; i < 3; i++)
     {
@@ -1251,10 +1842,19 @@ void LoadGlobalAssets()
         customersImageData[i].angryEyesClosed = LoadTexture(TextFormat(ASSETS_PATH"image/sprite/customer_%d/angry_eyes_closed.png", i + 1));
 	}
 
+	//orders
+	bubbles = LoadTexture(ASSETS_PATH"image/elements/bubbles.png");
+
+	//
+
     menuBgm = LoadMusicStream(ASSETS_PATH"audio/bgm/Yojo_Summer_My_Heart.wav");
 
-    menuCustomer1 = createCustomer(EMOTION_HAPPY, 2.0, 4.0, 0.25, true);
-    menuCustomer2 = createCustomer(EMOTION_HAPPY, 0.4, 5.2, 0.3, true);
+    menuCustomer1 = CreateCustomer(EMOTION_HAPPY, 2.0, 4.0, 0.25, true, (Vector2) { baseX + 650, baseY + 55 }, 1, 0);
+    menuCustomer2 = CreateCustomer(EMOTION_HAPPY, 0.4, 5.2, 0.3, true, (Vector2) { baseX + 1200, baseY + 52 }, 2, 0);
+    RandomCustomerBlinkTime(&menuCustomer1);
+    RandomCustomerBlinkTime(&menuCustomer2);
+    menuCustomer1.isDummy = true;
+    menuCustomer2.isDummy = true;
 
     loadDurationTimer = GetTime() - startTime;
     isGlobalAssetsLoadFinished = true;
@@ -1273,7 +1873,7 @@ void UnloadGlobalAssets()
     UnloadTexture(left_arrow);
     UnloadTexture(right_arrow);
 
-    UnloadSound(hover);
+    UnloadSound(hoverFx);
     UnloadSound(selectFx);
 
     for(int i = 0; i < 8; i++)
@@ -1296,17 +1896,12 @@ void UnloadGlobalAssets()
     UnloadMusicStream(menuBgm);
 }
 
-void ExitApplication()
-{
-    UnloadGlobalAssets();
-    exit(0);
-}
 
 void PlayBgm(Music *bgm)
 {
     if (bgm == currentBgm)
     {
-        if (isCurrentBgmPaused)
+        if (isCurrentBgmPaused && options->musicEnabled)
         {
             PlayMusicStream(*bgm);
             bgm->looping = true;
@@ -1318,6 +1913,7 @@ void PlayBgm(Music *bgm)
     currentBgm = bgm;
 	StopMusicStream(*currentBgm);
 	PlayMusicStream(*currentBgm);
+    SetMusicVolume(*currentBgm, bgmVolume);
     bgm->looping = true;
     isCurrentBgmPaused = false;
 }
@@ -1326,9 +1922,10 @@ void PlayBgmIfStopped(Music* bgm)
 {
     if (bgm == currentBgm)
     {
-        if (isCurrentBgmPaused)
+        if (isCurrentBgmPaused && options->musicEnabled)
         {
             PlayMusicStream(*bgm);
+            SetMusicVolume(*bgm, bgmVolume);
             bgm->looping = true;
             isCurrentBgmPaused = false;
         }
@@ -1337,6 +1934,7 @@ void PlayBgmIfStopped(Music* bgm)
 
     currentBgm = bgm;
     PlayMusicStream(*currentBgm);
+    SetMusicVolume(*currentBgm, bgmVolume);
     bgm->looping = true;
     isCurrentBgmPaused = false;
 }
@@ -1382,10 +1980,10 @@ Color ColorLerp(Color a, Color b, float t) {
 void DrawDayNightCycle()
 {
     const Color dayNightColors[] = {
-        (Color){173, 216, 230, 255},  // Morning (Anime Light Blue)
-        (Color){0, 102, 204, 255},    // Afternoon (Anime Blue)
-        (Color){245, 161, 59, 255},    // Evening (Anime Orange)
-        (Color){0, 0, 102, 255}       // Night (Anime Dark Blue)
+    (Color){173, 216, 230, 255},  // Morning (Anime Light Blue)
+    (Color){0, 102, 204, 255},    // Afternoon (Anime Blue)
+    (Color){245, 161, 59, 255},    // Evening (Anime Orange)
+    (Color){0, 0, 102, 255}       // Night (Anime Dark Blue)
     };
 
     float colorTransitionSpeed = (float)(sizeof(dayNightColors) / sizeof(dayNightColors[0])) / dayNightCycleDuration;
@@ -1408,7 +2006,8 @@ void DrawDayNightCycle()
     // Draw day/night cycle debug overlay
     if (options->showDebug && debugToolToggles.showObjects)
     {
-        DrawTextEx(meowFont, TextFormat("Time %.2f/%.2f | Phrase %d/%d", colorTransitionTime * dayNightCycleDuration, dayNightCycleDuration, currentColorIndex + 1, (sizeof(dayNightColors) / sizeof(dayNightColors[0]))), (Vector2) { baseX + BASE_SCREEN_WIDTH - 500, baseY + 20 }, 20, 2, WHITE);
+        DrawRectangle(baseX + BASE_SCREEN_WIDTH - 500, baseY + 25, 400, 20, Fade(GRAY, 0.7));
+        DrawTextEx(meowFont, TextFormat("Time %.2f/%.2f | Phrase %d/%d", colorTransitionTime * dayNightCycleDuration, dayNightCycleDuration, currentColorIndex + 1, (sizeof(dayNightColors) / sizeof(dayNightColors[0]))), (Vector2) { baseX + BASE_SCREEN_WIDTH - 500, baseY + 25 }, 20, 2, WHITE);
     }
 
     // Update the colorTransitionTime
@@ -1422,7 +2021,6 @@ void DrawDayNightCycle()
         colorTransitionTime += GetFrameTime() * colorTransitionSpeed;
     }
 }
-
 
 void OptionsUpdate(Camera2D* camera)
 {
@@ -1511,21 +2109,39 @@ void OptionsUpdate(Camera2D* camera)
         if (!firstRender && IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && !isFadingIn && !isFadingOut) {
             if (isDifficultyIncrementHovered) {
                 if (options->difficulty == EASY) {
-					options->difficulty = MEDIUM;
+					options->difficulty = FREEPLAY_EASY;
 				}
-				else if (options->difficulty == MEDIUM) {
-					options->difficulty = HARD;
-				}
-                PlaySelectSound();
+                else if (options->difficulty == FREEPLAY_EASY) {
+                    options->difficulty = MEDIUM;
+                }
+                else if (options->difficulty == MEDIUM) {
+                    options->difficulty = FREEPLAY_MEDIUM;
+                }
+                else if (options->difficulty == FREEPLAY_MEDIUM) {
+                    options->difficulty = HARD;
+                }
+                else if (options->difficulty == HARD) {
+                    options->difficulty = FREEPLAY_HARD;
+                }
+                PlaySoundFx(FX_SELECT);
             }
             else if (isDifficultyDecrementHovered) {
-				if (options->difficulty == HARD) {
+                if (options->difficulty == FREEPLAY_HARD) {
+                    options->difficulty = HARD;
+                }
+                else if (options->difficulty == HARD) {
+                    options->difficulty = FREEPLAY_MEDIUM;
+                }
+                else if (options->difficulty == FREEPLAY_MEDIUM) {
                     options->difficulty = MEDIUM;
+                }
+				else if (options->difficulty == MEDIUM) {
+                    options->difficulty = FREEPLAY_EASY;
 				}
-                else if (options->difficulty == MEDIUM) {
+                else if (options->difficulty == FREEPLAY_EASY) {
                     options->difficulty = EASY;
 				}
-                PlaySelectSound();
+                PlaySoundFx(FX_SELECT);
 			}
             else if (isResolutionIncrementHovered) {
                 // 720p -> 1080p
@@ -1543,7 +2159,7 @@ void OptionsUpdate(Camera2D* camera)
 					}
 				}
                 SetRuntimeResolution(camera, options->resolution.x, options->resolution.y);
-                PlaySelectSound();
+                PlaySoundFx(FX_SELECT);
             }
             else if (isResolutionDecrementHovered) {
                 // 1080p -> 720p
@@ -1560,7 +2176,7 @@ void OptionsUpdate(Camera2D* camera)
                     }
                 }
                 SetRuntimeResolution(camera, options->resolution.x, options->resolution.y);
-                PlaySelectSound();
+                PlaySoundFx(FX_SELECT);
             }
             else if (isFpsIncrementHovered) {
                 // Change target FPS 30, 60, 120, 144, 240, Basically Unlimited (1000)
@@ -1581,7 +2197,7 @@ void OptionsUpdate(Camera2D* camera)
                 }
 
                 SetTargetFPS(options->targetFps);
-                PlaySelectSound();
+                PlaySoundFx(FX_SELECT);
             }
             else if (isFpsDecrementHovered) {
                 // Change target FPS 30, 60, 120, 144, 240, Basically Unlimited (1000)
@@ -1602,29 +2218,29 @@ void OptionsUpdate(Camera2D* camera)
 				}
 
                 SetTargetFPS(options->targetFps);
-                PlaySelectSound();
+                PlaySoundFx(FX_SELECT);
             }
             else if (isFullscreenHovered) {
                 // Toggle fullscreen
                 options->fullscreen = !options->fullscreen;
                 SetRuntimeResolution(camera, options->resolution.x, options->resolution.y);
                 ToggleFullscreen();
-                PlaySelectSound();
+                PlaySoundFx(FX_SELECT);
             }
             else if (isDebugHovered) {
 				// Toggle debug
 				options->showDebug = !options->showDebug;
-                PlaySelectSound();
+                PlaySoundFx(FX_SELECT);
 			}
 			else if (isBackHovered) {
 				// Go back to main menu
                 isFadingOut = true;
-                PlaySelectSound();
+                PlaySoundFx(FX_SELECT);
 			}
 		    else if (isMusicHovered) {
 				// Toggle music
 				options->musicEnabled = !options->musicEnabled;
-                PlaySelectSound();
+                PlaySoundFx(FX_SELECT);
                 if (options->musicEnabled)
                     PlayBgm(&menuBgm);
 				else
@@ -1633,7 +2249,7 @@ void OptionsUpdate(Camera2D* camera)
 			else if (isSoundFxHovered) {
 				// Toggle sound fx
 				options->soundFxEnabled = !options->soundFxEnabled;
-                PlaySelectSound();
+                PlaySoundFx(FX_SELECT);
 			}
         }
 
@@ -1644,7 +2260,7 @@ void OptionsUpdate(Camera2D* camera)
             {
                 if (!isHovering || currentHoveredButton != 0)
                 {
-                    PlayHoverSound();
+                    PlaySoundFx(FX_HOVER);
                     isHovering = true;
                 }
                 currentHoveredButton = 0;
@@ -1653,7 +2269,7 @@ void OptionsUpdate(Camera2D* camera)
             {
                 if (!isHovering || currentHoveredButton != 1)
                 {
-                    PlayHoverSound();
+                    PlaySoundFx(FX_HOVER);
                     isHovering = true;
                 }
                 currentHoveredButton = 1;
@@ -1662,7 +2278,7 @@ void OptionsUpdate(Camera2D* camera)
             {
                 if (!isHovering || currentHoveredButton != 2)
                 {
-                    PlayHoverSound();
+                    PlaySoundFx(FX_HOVER);
                     isHovering = true;
                 }
                 currentHoveredButton = 2;
@@ -1671,7 +2287,7 @@ void OptionsUpdate(Camera2D* camera)
             {
                 if (!isHovering || currentHoveredButton != 3)
                 {
-                    PlayHoverSound();
+                    PlaySoundFx(FX_HOVER);
                     isHovering = true;
                 }
                 currentHoveredButton = 3;
@@ -1680,7 +2296,7 @@ void OptionsUpdate(Camera2D* camera)
             {
                 if (!isHovering || currentHoveredButton != 4)
                 {
-                    PlayHoverSound();
+                    PlaySoundFx(FX_HOVER);
                     isHovering = true;
                 }
                 currentHoveredButton = 4;
@@ -1689,7 +2305,7 @@ void OptionsUpdate(Camera2D* camera)
             {
                 if (!isHovering || currentHoveredButton != 5)
                 {
-                    PlayHoverSound();
+                    PlaySoundFx(FX_HOVER);
                     isHovering = true;
                 }
                 currentHoveredButton = 5;
@@ -1698,7 +2314,7 @@ void OptionsUpdate(Camera2D* camera)
             {
                 if (!isHovering || currentHoveredButton != 6)
                 {
-                    PlayHoverSound();
+                    PlaySoundFx(FX_HOVER);
                     isHovering = true;
                 }
                 currentHoveredButton = 6;
@@ -1707,7 +2323,7 @@ void OptionsUpdate(Camera2D* camera)
             {
                 if (!isHovering || currentHoveredButton != 7)
                 {
-                    PlayHoverSound();
+                    PlaySoundFx(FX_HOVER);
                     isHovering = true;
                 }
                 currentHoveredButton = 7;
@@ -1716,7 +2332,7 @@ void OptionsUpdate(Camera2D* camera)
             {
                 if (!isHovering || currentHoveredButton != 8)
                 {
-                    PlayHoverSound();
+                    PlaySoundFx(FX_HOVER);
                     isHovering = true;
                 }
                 currentHoveredButton = 8;
@@ -1725,7 +2341,7 @@ void OptionsUpdate(Camera2D* camera)
             {
                 if (!isHovering || currentHoveredButton != 9)
                 {
-                    PlayHoverSound();
+                    PlaySoundFx(FX_HOVER);
                     isHovering = true;
                 }
                 currentHoveredButton = 9;
@@ -1734,7 +2350,7 @@ void OptionsUpdate(Camera2D* camera)
             {
                 if (!isHovering || currentHoveredButton != 10)
                 {
-                    PlayHoverSound();
+                    PlaySoundFx(FX_HOVER);
                     isHovering = true;
                 }
                 currentHoveredButton = 10;
@@ -1848,82 +2464,128 @@ void OptionsUpdate(Camera2D* camera)
     ExitApplication();
 }
 
+int RandomCustomerTexture()
+{
+    int randomIndex = GetRandomValue(0, (sizeof(customersImageData) / sizeof(customersImageData[0])) - 1);
+    return randomIndex;
+}
+
 void GameUpdate(Camera2D *camera)
 {
     double lastFrameTime = GetTime();
     bool isDragging = false;
+    bool isDraggingOnce = false;
 
     bool isHovering = false;
     bool hoversoundPlayed = false;
 
+    // Start from night
+    currentColorIndex = 3;
+
+    dayNightCycleDuration = gameDuration * 3;
+    colorTransitionTime = 0.2f;
+
+    bool passedInitialPhrase = false;
+
     Cup cup = {
-        LoadTexture(ASSETS_PATH"spritesheets/PINKCUP.png"),
+        LoadTexture(ASSETS_PATH"combination/EMPTY.png"),
         (Vector2) {0, 0},
         NONE,
         false,
         NONE,
         NONE,
         NONE,
+        false,
+        '\0'
     };
 
     plate = (DropArea){ LoadTexture(ASSETS_PATH"/spritesheets/MAT.png"), oriplatePosition };
     Texture2D cups = LoadTexture(ASSETS_PATH"/spritesheets/CUPS.png");
 
-    teaPowder = (Ingredient){ LoadTexture(ASSETS_PATH"/spritesheets/GP.png"), true, oriteapowderPosition, oriteapowderPosition };
+    teaPowder = (Ingredient){ teaPowderTexture, true, oriteapowderPosition, oriteapowderPosition };
     teaPowder.totalFrames = 3;
+    teaPowder.currentFrame = 1;
     teaPowder.frameRectangle = frameRect(teaPowder, teaPowder.totalFrames, teaPowder.currentFrame);
-    cocoaPowder = (Ingredient){ LoadTexture(ASSETS_PATH"/spritesheets/CP.png"), true, oricocoapowderPosition, oricocoapowderPosition };
+
+    cocoaPowder = (Ingredient){ cocoaPowderTexture, true, oricocoapowderPosition, oricocoapowderPosition };
     cocoaPowder.totalFrames = 3;
     cocoaPowder.currentFrame = 1;
     cocoaPowder.frameRectangle = frameRect(cocoaPowder, cocoaPowder.totalFrames, cocoaPowder.currentFrame);
 
-    caramelSauce = (Ingredient){ LoadTexture(ASSETS_PATH"/spritesheets/CA.png"), true, oricaramelPosition, oricaramelPosition };
+    caramelSauce = (Ingredient){ caramelSauceTexture, true, oricaramelPosition, oricaramelPosition };
     caramelSauce.totalFrames = 3;
     caramelSauce.currentFrame = 1;
     caramelSauce.frameRectangle = frameRect(caramelSauce, caramelSauce.totalFrames, caramelSauce.currentFrame);
 
-    chocolateSauce = (Ingredient){ LoadTexture(ASSETS_PATH"/spritesheets/CH.png"), true, orichocolatePosition, orichocolatePosition };
+    chocolateSauce = (Ingredient){ chocolateSauceTexture, true, orichocolatePosition, orichocolatePosition };
     chocolateSauce.totalFrames = 3;
     chocolateSauce.currentFrame = 1;
     chocolateSauce.frameRectangle = frameRect(chocolateSauce, chocolateSauce.totalFrames, chocolateSauce.currentFrame);
 
-    condensedMilk = (Ingredient){ LoadTexture(ASSETS_PATH"/spritesheets/CM.png"), true, oricondensedmilkPosition, oricondensedmilkPosition };
+    condensedMilk = (Ingredient){ condensedMilkTexture, true, oricondensedmilkPosition, oricondensedmilkPosition };
     condensedMilk.totalFrames = 2;
     condensedMilk.currentFrame = 1;
     condensedMilk.frameRectangle = frameRect(condensedMilk, condensedMilk.totalFrames, condensedMilk.currentFrame);
 
-    normalMilk = (Ingredient){ LoadTexture(ASSETS_PATH"/spritesheets/MI.png"), true, orimilkPosition, orimilkPosition };
+    normalMilk = (Ingredient){ normalMilkTexture, true, orimilkPosition, orimilkPosition };
     normalMilk.totalFrames = 2;
     normalMilk.currentFrame = 1;
     normalMilk.frameRectangle = frameRect(normalMilk, normalMilk.totalFrames, normalMilk.currentFrame);
 
-    marshMellow = (Ingredient){ LoadTexture(ASSETS_PATH"/spritesheets/MA.png"), true, orimarshmellowPosition, orimarshmellowPosition };
+    marshMellow = (Ingredient){ marshMellowTexture, true, orimarshmellowPosition, orimarshmellowPosition };
     marshMellow.totalFrames = 2;
     marshMellow.currentFrame = 1;
     marshMellow.frameRectangle = frameRect(marshMellow, marshMellow.totalFrames, marshMellow.currentFrame);
 
-    whippedCream = (Ingredient){ LoadTexture(ASSETS_PATH"/spritesheets/WC.png"), true, oriwhippedPosition, oriwhippedPosition };
+    whippedCream = (Ingredient){ whippedCreamTexture, true, oriwhippedPosition, oriwhippedPosition };
     whippedCream.totalFrames = 2;
     whippedCream.currentFrame = 1;
     whippedCream.frameRectangle = frameRect(whippedCream, whippedCream.totalFrames, whippedCream.currentFrame);
 
-    hotWater = (Ingredient){ LoadTexture(ASSETS_PATH"/spritesheets/GAR.png"), true, oriwaterPosition, oriwaterPosition };
-    hotWater.totalFrames = 3;
+    hotWater = (Ingredient){ hotWaterTexture, true, oriwaterPosition, oriwaterPosition };
+    hotWater.totalFrames = 17;
     hotWater.currentFrame = 1;
     hotWater.frameRectangle = frameRect(hotWater, hotWater.totalFrames, hotWater.currentFrame);
+    hotWater.canChangeCupTexture = false;
 
-    greenChon = (Ingredient){ LoadTexture(ASSETS_PATH"/spritesheets/greenchon.png"), false, hiddenPosition, hiddenPosition };
+    greenChon = (Ingredient){ greenChonTexture, false, hiddenPosition, hiddenPosition };
     greenChon.totalFrames = 1;
     greenChon.currentFrame = 1;
     greenChon.frameRectangle = frameRect(greenChon, greenChon.totalFrames, greenChon.currentFrame);
 
-    cocoaChon = (Ingredient){ LoadTexture(ASSETS_PATH"/spritesheets/cocoachon.png"), false, hiddenPosition, hiddenPosition };
+    cocoaChon = (Ingredient){ cocoaChonTexture, false, hiddenPosition, hiddenPosition };
     cocoaChon.totalFrames = 1;
     cocoaChon.currentFrame = 1;
 	cocoaChon.frameRectangle = frameRect(cocoaChon, cocoaChon.totalFrames, cocoaChon.currentFrame);
 
     Texture2D* currentDrag = NULL;
 
+    Customer customer1;
+    Customer customer2;
+    Customer customer3;
+
+    Customers customers;
+
+    Vector2 customer1Position = { baseX + 50, baseY + 100 };
+    Vector2 customer2Position = { baseX + 650, baseY + 100 };
+    Vector2 customer3Position = { baseX + 1250, baseY + 100 };
+
+    Rectangle endScene = { 752, -532, 200, 70 };
+
+    double initialReset[3];
+    RandomCustomerInitialResetBasedOnDifficulty(&initialReset);
+
+    customer1 = CreateCustomerWithOrder(1, 0, RandomCustomerTimeoutBasedOnDifficulty(), customer1Position, RandomCustomerTexture(), initialReset[0]);
+    customer2 = CreateCustomerWithOrder(1, 0, RandomCustomerTimeoutBasedOnDifficulty(), customer2Position, RandomCustomerTexture(), initialReset[1]);
+    customer3 = CreateCustomerWithOrder(1, 0, RandomCustomerTimeoutBasedOnDifficulty(), customer3Position, RandomCustomerTexture(), initialReset[2]);
+    customer1.visible = false;
+    customer2.visible = false;
+    customer3.visible = false;
+
+    customers.customer1 = customer1;
+    customers.customer2 = customer2;
+    customers.customer3 = customer3;
+    
     while (!WindowShouldClose())
     {
         // Calculate delta time
@@ -1931,32 +2593,74 @@ void GameUpdate(Camera2D *camera)
         lastFrameTime = GetTime();
 
         WindowUpdate(camera);
-        
-        // Dragable items
-        if (currentDrag == NULL || currentDrag == &teaPowder.texture) {
-            currentDrag = DragAndDropIngredientPop(&teaPowder, &greenChon, &plate, &cup, camera);
-        }if (currentDrag == NULL || currentDrag == &cocoaPowder.texture) {
-            // currentDrag = DragAndDropIngredient(&cocoaPowder, &plate, &cup, camera);
-            currentDrag = DragAndDropIngredientPop(&cocoaPowder, &cocoaChon, &plate, &cup, camera);
-        }if (currentDrag == NULL || currentDrag == &condensedMilk.texture) {
-            currentDrag = DragAndDropIngredient(&condensedMilk, &plate, &cup, camera);
-        }if (currentDrag == NULL || currentDrag == &normalMilk.texture) {
-            currentDrag = DragAndDropIngredient(&normalMilk, &plate, &cup, camera);
-        }if (currentDrag == NULL || currentDrag == &whippedCream.texture) {
-            currentDrag = DragAndDropIngredient(&whippedCream, &plate, &cup, camera);
-        }if (currentDrag == NULL || currentDrag == &marshMellow.texture) {
-            currentDrag = DragAndDropIngredient(&marshMellow, &plate, &cup, camera);
-        }if (currentDrag == NULL || currentDrag == &caramelSauce.texture) {
-            currentDrag = DragAndDropIngredient(&caramelSauce, &plate, &cup, camera);
-        }if (currentDrag == NULL || currentDrag == &chocolateSauce.texture) {
-            currentDrag = DragAndDropIngredient(&chocolateSauce, &plate, &cup, camera);
-        }if (currentDrag == NULL || currentDrag == &hotWater.texture) {
-            currentDrag = DragAndDropIngredient(&hotWater, &plate, &cup, camera);
+
+        bool anyDragDetected = false;
+
+        if (!IsMouseButtonDown(MOUSE_LEFT_BUTTON))
+        {
+            dragAndDropLocked = false;
         }
 
-        if (currentDrag == NULL || currentDrag == &cup.texture) {
-            currentDrag = DragAndDropCup(&cup, &plate, camera);
+        if (!dragAndDropLocked)
+        {
+            // Dragable items
+            if (currentDrag == NULL || currentDrag == &teaPowder.texture) {
+                currentDrag = DragAndDropIngredientPop(&teaPowder, &greenChon, &cup, camera);
+                if (currentDrag != NULL) anyDragDetected = true;
+            }if (currentDrag == NULL || currentDrag == &cocoaPowder.texture) {
+                // currentDrag = DragAndDropIngredient(&cocoaPowder, &plate, &cup, camera);
+                currentDrag = DragAndDropIngredientPop(&cocoaPowder, &cocoaChon, &cup, camera);
+                if (currentDrag != NULL) anyDragDetected = true;
+            }if (currentDrag == NULL || currentDrag == &condensedMilk.texture) {
+                currentDrag = DragAndDropIngredient(&condensedMilk, &cup, camera);
+                if (currentDrag != NULL) anyDragDetected = true;
+            }if (currentDrag == NULL || currentDrag == &normalMilk.texture) {
+                currentDrag = DragAndDropIngredient(&normalMilk, &cup, camera);
+                if (currentDrag != NULL) anyDragDetected = true;
+            }if (currentDrag == NULL || currentDrag == &whippedCream.texture) {
+                currentDrag = DragAndDropIngredient(&whippedCream, &cup, camera);
+                if (currentDrag != NULL) anyDragDetected = true;
+            }if (currentDrag == NULL || currentDrag == &marshMellow.texture) {
+                currentDrag = DragAndDropIngredient(&marshMellow, &cup, camera);
+                if (currentDrag != NULL) anyDragDetected = true;
+            }if (currentDrag == NULL || currentDrag == &caramelSauce.texture) {
+                currentDrag = DragAndDropIngredient(&caramelSauce, &cup, camera);
+                if (currentDrag != NULL) anyDragDetected = true;
+            }if (currentDrag == NULL || currentDrag == &chocolateSauce.texture) {
+                currentDrag = DragAndDropIngredient(&chocolateSauce, &cup, camera);
+                if (currentDrag != NULL) anyDragDetected = true;
+            }if (currentDrag == NULL || currentDrag == &hotWater.texture) {
+                currentDrag = DragAndDropIngredient(&hotWater, &cup, camera);
+                if (currentDrag != NULL) anyDragDetected = true;
+            }
+            if (currentDrag == NULL || currentDrag == &cup.texture) {
+                currentDrag = DragAndDropCup(&cup, &plate, camera, &customers);
+                if (currentDrag != NULL) anyDragDetected = true;
+            }
         }
+
+        
+
+        if (!dragAndDropLocked && !anyDragDetected && IsMouseButtonDown(MOUSE_LEFT_BUTTON))
+        {
+            dragAndDropLocked = true;
+        }
+
+        bool previousIsDragging = isDragging;
+
+        // If something is dragged now, play sound
+        if (currentDrag != NULL && !isDraggingOnce)
+		{
+            PlaySoundFx(FX_PICKUP);
+            isDraggingOnce = true;
+		}
+		else if (currentDrag == NULL)
+		{
+            if(previousIsDragging != isDraggingOnce)
+                PlaySoundFx(FX_DROP);
+
+            isDraggingOnce = false;
+		}
 
         isHovering = false;
         // check mouse not down
@@ -1978,12 +2682,40 @@ void GameUpdate(Camera2D *camera)
         if (isHovering && !hoversoundPlayed) {
 
             hoversoundPlayed = true;
-            PlaySound(hover);
+            //PlaySound(hover);
 
         }
         else if (!isHovering) {
             hoversoundPlayed = false;
         }
+
+        Vector2 mousePos = GetScreenToWorld2D(GetMousePosition(), *camera);
+        if (CheckCollisionPointRec(mousePos, (Rectangle) { cup.position.x, cup.position.y, cup.frameRectangle.width, cup.frameRectangle.height })) {
+            cup.frameRectangle = frameRectCup(cup, 2, 2);
+        }
+        else {
+            cup.frameRectangle = frameRectCup(cup, 2, 1);
+        }
+
+        Vector2 mouseWorldPos = GetScreenToWorld2D(GetMousePosition(), *camera);
+        bool isendSceneHovered = CheckCollisionPointRec(mouseWorldPos, endScene);
+        void (*transitionCallback)(Camera2D * camera) = NULL;
+
+        if (!passedInitialPhrase && currentColorIndex == 0)
+            passedInitialPhrase = true;
+
+        // Day ended, show end scene
+        if (passedInitialPhrase && currentColorIndex >= 2)
+        {
+            // If not freeplay
+            if (options->difficulty != FREEPLAY_EASY && options->difficulty != FREEPLAY_MEDIUM && options->difficulty != FREEPLAY_HARD)
+			{
+                endgameUpdate(camera);
+			}
+        }
+        
+        Tick(&customers, deltaTime);
+        tickBoil(&hotWater);
 
         // Draw
 
@@ -1992,7 +2724,7 @@ void GameUpdate(Camera2D *camera)
 
 
         BeginMode2D(*camera);
-
+        
 
         int imageWidth = backgroundTexture.width;
         int imageHeight = backgroundTexture.height;
@@ -2000,94 +2732,58 @@ void GameUpdate(Camera2D *camera)
         float scaleX = (float)BASE_SCREEN_WIDTH / imageWidth;
         float scaleY = (float)BASE_SCREEN_HEIGHT / imageHeight;
 
-        // Draw the background with the scaled dimensions
-        DrawTextureEx(backgroundTexture, (Vector2) { baseX, baseY }, 0.0f, fmax(scaleX, scaleY), WHITE);
+        DrawDayNightCycle();
+
+		render_customers(&customers);
+
+        DrawTextureEx(backgroundOverlayTexture, (Vector2) { baseX, baseY }, 0.0f, fmax(scaleX, scaleY), WHITE);
 
         DrawTexture(plate.texture, oriplatePosition.x, oriplatePosition.y, WHITE);
-        DrawRectangleLinesEx((Rectangle) { oriplatePosition.x, oriplatePosition.y, plate.texture.width, plate.texture.height }, 1, RED);
-        DrawDragableItemFrame(cocoaPowder);
-        DrawDragableItemFrame(teaPowder);
-        DrawDragableItemFrame(caramelSauce);
-        DrawDragableItemFrame(chocolateSauce);
+
+
+        DrawDragableItemFrame(hotWater);
         DrawDragableItemFrame(condensedMilk);
         DrawDragableItemFrame(normalMilk);
+        DrawTexture(cups, oricupsPostion.x, oricupsPostion.y, WHITE);
+
+        DrawDragableItemFrame(cocoaPowder);
+        DrawDragableItemFrame(teaPowder);
+
+        DrawDragableItemFrame(chocolateSauce);
+        DrawDragableItemFrame(caramelSauce);
+
         DrawDragableItemFrame(marshMellow);
         DrawDragableItemFrame(whippedCream);
-        DrawDragableItemFrame(hotWater);
 
-        DrawTexture(cups, oricupsPostion.x, oricupsPostion.y, WHITE);
-        DrawTexture(cup.texture, cup.position.x, cup.position.y, WHITE);
-
-        // Draw debug for cup
-
-        if (options->showDebug && debugToolToggles.showObjects)
-		{
-            DrawRectangleLinesEx((Rectangle) { oricupsPostion.x, oricupsPostion.y, cup.texture.width, cup.texture.height }, 1, RED);
-            DrawRectangle(oricupsPostion.x, oricupsPostion.y - 20, 300, 20, Fade(GRAY, 0.7));
-            DrawTextEx(meowFont, TextFormat("%s | XY %.2f,%.2f", "Cups", oricupsPostion.x, oricupsPostion.y), (Vector2) { oricupsPostion.x, oricupsPostion.y - 20 }, 20, 1, WHITE);
-
-            DrawRectangleLinesEx((Rectangle) { cup.position.x, cup.position.y, cup.texture.width, cup.texture.height }, 1, RED);
-            DrawRectangle(cup.position.x, cup.position.y - 20, 300, 20, Fade(GRAY, 0.7));
-            DrawTextEx(meowFont, TextFormat("%s | XY %.2f,%.2f", "Cup", cup.position.x, cup.position.y), (Vector2) { cup.position.x, cup.position.y - 20 }, 20, 1, WHITE);
-		}
+        // DrawTexture(cup.texture, cup.position.x, cup.position.y, WHITE);
 
         DrawTexture(greenChon.texture, greenChon.position.x, greenChon.position.y, WHITE);
         DrawTexture(cocoaChon.texture, cocoaChon.position.x, cocoaChon.position.y, WHITE);
-		/* Customers */
-		//Customer customer1 = createCustomer(EMOTION_HAPPY, 2.0, 4.0, 0.25, true);
-		//Order order1;
-		//Customer customer2 = createCustomer(EMOTION_HAPPY, 2.0, 4.0, 0.25, true);
-		//Order order2;
-		//Customer customer3 = createCustomer(EMOTION_HAPPY, 2.0, 4.0, 0.25, true);
-		//Order order3;
-		//Customers customers;
-        //customers.customer1 = customer1;
-        //customers.customer2 = customer2;
-        //customers.customer3 = customer3;
 
-        Customer customer1;
-        Customer customer2;
-        Customer customer3;
+        if (cup.active)
+            DrawTextureRec(cup.texture, cup.frameRectangle, cup.position, WHITE);
 
-        Order order1;
-        Order order2;
-        Order order3;
+        // Draw debug for cup
+        if (options->showDebug && debugToolToggles.showObjects)
+        {
+            DrawRectangleLinesEx((Rectangle) { cup.position.x, cup.position.y, cup.frameRectangle.width, cup.frameRectangle.height }, 1, RED);
+            DrawRectangle(cup.position.x, cup.position.y - 60, 400, 60, Fade(GRAY, 0.7));
+            DrawTextEx(meowFont, TextFormat("Powder type: %d, Water: %d, Creamer: %d", cup.powderType, cup.hasWater, cup.creamerType), (Vector2) { cup.position.x, cup.position.y - 20 }, 20, 1, WHITE);
+            DrawTextEx(meowFont, TextFormat("Topping: %d, Sauce: %d", cup.toppingType, cup.sauceType), (Vector2) { cup.position.x, cup.position.y - 40 }, 20, 1, WHITE);
+			DrawTextEx(meowFont, TextFormat("%s | XY %.2f,%.2f | Active %s", "Cup", cup.position.x, cup.position.y, cup.active ? "[Yes]" : "[No]"), (Vector2) { cup.position.x, cup.position.y - 60 }, 20, 1, WHITE);
+            
+            // Cups
+            DrawRectangleLinesEx((Rectangle) { oricupsPostion.x, oricupsPostion.y, cups.width, cups.height }, 1, RED);
+            DrawRectangle(oricupsPostion.x, oricupsPostion.y - 20, 400, 20, Fade(GRAY, 0.7));
+            DrawTextEx(meowFont, TextFormat("%s | XY %.2f,%.2f | Grabbable %s", "Cups", oricupsPostion.x, oricupsPostion.y, cup.active ? "[No]" : "[Yes]"), (Vector2) { oricupsPostion.x, oricupsPostion.y - 20 }, 20, 1, WHITE);
 
-        Customers customers;
-
-		if (placeholder_static == 1)
-		{
-			order1.first = PLACEHOLDER_ORDER;
-			order1.second = PLACEHOLDER_ORDER;
-			order1.third = PLACEHOLDER_ORDER;
-			order1.fourth = PLACEHOLDER_ORDER;
-			create_customer(&customer1, 1, order1 , 0, 1000);
-		
-			order2.first = PLACEHOLDER_ORDER;
-			order2.second = PLACEHOLDER_ORDER;
-			order2.third = PLACEHOLDER_ORDER;
-			order2.fourth = PLACEHOLDER_ORDER;
-			create_customer(&customer2, 1, order2, 0, 5000);
-
-
-			order3.first = PLACEHOLDER_ORDER;
-			order3.second = PLACEHOLDER_ORDER;
-			order3.third = PLACEHOLDER_ORDER;
-			order3.fourth = PLACEHOLDER_ORDER;
-			create_customer(&customer3, 1, order3, 0, 10000);
-
-			customers.customer1 = customer1;
-			customers.customer2 = customer2;
-			customers.customer3 = customer3;
-
-			placeholder_static = 0;
-		}
-
-		Tick(&customers);
-		render_customers(&customers);
+            // Plate
+            DrawRectangleLinesEx((Rectangle) { oriplatePosition.x, oriplatePosition.y, plate.texture.width, plate.texture.height }, 1, RED);
+            DrawRectangle(oriplatePosition.x, oriplatePosition.y - 20, 300, 20, Fade(GRAY, 0.7));
+            DrawTextEx(meowFont, TextFormat("%s | XY %.2f,%.2f", "Plate", oriplatePosition.x, oriplatePosition.y), (Vector2) { oriplatePosition.x, oriplatePosition.y - 20 }, 20, 1, WHITE);
+        }
 
 		/* Customers TEST AREA END*/
-
         if(&customers.customer1 != NULL)
             UpdateMenuCustomerBlink(&customers.customer1, deltaTime);
         if (&customers.customer2 != NULL)
@@ -2096,13 +2792,29 @@ void GameUpdate(Camera2D *camera)
             UpdateMenuCustomerBlink(&customers.customer3, deltaTime);
 
 
-		char *scoreText = TextFormat("Score: %d", global_score);
-        DrawTextEx(GetFontDefault(), scoreText, (Vector2) { baseX + 20, baseY + 20 }, 20, 2, WHITE);
+        DrawTextEx(meowFont, TextFormat("Score: %d", global_score), (Vector2) { baseX + 20, baseY + 20 }, 26, 2, WHITE);
 
         DrawOuterWorld();
 
         if (options->showDebug)
             DrawDebugOverlay(camera);
+
+        // End game
+        if(options->difficulty == FREEPLAY_EASY || options->difficulty == FREEPLAY_MEDIUM || options->difficulty == FREEPLAY_HARD)
+		{
+            DrawRectangleRec(endScene, RED);
+            DrawTextEx(meowFont, "End", (Vector2) { endScene.x + 40, endScene.y + 22 }, 32, 2, WHITE);
+
+			if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && (isendSceneHovered))
+			{
+                if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+                    if (isendSceneHovered) {
+                        endgameUpdate(camera);
+                    }
+                }
+
+			}
+		}
 
         EndMode2D();
         EndDrawing();
@@ -2111,6 +2823,68 @@ void GameUpdate(Camera2D *camera)
     UnloadTexture(backgroundTexture);
     CloseWindow();
 
+}
+
+void ResetGameState()
+{
+    global_score = 0;
+
+    // Reset hotWater boiling
+    triggerHotWater = false;
+    hotWater.canChangeCupTexture = false;
+    hotWater.currentFrame = 1;
+}
+
+void endgameUpdate(Camera2D *camera){
+
+    int imageWidth = backgroundTexture.width;
+    int imageHeight = backgroundTexture.height;
+
+    float scaleX = (float)BASE_SCREEN_WIDTH / imageWidth;
+    float scaleY = (float)BASE_SCREEN_HEIGHT / imageHeight;
+
+    Rectangle scoreRec = {-277,-241,600,450};
+    float centerX = scoreRec.x + (scoreRec.width / 2);
+    float centerY = scoreRec.y + (scoreRec.height / 2);
+    Rectangle tryagain = { centerX - 90 , centerY + 50, 200, 70 };
+
+
+    while (!WindowShouldClose()){
+        WindowUpdate(camera);
+        Vector2 mouseWorldPos = GetScreenToWorld2D(GetMousePosition(), *camera);
+        bool istryagainHovered = CheckCollisionPointRec(mouseWorldPos, tryagain);
+
+        BeginDrawing();
+        ClearBackground(RAYWHITE);
+        BeginMode2D(*camera);
+
+        DrawTextureEx(backgroundTexture, (Vector2) { baseX, baseY }, 0.0f, fmax(scaleX, scaleY), WHITE);
+        DrawRectangleRec(scoreRec, MAIN_BROWN);
+        DrawRectangleLinesEx((Rectangle) {-217,-195, 480, 360}, 5, WHITE);
+
+        Vector2 scorePos;
+        scorePos.x = centerX - (MeasureText("Score", 55) / 2);
+        scorePos.y = centerY - 150; 
+        DrawTextEx(meowFont, "Score", scorePos, 55, 2, WHITE);
+
+        char *scoreText = TextFormat("%d", global_score);
+        Vector2 scoreTextPos;
+        scoreTextPos.x = centerX - (MeasureText(scoreText, 100) / 2);
+        scoreTextPos.y = centerY - 80; 
+        DrawTextEx(meowFont, scoreText, scoreTextPos, 100, 2, WHITE);
+
+        DrawRectangleRec(tryagain, RED);
+        DrawTextEx(meowFont, "Menu", (Vector2) {-45,50}, 32, 2, WHITE);
+
+        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && (istryagainHovered))
+        {
+            ResetGameState();
+            MainMenuUpdate(camera, false);
+        }
+
+        EndMode2D();
+        EndDrawing();
+    }
 }
 
 void MainMenuUpdate(Camera2D* camera, bool playFade)
@@ -2192,13 +2966,13 @@ void MainMenuUpdate(Camera2D* camera, bool playFade)
         {
             if (isStartButtonHovered)
             {
-                PlaySelectSound();
+                PlaySoundFx(FX_SELECT);
                 transitionCallback = GameUpdate;
                 isTransitioningOut = true;
             }
             else if (isOptionsButtonHovered)
             {
-                PlaySelectSound();
+                PlaySoundFx(FX_SELECT);
                 transitionCallback = OptionsUpdate;
                 isTransitioningOut = true;
             }
@@ -2213,7 +2987,7 @@ void MainMenuUpdate(Camera2D* camera, bool playFade)
         {
             if (!isHovering || currentHoveredButton != 0)
             {
-                PlayHoverSound();
+                PlaySoundFx(FX_HOVER);
                 isHovering = true;
             }
             currentHoveredButton = 0;
@@ -2222,7 +2996,7 @@ void MainMenuUpdate(Camera2D* camera, bool playFade)
         {
             if (!isHovering || currentHoveredButton != 1)
             {
-                PlayHoverSound();
+                PlaySoundFx(FX_HOVER);
                 isHovering = true;
             }
             currentHoveredButton = 1;
@@ -2231,7 +3005,7 @@ void MainMenuUpdate(Camera2D* camera, bool playFade)
         {
             if (!isHovering || currentHoveredButton != 2)
             {
-                PlayHoverSound();
+                PlaySoundFx(FX_HOVER);
                 isHovering = true;
             }
             currentHoveredButton = 2;
@@ -2518,7 +3292,6 @@ int main()
 
     options = &_options;
 
-
     SetTargetFPS(options->targetFps);
     SetRuntimeResolution(&camera, options->resolution.x, options->resolution.y);
 
@@ -2529,6 +3302,9 @@ int main()
     logoTexture = LoadTexture(ASSETS_PATH"image/elements/studio_logo.png");
     splashBackgroundTexture = LoadTexture(ASSETS_PATH"image/backgrounds/splash.png");
     splashOverlayTexture = LoadTexture(ASSETS_PATH"image/backgrounds/splash_overlay.png");
+
+
+    SetExitKey(KEY_NULL);
 
     SplashUpdate(&camera);
     UnloadGlobalAssets();
