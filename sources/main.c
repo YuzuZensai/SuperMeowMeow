@@ -2005,14 +2005,7 @@ extern void PlayBgm(Music *bgm);
 
 extern void PlayBgmIfStopped(Music* bgm);
 
-void PauseBgm(Music *bgm)
-{
-	if (bgm != currentBgm) return;
-	if (isCurrentBgmPaused) return;
-
-	PauseMusicStream(*bgm);
-	isCurrentBgmPaused = true;
-}
+extern void PauseBgm(Music *bgm);
 
 void StopBgm(Music *bgm)
 {

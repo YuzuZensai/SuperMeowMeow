@@ -417,3 +417,55 @@ validiator:
 	.arm
 	.fpu vfp
 	.type	validiator, %function
+
+.global PauseBgm
+PauseBgm:
+	@ args = 0, pretend = 0, frame = 8
+	@ frame_needed = 1, uses_anonymous_args = 0
+	push	{r4, fp, lr}
+	add	fp, sp, #8
+	sub	sp, sp, #36
+	str	r0, [fp, #-16]
+	ldr	r3, .L595
+	ldr	r3, [r3]
+	ldr	r2, [fp, #-16]
+	cmp	r2, r3
+	bne	.L593
+	ldr	r3, .L595+4
+	ldrb	r3, [r3]	@ zero_extendqisi2
+	cmp	r3, #0
+	bne	.L594
+	ldr	r4, [fp, #-16]
+	mov	lr, sp
+	add	ip, r4, #16
+	ldmia	ip!, {r0, r1, r2, r3}
+	stmia	lr!, {r0, r1, r2, r3}
+	ldr	r3, [ip]
+	str	r3, [lr]
+	ldm	r4, {r0, r1, r2, r3}
+	bl	PauseMusicStream
+	ldr	r3, .L595+4
+	mov	r2, #1
+	strb	r2, [r3]
+	b	.L589
+
+.L595:
+	.word	currentBgm
+	.word	isCurrentBgmPaused
+	.size	PauseBgm, .-PauseBgm
+	.align	2
+	.global	StopBgm
+	.syntax unified
+	.arm
+	.fpu vfp
+	.type	StopBgm, %function
+
+.L593:
+	nop
+	b	.L589
+.L594:
+	nop
+.L589:
+	sub	sp, fp, #8
+	@ sp needed
+	pop	{r4, fp, pc}
