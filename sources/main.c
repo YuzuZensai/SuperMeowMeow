@@ -17,13 +17,14 @@
 #define DEBUG_FASTLOAD true
 #define DEBUG_MAX_FPS_HISTORY 500
 #define DEBUG_MAX_LOGS_HISTORY 25
+#define CUSTOMERS_COUNT 4
 
 // Base values
 const float baseX = -(BASE_SCREEN_WIDTH / 2);
 const float baseY = -(BASE_SCREEN_HEIGHT / 2);
 const float targetAspectRatio = (float)BASE_SCREEN_WIDTH / (float)BASE_SCREEN_HEIGHT;
 const int targetFps = 300;
-const float bgmVolume = 0.1f;
+const float bgmVolume = 0.25f;
 const float gameDuration = 60.0f * 2.0f;
 
 // Debug FPS history
@@ -102,17 +103,16 @@ Texture2D checkboxChecked;
 Texture2D left_arrow;
 Texture2D right_arrow;
 
-// Customer
-Texture2D customerTexture_first_happy;
-Texture2D customerTexture_second_happy;
-Texture2D customerTexture_third_happy;
-Texture2D customerTexture_first_normal;
-Texture2D customerTexture_second_normal;
-Texture2D customerTexture_third_normal;
-Texture2D customerTexture_first_angry;
-Texture2D customerTexture_second_angry;
-Texture2D customerTexture_third_angry;
 Texture2D bubbles;
+
+// Clouds
+Texture2D cloud1Texture;
+Texture2D cloud2Texture;
+Texture2D cloud3Texture;
+
+// Stars
+Texture2D star1Texture;
+Texture2D star2Texture;
 
 // Font
 Font meowFont;
@@ -190,6 +190,10 @@ Texture2D hotWaterTexture;
 Texture2D greenChonTexture;
 Texture2D cocoaChonTexture;
 
+
+// utils
+Texture2D trashCanTexture;
+
 static inline char* StringFromDifficultyEnum(Difficulty difficulty)
 {
     static const char* strings[] = { "Easy", "Medium", "Hard", "Freeplay (E)", "Freeplay (M)", "Freeplay (H)" };
@@ -206,7 +210,7 @@ typedef struct {
     Texture2D angryEyesClosed;
 } CustomerImageData;
 
-CustomerImageData customersImageData[3];
+CustomerImageData customersImageData[4];
 
 typedef enum {
     TEXTURE_TYPE_HAPPY,
@@ -303,6 +307,23 @@ typedef struct {
     float rotationSpeed;
 } MenuFallingItem;
 
+// Moving clouds
+typedef struct {
+	Vector2 position;
+	float speed;
+	float scale;
+	Texture2D texture;
+    bool fromRight;
+} MovingCloud;
+
+// Moving stars
+typedef struct {
+	Vector2 position;
+	float speed;
+	float scale;
+	Texture2D texture;
+} MovingStar;
+
 // Ingredient
 typedef enum IngredientType {
     NONE,
@@ -329,6 +350,8 @@ typedef struct {
 // Ingredients
 Ingredient teaPowder, cocoaPowder, normalMilk, condensedMilk, marshMellow, whippedCream, caramelSauce, chocolateSauce, hotWater;
 Ingredient greenChon, cocoaChon;
+
+Ingredient trashCan;
 
 // Cup
 typedef struct {
@@ -371,6 +394,7 @@ const Vector2 orimarshmellowPosition = { -481,320 };
 const Vector2 oriwhippedPosition = { -644,320 };
 const Vector2 oricupsPostion = { 390,80 };
 const Vector2 hiddenPosition = { -3000, -3000 };
+Vector2 trashCanPosition = { 0, 0 };
 
 static int global_score = 0;
 
@@ -396,7 +420,7 @@ void boilWater(Ingredient* item) {
 void PlaySoundFx(SoundFxType type);
 void RemoveCustomer(Customer* customer);
 bool validiator(Customer* customer, char* order);
-Texture2D* DragAndDropCup(Cup* cup, const DropArea* dropArea, Camera2D* camera, Customers *customers)
+Texture2D* DragAndDropCup(Cup* cup, const DropArea* dropArea, Camera2D* camera, Customers *customers, Ingredient* trashCan)
 {
     static bool isObjectBeingDragged = false;
     static Texture2D* current_dragging = NULL;
@@ -408,6 +432,21 @@ Texture2D* DragAndDropCup(Cup* cup, const DropArea* dropArea, Camera2D* camera, 
 
     if (IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {
         Vector2 mousePos = GetScreenToWorld2D(GetMousePosition(), *camera);
+
+        Rectangle trashCanBond = { trashCan->position.x, trashCan->position.y, trashCan->frameRectangle.width, trashCan->frameRectangle.height };
+        LogDebug("trashCanPosition.x: %f, trashCanPosition.y: %f, trashCanTexture.width: %d, trashCanTexture.height: %d\n", trashCanPosition.x, trashCanPosition.y, trashCanTexture.width, trashCanTexture.height);
+        Rectangle cupBond = { cup->position.x, cup->position.y, cup->texture.width, cup->texture.height };
+        LogDebug("Cup Positon x: %f, y: %f, cupTexture.width: %d, cupTexture.height: %d\n", cup->position.x, cup->position.y, cup->texture.width, cup->texture.height);
+        LogDebug("CheckCollisionRecs(trashCanBond, cupBond) %d\n", CheckCollisionRecs(trashCanBond, cupBond));
+        if(CheckCollisionRecs(trashCanBond, cupBond)){
+            cup->powderType = NONE;
+            cup->creamerType = NONE;
+            cup->toppingType = NONE;
+            cup->sauceType = NONE;
+            cup->hasWater = false;
+            cup->active = false;
+        }
+
         if (cup->active && CheckCollisionPointRec(mousePos, objectBounds) && (current_dragging == NULL || current_dragging == &cup->texture)) {
             isObjectBeingDragged = true;
             offsetX = cup->frameRectangle.width / 2;
@@ -696,7 +735,6 @@ void UpdateCup(Cup* cup, Ingredient* ingredient) {
         cup->sauceType = CHOCOLATE;
         PlaySoundFx(FX_BOTTLE);
     }
-
     UpdateCupImage(cup, ingredient);
 
 }
@@ -894,6 +932,12 @@ Customer menuCustomer2;
 MenuFallingItem menuFallingItems[20];
 GameOptions *options;
 
+// Moving clouds
+MovingCloud movingClouds[7];
+
+// Moving stars
+MovingStar movingStars[2];
+
 // Current BGM
 Music* currentBgm = NULL;
 bool isCurrentBgmPaused = false;
@@ -1046,6 +1090,96 @@ void DrawMenuFallingItems(double deltaTime, bool behide)
                 item->rotationSpeed = 1 * 100;
         }
     }
+}
+
+bool IsNight()
+{
+    return currentColorIndex == 3 && colorTransitionTime < 0.4;
+}
+
+void DrawMovingCloudAndStar(double deltaTime)
+{
+    int cloudCount = sizeof(movingClouds) / sizeof(movingClouds[0]);
+    int starCount = sizeof(movingStars) / sizeof(movingStars[0]);
+
+    if (IsNight())
+    {
+
+        for (int i = 0; i < starCount; i++) {
+
+            MovingStar* cloud = &movingStars[i];
+
+            bool fromRight = false;
+            bool isInView = cloud->position.x >= baseX && cloud->position.x <= baseX + BASE_SCREEN_WIDTH && cloud->position.y >= baseY && cloud->position.y <= baseY + BASE_SCREEN_HEIGHT;
+
+            // Calculate the X position based on time and direction
+            if (fromRight) {
+                cloud->position.x -= cloud->speed * deltaTime;
+                // Check if the cloud has moved off the screen
+                if ((float)cloud->position.x + ((float)(cloud->texture.width) * (float)(cloud->scale)) <= baseX) {
+                    cloud->position.x = baseX + BASE_SCREEN_WIDTH + (cloud->texture.width * cloud->scale) + GetRandomDoubleValue(100, 500);
+                }
+            }
+            else {
+                cloud->position.x += cloud->speed * deltaTime;
+                // Check if the cloud has moved off the screen
+                if (cloud->position.x > baseX + BASE_SCREEN_WIDTH) {
+                    cloud->position.x = baseX - (cloud->texture.width * cloud->scale) - GetRandomDoubleValue(100, 500);
+                }
+            }
+
+            // Draw the cloud
+            DrawTexture(cloud->texture, cloud->position.x, cloud->position.y, WHITE);
+
+            // Debug
+            if (options->showDebug && debugToolToggles.showObjects)
+            {
+                DrawRectangleLinesEx((Rectangle) { cloud->position.x, cloud->position.y, cloud->texture.width* cloud->scale, cloud->texture.height* cloud->scale }, 1, RED);
+                DrawRectangle(cloud->position.x, cloud->position.y - 20, 300, 20, Fade(GRAY, 0.7));
+                DrawTextEx(meowFont, TextFormat("%s | XY %.2f,%.2f | Speed %.2f | Scale %.2f", "Stars", cloud->position.x, cloud->position.y, cloud->speed, cloud->scale), (Vector2) { cloud->position.x, cloud->position.y - 20 }, 20, 1, WHITE);
+            }
+        }
+    }
+    else
+    {
+        for (int i = 0; i < cloudCount; i++) {
+            MovingCloud* cloud = &movingClouds[i];
+
+            bool fromRight = cloud->fromRight;
+            bool isInView = cloud->position.x >= baseX && cloud->position.x <= baseX + BASE_SCREEN_WIDTH && cloud->position.y >= baseY && cloud->position.y <= baseY + BASE_SCREEN_HEIGHT;
+
+            // Calculate the X position based on time and direction
+            if (fromRight) {
+                cloud->position.x -= cloud->speed * deltaTime;
+                // Check if the cloud has moved off the screen
+                if ((float)cloud->position.x + ((float)(cloud->texture.width) * (float)(cloud->scale)) <= baseX) {
+                    cloud->position.x = baseX + BASE_SCREEN_WIDTH + (cloud->texture.width * cloud->scale) + GetRandomDoubleValue(100, 500);
+                    cloud->position.y = GetRandomDoubleValue(baseY, 0);
+                }
+            }
+            else {
+                cloud->position.x += cloud->speed * deltaTime;
+                // Check if the cloud has moved off the screen
+                if (cloud->position.x > baseX + BASE_SCREEN_WIDTH) {
+                    cloud->position.x = baseX - (cloud->texture.width * cloud->scale) - GetRandomDoubleValue(100, 500);
+                    cloud->position.y = GetRandomDoubleValue(baseY, 0);
+                }
+            }
+
+            // Draw the cloud
+            DrawTexture(cloud->texture, cloud->position.x, cloud->position.y, WHITE);
+
+            // Debug
+            if (options->showDebug && debugToolToggles.showObjects)
+            {
+                DrawRectangleLinesEx((Rectangle) { cloud->position.x, cloud->position.y, cloud->texture.width* cloud->scale, cloud->texture.height* cloud->scale }, 1, RED);
+                DrawRectangle(cloud->position.x, cloud->position.y - 20, 300, 20, Fade(GRAY, 0.7));
+                DrawTextEx(meowFont, TextFormat("%s | XY %.2f,%.2f | Speed %.2f | Scale %.2f", "Cloud", cloud->position.x, cloud->position.y, cloud->speed, cloud->scale), (Vector2) { cloud->position.x, cloud->position.y - 20 }, 20, 1, WHITE);
+            }
+        }
+
+    }
+   
 }
 
 double RandomCustomerTimeoutBasedOnDifficulty()
@@ -1584,11 +1718,11 @@ bool validiator(Customer *customer, char *order)
 void render_customers(Customers *customers)
 {
     if(&customers->customer1 != NULL)
-        DrawCustomer(&customers->customer1, 0);
+        DrawCustomer(&customers->customer1);
 	if (&customers->customer2 != NULL)
-		DrawCustomer(&customers->customer2, 1);
+		DrawCustomer(&customers->customer2);
 	if (&customers->customer3 != NULL)
-		DrawCustomer(&customers->customer3, 2);
+		DrawCustomer(&customers->customer3);
 }
 
 //Yandere dev inspired programming.
@@ -1763,16 +1897,6 @@ void LoadGlobalAssets()
     left_arrow = LoadTexture(ASSETS_PATH"image/elements/left_arrow.png");
     right_arrow = LoadTexture(ASSETS_PATH"image/elements/right_arrow.png");
 
-	customerTexture_first_happy = LoadTexture(ASSETS_PATH"image/sprite/customer_happy.png");
-	customerTexture_second_happy = LoadTexture(ASSETS_PATH"image/sprite/customer_happy.png");
-	customerTexture_third_happy = LoadTexture(ASSETS_PATH"image/sprite/customer_happy.png");
-	customerTexture_first_normal = LoadTexture(ASSETS_PATH"image/sprite/customer_normal.png");
-	customerTexture_second_normal = LoadTexture(ASSETS_PATH"image/sprite/customer_normal.png");
-	customerTexture_third_normal = LoadTexture(ASSETS_PATH"image/sprite/customer_normal.png");
-	customerTexture_first_angry = LoadTexture(ASSETS_PATH"image/sprite/customer_angry.png");
-	customerTexture_second_angry = LoadTexture(ASSETS_PATH"image/sprite/customer_angry.png");
-	customerTexture_third_angry = LoadTexture(ASSETS_PATH"image/sprite/customer_angry.png");
-
     hoverFx = LoadSound(ASSETS_PATH"audio/hover.wav");
     selectFx = LoadSound(ASSETS_PATH"audio/select.wav");
     boongFx = LoadSound(ASSETS_PATH"audio/boong.wav");
@@ -1831,8 +1955,8 @@ void LoadGlobalAssets()
     hotWaterTexture = LoadTexture(ASSETS_PATH"/spritesheets/GAR.png");
     greenChonTexture = LoadTexture(ASSETS_PATH"/spritesheets/greenchon.png");
     cocoaChonTexture = LoadTexture(ASSETS_PATH"/spritesheets/cocoachon.png");
-
-    for (int i = 0; i < 3; i++)
+    trashCanTexture = LoadTexture(ASSETS_PATH"spritesheets/TRASHCAN.png");
+    for (int i = 0; i < CUSTOMERS_COUNT; i++)
     {
         customersImageData[i].happy = LoadTexture(TextFormat(ASSETS_PATH"image/sprite/customer_%d/happy.png", i + 1));
 		customersImageData[i].happyEyesClosed = LoadTexture(TextFormat(ASSETS_PATH"image/sprite/customer_%d/happy_eyes_closed.png", i + 1));
@@ -1842,6 +1966,12 @@ void LoadGlobalAssets()
         customersImageData[i].angryEyesClosed = LoadTexture(TextFormat(ASSETS_PATH"image/sprite/customer_%d/angry_eyes_closed.png", i + 1));
 	}
 
+    cloud1Texture = LoadTexture(ASSETS_PATH"image/sprite/cloud_1.png");
+    cloud2Texture = LoadTexture(ASSETS_PATH"image/sprite/cloud_2.png");
+    cloud3Texture = LoadTexture(ASSETS_PATH"image/sprite/cloud_3.png");
+
+    star1Texture = LoadTexture(ASSETS_PATH"image/sprite/star_1.png");
+    star2Texture = LoadTexture(ASSETS_PATH"image/sprite/star_2.png");
 	//orders
 	bubbles = LoadTexture(ASSETS_PATH"image/elements/bubbles.png");
 
@@ -1883,7 +2013,7 @@ void UnloadGlobalAssets()
     UnloadTexture(splashBackgroundTexture);
     UnloadTexture(splashOverlayTexture);
 
-    for (int i = 0; i < 3; i++)
+    for (int i = 0; i < CUSTOMERS_COUNT; i++)
     {
         UnloadTexture(customersImageData[i].happy);
 		UnloadTexture(customersImageData[i].happyEyesClosed);
@@ -1976,14 +2106,13 @@ Color ColorLerp(Color a, Color b, float t) {
     return result;
 }
 
-
-void DrawDayNightCycle()
+void DrawDayNightCycle(double deltaTime)
 {
     const Color dayNightColors[] = {
-    (Color){173, 216, 230, 255},  // Morning (Anime Light Blue)
-    (Color){0, 102, 204, 255},    // Afternoon (Anime Blue)
-    (Color){245, 161, 59, 255},    // Evening (Anime Orange)
-    (Color){0, 0, 102, 255}       // Night (Anime Dark Blue)
+        (Color){173, 216, 230, 255},  // Morning (Anime Light Blue)
+        (Color){0, 102, 204, 255},    // Afternoon (Anime Blue)
+        (Color){245, 161, 59, 255},    // Evening (Anime Orange)
+        (Color){0, 0, 102, 255}       // Night (Anime Dark Blue)
     };
 
     float colorTransitionSpeed = (float)(sizeof(dayNightColors) / sizeof(dayNightColors[0])) / dayNightCycleDuration;
@@ -2003,10 +2132,13 @@ void DrawDayNightCycle()
     // Draw the day/night color overlay with the scaled dimensions
     DrawRectangle(baseX, baseY, BASE_SCREEN_WIDTH, BASE_SCREEN_HEIGHT, currentColor);
 
+    // Draw moving clouds
+    DrawMovingCloudAndStar(deltaTime);
+
     // Draw day/night cycle debug overlay
     if (options->showDebug && debugToolToggles.showObjects)
     {
-        DrawRectangle(baseX + BASE_SCREEN_WIDTH - 500, baseY + 25, 400, 20, Fade(GRAY, 0.7));
+        DrawRectangle(baseX + 500, baseY + 25, 400, 20, Fade(GRAY, 0.7));
         DrawTextEx(meowFont, TextFormat("Time %.2f/%.2f | Phrase %d/%d", colorTransitionTime * dayNightCycleDuration, dayNightCycleDuration, currentColorIndex + 1, (sizeof(dayNightColors) / sizeof(dayNightColors[0]))), (Vector2) { baseX + BASE_SCREEN_WIDTH - 500, baseY + 25 }, 20, 2, WHITE);
     }
 
@@ -2042,7 +2174,7 @@ void OptionsUpdate(Camera2D* camera)
     Rectangle fullscreenRect = { baseX + 400, baseY + 595, 300, 70 };
     Rectangle debugRect = { baseX + 400, baseY + 675, 200, 70 };
 
-    Rectangle backRect = { baseX + 100, baseY + 430, 200, 70 };
+    Rectangle backRect = { baseX + 100, baseY + 840, 200, 70 };
 
     bool firstRender = true;
     double lastFrameTime = GetTime();
@@ -2361,7 +2493,20 @@ void OptionsUpdate(Camera2D* camera)
                 isHovering = false;
             }
         }
-
+        else
+        {
+            isDifficultyIncrementHovered = false;
+            isDifficultyDecrementHovered = false;
+            isResolutionIncrementHovered = false;
+            isResolutionDecrementHovered = false;
+            isFpsIncrementHovered = false;
+            isFpsDecrementHovered = false;
+            isMusicHovered = false;
+            isSoundFxHovered = false;
+            isFullscreenHovered = false;
+            isDebugHovered = false;
+            isBackHovered = false;
+        }
         if (firstRender)
             firstRender = false;
 
@@ -2382,7 +2527,7 @@ void OptionsUpdate(Camera2D* camera)
         // Draw the background with the scaled dimensions
         //DrawTextureEx(backgroundTexture, (Vector2) { baseX, baseY }, 0.0f, fmax(scaleX, scaleY), WHITE);
 
-        DrawDayNightCycle();
+        DrawDayNightCycle(deltaTime);
 
         // Draw falling items behind the menu
         DrawMenuFallingItems(deltaTime, true);
@@ -2395,43 +2540,43 @@ void OptionsUpdate(Camera2D* camera)
         DrawMenuFallingItems(deltaTime, false);
 
         // Music
-        DrawTextureEx(options->musicEnabled ? checkboxChecked : checkbox, (Vector2) { musicRect.x + 10, musicRect.y + 10 }, 0.0f, 1.0f / 6.0f, ColorAlphaOverride(WHITE, alpha));
-		DrawTextEx(meowFont, "Music", (Vector2) { musicRect.x + 80, musicRect.y + 22 }, 32, 2, ColorAlphaOverride(MAIN_BROWN, alpha));
+        DrawTextureEx(options->musicEnabled ? checkboxChecked : checkbox, (Vector2) { musicRect.x + 10, musicRect.y + 10 }, 0.0f, 1.0f / 6.0f, ColorAlphaOverride(WHITE, isMusicHovered ? 0.75 : alpha));
+		DrawTextEx(meowFont, "Music", (Vector2) { musicRect.x + 80, musicRect.y + 22 }, 32, 2, ColorAlphaOverride(MAIN_BROWN, isMusicHovered ? 0.75 : alpha));
 
         // Sound FX
-        DrawTextureEx(options->soundFxEnabled ? checkboxChecked : checkbox, (Vector2) { soundFxRect.x + 10, soundFxRect.y + 10 }, 0.0f, 1.0f / 6.0f, ColorAlphaOverride(WHITE, alpha));
-        DrawTextEx(meowFont, "Sound FX", (Vector2) { soundFxRect.x + 80, soundFxRect.y + 22 }, 32, 2, ColorAlphaOverride(MAIN_BROWN, alpha));
+        DrawTextureEx(options->soundFxEnabled ? checkboxChecked : checkbox, (Vector2) { soundFxRect.x + 10, soundFxRect.y + 10 }, 0.0f, 1.0f / 6.0f, ColorAlphaOverride(WHITE, isSoundFxHovered ? 0.75 : alpha));
+        DrawTextEx(meowFont, "Sound FX", (Vector2) { soundFxRect.x + 80, soundFxRect.y + 22 }, 32, 2, ColorAlphaOverride(MAIN_BROWN, isSoundFxHovered ? 0.75 : alpha));
 
         // Fullscreen
-        DrawTextureEx(options->fullscreen ? checkboxChecked : checkbox, (Vector2) { fullscreenRect.x + 10, fullscreenRect.y + 10 }, 0.0f, 1.0f / 6.0f, ColorAlphaOverride(WHITE, alpha));
-        DrawTextEx(meowFont, "Fullscreen", (Vector2) { fullscreenRect.x + 80, fullscreenRect.y + 22 }, 32, 2, ColorAlphaOverride(MAIN_BROWN, alpha));
+        DrawTextureEx(options->fullscreen ? checkboxChecked : checkbox, (Vector2) { fullscreenRect.x + 10, fullscreenRect.y + 10 }, 0.0f, 1.0f / 6.0f, ColorAlphaOverride(WHITE, isFullscreenHovered ? 0.75 : alpha));
+        DrawTextEx(meowFont, "Fullscreen", (Vector2) { fullscreenRect.x + 80, fullscreenRect.y + 22 }, 32, 2, ColorAlphaOverride(MAIN_BROWN, isFullscreenHovered ? 0.75 : alpha));
 
         // Debug
-        DrawTextureEx(options->showDebug ? checkboxChecked : checkbox, (Vector2) { debugRect.x + 10, debugRect.y + 10 }, 0.0f, 1.0f / 6.0f, ColorAlphaOverride(WHITE, alpha));
-		DrawTextEx(meowFont, "Debug", (Vector2) { debugRect.x + 80, debugRect.y + 22 }, 32, 2, ColorAlphaOverride(MAIN_BROWN, alpha));
+        DrawTextureEx(options->showDebug ? checkboxChecked : checkbox, (Vector2) { debugRect.x + 10, debugRect.y + 10 }, 0.0f, 1.0f / 6.0f, ColorAlphaOverride(WHITE, isDebugHovered ? 0.75 : alpha));
+		DrawTextEx(meowFont, "Debug", (Vector2) { debugRect.x + 80, debugRect.y + 22 }, 32, 2, ColorAlphaOverride(MAIN_BROWN, isDebugHovered ? 0.75 : alpha));
 
         // Difficulty
-        DrawTextureEx(left_arrow, (Vector2) { difficultyDecrementRect.x , difficultyDecrementRect.y}, 0.0f, 1.0f / 5.0f, ColorAlphaOverride(WHITE, alpha));
-        DrawTextureEx(right_arrow, (Vector2) { difficultyIncrementRect.x, difficultyIncrementRect.y }, 0.0f, 1.0f / 5.0f, ColorAlphaOverride(WHITE, alpha));
+        DrawTextureEx(left_arrow, (Vector2) { difficultyDecrementRect.x , difficultyDecrementRect.y}, 0.0f, 1.0f / 5.0f, ColorAlphaOverride(WHITE, isDifficultyDecrementHovered ? 0.75 : alpha));
+        DrawTextureEx(right_arrow, (Vector2) { difficultyIncrementRect.x, difficultyIncrementRect.y }, 0.0f, 1.0f / 5.0f, ColorAlphaOverride(WHITE, isDifficultyIncrementHovered ? 0.75 : alpha));
         DrawTextEx(meowFont, "Difficulty", (Vector2) { difficultyRect.x + 80, difficultyRect.y + 10 }, 32, 2, ColorAlphaOverride(MAIN_BROWN, alpha));
         DrawTextEx(meowFont, StringFromDifficultyEnum(options->difficulty), (Vector2) { difficultyRect.x + 80, difficultyRect.y + 42 }, 32, 2, ColorAlphaOverride(MAIN_BROWN, alpha));
 
         // Resolution
-        DrawTextureEx(left_arrow, (Vector2) { resolutionDecrementRect.x, resolutionDecrementRect.y }, 0.0f, 1.0f / 5.0f, ColorAlphaOverride(WHITE, alpha));
-        DrawTextureEx(right_arrow, (Vector2) { resolutionIncrementRect.x, resolutionDecrementRect.y }, 0.0f, 1.0f / 5.0f, ColorAlphaOverride(WHITE, alpha));
+        DrawTextureEx(left_arrow, (Vector2) { resolutionDecrementRect.x, resolutionDecrementRect.y }, 0.0f, 1.0f / 5.0f, ColorAlphaOverride(WHITE, isResolutionDecrementHovered ? 0.75 : alpha));
+        DrawTextureEx(right_arrow, (Vector2) { resolutionIncrementRect.x, resolutionDecrementRect.y }, 0.0f, 1.0f / 5.0f, ColorAlphaOverride(WHITE, isResolutionIncrementHovered ? 0.75 : alpha));
         DrawTextEx(meowFont, "Resolution", (Vector2) { resolutionRect.x + 80, resolutionRect.y + 10 }, 32, 2, ColorAlphaOverride(MAIN_BROWN, alpha));
         DrawTextEx(meowFont, TextFormat("%dx%d", options->resolution.x, options->resolution.y), (Vector2) { resolutionRect.x + 80, resolutionRect.y + 42 }, 32, 2, ColorAlphaOverride(MAIN_BROWN, alpha));
 
         // FPS
-        DrawTextureEx(left_arrow, (Vector2) { fpsDecrementRect.x, fpsDecrementRect.y }, 0.0f, 1.0f / 5.0f, ColorAlphaOverride(WHITE, alpha));
-        DrawTextureEx(right_arrow, (Vector2) { fpsIncrementRect.x, fpsDecrementRect.y }, 0.0f, 1.0f / 5.0f, ColorAlphaOverride(WHITE, alpha));
+        DrawTextureEx(left_arrow, (Vector2) { fpsDecrementRect.x, fpsDecrementRect.y }, 0.0f, 1.0f / 5.0f, ColorAlphaOverride(WHITE, isFpsDecrementHovered ? 0.75 : alpha));
+        DrawTextureEx(right_arrow, (Vector2) { fpsIncrementRect.x, fpsDecrementRect.y }, 0.0f, 1.0f / 5.0f, ColorAlphaOverride(WHITE, isFpsIncrementHovered ? 0.75 : alpha));
 		DrawTextEx(meowFont, "Target FPS", (Vector2) { fpsRect.x + 80, fpsRect.y + 10 }, 32, 2, ColorAlphaOverride(MAIN_BROWN, alpha));
         DrawTextEx(meowFont, TextFormat("%d FPS", options->targetFps), (Vector2) { fpsRect.x + 80, fpsRect.y + 42 }, 32, 2, ColorAlphaOverride(MAIN_BROWN, alpha));
 
 
         // Back
         DrawRectangleRec(backRect, isBackHovered ? ColorAlphaOverride(MAIN_ORANGE, alpha) : ColorAlphaOverride(MAIN_BROWN, alpha));
-        DrawTextEx(meowFont, "Back", (Vector2) { backRect.x + 40, backRect.y + 22 }, 32, 2, ColorAlphaOverride(WHITE, alpha));
+        DrawTextEx(meowFont, "Back", (Vector2) { backRect.x + 60, backRect.y + 20 }, 32, 2, ColorAlphaOverride(WHITE, alpha));
 
         // Draw debug
         if (options->showDebug && debugToolToggles.showObjects)
@@ -2466,10 +2611,12 @@ void OptionsUpdate(Camera2D* camera)
 
 int RandomCustomerTexture()
 {
-    int randomIndex = GetRandomValue(0, (sizeof(customersImageData) / sizeof(customersImageData[0])) - 1);
+    // Seed the random number generator with the current time
+    srand(time(NULL));
+
+    int randomIndex = rand() % (sizeof(customersImageData) / sizeof(customersImageData[0]));
     return randomIndex;
 }
-
 void GameUpdate(Camera2D *camera)
 {
     double lastFrameTime = GetTime();
@@ -2558,6 +2705,12 @@ void GameUpdate(Camera2D *camera)
     cocoaChon.currentFrame = 1;
 	cocoaChon.frameRectangle = frameRect(cocoaChon, cocoaChon.totalFrames, cocoaChon.currentFrame);
 
+
+    trashCan = (Ingredient){ trashCanTexture, false, trashCanPosition, trashCanPosition };
+    trashCan.currentFrame = 1;
+    trashCan.totalFrames = 2;
+    trashCan.frameRectangle = frameRect(trashCan, trashCan.totalFrames, trashCan.currentFrame);
+
     Texture2D* currentDrag = NULL;
 
     Customer customer1;
@@ -2570,7 +2723,7 @@ void GameUpdate(Camera2D *camera)
     Vector2 customer2Position = { baseX + 650, baseY + 100 };
     Vector2 customer3Position = { baseX + 1250, baseY + 100 };
 
-    Rectangle endScene = { 752, -532, 200, 70 };
+    Rectangle endScene = { 770, -500, 140, 70 };
 
     double initialReset[3];
     RandomCustomerInitialResetBasedOnDifficulty(&initialReset);
@@ -2634,7 +2787,7 @@ void GameUpdate(Camera2D *camera)
                 if (currentDrag != NULL) anyDragDetected = true;
             }
             if (currentDrag == NULL || currentDrag == &cup.texture) {
-                currentDrag = DragAndDropCup(&cup, &plate, camera, &customers);
+                currentDrag = DragAndDropCup(&cup, &plate, camera, &customers, &trashCan);
                 if (currentDrag != NULL) anyDragDetected = true;
             }
         }
@@ -2675,6 +2828,7 @@ void GameUpdate(Camera2D *camera)
             isHovering = highlightItem(&caramelSauce, camera) || isHovering;
             isHovering = highlightItem(&chocolateSauce, camera) || isHovering;
             isHovering = highlightItem(&hotWater, camera) || isHovering;
+            isHovering = highlightItem(&trashCan,camera) || isHovering;
         }
         else {
             isHovering = false;
@@ -2732,13 +2886,15 @@ void GameUpdate(Camera2D *camera)
         float scaleX = (float)BASE_SCREEN_WIDTH / imageWidth;
         float scaleY = (float)BASE_SCREEN_HEIGHT / imageHeight;
 
-        DrawDayNightCycle();
+        DrawDayNightCycle(deltaTime);
 
 		render_customers(&customers);
 
         DrawTextureEx(backgroundOverlayTexture, (Vector2) { baseX, baseY }, 0.0f, fmax(scaleX, scaleY), WHITE);
 
         DrawTexture(plate.texture, oriplatePosition.x, oriplatePosition.y, WHITE);
+
+        DrawDragableItemFrame(trashCan);
 
 
         DrawDragableItemFrame(hotWater);
@@ -2759,6 +2915,7 @@ void GameUpdate(Camera2D *camera)
 
         DrawTexture(greenChon.texture, greenChon.position.x, greenChon.position.y, WHITE);
         DrawTexture(cocoaChon.texture, cocoaChon.position.x, cocoaChon.position.y, WHITE);
+        
 
         if (cup.active)
             DrawTextureRec(cup.texture, cup.frameRectangle, cup.position, WHITE);
@@ -2802,8 +2959,8 @@ void GameUpdate(Camera2D *camera)
         // End game
         if(options->difficulty == FREEPLAY_EASY || options->difficulty == FREEPLAY_MEDIUM || options->difficulty == FREEPLAY_HARD)
 		{
-            DrawRectangleRec(endScene, RED);
-            DrawTextEx(meowFont, "End", (Vector2) { endScene.x + 40, endScene.y + 22 }, 32, 2, WHITE);
+            DrawRectangleRec(endScene, ColorAlphaOverride(RED, isendSceneHovered ? 0.5f : 1.0f));
+            DrawTextEx(meowFont, "End", (Vector2) { endScene.x + 42, endScene.y + 22 }, 32, 2, ColorAlphaOverride(WHITE, isendSceneHovered ? 0.5f : 1.0f));
 
 			if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && (isendSceneHovered))
 			{
@@ -2873,14 +3030,17 @@ void endgameUpdate(Camera2D *camera){
         scoreTextPos.y = centerY - 80; 
         DrawTextEx(meowFont, scoreText, scoreTextPos, 100, 2, WHITE);
 
-        DrawRectangleRec(tryagain, RED);
-        DrawTextEx(meowFont, "Menu", (Vector2) {-45,50}, 32, 2, WHITE);
+        DrawRectangleRec(tryagain, ColorAlphaOverride(RED, istryagainHovered ? 0.5f : 1.0f));
+        DrawTextEx(meowFont, "Menu", (Vector2) {-10,55}, 32, 2, ColorAlphaOverride(WHITE, istryagainHovered ? 0.5f : 1.0f));
 
         if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && (istryagainHovered))
         {
             ResetGameState();
             MainMenuUpdate(camera, false);
         }
+
+        if(options->showDebug)
+            DrawDebugOverlay(camera);
 
         EndMode2D();
         EndDrawing();
@@ -2908,10 +3068,23 @@ void MainMenuUpdate(Camera2D* camera, bool playFade)
     if(isTransitioningIn)
         transitionOffset = BASE_SCREEN_WIDTH / 2;
 
+    trashCanPosition = (Vector2){baseX , baseY + BASE_SCREEN_HEIGHT - 200};
+
     PlayBgmIfStopped(&menuBgm);
 
     if(playFade)
     {
+        movingClouds[0] = (MovingCloud){ (Vector2) { GetRandomDoubleValue(baseX - 200, baseX), GetRandomDoubleValue(baseY, 0) }, 250.0f, 1.0f, cloud1Texture, false };
+        movingClouds[1] = (MovingCloud){ (Vector2) { GetRandomDoubleValue(baseX - 200, baseX), GetRandomDoubleValue(baseY, 0) }, 200.0f, 1.0f, cloud2Texture, false };
+        movingClouds[2] = (MovingCloud){ (Vector2) { GetRandomDoubleValue(baseX - 200, baseX), GetRandomDoubleValue(baseY, 0) }, 150.0f, 2.0f, cloud3Texture, true };
+        movingClouds[3] = (MovingCloud){ (Vector2) { GetRandomDoubleValue(baseX - 200, baseX), GetRandomDoubleValue(baseY, 0) }, 250.0f, 1.0f, cloud1Texture, false };
+        movingClouds[4] = (MovingCloud){ (Vector2) { GetRandomDoubleValue(baseX - 200, baseX), GetRandomDoubleValue(baseY, 0) }, 100.0f, 1.7f, cloud2Texture, false };
+        movingClouds[5] = (MovingCloud){ (Vector2) { GetRandomDoubleValue(baseX - 200, baseX), GetRandomDoubleValue(baseY, 0) }, 200.0f, 1.0f, cloud3Texture, true };
+        movingClouds[6] = (MovingCloud){ (Vector2) { GetRandomDoubleValue(baseX - 200, baseX), GetRandomDoubleValue(baseY, 0) }, 150.0f, 1.0f, cloud3Texture, true };
+
+        movingStars[0] = (MovingStar){ (Vector2) { GetRandomDoubleValue(baseX - 200, baseX), baseY }, 50.0f, 3.0f, star1Texture };
+        movingStars[1] = (MovingStar){ (Vector2) { GetRandomDoubleValue(baseX - 200, baseX), baseY }, 25.0f, 2.0f, star2Texture };
+
         for (int i = 0; i < 20; i++) {
             menuFallingItems[i].position = (Vector2){ GetRandomDoubleValue(baseX, baseX + BASE_SCREEN_WIDTH - 20), baseY - GetRandomDoubleValue(200, 1000) };
             menuFallingItems[i].textureIndex = GetRandomValue(0, menuFallingItemsNumber - 1);
@@ -3037,7 +3210,7 @@ void MainMenuUpdate(Camera2D* camera, bool playFade)
         // Draw the background with the scaled dimensions
         // DrawTextureEx(backgroundTexture, (Vector2) { baseX, baseY }, 0.0f, fmax(scaleX, scaleY), WHITE);
         
-        DrawDayNightCycle();
+        DrawDayNightCycle(deltaTime);
 
         // Draw falling items behind the menu
         DrawMenuFallingItems(deltaTime, true);
