@@ -7,6 +7,7 @@ max: .double 1.0
     .align 2
     .global GetRandomDoubleValue
 
+
 .L11:
 	.word	-4194304
 	.word	1105199103
@@ -119,3 +120,44 @@ boilWater:
 	.size	boilWater, .-boilWater
 	.section	.rodata
 	.align	2
+
+.global IsNight
+IsNight:
+	@ args = 0, pretend = 0, frame = 0
+	@ frame_needed = 1, uses_anonymous_args = 0
+	@ link register save eliminated.
+	str	fp, [sp, #-4]!
+	add	fp, sp, #0
+	ldr	r3, .L207+8
+	ldr	r3, [r3]
+	cmp	r3, #3
+	bne	.L202
+	ldr	r3, .L207+12
+	vldr.32	s15, [r3]
+	vcvt.f64.f32	d7, s15
+	vldr.64	d6, .L207
+	vcmpe.f64	d7, d6
+	vmrs	APSR_nzcv, FPSCR
+	bpl	.L202
+	mov	r3, #1
+	b	.L204
+
+.L207:
+	.word	-1717986918
+	.word	1071225241
+	.word	currentColorIndex
+	.word	colorTransitionTime
+	.size	IsNight, .-IsNight
+	.section	.rodata
+	.align	2
+
+.L202:
+	mov	r3, #0
+.L204:
+	and	r3, r3, #1
+	uxtb	r3, r3
+	mov	r0, r3
+	add	sp, fp, #0
+	@ sp needed
+	ldr	fp, [sp], #4
+	bx	lr

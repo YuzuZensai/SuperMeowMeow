@@ -1079,10 +1079,7 @@ void DrawMenuFallingItems(double deltaTime, bool behide)
     }
 }
 
-bool IsNight()
-{
-    return currentColorIndex == 3 && colorTransitionTime < 0.4;
-}
+extern bool IsNight();
 
 void DrawMovingCloudAndStar(double deltaTime)
 {
