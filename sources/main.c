@@ -261,13 +261,13 @@ static inline char* StringFromCustomerEmotionEnum(CustomerEmotion emotion)
     return strings[emotion];
 }
 
-// LOGIC
+// LOGIC MOVED
 double GetRandomDoubleValue(double min, double max)
 {
     return min + (rand() / (double)RAND_MAX) * (max - min);
 }
 
-// LOGIC
+// LOGIC MOVED
 void RandomCustomerBlinkTime(Customer* customer) {
     customer->blinkDuration = GetRandomDoubleValue(0.2, 0.5);
     customer->normalDuration = GetRandomDoubleValue(2.0, 6.0);
