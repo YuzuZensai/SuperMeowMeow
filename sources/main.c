@@ -14,7 +14,7 @@
 
 // Debug flags
 #define DEBUG_SHOW true
-#define DEBUG_FASTLOAD true
+#define DEBUG_FASTLOAD false
 #define DEBUG_MAX_FPS_HISTORY 500
 #define DEBUG_MAX_LOGS_HISTORY 25
 
@@ -113,6 +113,15 @@ Texture2D customerTexture_first_angry;
 Texture2D customerTexture_second_angry;
 Texture2D customerTexture_third_angry;
 Texture2D bubbles;
+
+// Clouds
+Texture2D cloud1Texture;
+Texture2D cloud2Texture;
+Texture2D cloud3Texture;
+
+// Stars
+Texture2D star1Texture;
+Texture2D star2Texture;
 
 // Font
 Font meowFont;
@@ -302,6 +311,23 @@ typedef struct {
     float fallingSpeed;
     float rotationSpeed;
 } MenuFallingItem;
+
+// Moving clouds
+typedef struct {
+	Vector2 position;
+	float speed;
+	float scale;
+	Texture2D texture;
+    bool fromRight;
+} MovingCloud;
+
+// Moving stars
+typedef struct {
+	Vector2 position;
+	float speed;
+	float scale;
+	Texture2D texture;
+} MovingStar;
 
 // Ingredient
 typedef enum IngredientType {
@@ -894,6 +920,12 @@ Customer menuCustomer2;
 MenuFallingItem menuFallingItems[20];
 GameOptions *options;
 
+// Moving clouds
+MovingCloud movingClouds[7];
+
+// Moving stars
+MovingStar movingStars[2];
+
 // Current BGM
 Music* currentBgm = NULL;
 bool isCurrentBgmPaused = false;
@@ -1046,6 +1078,96 @@ void DrawMenuFallingItems(double deltaTime, bool behide)
                 item->rotationSpeed = 1 * 100;
         }
     }
+}
+
+bool IsNight()
+{
+    return currentColorIndex == 3 && colorTransitionTime < 0.4;
+}
+
+void DrawMovingCloudAndStar(double deltaTime)
+{
+    int cloudCount = sizeof(movingClouds) / sizeof(movingClouds[0]);
+    int starCount = sizeof(movingStars) / sizeof(movingStars[0]);
+
+    if (IsNight())
+    {
+
+        for (int i = 0; i < starCount; i++) {
+
+            MovingStar* cloud = &movingStars[i];
+
+            bool fromRight = false;
+            bool isInView = cloud->position.x >= baseX && cloud->position.x <= baseX + BASE_SCREEN_WIDTH && cloud->position.y >= baseY && cloud->position.y <= baseY + BASE_SCREEN_HEIGHT;
+
+            // Calculate the X position based on time and direction
+            if (fromRight) {
+                cloud->position.x -= cloud->speed * deltaTime;
+                // Check if the cloud has moved off the screen
+                if ((float)cloud->position.x + ((float)(cloud->texture.width) * (float)(cloud->scale)) <= baseX) {
+                    cloud->position.x = baseX + BASE_SCREEN_WIDTH + (cloud->texture.width * cloud->scale) + GetRandomDoubleValue(100, 500);
+                }
+            }
+            else {
+                cloud->position.x += cloud->speed * deltaTime;
+                // Check if the cloud has moved off the screen
+                if (cloud->position.x > baseX + BASE_SCREEN_WIDTH) {
+                    cloud->position.x = baseX - (cloud->texture.width * cloud->scale) - GetRandomDoubleValue(100, 500);
+                }
+            }
+
+            // Draw the cloud
+            DrawTexture(cloud->texture, cloud->position.x, cloud->position.y, WHITE);
+
+            // Debug
+            if (options->showDebug && debugToolToggles.showObjects)
+            {
+                DrawRectangleLinesEx((Rectangle) { cloud->position.x, cloud->position.y, cloud->texture.width* cloud->scale, cloud->texture.height* cloud->scale }, 1, RED);
+                DrawRectangle(cloud->position.x, cloud->position.y - 20, 300, 20, Fade(GRAY, 0.7));
+                DrawTextEx(meowFont, TextFormat("%s | XY %.2f,%.2f | Speed %.2f | Scale %.2f", "Stars", cloud->position.x, cloud->position.y, cloud->speed, cloud->scale), (Vector2) { cloud->position.x, cloud->position.y - 20 }, 20, 1, WHITE);
+            }
+        }
+    }
+    else
+    {
+        for (int i = 0; i < cloudCount; i++) {
+            MovingCloud* cloud = &movingClouds[i];
+
+            bool fromRight = cloud->fromRight;
+            bool isInView = cloud->position.x >= baseX && cloud->position.x <= baseX + BASE_SCREEN_WIDTH && cloud->position.y >= baseY && cloud->position.y <= baseY + BASE_SCREEN_HEIGHT;
+
+            // Calculate the X position based on time and direction
+            if (fromRight) {
+                cloud->position.x -= cloud->speed * deltaTime;
+                // Check if the cloud has moved off the screen
+                if ((float)cloud->position.x + ((float)(cloud->texture.width) * (float)(cloud->scale)) <= baseX) {
+                    cloud->position.x = baseX + BASE_SCREEN_WIDTH + (cloud->texture.width * cloud->scale) + GetRandomDoubleValue(100, 500);
+                    cloud->position.y = GetRandomDoubleValue(baseY, 0);
+                }
+            }
+            else {
+                cloud->position.x += cloud->speed * deltaTime;
+                // Check if the cloud has moved off the screen
+                if (cloud->position.x > baseX + BASE_SCREEN_WIDTH) {
+                    cloud->position.x = baseX - (cloud->texture.width * cloud->scale) - GetRandomDoubleValue(100, 500);
+                    cloud->position.y = GetRandomDoubleValue(baseY, 0);
+                }
+            }
+
+            // Draw the cloud
+            DrawTexture(cloud->texture, cloud->position.x, cloud->position.y, WHITE);
+
+            // Debug
+            if (options->showDebug && debugToolToggles.showObjects)
+            {
+                DrawRectangleLinesEx((Rectangle) { cloud->position.x, cloud->position.y, cloud->texture.width* cloud->scale, cloud->texture.height* cloud->scale }, 1, RED);
+                DrawRectangle(cloud->position.x, cloud->position.y - 20, 300, 20, Fade(GRAY, 0.7));
+                DrawTextEx(meowFont, TextFormat("%s | XY %.2f,%.2f | Speed %.2f | Scale %.2f", "Cloud", cloud->position.x, cloud->position.y, cloud->speed, cloud->scale), (Vector2) { cloud->position.x, cloud->position.y - 20 }, 20, 1, WHITE);
+            }
+        }
+
+    }
+   
 }
 
 double RandomCustomerTimeoutBasedOnDifficulty()
@@ -1842,6 +1964,12 @@ void LoadGlobalAssets()
         customersImageData[i].angryEyesClosed = LoadTexture(TextFormat(ASSETS_PATH"image/sprite/customer_%d/angry_eyes_closed.png", i + 1));
 	}
 
+    cloud1Texture = LoadTexture(ASSETS_PATH"image/sprite/cloud_1.png");
+    cloud2Texture = LoadTexture(ASSETS_PATH"image/sprite/cloud_2.png");
+    cloud3Texture = LoadTexture(ASSETS_PATH"image/sprite/cloud_3.png");
+
+    star1Texture = LoadTexture(ASSETS_PATH"image/sprite/star_1.png");
+    star2Texture = LoadTexture(ASSETS_PATH"image/sprite/star_2.png");
 	//orders
 	bubbles = LoadTexture(ASSETS_PATH"image/elements/bubbles.png");
 
@@ -1976,14 +2104,13 @@ Color ColorLerp(Color a, Color b, float t) {
     return result;
 }
 
-
-void DrawDayNightCycle()
+void DrawDayNightCycle(double deltaTime)
 {
     const Color dayNightColors[] = {
-    (Color){173, 216, 230, 255},  // Morning (Anime Light Blue)
-    (Color){0, 102, 204, 255},    // Afternoon (Anime Blue)
-    (Color){245, 161, 59, 255},    // Evening (Anime Orange)
-    (Color){0, 0, 102, 255}       // Night (Anime Dark Blue)
+        (Color){173, 216, 230, 255},  // Morning (Anime Light Blue)
+        (Color){0, 102, 204, 255},    // Afternoon (Anime Blue)
+        (Color){245, 161, 59, 255},    // Evening (Anime Orange)
+        (Color){0, 0, 102, 255}       // Night (Anime Dark Blue)
     };
 
     float colorTransitionSpeed = (float)(sizeof(dayNightColors) / sizeof(dayNightColors[0])) / dayNightCycleDuration;
@@ -2003,10 +2130,13 @@ void DrawDayNightCycle()
     // Draw the day/night color overlay with the scaled dimensions
     DrawRectangle(baseX, baseY, BASE_SCREEN_WIDTH, BASE_SCREEN_HEIGHT, currentColor);
 
+    // Draw moving clouds
+    DrawMovingCloudAndStar(deltaTime);
+
     // Draw day/night cycle debug overlay
     if (options->showDebug && debugToolToggles.showObjects)
     {
-        DrawRectangle(baseX + BASE_SCREEN_WIDTH - 500, baseY + 25, 400, 20, Fade(GRAY, 0.7));
+        DrawRectangle(baseX + 500, baseY + 25, 400, 20, Fade(GRAY, 0.7));
         DrawTextEx(meowFont, TextFormat("Time %.2f/%.2f | Phrase %d/%d", colorTransitionTime * dayNightCycleDuration, dayNightCycleDuration, currentColorIndex + 1, (sizeof(dayNightColors) / sizeof(dayNightColors[0]))), (Vector2) { baseX + BASE_SCREEN_WIDTH - 500, baseY + 25 }, 20, 2, WHITE);
     }
 
@@ -2382,7 +2512,7 @@ void OptionsUpdate(Camera2D* camera)
         // Draw the background with the scaled dimensions
         //DrawTextureEx(backgroundTexture, (Vector2) { baseX, baseY }, 0.0f, fmax(scaleX, scaleY), WHITE);
 
-        DrawDayNightCycle();
+        DrawDayNightCycle(deltaTime);
 
         // Draw falling items behind the menu
         DrawMenuFallingItems(deltaTime, true);
@@ -2732,7 +2862,7 @@ void GameUpdate(Camera2D *camera)
         float scaleX = (float)BASE_SCREEN_WIDTH / imageWidth;
         float scaleY = (float)BASE_SCREEN_HEIGHT / imageHeight;
 
-        DrawDayNightCycle();
+        DrawDayNightCycle(deltaTime);
 
 		render_customers(&customers);
 
@@ -2908,6 +3038,16 @@ void MainMenuUpdate(Camera2D* camera, bool playFade)
     if(isTransitioningIn)
         transitionOffset = BASE_SCREEN_WIDTH / 2;
 
+    movingClouds[0] = (MovingCloud){ (Vector2) { GetRandomDoubleValue(baseX - 200, baseX), GetRandomDoubleValue(baseY, 0) }, 250.0f, 1.0f, cloud1Texture, false };
+    movingClouds[1] = (MovingCloud){ (Vector2) { GetRandomDoubleValue(baseX - 200, baseX), GetRandomDoubleValue(baseY, 0) }, 200.0f, 1.0f, cloud2Texture, false};
+    movingClouds[2] = (MovingCloud){ (Vector2) { GetRandomDoubleValue(baseX - 200, baseX), GetRandomDoubleValue(baseY, 0) }, 150.0f, 2.0f, cloud3Texture, true };
+    movingClouds[3] = (MovingCloud){ (Vector2) { GetRandomDoubleValue(baseX - 200, baseX), GetRandomDoubleValue(baseY, 0) }, 250.0f, 1.0f, cloud1Texture, false };
+    movingClouds[4] = (MovingCloud){ (Vector2) { GetRandomDoubleValue(baseX - 200, baseX), GetRandomDoubleValue(baseY, 0) }, 100.0f, 1.7f, cloud2Texture, false };
+    movingClouds[5] = (MovingCloud){ (Vector2) { GetRandomDoubleValue(baseX - 200, baseX), GetRandomDoubleValue(baseY, 0) }, 200.0f, 1.0f, cloud3Texture, true };
+    movingClouds[6] = (MovingCloud){ (Vector2) { GetRandomDoubleValue(baseX - 200, baseX), GetRandomDoubleValue(baseY, 0) }, 150.0f, 1.0f, cloud3Texture, true };
+
+    movingStars[0] = (MovingStar){ (Vector2) { GetRandomDoubleValue(baseX - 200, baseX), baseY }, 50.0f, 3.0f, star1Texture };
+    movingStars[1] = (MovingStar){ (Vector2) { GetRandomDoubleValue(baseX - 200, baseX), baseY }, 25.0f, 2.0f, star2Texture };
     PlayBgmIfStopped(&menuBgm);
 
     if(playFade)
@@ -3037,7 +3177,7 @@ void MainMenuUpdate(Camera2D* camera, bool playFade)
         // Draw the background with the scaled dimensions
         // DrawTextureEx(backgroundTexture, (Vector2) { baseX, baseY }, 0.0f, fmax(scaleX, scaleY), WHITE);
         
-        DrawDayNightCycle();
+        DrawDayNightCycle(deltaTime);
 
         // Draw falling items behind the menu
         DrawMenuFallingItems(deltaTime, true);
