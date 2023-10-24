@@ -14,9 +14,10 @@
 
 // Debug flags
 #define DEBUG_SHOW true
-#define DEBUG_FASTLOAD false
+#define DEBUG_FASTLOAD !false
 #define DEBUG_MAX_FPS_HISTORY 500
 #define DEBUG_MAX_LOGS_HISTORY 25
+#define CUSTOMERS_COUNT 4
 
 // Base values
 const float baseX = -(BASE_SCREEN_WIDTH / 2);
@@ -102,16 +103,6 @@ Texture2D checkboxChecked;
 Texture2D left_arrow;
 Texture2D right_arrow;
 
-// Customer
-Texture2D customerTexture_first_happy;
-Texture2D customerTexture_second_happy;
-Texture2D customerTexture_third_happy;
-Texture2D customerTexture_first_normal;
-Texture2D customerTexture_second_normal;
-Texture2D customerTexture_third_normal;
-Texture2D customerTexture_first_angry;
-Texture2D customerTexture_second_angry;
-Texture2D customerTexture_third_angry;
 Texture2D bubbles;
 
 // Clouds
@@ -215,7 +206,7 @@ typedef struct {
     Texture2D angryEyesClosed;
 } CustomerImageData;
 
-CustomerImageData customersImageData[3];
+CustomerImageData customersImageData[4];
 
 typedef enum {
     TEXTURE_TYPE_HAPPY,
@@ -1885,16 +1876,6 @@ void LoadGlobalAssets()
     left_arrow = LoadTexture(ASSETS_PATH"image/elements/left_arrow.png");
     right_arrow = LoadTexture(ASSETS_PATH"image/elements/right_arrow.png");
 
-	customerTexture_first_happy = LoadTexture(ASSETS_PATH"image/sprite/customer_happy.png");
-	customerTexture_second_happy = LoadTexture(ASSETS_PATH"image/sprite/customer_happy.png");
-	customerTexture_third_happy = LoadTexture(ASSETS_PATH"image/sprite/customer_happy.png");
-	customerTexture_first_normal = LoadTexture(ASSETS_PATH"image/sprite/customer_normal.png");
-	customerTexture_second_normal = LoadTexture(ASSETS_PATH"image/sprite/customer_normal.png");
-	customerTexture_third_normal = LoadTexture(ASSETS_PATH"image/sprite/customer_normal.png");
-	customerTexture_first_angry = LoadTexture(ASSETS_PATH"image/sprite/customer_angry.png");
-	customerTexture_second_angry = LoadTexture(ASSETS_PATH"image/sprite/customer_angry.png");
-	customerTexture_third_angry = LoadTexture(ASSETS_PATH"image/sprite/customer_angry.png");
-
     hoverFx = LoadSound(ASSETS_PATH"audio/hover.wav");
     selectFx = LoadSound(ASSETS_PATH"audio/select.wav");
     boongFx = LoadSound(ASSETS_PATH"audio/boong.wav");
@@ -1954,7 +1935,7 @@ void LoadGlobalAssets()
     greenChonTexture = LoadTexture(ASSETS_PATH"/spritesheets/greenchon.png");
     cocoaChonTexture = LoadTexture(ASSETS_PATH"/spritesheets/cocoachon.png");
 
-    for (int i = 0; i < 3; i++)
+    for (int i = 0; i < CUSTOMERS_COUNT; i++)
     {
         customersImageData[i].happy = LoadTexture(TextFormat(ASSETS_PATH"image/sprite/customer_%d/happy.png", i + 1));
 		customersImageData[i].happyEyesClosed = LoadTexture(TextFormat(ASSETS_PATH"image/sprite/customer_%d/happy_eyes_closed.png", i + 1));
@@ -2011,7 +1992,7 @@ void UnloadGlobalAssets()
     UnloadTexture(splashBackgroundTexture);
     UnloadTexture(splashOverlayTexture);
 
-    for (int i = 0; i < 3; i++)
+    for (int i = 0; i < CUSTOMERS_COUNT; i++)
     {
         UnloadTexture(customersImageData[i].happy);
 		UnloadTexture(customersImageData[i].happyEyesClosed);
