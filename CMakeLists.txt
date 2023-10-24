@@ -28,7 +28,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_INCLUDE})
 
 if (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "armv7l" AND ${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
     target_link_libraries(${PROJECT_NAME} PRIVATE raylib atomic ${EXTRA_LIBS}) # Link with raylib and any extra libraries
-else
+else()
     target_link_libraries(${PROJECT_NAME} PRIVATE raylib ${EXTRA_LIBS}) 
 endif()
 # Setting ASSETS_PATH
