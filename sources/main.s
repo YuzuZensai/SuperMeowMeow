@@ -1,12 +1,27 @@
 .data
-    .align 3
+.align 3
 min: .double 0.0
 max: .double 1.0
 
 .text
-    .align 2
-    .global GetRandomDoubleValue
+.align 2
 
+.global add
+.global sub
+.global boilWater
+.global IsNight
+.global PlayBgm
+.global PlayBgmIfStopped
+.global validiator
+.global PauseBgm
+
+.add:
+	add r0, r0, r1
+	BX LR
+
+.sub:
+	sub r0, r0, r1
+	BX LR
 
 .L11:
 	.word	-4194304
@@ -86,7 +101,6 @@ RandomCustomerBlinkTime:
 	@ sp needed
 	pop	{fp, pc}
 
-.global boilWater
 boilWater:
 	@ args = 0, pretend = 0, frame = 8
 	@ frame_needed = 1, uses_anonymous_args = 0
@@ -121,7 +135,6 @@ boilWater:
 	.section	.rodata
 	.align	2
 
-.global IsNight
 IsNight:
 	@ args = 0, pretend = 0, frame = 0
 	@ frame_needed = 1, uses_anonymous_args = 0
@@ -162,7 +175,6 @@ IsNight:
 	ldr	fp, [sp], #4
 	bx	lr
 
-.global PlayBgm
 PlayBgm:
 	@ args = 0, pretend = 0, frame = 8
 	@ frame_needed = 1, uses_anonymous_args = 0
@@ -264,7 +276,6 @@ PlayBgm:
 	@ sp needed
 	pop	{r4, fp, pc}
 
-.global PlayBgmIfStopped
 PlayBgmIfStopped:
 	@ args = 0, pretend = 0, frame = 8
 	@ frame_needed = 1, uses_anonymous_args = 0
@@ -365,7 +376,6 @@ PlayBgmIfStopped:
 	@ sp needed
 	pop	{r4, fp, pc}
 
-.global validiator
 validiator:
 	@ args = 0, pretend = 0, frame = 8
 	@ frame_needed = 1, uses_anonymous_args = 0
@@ -418,7 +428,6 @@ validiator:
 	.fpu vfp
 	.type	validiator, %function
 
-.global PauseBgm
 PauseBgm:
 	@ args = 0, pretend = 0, frame = 8
 	@ frame_needed = 1, uses_anonymous_args = 0
@@ -469,3 +478,4 @@ PauseBgm:
 	sub	sp, fp, #8
 	@ sp needed
 	pop	{r4, fp, pc}
+
