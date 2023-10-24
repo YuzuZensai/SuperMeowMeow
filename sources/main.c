@@ -261,16 +261,6 @@ static inline char* StringFromCustomerEmotionEnum(CustomerEmotion emotion)
     return strings[emotion];
 }
 
-double GetRandomDoubleValue(double min, double max)
-{
-    return min + (rand() / (double)RAND_MAX) * (max - min);
-}
-
-void RandomCustomerBlinkTime(Customer* customer) {
-    customer->blinkDuration = GetRandomDoubleValue(0.2, 0.5);
-    customer->normalDuration = GetRandomDoubleValue(2.0, 6.0);
-}
-
 Customer CreateCustomer(CustomerEmotion emotion, double blinkTimer, double normalDuration, double blinkDuration, bool visible, Vector2 position, int textureType, double resetTimer) {
     Customer newCustomer;
 
@@ -378,6 +368,10 @@ typedef struct {
 
 DropArea plate;
 
+extern double GetRandomDoubleValue(double min, double max);
+extern void RandomCustomerBlinkTime(Customer* customer);
+extern void boilWater(Ingredient* item);
+
 // Original position
 const Vector2 oricupPosition = { 351,109 };
 const Vector2 oriwaterPosition = { 600, 210 };
@@ -408,13 +402,6 @@ void ExitApplication()
 {
     UnloadGlobalAssets();
     exit(0);
-}
-
-void boilWater(Ingredient* item) {
-    if (!item->canChangeCupTexture) {
-        triggerHotWater = true;
-        boilingTime = GetTime();
-    }
 }
 
 void PlaySoundFx(SoundFxType type);
