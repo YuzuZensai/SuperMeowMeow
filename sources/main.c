@@ -2959,8 +2959,8 @@ void GameUpdate(Camera2D *camera)
         // End game
         if(options->difficulty == FREEPLAY_EASY || options->difficulty == FREEPLAY_MEDIUM || options->difficulty == FREEPLAY_HARD)
 		{
-            DrawRectangleRec(endScene, RED);
-            DrawTextEx(meowFont, "End", (Vector2) { endScene.x + 42, endScene.y + 22 }, 32, 2, WHITE);
+            DrawRectangleRec(endScene, ColorAlphaOverride(RED, isendSceneHovered ? 0.5f : 1.0f));
+            DrawTextEx(meowFont, "End", (Vector2) { endScene.x + 42, endScene.y + 22 }, 32, 2, ColorAlphaOverride(WHITE, isendSceneHovered ? 0.5f : 1.0f));
 
 			if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && (isendSceneHovered))
 			{
@@ -3030,14 +3030,17 @@ void endgameUpdate(Camera2D *camera){
         scoreTextPos.y = centerY - 80; 
         DrawTextEx(meowFont, scoreText, scoreTextPos, 100, 2, WHITE);
 
-        DrawRectangleRec(tryagain, RED);
-        DrawTextEx(meowFont, "Menu", (Vector2) {-45,50}, 32, 2, WHITE);
+        DrawRectangleRec(tryagain, ColorAlphaOverride(RED, istryagainHovered ? 0.5f : 1.0f));
+        DrawTextEx(meowFont, "Menu", (Vector2) {-10,55}, 32, 2, ColorAlphaOverride(WHITE, istryagainHovered ? 0.5f : 1.0f));
 
         if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && (istryagainHovered))
         {
             ResetGameState();
             MainMenuUpdate(camera, false);
         }
+
+        if(options->showDebug)
+            DrawDebugOverlay(camera);
 
         EndMode2D();
         EndDrawing();
