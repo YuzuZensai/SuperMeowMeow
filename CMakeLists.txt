@@ -56,3 +56,17 @@ if ((${CMAKE_SYSTEM_PROCESSOR} STREQUAL "armv7l" OR ${CMAKE_SYSTEM_PROCESSOR} ST
     target_compile_definitions(${PROJECT_NAME} PUBLIC ) # Set GL version to 3.3
 endif()
 
+if ("${CMAKE_C_COMPILER_ID}" STREQUAL "MSVC")
+    target_compile_options(${PROJECT_NAME} PRIVATE "/FA") # Generate assembly code
+    # Other MSVC-specific options
+endif()
+
+if ("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU")
+    target_compile_options(${PROJECT_NAME} PRIVATE "-S") # Generate assembly code
+    # Other GCC-specific options
+endif()
+
+if ("${CMAKE_C_COMPILER_ID}" STREQUAL "Clang")
+    target_compile_options(${PROJECT_NAME} PRIVATE "-S") # Generate assembly code
+    # Other Clang-specific options
+endif()
