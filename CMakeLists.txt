@@ -50,8 +50,9 @@ elseif ("${CMAKE_C_COMPILER_ID}" STREQUAL  "MSVC")
 endif()
 
 # Check if we are compiling for ARM32 and Linux
-if (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "armv7l" AND ${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+if ((${CMAKE_SYSTEM_PROCESSOR} STREQUAL "armv7l" OR ${CMAKE_SYSTEM_PROCESSOR} STREQUAL "armv7l") AND ${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
     set(EXTRA_LIBS "-latomic") # Link the libatomic library with -latomic flag
     target_compile_definitions(${PROJECT_NAME} PUBLIC ) # Set GLSL version to 330
     target_compile_definitions(${PROJECT_NAME} PUBLIC ) # Set GL version to 3.3
 endif()
+
