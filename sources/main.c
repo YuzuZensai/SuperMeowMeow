@@ -2011,47 +2011,9 @@ void UnloadGlobalAssets()
 }
 
 
-void PlayBgm(Music *bgm)
-{
-    if (bgm == currentBgm)
-    {
-        if (isCurrentBgmPaused && options->musicEnabled)
-        {
-            PlayMusicStream(*bgm);
-            bgm->looping = true;
-            isCurrentBgmPaused = false;
-        }
-        return;
-    }
+extern void PlayBgm(Music *bgm);
 
-    currentBgm = bgm;
-	StopMusicStream(*currentBgm);
-	PlayMusicStream(*currentBgm);
-    SetMusicVolume(*currentBgm, bgmVolume);
-    bgm->looping = true;
-    isCurrentBgmPaused = false;
-}
-
-void PlayBgmIfStopped(Music* bgm)
-{
-    if (bgm == currentBgm)
-    {
-        if (isCurrentBgmPaused && options->musicEnabled)
-        {
-            PlayMusicStream(*bgm);
-            SetMusicVolume(*bgm, bgmVolume);
-            bgm->looping = true;
-            isCurrentBgmPaused = false;
-        }
-        return;
-    }
-
-    currentBgm = bgm;
-    PlayMusicStream(*currentBgm);
-    SetMusicVolume(*currentBgm, bgmVolume);
-    bgm->looping = true;
-    isCurrentBgmPaused = false;
-}
+extern void PlayBgmIfStopped(Music* bgm);
 
 void PauseBgm(Music *bgm)
 {

@@ -161,3 +161,206 @@ IsNight:
 	@ sp needed
 	ldr	fp, [sp], #4
 	bx	lr
+
+.global PlayBgm
+PlayBgm:
+	@ args = 0, pretend = 0, frame = 8
+	@ frame_needed = 1, uses_anonymous_args = 0
+	push	{r4, fp, lr}
+	add	fp, sp, #8
+	sub	sp, sp, #36
+	str	r0, [fp, #-16]
+	ldr	r3, .L580+4
+	ldr	r3, [r3]
+	ldr	r2, [fp, #-16]
+	cmp	r2, r3
+	bne	.L576
+	ldr	r3, .L580+8
+	ldrb	r3, [r3]	@ zero_extendqisi2
+	cmp	r3, #0
+	beq	.L579
+	ldr	r3, .L580+12
+	ldr	r3, [r3]
+	ldrb	r3, [r3, #22]	@ zero_extendqisi2
+	cmp	r3, #0
+	beq	.L579
+	ldr	r4, [fp, #-16]
+	mov	lr, sp
+	add	ip, r4, #16
+	ldmia	ip!, {r0, r1, r2, r3}
+	stmia	lr!, {r0, r1, r2, r3}
+	ldr	r3, [ip]
+	str	r3, [lr]
+	ldm	r4, {r0, r1, r2, r3}
+	bl	PlayMusicStream
+	ldr	r3, [fp, #-16]
+	mov	r2, #1
+	strb	r2, [r3, #24]
+	ldr	r3, .L580+8
+	mov	r2, #0
+	strb	r2, [r3]
+	b	.L579
+
+.L580:
+	.word	1048576000
+	.word	currentBgm
+	.word	isCurrentBgmPaused
+	.word	options
+	.size	PlayBgm, .-PlayBgm
+	.align	2
+	.global	PlayBgmIfStopped
+	.syntax unified
+	.arm
+	.fpu vfp
+	.type	PlayBgmIfStopped, %function
+
+.L576:
+	ldr	r2, .L580+4
+	ldr	r3, [fp, #-16]
+	str	r3, [r2]
+	ldr	r3, .L580+4
+	ldr	r4, [r3]
+	mov	lr, sp
+	add	ip, r4, #16
+	ldmia	ip!, {r0, r1, r2, r3}
+	stmia	lr!, {r0, r1, r2, r3}
+	ldr	r3, [ip]
+	str	r3, [lr]
+	ldm	r4, {r0, r1, r2, r3}
+	bl	StopMusicStream
+	ldr	r3, .L580+4
+	ldr	r4, [r3]
+	mov	lr, sp
+	add	ip, r4, #16
+	ldmia	ip!, {r0, r1, r2, r3}
+	stmia	lr!, {r0, r1, r2, r3}
+	ldr	r3, [ip]
+	str	r3, [lr]
+	ldm	r4, {r0, r1, r2, r3}
+	bl	PlayMusicStream
+	ldr	r3, .L580+4
+	ldr	r4, [r3]
+	vldr.32	s15, .L580
+	mov	lr, sp
+	add	ip, r4, #16
+	ldmia	ip!, {r0, r1, r2, r3}
+	stmia	lr!, {r0, r1, r2, r3}
+	ldr	r3, [ip]
+	str	r3, [lr]
+	ldm	r4, {r0, r1, r2, r3}
+	vmov.f32	s0, s15
+	bl	SetMusicVolume
+	ldr	r3, [fp, #-16]
+	mov	r2, #1
+	strb	r2, [r3, #24]
+	ldr	r3, .L580+8
+	mov	r2, #0
+	strb	r2, [r3]
+	b	.L575
+.L579:
+	nop
+.L575:
+	sub	sp, fp, #8
+	@ sp needed
+	pop	{r4, fp, pc}
+
+.global PlayBgmIfStopped
+PlayBgmIfStopped:
+	@ args = 0, pretend = 0, frame = 8
+	@ frame_needed = 1, uses_anonymous_args = 0
+	push	{r4, fp, lr}
+	add	fp, sp, #8
+	sub	sp, sp, #36
+	str	r0, [fp, #-16]
+	ldr	r3, .L587+4
+	ldr	r3, [r3]
+	ldr	r2, [fp, #-16]
+	cmp	r2, r3
+	bne	.L583
+	ldr	r3, .L587+8
+	ldrb	r3, [r3]	@ zero_extendqisi2
+	cmp	r3, #0
+	beq	.L586
+	ldr	r3, .L587+12
+	ldr	r3, [r3]
+	ldrb	r3, [r3, #22]	@ zero_extendqisi2
+	cmp	r3, #0
+	beq	.L586
+	ldr	r4, [fp, #-16]
+	mov	lr, sp
+	add	ip, r4, #16
+	ldmia	ip!, {r0, r1, r2, r3}
+	stmia	lr!, {r0, r1, r2, r3}
+	ldr	r3, [ip]
+	str	r3, [lr]
+	ldm	r4, {r0, r1, r2, r3}
+	bl	PlayMusicStream
+	vldr.32	s15, .L587
+	ldr	r4, [fp, #-16]
+	mov	lr, sp
+	add	ip, r4, #16
+	ldmia	ip!, {r0, r1, r2, r3}
+	stmia	lr!, {r0, r1, r2, r3}
+	ldr	r3, [ip]
+	str	r3, [lr]
+	ldm	r4, {r0, r1, r2, r3}
+	vmov.f32	s0, s15
+	bl	SetMusicVolume
+	ldr	r3, [fp, #-16]
+	mov	r2, #1
+	strb	r2, [r3, #24]
+	ldr	r3, .L587+8
+	mov	r2, #0
+	strb	r2, [r3]
+	b	.L586
+.L587:
+	.word	1048576000
+	.word	currentBgm
+	.word	isCurrentBgmPaused
+	.word	options
+	.size	PlayBgmIfStopped, .-PlayBgmIfStopped
+	.align	2
+	.global	PauseBgm
+	.syntax unified
+	.arm
+	.fpu vfp
+	.type	PauseBgm, %function
+.L583:
+	ldr	r2, .L587+4
+	ldr	r3, [fp, #-16]
+	str	r3, [r2]
+	ldr	r3, .L587+4
+	ldr	r4, [r3]
+	mov	lr, sp
+	add	ip, r4, #16
+	ldmia	ip!, {r0, r1, r2, r3}
+	stmia	lr!, {r0, r1, r2, r3}
+	ldr	r3, [ip]
+	str	r3, [lr]
+	ldm	r4, {r0, r1, r2, r3}
+	bl	PlayMusicStream
+	ldr	r3, .L587+4
+	ldr	r4, [r3]
+	vldr.32	s15, .L587
+	mov	lr, sp
+	add	ip, r4, #16
+	ldmia	ip!, {r0, r1, r2, r3}
+	stmia	lr!, {r0, r1, r2, r3}
+	ldr	r3, [ip]
+	str	r3, [lr]
+	ldm	r4, {r0, r1, r2, r3}
+	vmov.f32	s0, s15
+	bl	SetMusicVolume
+	ldr	r3, [fp, #-16]
+	mov	r2, #1
+	strb	r2, [r3, #24]
+	ldr	r3, .L587+8
+	mov	r2, #0
+	strb	r2, [r3]
+	b	.L582
+.L586:
+	nop
+.L582:
+	sub	sp, fp, #8
+	@ sp needed
+	pop	{r4, fp, pc}
