@@ -1706,11 +1706,11 @@ bool validiator(Customer *customer, char *order)
 void render_customers(Customers *customers)
 {
     if(&customers->customer1 != NULL)
-        DrawCustomer(&customers->customer1, 0);
+        DrawCustomer(&customers->customer1);
 	if (&customers->customer2 != NULL)
-		DrawCustomer(&customers->customer2, 1);
+		DrawCustomer(&customers->customer2);
 	if (&customers->customer3 != NULL)
-		DrawCustomer(&customers->customer3, 2);
+		DrawCustomer(&customers->customer3);
 }
 
 //Yandere dev inspired programming.
