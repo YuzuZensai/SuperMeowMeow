@@ -26,7 +26,7 @@ add_executable(${PROJECT_NAME})
 target_sources(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCES})
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_INCLUDE})
 
-if (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "armv7l" AND ${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+if ((${CMAKE_SYSTEM_PROCESSOR} STREQUAL "armv7l" OR ${CMAKE_SYSTEM_PROCESSOR} STREQUAL "aarch64") AND ${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
     target_link_libraries(${PROJECT_NAME} PRIVATE raylib atomic ${EXTRA_LIBS}) # Link with raylib and any extra libraries
 else()
     target_link_libraries(${PROJECT_NAME} PRIVATE raylib ${EXTRA_LIBS}) 
@@ -50,7 +50,7 @@ elseif ("${CMAKE_C_COMPILER_ID}" STREQUAL  "MSVC")
 endif()
 
 # Check if we are compiling for ARM32 and Linux
-if ((${CMAKE_SYSTEM_PROCESSOR} STREQUAL "armv7l" OR ${CMAKE_SYSTEM_PROCESSOR} STREQUAL "armv7l") AND ${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+if ((${CMAKE_SYSTEM_PROCESSOR} STREQUAL "armv7l" OR ${CMAKE_SYSTEM_PROCESSOR} STREQUAL "aarch64") AND ${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
     set(EXTRA_LIBS "-latomic") # Link the libatomic library with -latomic flag
     target_compile_definitions(${PROJECT_NAME} PUBLIC ) # Set GLSL version to 330
     target_compile_definitions(${PROJECT_NAME} PUBLIC ) # Set GL version to 3.3
