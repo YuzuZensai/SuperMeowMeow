@@ -2,13 +2,6 @@ cmake_minimum_required(VERSION 3.0)
 project(my_raylib_game C)
 set(CMAKE_C_STANDARD 99)
 
-# Check if we are compiling for ARM32 and Linux
-if (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "armv7l" AND ${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
-    set(EXTRA_LIBS "-latomic") # Link the libatomic library with -latomic flag
-    target_compile_definitions(${PROJECT_NAME} PUBLIC MESA_GLSL_VERSION_OVERRIDE=330) # Set GLSL version to 330
-    target_compile_definitions(${PROJECT_NAME} PUBLIC MESA_GL_VERSION_OVERRIDE=3.3) # Set GL version to 3.3
-endif()
-
 # Adding Raylib
 include(FetchContent)
 set(FETCHCONTENT_QUIET FALSE)
@@ -50,4 +43,11 @@ elseif ("${CMAKE_C_COMPILER_ID}" STREQUAL  "MSVC")
     # Using MSVC (Visual Studio), add the required linker options
      target_link_options(${PROJECT_NAME} PRIVATE "/SUBSYSTEM:windows" "/ENTRY:mainCRTStartup")
     # If you need additional compiler flags for MSVC, you can set them here.
+endif()
+
+# Check if we are compiling for ARM32 and Linux
+if (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "armv7l" AND ${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+    set(EXTRA_LIBS "-latomic") # Link the libatomic library with -latomic flag
+    target_compile_definitions(${PROJECT_NAME} PUBLIC MESA_GLSL_VERSION_OVERRIDE=330) # Set GLSL version to 330
+    target_compile_definitions(${PROJECT_NAME} PUBLIC MESA_GL_VERSION_OVERRIDE=3.3) # Set GL version to 3.3
 endif()
