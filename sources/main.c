@@ -2153,7 +2153,7 @@ void OptionsUpdate(Camera2D* camera)
     Rectangle fullscreenRect = { baseX + 400, baseY + 595, 300, 70 };
     Rectangle debugRect = { baseX + 400, baseY + 675, 200, 70 };
 
-    Rectangle backRect = { baseX + 100, baseY + 430, 200, 70 };
+    Rectangle backRect = { baseX + 100, baseY + 840, 200, 70 };
 
     bool firstRender = true;
     double lastFrameTime = GetTime();
@@ -2506,43 +2506,43 @@ void OptionsUpdate(Camera2D* camera)
         DrawMenuFallingItems(deltaTime, false);
 
         // Music
-        DrawTextureEx(options->musicEnabled ? checkboxChecked : checkbox, (Vector2) { musicRect.x + 10, musicRect.y + 10 }, 0.0f, 1.0f / 6.0f, ColorAlphaOverride(WHITE, alpha));
-		DrawTextEx(meowFont, "Music", (Vector2) { musicRect.x + 80, musicRect.y + 22 }, 32, 2, ColorAlphaOverride(MAIN_BROWN, alpha));
+        DrawTextureEx(options->musicEnabled ? checkboxChecked : checkbox, (Vector2) { musicRect.x + 10, musicRect.y + 10 }, 0.0f, 1.0f / 6.0f, ColorAlphaOverride(WHITE, isMusicHovered ? 0.75 : alpha));
+		DrawTextEx(meowFont, "Music", (Vector2) { musicRect.x + 80, musicRect.y + 22 }, 32, 2, ColorAlphaOverride(MAIN_BROWN, isMusicHovered ? 0.75 : alpha));
 
         // Sound FX
-        DrawTextureEx(options->soundFxEnabled ? checkboxChecked : checkbox, (Vector2) { soundFxRect.x + 10, soundFxRect.y + 10 }, 0.0f, 1.0f / 6.0f, ColorAlphaOverride(WHITE, alpha));
-        DrawTextEx(meowFont, "Sound FX", (Vector2) { soundFxRect.x + 80, soundFxRect.y + 22 }, 32, 2, ColorAlphaOverride(MAIN_BROWN, alpha));
+        DrawTextureEx(options->soundFxEnabled ? checkboxChecked : checkbox, (Vector2) { soundFxRect.x + 10, soundFxRect.y + 10 }, 0.0f, 1.0f / 6.0f, ColorAlphaOverride(WHITE, isSoundFxHovered ? 0.75 : alpha));
+        DrawTextEx(meowFont, "Sound FX", (Vector2) { soundFxRect.x + 80, soundFxRect.y + 22 }, 32, 2, ColorAlphaOverride(MAIN_BROWN, isSoundFxHovered ? 0.75 : alpha));
 
         // Fullscreen
-        DrawTextureEx(options->fullscreen ? checkboxChecked : checkbox, (Vector2) { fullscreenRect.x + 10, fullscreenRect.y + 10 }, 0.0f, 1.0f / 6.0f, ColorAlphaOverride(WHITE, alpha));
-        DrawTextEx(meowFont, "Fullscreen", (Vector2) { fullscreenRect.x + 80, fullscreenRect.y + 22 }, 32, 2, ColorAlphaOverride(MAIN_BROWN, alpha));
+        DrawTextureEx(options->fullscreen ? checkboxChecked : checkbox, (Vector2) { fullscreenRect.x + 10, fullscreenRect.y + 10 }, 0.0f, 1.0f / 6.0f, ColorAlphaOverride(WHITE, isFullscreenHovered ? 0.75 : alpha));
+        DrawTextEx(meowFont, "Fullscreen", (Vector2) { fullscreenRect.x + 80, fullscreenRect.y + 22 }, 32, 2, ColorAlphaOverride(MAIN_BROWN, isFullscreenHovered ? 0.75 : alpha));
 
         // Debug
-        DrawTextureEx(options->showDebug ? checkboxChecked : checkbox, (Vector2) { debugRect.x + 10, debugRect.y + 10 }, 0.0f, 1.0f / 6.0f, ColorAlphaOverride(WHITE, alpha));
-		DrawTextEx(meowFont, "Debug", (Vector2) { debugRect.x + 80, debugRect.y + 22 }, 32, 2, ColorAlphaOverride(MAIN_BROWN, alpha));
+        DrawTextureEx(options->showDebug ? checkboxChecked : checkbox, (Vector2) { debugRect.x + 10, debugRect.y + 10 }, 0.0f, 1.0f / 6.0f, ColorAlphaOverride(WHITE, isDebugHovered ? 0.75 : alpha));
+		DrawTextEx(meowFont, "Debug", (Vector2) { debugRect.x + 80, debugRect.y + 22 }, 32, 2, ColorAlphaOverride(MAIN_BROWN, isDebugHovered ? 0.75 : alpha));
 
         // Difficulty
-        DrawTextureEx(left_arrow, (Vector2) { difficultyDecrementRect.x , difficultyDecrementRect.y}, 0.0f, 1.0f / 5.0f, ColorAlphaOverride(WHITE, alpha));
-        DrawTextureEx(right_arrow, (Vector2) { difficultyIncrementRect.x, difficultyIncrementRect.y }, 0.0f, 1.0f / 5.0f, ColorAlphaOverride(WHITE, alpha));
+        DrawTextureEx(left_arrow, (Vector2) { difficultyDecrementRect.x , difficultyDecrementRect.y}, 0.0f, 1.0f / 5.0f, ColorAlphaOverride(WHITE, isDifficultyDecrementHovered ? 0.75 : alpha));
+        DrawTextureEx(right_arrow, (Vector2) { difficultyIncrementRect.x, difficultyIncrementRect.y }, 0.0f, 1.0f / 5.0f, ColorAlphaOverride(WHITE, isDifficultyIncrementHovered ? 0.75 : alpha));
         DrawTextEx(meowFont, "Difficulty", (Vector2) { difficultyRect.x + 80, difficultyRect.y + 10 }, 32, 2, ColorAlphaOverride(MAIN_BROWN, alpha));
         DrawTextEx(meowFont, StringFromDifficultyEnum(options->difficulty), (Vector2) { difficultyRect.x + 80, difficultyRect.y + 42 }, 32, 2, ColorAlphaOverride(MAIN_BROWN, alpha));
 
         // Resolution
-        DrawTextureEx(left_arrow, (Vector2) { resolutionDecrementRect.x, resolutionDecrementRect.y }, 0.0f, 1.0f / 5.0f, ColorAlphaOverride(WHITE, alpha));
-        DrawTextureEx(right_arrow, (Vector2) { resolutionIncrementRect.x, resolutionDecrementRect.y }, 0.0f, 1.0f / 5.0f, ColorAlphaOverride(WHITE, alpha));
+        DrawTextureEx(left_arrow, (Vector2) { resolutionDecrementRect.x, resolutionDecrementRect.y }, 0.0f, 1.0f / 5.0f, ColorAlphaOverride(WHITE, isResolutionDecrementHovered ? 0.75 : alpha));
+        DrawTextureEx(right_arrow, (Vector2) { resolutionIncrementRect.x, resolutionDecrementRect.y }, 0.0f, 1.0f / 5.0f, ColorAlphaOverride(WHITE, isResolutionIncrementHovered ? 0.75 : alpha));
         DrawTextEx(meowFont, "Resolution", (Vector2) { resolutionRect.x + 80, resolutionRect.y + 10 }, 32, 2, ColorAlphaOverride(MAIN_BROWN, alpha));
         DrawTextEx(meowFont, TextFormat("%dx%d", options->resolution.x, options->resolution.y), (Vector2) { resolutionRect.x + 80, resolutionRect.y + 42 }, 32, 2, ColorAlphaOverride(MAIN_BROWN, alpha));
 
         // FPS
-        DrawTextureEx(left_arrow, (Vector2) { fpsDecrementRect.x, fpsDecrementRect.y }, 0.0f, 1.0f / 5.0f, ColorAlphaOverride(WHITE, alpha));
-        DrawTextureEx(right_arrow, (Vector2) { fpsIncrementRect.x, fpsDecrementRect.y }, 0.0f, 1.0f / 5.0f, ColorAlphaOverride(WHITE, alpha));
+        DrawTextureEx(left_arrow, (Vector2) { fpsDecrementRect.x, fpsDecrementRect.y }, 0.0f, 1.0f / 5.0f, ColorAlphaOverride(WHITE, isFpsDecrementHovered ? 0.75 : alpha));
+        DrawTextureEx(right_arrow, (Vector2) { fpsIncrementRect.x, fpsDecrementRect.y }, 0.0f, 1.0f / 5.0f, ColorAlphaOverride(WHITE, isFpsIncrementHovered ? 0.75 : alpha));
 		DrawTextEx(meowFont, "Target FPS", (Vector2) { fpsRect.x + 80, fpsRect.y + 10 }, 32, 2, ColorAlphaOverride(MAIN_BROWN, alpha));
         DrawTextEx(meowFont, TextFormat("%d FPS", options->targetFps), (Vector2) { fpsRect.x + 80, fpsRect.y + 42 }, 32, 2, ColorAlphaOverride(MAIN_BROWN, alpha));
 
 
         // Back
         DrawRectangleRec(backRect, isBackHovered ? ColorAlphaOverride(MAIN_ORANGE, alpha) : ColorAlphaOverride(MAIN_BROWN, alpha));
-        DrawTextEx(meowFont, "Back", (Vector2) { backRect.x + 40, backRect.y + 22 }, 32, 2, ColorAlphaOverride(WHITE, alpha));
+        DrawTextEx(meowFont, "Back", (Vector2) { backRect.x + 60, backRect.y + 20 }, 32, 2, ColorAlphaOverride(WHITE, alpha));
 
         // Draw debug
         if (options->showDebug && debugToolToggles.showObjects)
@@ -2577,10 +2577,12 @@ void OptionsUpdate(Camera2D* camera)
 
 int RandomCustomerTexture()
 {
-    int randomIndex = GetRandomValue(0, (sizeof(customersImageData) / sizeof(customersImageData[0])) - 1);
+    // Seed the random number generator with the current time
+    srand(time(NULL));
+
+    int randomIndex = rand() % (sizeof(customersImageData) / sizeof(customersImageData[0]));
     return randomIndex;
 }
-
 void GameUpdate(Camera2D *camera)
 {
     double lastFrameTime = GetTime();
@@ -3019,20 +3021,21 @@ void MainMenuUpdate(Camera2D* camera, bool playFade)
     if(isTransitioningIn)
         transitionOffset = BASE_SCREEN_WIDTH / 2;
 
-    movingClouds[0] = (MovingCloud){ (Vector2) { GetRandomDoubleValue(baseX - 200, baseX), GetRandomDoubleValue(baseY, 0) }, 250.0f, 1.0f, cloud1Texture, false };
-    movingClouds[1] = (MovingCloud){ (Vector2) { GetRandomDoubleValue(baseX - 200, baseX), GetRandomDoubleValue(baseY, 0) }, 200.0f, 1.0f, cloud2Texture, false};
-    movingClouds[2] = (MovingCloud){ (Vector2) { GetRandomDoubleValue(baseX - 200, baseX), GetRandomDoubleValue(baseY, 0) }, 150.0f, 2.0f, cloud3Texture, true };
-    movingClouds[3] = (MovingCloud){ (Vector2) { GetRandomDoubleValue(baseX - 200, baseX), GetRandomDoubleValue(baseY, 0) }, 250.0f, 1.0f, cloud1Texture, false };
-    movingClouds[4] = (MovingCloud){ (Vector2) { GetRandomDoubleValue(baseX - 200, baseX), GetRandomDoubleValue(baseY, 0) }, 100.0f, 1.7f, cloud2Texture, false };
-    movingClouds[5] = (MovingCloud){ (Vector2) { GetRandomDoubleValue(baseX - 200, baseX), GetRandomDoubleValue(baseY, 0) }, 200.0f, 1.0f, cloud3Texture, true };
-    movingClouds[6] = (MovingCloud){ (Vector2) { GetRandomDoubleValue(baseX - 200, baseX), GetRandomDoubleValue(baseY, 0) }, 150.0f, 1.0f, cloud3Texture, true };
-
-    movingStars[0] = (MovingStar){ (Vector2) { GetRandomDoubleValue(baseX - 200, baseX), baseY }, 50.0f, 3.0f, star1Texture };
-    movingStars[1] = (MovingStar){ (Vector2) { GetRandomDoubleValue(baseX - 200, baseX), baseY }, 25.0f, 2.0f, star2Texture };
     PlayBgmIfStopped(&menuBgm);
 
     if(playFade)
     {
+        movingClouds[0] = (MovingCloud){ (Vector2) { GetRandomDoubleValue(baseX - 200, baseX), GetRandomDoubleValue(baseY, 0) }, 250.0f, 1.0f, cloud1Texture, false };
+        movingClouds[1] = (MovingCloud){ (Vector2) { GetRandomDoubleValue(baseX - 200, baseX), GetRandomDoubleValue(baseY, 0) }, 200.0f, 1.0f, cloud2Texture, false };
+        movingClouds[2] = (MovingCloud){ (Vector2) { GetRandomDoubleValue(baseX - 200, baseX), GetRandomDoubleValue(baseY, 0) }, 150.0f, 2.0f, cloud3Texture, true };
+        movingClouds[3] = (MovingCloud){ (Vector2) { GetRandomDoubleValue(baseX - 200, baseX), GetRandomDoubleValue(baseY, 0) }, 250.0f, 1.0f, cloud1Texture, false };
+        movingClouds[4] = (MovingCloud){ (Vector2) { GetRandomDoubleValue(baseX - 200, baseX), GetRandomDoubleValue(baseY, 0) }, 100.0f, 1.7f, cloud2Texture, false };
+        movingClouds[5] = (MovingCloud){ (Vector2) { GetRandomDoubleValue(baseX - 200, baseX), GetRandomDoubleValue(baseY, 0) }, 200.0f, 1.0f, cloud3Texture, true };
+        movingClouds[6] = (MovingCloud){ (Vector2) { GetRandomDoubleValue(baseX - 200, baseX), GetRandomDoubleValue(baseY, 0) }, 150.0f, 1.0f, cloud3Texture, true };
+
+        movingStars[0] = (MovingStar){ (Vector2) { GetRandomDoubleValue(baseX - 200, baseX), baseY }, 50.0f, 3.0f, star1Texture };
+        movingStars[1] = (MovingStar){ (Vector2) { GetRandomDoubleValue(baseX - 200, baseX), baseY }, 25.0f, 2.0f, star2Texture };
+
         for (int i = 0; i < 20; i++) {
             menuFallingItems[i].position = (Vector2){ GetRandomDoubleValue(baseX, baseX + BASE_SCREEN_WIDTH - 20), baseY - GetRandomDoubleValue(200, 1000) };
             menuFallingItems[i].textureIndex = GetRandomValue(0, menuFallingItemsNumber - 1);
