@@ -14,7 +14,7 @@
 
 // Debug flags
 #define DEBUG_SHOW true
-#define DEBUG_FASTLOAD !false
+#define DEBUG_FASTLOAD true
 #define DEBUG_MAX_FPS_HISTORY 500
 #define DEBUG_MAX_LOGS_HISTORY 25
 #define CUSTOMERS_COUNT 4
@@ -190,6 +190,10 @@ Texture2D hotWaterTexture;
 Texture2D greenChonTexture;
 Texture2D cocoaChonTexture;
 
+
+// utils
+Texture2D trashCanTexture;
+
 static inline char* StringFromDifficultyEnum(Difficulty difficulty)
 {
     static const char* strings[] = { "Easy", "Medium", "Hard", "Freeplay (E)", "Freeplay (M)", "Freeplay (H)" };
@@ -347,6 +351,8 @@ typedef struct {
 Ingredient teaPowder, cocoaPowder, normalMilk, condensedMilk, marshMellow, whippedCream, caramelSauce, chocolateSauce, hotWater;
 Ingredient greenChon, cocoaChon;
 
+Ingredient trashCan;
+
 // Cup
 typedef struct {
     Texture2D texture;
@@ -389,6 +395,8 @@ const Vector2 oriwhippedPosition = { -644,320 };
 const Vector2 oricupsPostion = { 390,80 };
 const Vector2 hiddenPosition = { -3000, -3000 };
 
+const Vector2 trashCanPosition = { baseX , baseY + BASE_SCREEN_HEIGHT - 200 };
+
 static int global_score = 0;
 
 bool triggerHotWater = false;
@@ -413,7 +421,7 @@ void boilWater(Ingredient* item) {
 void PlaySoundFx(SoundFxType type);
 void RemoveCustomer(Customer* customer);
 bool validiator(Customer* customer, char* order);
-Texture2D* DragAndDropCup(Cup* cup, const DropArea* dropArea, Camera2D* camera, Customers *customers)
+Texture2D* DragAndDropCup(Cup* cup, const DropArea* dropArea, Camera2D* camera, Customers *customers, Ingredient* trashCan)
 {
     static bool isObjectBeingDragged = false;
     static Texture2D* current_dragging = NULL;
@@ -425,6 +433,21 @@ Texture2D* DragAndDropCup(Cup* cup, const DropArea* dropArea, Camera2D* camera, 
 
     if (IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {
         Vector2 mousePos = GetScreenToWorld2D(GetMousePosition(), *camera);
+
+        Rectangle trashCanBond = { trashCan->position.x, trashCan->position.y, trashCan->frameRectangle.width, trashCan->frameRectangle.height };
+        LogDebug("trashCanPosition.x: %f, trashCanPosition.y: %f, trashCanTexture.width: %d, trashCanTexture.height: %d\n", trashCanPosition.x, trashCanPosition.y, trashCanTexture.width, trashCanTexture.height);
+        Rectangle cupBond = { cup->position.x, cup->position.y, cup->texture.width, cup->texture.height };
+        LogDebug("Cup Positon x: %f, y: %f, cupTexture.width: %d, cupTexture.height: %d\n", cup->position.x, cup->position.y, cup->texture.width, cup->texture.height);
+        LogDebug("CheckCollisionRecs(trashCanBond, cupBond) %d\n", CheckCollisionRecs(trashCanBond, cupBond));
+        if(CheckCollisionRecs(trashCanBond, cupBond)){
+            cup->powderType = NONE;
+            cup->creamerType = NONE;
+            cup->toppingType = NONE;
+            cup->sauceType = NONE;
+            cup->hasWater = false;
+            cup->active = false;
+        }
+
         if (cup->active && CheckCollisionPointRec(mousePos, objectBounds) && (current_dragging == NULL || current_dragging == &cup->texture)) {
             isObjectBeingDragged = true;
             offsetX = cup->frameRectangle.width / 2;
@@ -713,7 +736,6 @@ void UpdateCup(Cup* cup, Ingredient* ingredient) {
         cup->sauceType = CHOCOLATE;
         PlaySoundFx(FX_BOTTLE);
     }
-
     UpdateCupImage(cup, ingredient);
 
 }
@@ -1934,7 +1956,7 @@ void LoadGlobalAssets()
     hotWaterTexture = LoadTexture(ASSETS_PATH"/spritesheets/GAR.png");
     greenChonTexture = LoadTexture(ASSETS_PATH"/spritesheets/greenchon.png");
     cocoaChonTexture = LoadTexture(ASSETS_PATH"/spritesheets/cocoachon.png");
-
+    trashCanTexture = LoadTexture(ASSETS_PATH"spritesheets/TRASHCAN.png");
     for (int i = 0; i < CUSTOMERS_COUNT; i++)
     {
         customersImageData[i].happy = LoadTexture(TextFormat(ASSETS_PATH"image/sprite/customer_%d/happy.png", i + 1));
@@ -2671,6 +2693,12 @@ void GameUpdate(Camera2D *camera)
     cocoaChon.currentFrame = 1;
 	cocoaChon.frameRectangle = frameRect(cocoaChon, cocoaChon.totalFrames, cocoaChon.currentFrame);
 
+
+    trashCan = (Ingredient){ trashCanTexture, false, trashCanPosition, trashCanPosition };
+    trashCan.currentFrame = 1;
+    trashCan.totalFrames = 2;
+    trashCan.frameRectangle = frameRect(trashCan, trashCan.totalFrames, trashCan.currentFrame);
+
     Texture2D* currentDrag = NULL;
 
     Customer customer1;
@@ -2747,7 +2775,7 @@ void GameUpdate(Camera2D *camera)
                 if (currentDrag != NULL) anyDragDetected = true;
             }
             if (currentDrag == NULL || currentDrag == &cup.texture) {
-                currentDrag = DragAndDropCup(&cup, &plate, camera, &customers);
+                currentDrag = DragAndDropCup(&cup, &plate, camera, &customers, &trashCan);
                 if (currentDrag != NULL) anyDragDetected = true;
             }
         }
@@ -2788,6 +2816,7 @@ void GameUpdate(Camera2D *camera)
             isHovering = highlightItem(&caramelSauce, camera) || isHovering;
             isHovering = highlightItem(&chocolateSauce, camera) || isHovering;
             isHovering = highlightItem(&hotWater, camera) || isHovering;
+            isHovering = highlightItem(&trashCan,camera) || isHovering;
         }
         else {
             isHovering = false;
@@ -2853,6 +2882,8 @@ void GameUpdate(Camera2D *camera)
 
         DrawTexture(plate.texture, oriplatePosition.x, oriplatePosition.y, WHITE);
 
+        DrawDragableItemFrame(trashCan);
+
 
         DrawDragableItemFrame(hotWater);
         DrawDragableItemFrame(condensedMilk);
@@ -2872,6 +2903,7 @@ void GameUpdate(Camera2D *camera)
 
         DrawTexture(greenChon.texture, greenChon.position.x, greenChon.position.y, WHITE);
         DrawTexture(cocoaChon.texture, cocoaChon.position.x, cocoaChon.position.y, WHITE);
+        
 
         if (cup.active)
             DrawTextureRec(cup.texture, cup.frameRectangle, cup.position, WHITE);
