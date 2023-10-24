@@ -406,7 +406,8 @@ void ExitApplication()
 
 void PlaySoundFx(SoundFxType type);
 void RemoveCustomer(Customer* customer);
-bool validiator(Customer* customer, char* order);
+extern bool validiator(Customer *customer, char *order);
+
 Texture2D* DragAndDropCup(Cup* cup, const DropArea* dropArea, Camera2D* camera, Customers *customers, Ingredient* trashCan)
 {
     static bool isObjectBeingDragged = false;
@@ -1685,18 +1686,7 @@ Customer CreateCustomerWithOrder(int patience, double currentTime, int orderEnd,
 //     }
 // }
 
-bool validiator(Customer *customer, char *order)
-{
-    LogDebug("Validating order: %s against %s", order, customer->order);
-	if (strcmp(customer->order, order) == 0)
-	{
-        return true;
-	}
-	else
-	{
-        return false;
-	}
-}
+
 
 //create customer image at either position 1 2 or 3
 void render_customers(Customers *customers)
