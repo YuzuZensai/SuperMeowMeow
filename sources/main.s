@@ -30,8 +30,6 @@
 
 @ RandomCustomerTimeoutBasedOnDifficulty
 RandomCustomerTimeoutBasedOnDifficulty:
-	@ args = 0, pretend = 0, frame = 0
-	@ frame_needed = 1, uses_anonymous_args = 0
 	push	{fp, lr}
 	add	fp, sp, #4
 	ldr	r3, .RandomCustomerTimeoutBasedOnDifficultyVars+40
