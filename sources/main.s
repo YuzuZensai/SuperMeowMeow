@@ -16,11 +16,11 @@ max: .double 1.0
 .global PauseBgm
 
 .ADD:
-	ADD r0, r0, r1
+	ADD R0, R0, R1
 	BX LR
 
 .SUB:
-	SUB r0, r0, r1
+	SUB R0, R0, R1
 	BX LR
 
 .DOUBLE_CONST:
@@ -44,7 +44,7 @@ GetRandomDoubleValue:
 	VSTR.64	d0, [fp, #-12]
 	VSTR.64	d1, [fp, #-20]
 	BL	rand
-	VMOV	s15, r0	@ int
+	VMOV	s15, R0	@ int
 	vcvt.f64.s32	d7, s15
 	VLDR.64	d5, .DOUBLE_CONST
 	vdiv.f64	d6, d7, d5
@@ -83,19 +83,19 @@ RandomCustomerBlinkTime:
 	PUSH	{fp, lr}
 	ADD	fp, sp, #4
 	SUB	sp, sp, #8
-	STR	r0, [fp, #-8]
+	STR	R0, [fp, #-8]
 	VLDR.64	d1, .L14
 	VLDR.64	d0, .L14+8
 	BL	GetRandomDoubleValue
 	VMOV.f64	d7, d0
-	LDR	r3, [fp, #-8]
-	VSTR.64	d7, [r3, #24]
+	LDR	R3, [fp, #-8]
+	VSTR.64	d7, [R3, #24]
 	VLDR.64	d1, .L14+16
 	VLDR.64	d0, .L14+24
 	BL	GetRandomDoubleValue
 	VMOV.f64	d7, d0
-	LDR	r3, [fp, #-8]
-	VSTR.64	d7, [r3, #16]
+	LDR	R3, [fp, #-8]
+	VSTR.64	d7, [R3, #16]
 	NOP
 	SUB	sp, fp, #4
 	@ sp needed
@@ -107,20 +107,20 @@ boilWater:
 	PUSH	{fp, lr}
 	ADD	fp, sp, #4
 	SUB	sp, sp, #8
-	STR	r0, [fp, #-8]
-	LDR	r3, [fp, #-8]
-	LDRB	r3, [r3, #20]	@ zero_extendqisi2
-	eor	r3, r3, #1
-	uxtb	r3, r3
-	CMP	r3, #0
+	STR	R0, [fp, #-8]
+	LDR	R3, [fp, #-8]
+	LDRB	R3, [R3, #20]	@ zero_extendqisi2
+	eor	R3, R3, #1
+	uxtb	R3, R3
+	CMP	R3, #0
 	beq	.L21
-	LDR	r3, .L22
-	MOV	r2, #1
-	STRB	r2, [r3]
+	LDR	R3, .L22
+	MOV	R2, #1
+	STRB	R2, [R3]
 	BL	GetTime
 	VMOV.f64	d7, d0
-	LDR	r3, .L22+4
-	VSTR.64	d7, [r3]
+	LDR	R3, .L22+4
+	VSTR.64	d7, [R3]
 
 .L21:
 	NOP
@@ -141,18 +141,18 @@ IsNight:
 	@ link register save eliminated.
 	STR	fp, [sp, #-4]!
 	ADD	fp, sp, #0
-	LDR	r3, .L207+8
-	LDR	r3, [r3]
-	CMP	r3, #3
+	LDR	R3, .L207+8
+	LDR	R3, [R3]
+	CMP	R3, #3
 	BNE	.L202
-	LDR	r3, .L207+12
-	VLDR.32	s15, [r3]
+	LDR	R3, .L207+12
+	VLDR.32	s15, [R3]
 	vcvt.f64.f32	d7, s15
 	VLDR.64	d6, .L207
 	vcmpe.f64	d7, d6
 	vmrs	APSR_nzcv, FPSCR
 	bpl	.L202
-	MOV	r3, #1
+	MOV	R3, #1
 	B	.L204
 
 .L207:
@@ -165,11 +165,11 @@ IsNight:
 	.align	2
 
 .L202:
-	MOV	r3, #0
+	MOV	R3, #0
 .L204:
-	and	r3, r3, #1
-	uxtb	r3, r3
-	MOV	r0, r3
+	and	R3, R3, #1
+	uxtb	R3, R3
+	MOV	R0, R3
 	ADD	sp, fp, #0
 	@ sp needed
 	LDR	fp, [sp], #4
@@ -181,36 +181,36 @@ PlayBgm:
 	PUSH	{r4, fp, lr}
 	ADD	fp, sp, #8
 	SUB	sp, sp, #36
-	STR	r0, [fp, #-16]
-	LDR	r3, .L580+4
-	LDR	r3, [r3]
-	LDR	r2, [fp, #-16]
-	CMP	r2, r3
+	STR	R0, [fp, #-16]
+	LDR	R3, .L580+4
+	LDR	R3, [R3]
+	LDR	R2, [fp, #-16]
+	CMP	R2, R3
 	BNE	.L576
-	LDR	r3, .L580+8
-	LDRB	r3, [r3]	@ zero_extendqisi2
-	CMP	r3, #0
+	LDR	R3, .L580+8
+	LDRB	R3, [R3]	@ zero_extendqisi2
+	CMP	R3, #0
 	beq	.L579
-	LDR	r3, .L580+12
-	LDR	r3, [r3]
-	LDRB	r3, [r3, #22]	@ zero_extendqisi2
-	CMP	r3, #0
+	LDR	R3, .L580+12
+	LDR	R3, [R3]
+	LDRB	R3, [R3, #22]	@ zero_extendqisi2
+	CMP	R3, #0
 	beq	.L579
 	LDR	r4, [fp, #-16]
 	MOV	lr, sp
 	ADD	ip, r4, #16
-	LDMIA	ip!, {r0, r1, r2, r3}
-	STMIA	lr!, {r0, r1, r2, r3}
-	LDR	r3, [ip]
-	STR	r3, [lr]
-	LDM	r4, {r0, r1, r2, r3}
+	LDMIA	ip!, {R0, R1, R2, R3}
+	STMIA	lr!, {R0, R1, R2, R3}
+	LDR	R3, [ip]
+	STR	R3, [lr]
+	LDM	r4, {R0, R1, R2, R3}
 	BL	PlayMusicStream
-	LDR	r3, [fp, #-16]
-	MOV	r2, #1
-	STRB	r2, [r3, #24]
-	LDR	r3, .L580+8
-	MOV	r2, #0
-	STRB	r2, [r3]
+	LDR	R3, [fp, #-16]
+	MOV	R2, #1
+	STRB	R2, [R3, #24]
+	LDR	R3, .L580+8
+	MOV	R2, #0
+	STRB	R2, [R3]
 	B	.L579
 
 .L580:
@@ -227,47 +227,47 @@ PlayBgm:
 	.type	PlayBgmIfStopped, %function
 
 .L576:
-	LDR	r2, .L580+4
-	LDR	r3, [fp, #-16]
-	STR	r3, [r2]
-	LDR	r3, .L580+4
-	LDR	r4, [r3]
+	LDR	R2, .L580+4
+	LDR	R3, [fp, #-16]
+	STR	R3, [R2]
+	LDR	R3, .L580+4
+	LDR	r4, [R3]
 	MOV	lr, sp
 	ADD	ip, r4, #16
-	LDMIA	ip!, {r0, r1, r2, r3}
-	STMIA	lr!, {r0, r1, r2, r3}
-	LDR	r3, [ip]
-	STR	r3, [lr]
-	LDM	r4, {r0, r1, r2, r3}
+	LDMIA	ip!, {R0, R1, R2, R3}
+	STMIA	lr!, {R0, R1, R2, R3}
+	LDR	R3, [ip]
+	STR	R3, [lr]
+	LDM	r4, {R0, R1, R2, R3}
 	BL	StopMusicStream
-	LDR	r3, .L580+4
-	LDR	r4, [r3]
+	LDR	R3, .L580+4
+	LDR	r4, [R3]
 	MOV	lr, sp
 	ADD	ip, r4, #16
-	LDMIA	ip!, {r0, r1, r2, r3}
-	STMIA	lr!, {r0, r1, r2, r3}
-	LDR	r3, [ip]
-	STR	r3, [lr]
-	LDM	r4, {r0, r1, r2, r3}
+	LDMIA	ip!, {R0, R1, R2, R3}
+	STMIA	lr!, {R0, R1, R2, R3}
+	LDR	R3, [ip]
+	STR	R3, [lr]
+	LDM	r4, {R0, R1, R2, R3}
 	BL	PlayMusicStream
-	LDR	r3, .L580+4
-	LDR	r4, [r3]
+	LDR	R3, .L580+4
+	LDR	r4, [R3]
 	VLDR.32	s15, .L580
 	MOV	lr, sp
 	ADD	ip, r4, #16
-	LDMIA	ip!, {r0, r1, r2, r3}
-	STMIA	lr!, {r0, r1, r2, r3}
-	LDR	r3, [ip]
-	STR	r3, [lr]
-	LDM	r4, {r0, r1, r2, r3}
+	LDMIA	ip!, {R0, R1, R2, R3}
+	STMIA	lr!, {R0, R1, R2, R3}
+	LDR	R3, [ip]
+	STR	R3, [lr]
+	LDM	r4, {R0, R1, R2, R3}
 	VMOV.f32	s0, s15
 	BL	SetMusicVolume
-	LDR	r3, [fp, #-16]
-	MOV	r2, #1
-	STRB	r2, [r3, #24]
-	LDR	r3, .L580+8
-	MOV	r2, #0
-	STRB	r2, [r3]
+	LDR	R3, [fp, #-16]
+	MOV	R2, #1
+	STRB	R2, [R3, #24]
+	LDR	R3, .L580+8
+	MOV	R2, #0
+	STRB	R2, [R3]
 	B	.L575
 .L579:
 	NOP
@@ -282,47 +282,47 @@ PlayBgmIfStopped:
 	PUSH	{r4, fp, lr}
 	ADD	fp, sp, #8
 	SUB	sp, sp, #36
-	STR	r0, [fp, #-16]
-	LDR	r3, .L587+4
-	LDR	r3, [r3]
-	LDR	r2, [fp, #-16]
-	CMP	r2, r3
+	STR	R0, [fp, #-16]
+	LDR	R3, .L587+4
+	LDR	R3, [R3]
+	LDR	R2, [fp, #-16]
+	CMP	R2, R3
 	BNE	.L583
-	LDR	r3, .L587+8
-	LDRB	r3, [r3]	@ zero_extendqisi2
-	CMP	r3, #0
+	LDR	R3, .L587+8
+	LDRB	R3, [R3]	@ zero_extendqisi2
+	CMP	R3, #0
 	beq	.L586
-	LDR	r3, .L587+12
-	LDR	r3, [r3]
-	LDRB	r3, [r3, #22]	@ zero_extendqisi2
-	CMP	r3, #0
+	LDR	R3, .L587+12
+	LDR	R3, [R3]
+	LDRB	R3, [R3, #22]	@ zero_extendqisi2
+	CMP	R3, #0
 	beq	.L586
 	LDR	r4, [fp, #-16]
 	MOV	lr, sp
 	ADD	ip, r4, #16
-	LDMIA	ip!, {r0, r1, r2, r3}
-	STMIA	lr!, {r0, r1, r2, r3}
-	LDR	r3, [ip]
-	STR	r3, [lr]
-	LDM	r4, {r0, r1, r2, r3}
+	LDMIA	ip!, {R0, R1, R2, R3}
+	STMIA	lr!, {R0, R1, R2, R3}
+	LDR	R3, [ip]
+	STR	R3, [lr]
+	LDM	r4, {R0, R1, R2, R3}
 	BL	PlayMusicStream
 	VLDR.32	s15, .L587
 	LDR	r4, [fp, #-16]
 	MOV	lr, sp
 	ADD	ip, r4, #16
-	LDMIA	ip!, {r0, r1, r2, r3}
-	STMIA	lr!, {r0, r1, r2, r3}
-	LDR	r3, [ip]
-	STR	r3, [lr]
-	LDM	r4, {r0, r1, r2, r3}
+	LDMIA	ip!, {R0, R1, R2, R3}
+	STMIA	lr!, {R0, R1, R2, R3}
+	LDR	R3, [ip]
+	STR	R3, [lr]
+	LDM	r4, {R0, R1, R2, R3}
 	VMOV.f32	s0, s15
 	BL	SetMusicVolume
-	LDR	r3, [fp, #-16]
-	MOV	r2, #1
-	STRB	r2, [r3, #24]
-	LDR	r3, .L587+8
-	MOV	r2, #0
-	STRB	r2, [r3]
+	LDR	R3, [fp, #-16]
+	MOV	R2, #1
+	STRB	R2, [R3, #24]
+	LDR	R3, .L587+8
+	MOV	R2, #0
+	STRB	R2, [R3]
 	B	.L586
 .L587:
 	.word	1048576000
@@ -337,37 +337,37 @@ PlayBgmIfStopped:
 	.fpu vfp
 	.type	PauseBgm, %function
 .L583:
-	LDR	r2, .L587+4
-	LDR	r3, [fp, #-16]
-	STR	r3, [r2]
-	LDR	r3, .L587+4
-	LDR	r4, [r3]
+	LDR	R2, .L587+4
+	LDR	R3, [fp, #-16]
+	STR	R3, [R2]
+	LDR	R3, .L587+4
+	LDR	r4, [R3]
 	MOV	lr, sp
 	ADD	ip, r4, #16
-	LDMIA	ip!, {r0, r1, r2, r3}
-	STMIA	lr!, {r0, r1, r2, r3}
-	LDR	r3, [ip]
-	STR	r3, [lr]
-	LDM	r4, {r0, r1, r2, r3}
+	LDMIA	ip!, {R0, R1, R2, R3}
+	STMIA	lr!, {R0, R1, R2, R3}
+	LDR	R3, [ip]
+	STR	R3, [lr]
+	LDM	r4, {R0, R1, R2, R3}
 	BL	PlayMusicStream
-	LDR	r3, .L587+4
-	LDR	r4, [r3]
+	LDR	R3, .L587+4
+	LDR	r4, [R3]
 	VLDR.32	s15, .L587
 	MOV	lr, sp
 	ADD	ip, r4, #16
-	LDMIA	ip!, {r0, r1, r2, r3}
-	STMIA	lr!, {r0, r1, r2, r3}
-	LDR	r3, [ip]
-	STR	r3, [lr]
-	LDM	r4, {r0, r1, r2, r3}
+	LDMIA	ip!, {R0, R1, R2, R3}
+	STMIA	lr!, {R0, R1, R2, R3}
+	LDR	R3, [ip]
+	STR	R3, [lr]
+	LDM	r4, {R0, R1, R2, R3}
 	VMOV.f32	s0, s15
 	BL	SetMusicVolume
-	LDR	r3, [fp, #-16]
-	MOV	r2, #1
-	STRB	r2, [r3, #24]
-	LDR	r3, .L587+8
-	MOV	r2, #0
-	STRB	r2, [r3]
+	LDR	R3, [fp, #-16]
+	MOV	R2, #1
+	STRB	R2, [R3, #24]
+	LDR	R3, .L587+8
+	MOV	R2, #0
+	STRB	R2, [R3]
 	B	.L582
 .L586:
 	NOP
@@ -382,23 +382,23 @@ validiator:
 	PUSH	{fp, lr}
 	ADD	fp, sp, #4
 	SUB	sp, sp, #8
-	STR	r0, [fp, #-8]
-	STR	r1, [fp, #-12]
-	LDR	r3, [fp, #-8]
-	ADD	r3, r3, #34
-	MOV	r2, r3
-	LDR	r1, [fp, #-12]
-	LDR	r0, .L500
+	STR	R0, [fp, #-8]
+	STR	R1, [fp, #-12]
+	LDR	R3, [fp, #-8]
+	ADD	R3, R3, #34
+	MOV	R2, R3
+	LDR	R1, [fp, #-12]
+	LDR	R0, .L500
 	BL	LogDebug
-	LDR	r3, [fp, #-8]
-	ADD	r3, r3, #34
-	LDR	r1, [fp, #-12]
-	MOV	r0, r3
+	LDR	R3, [fp, #-8]
+	ADD	R3, R3, #34
+	LDR	R1, [fp, #-12]
+	MOV	R0, R3
 	BL	strcmp
-	MOV	r3, r0
-	CMP	r3, #0
+	MOV	R3, R0
+	CMP	R3, #0
 	BNE	.L498
-	MOV	r3, #1
+	MOV	R3, #1
 	B	.L499
 
 .L500:
@@ -411,9 +411,9 @@ validiator:
 	.fpu vfp
 	.type	render_customers, %function
 .L498:
-	MOV	r3, #0
+	MOV	R3, #0
 .L499:
-	MOV	r0, r3
+	MOV	R0, R3
 	SUB	sp, fp, #4
 	@ sp needed
 	POP	{fp, pc}
@@ -434,31 +434,31 @@ PauseBgm:
 	PUSH	{r4, fp, lr}
 	ADD	fp, sp, #8
 	SUB	sp, sp, #36
-	STR	r0, [fp, #-16]
-	LDR	r3, .L595
-	LDR	r3, [r3]
-	LDR	r2, [fp, #-16]
-	CMP	r2, r3
+	STR	R0, [fp, #-16]
+	LDR	R3, .L595
+	LDR	R3, [R3]
+	LDR	R2, [fp, #-16]
+	CMP	R2, R3
 	BNE	.L593
-	LDR	r3, .L595+4
-	LDRB	r3, [r3]	@ zero_extendqisi2
-	CMP	r3, #0
+	LDR	R3, .L595+4
+	LDRB	R3, [R3]	@ zero_extendqisi2
+	CMP	R3, #0
 	BNE	.L594
 	LDR	r4, [fp, #-16]
 	MOV	lr, sp
 	ADD	ip, r4, #16
-	LDMIA	ip!, {r0, r1, r2, r3}
-	STMIA	lr!, {r0, r1, r2, r3}
-	LDR	r3, [ip]
-	STR	r3, [lr]
-	LDM	r4, {r0, r1, r2, r3}
+	LDMIA	ip!, {R0, R1, R2, R3}
+	STMIA	lr!, {R0, R1, R2, R3}
+	LDR	R3, [ip]
+	STR	R3, [lr]
+	LDM	r4, {R0, R1, R2, R3}
 	BL	PauseMusicStream
-	LDR	r3, .L595+4
-	MOV	r2, #1
-	STRB	r2, [r3]
+	LDR	R3, .PauseBgmHandler+4
+	MOV	R2, #1
+	STRB	R2, [R3]
 	B	.L589
 
-.L595:
+.PauseBgmHandler:
 	.word	currentBgm
 	.word	isCurrentBgmPaused
 	.size	PauseBgm, .-PauseBgm
