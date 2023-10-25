@@ -93,6 +93,15 @@ RandomCustomerResetBasedOnDifficulty:
 
 
 @RandomGenerateOrder
+.RandomGenerateOrderData:
+	.ascii	"New order: %s\000"
+	.text
+	.align	2
+	.global	RandomGenerateOrder
+	.syntax unified
+	.arm
+	.fpu vfp
+	.type	RandomGenerateOrder, %function
 RandomGenerateOrder:
 	push	{fp, lr}
 	add	fp, sp, #4
