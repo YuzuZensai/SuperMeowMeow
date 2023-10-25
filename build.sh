@@ -8,5 +8,6 @@ cmake -S . -B build
 cd build
 rm -rf my_raylib_game
 rm -rf CMakeFiles/my_raylib_game.dir/sources/*.o
+rm -rf CMakeFiles/my_raylib_game.dir/sources/*.s
 make
 ./my_raylib_game
