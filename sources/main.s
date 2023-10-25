@@ -44,8 +44,6 @@
 
 .global RandomCustomerBlinkTime
 RandomCustomerBlinkTime:
-	@ args = 0, pretend = 0, frame = 8
-	@ frame_needed = 1, uses_anonymous_args = 0
 	PUSH	{FP, LR}
 	ADD	FP, SP, #4
 	SUB	SP, SP, #8
@@ -64,18 +62,15 @@ RandomCustomerBlinkTime:
 	VSTR.64	d7, [R3, #16]
 	NOP
 	SUB	SP, FP, #4
-	@ SP needed
 	POP	{FP, PC}
 
 boilWater:
-	@ args = 0, pretend = 0, frame = 8
-	@ frame_needed = 1, uses_anonymous_args = 0
 	PUSH	{FP, LR}
 	ADD	FP, SP, #4
 	SUB	SP, SP, #8
 	STR	R0, [FP, #-8]
 	LDR	R3, [FP, #-8]
-	LDRB	R3, [R3, #20]	@ zero_extendqisi2
+	LDRB	R3, [R3, #20]
 	EOR	R3, R3, #1
 	UXTB	R3, R3
 	CMP	R3, #0
@@ -91,7 +86,6 @@ boilWater:
 .L21:
 	NOP
 	SUB	SP, FP, #4
-	@ SP needed
 	POP	{FP, PC}
 
 .L22:
@@ -102,9 +96,6 @@ boilWater:
 	.align	2
 
 IsNight:
-	@ args = 0, pretend = 0, frame = 0
-	@ frame_needed = 1, uses_anonymous_args = 0
-	@ link register save eliminated.
 	STR	FP, [SP, #-4]!
 	ADD	FP, SP, #0
 	LDR	R3, .L207+8
@@ -137,13 +128,10 @@ IsNight:
 	UXTB	R3, R3
 	MOV	R0, R3
 	ADD	SP, FP, #0
-	@ SP needed
 	LDR	FP, [SP], #4
 	BX	LR
 
 PlayBgm:
-	@ args = 0, pretend = 0, frame = 8
-	@ frame_needed = 1, uses_anonymous_args = 0
 	PUSH	{R4, FP, LR}
 	ADD	FP, SP, #8
 	SUB	SP, SP, #36
@@ -154,12 +142,12 @@ PlayBgm:
 	CMP	R2, R3
 	BNE	.L576
 	LDR	R3, .L580+8
-	LDRB	R3, [R3]	@ zero_extendqisi2
+	LDRB	R3, [R3]
 	CMP	R3, #0
 	BEQ	.L579
 	LDR	R3, .L580+12
 	LDR	R3, [R3]
-	LDRB	R3, [R3, #22]	@ zero_extendqisi2
+	LDRB	R3, [R3, #22]	
 	CMP	R3, #0
 	BEQ	.L579
 	LDR	R4, [FP, #-16]
@@ -239,12 +227,9 @@ PlayBgm:
 	NOP
 .L575:
 	SUB	SP, FP, #8
-	@ SP needed
 	POP	{R4, FP, PC}
 
 PlayBgmIfStopped:
-	@ args = 0, pretend = 0, frame = 8
-	@ frame_needed = 1, uses_anonymous_args = 0
 	PUSH	{R4, FP, LR}
 	ADD	FP, SP, #8
 	SUB	SP, SP, #36
@@ -255,12 +240,12 @@ PlayBgmIfStopped:
 	CMP	R2, R3
 	BNE	.L583
 	LDR	R3, .L587+8
-	LDRB	R3, [R3]	@ zero_extendqisi2
+	LDRB	R3, [R3]	
 	CMP	R3, #0
 	BEQ	.L586
 	LDR	R3, .L587+12
 	LDR	R3, [R3]
-	LDRB	R3, [R3, #22]	@ zero_extendqisi2
+	LDRB	R3, [R3, #22]	
 	CMP	R3, #0
 	BEQ	.L586
 	LDR	R4, [FP, #-16]
@@ -339,12 +324,9 @@ PlayBgmIfStopped:
 	NOP
 .L582:
 	SUB	SP, FP, #8
-	@ SP needed
 	POP	{R4, FP, PC}
 
 validiator:
-	@ args = 0, pretend = 0, frame = 8
-	@ frame_needed = 1, uses_anonymous_args = 0
 	PUSH	{FP, LR}
 	ADD	FP, SP, #4
 	SUB	SP, SP, #8
@@ -381,7 +363,6 @@ validiator:
 .DebugLogHandlerEnd:
 	MOV	R0, R3
 	SUB	SP, FP, #4
-	@ SP needed
 	POP	{FP, PC}
 
 .LC70:
@@ -395,8 +376,6 @@ validiator:
 	.type	validiator, %function
 
 PauseBgm:
-	@ args = 0, pretend = 0, frame = 8
-	@ frame_needed = 1, uses_anonymous_args = 0
 	PUSH	{R4, FP, LR}
 	ADD	FP, SP, #8
 	SUB	SP, SP, #36
@@ -407,7 +386,7 @@ PauseBgm:
 	CMP	R2, R3
 	BNE	.PauseBgmCheck
 	LDR	R3, .PauseBgmHandler+4
-	LDRB	R3, [R3]	@ zero_extendqisi2
+	LDRB	R3, [R3]	
 	CMP	R3, #0
 	BNE	.PauseBgmCheckB
 	LDR	R4, [FP, #-16]
@@ -442,7 +421,6 @@ PauseBgm:
 	NOP
 .PauseBgmEnd:
 	SUB	SP, FP, #8
-	@ SP needed
 	POP	{R4, FP, PC}
 
 square:
