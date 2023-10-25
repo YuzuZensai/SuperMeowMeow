@@ -17,30 +17,15 @@
 .global GetRandomIntValue
 .global GetRandomDoubleValue
 
+@ Adds two values
 .ADD:
 	ADD R0, R0, R1
 	BX LR
 
+@ Subtracts one value from another
 .SUB:
 	SUB R0, R0, R1
 	BX LR
-
-.L14:
-	.word	0
-	.word	1071644672
-	.word	-1717986918
-	.word	1070176665
-	.word	0
-	.word	1075314688
-	.word	0
-	.word	1073741824
-	.size	RandomCustomerBlinkTime, .-RandomCustomerBlinkTime
-	.align	2
-	.global	CreateCustomer
-	.syntax unified
-	.arm
-	.fpu vfp
-	.type	CreateCustomer, %function
 
 .global RandomCustomerBlinkTime
 RandomCustomerBlinkTime:
@@ -63,6 +48,23 @@ RandomCustomerBlinkTime:
 	NOP
 	SUB	SP, FP, #4
 	POP	{FP, PC}
+.L14:
+	.word	0
+	.word	1071644672
+	.word	-1717986918
+	.word	1070176665
+	.word	0
+	.word	1075314688
+	.word	0
+	.word	1073741824
+	.size	RandomCustomerBlinkTime, .-RandomCustomerBlinkTime
+	.align	2
+	.global	CreateCustomer
+	.syntax unified
+	.arm
+	.fpu vfp
+	.type	CreateCustomer, %function
+
 
 boilWater:
 	PUSH	{FP, LR}
