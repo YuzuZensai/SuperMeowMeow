@@ -1181,27 +1181,7 @@ void DrawMovingCloudAndStar(double deltaTime)
    
 }
 
-double RandomCustomerTimeoutBasedOnDifficulty()
-{
-    switch (options->difficulty)
-    {
-    case FREEPLAY_EASY:
-    case EASY:
-        return GetRandomDoubleValue(80, 150);
-        break;
-    case FREEPLAY_MEDIUM:
-    case MEDIUM:
-        return GetRandomDoubleValue(40, 60);
-        break;
-    case FREEPLAY_HARD:
-    case HARD:
-        return GetRandomDoubleValue(20, 40);
-        break;
-    default:
-        return GetRandomDoubleValue(80, 150);
-        break;
-    }
-}
+extern double RandomCustomerTimeoutBasedOnDifficulty();
 
 void RandomCustomerInitialResetBasedOnDifficulty(double *values) {
 

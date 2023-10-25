@@ -17,7 +17,7 @@
 .global GetRandomIntValue
 .global GetRandomDoubleValue
 .global RandomCustomerBlinkTime
-
+.global RandomCustomerTimeoutBasedOnDifficulty
 @ Adds two values
 .ADD:
 	ADD R0, R0, R1
@@ -27,6 +27,73 @@
 .SUB:
 	SUB R0, R0, R1
 	BX LR
+
+@ RandomCustomerTimeoutBasedOnDifficulty
+RandomCustomerTimeoutBasedOnDifficulty:
+	@ args = 0, pretend = 0, frame = 0
+	@ frame_needed = 1, uses_anonymous_args = 0
+	push	{fp, lr}
+	add	fp, sp, #4
+	ldr	r3, .RandomCustomerTimeoutBasedOnDifficultyVars+40
+	ldr	r3, [r3]
+	ldr	r3, [r3, #16]
+	cmp	r3, #5
+	ldrls	pc, [pc, r3, asl #2]
+	b	RandomCustomerTimeoutBasedOnDifficultyDefault
+.L244:
+	.word	RandomCustomerTimeoutBasedOnDifficultyEasy
+	.word	.RandomCustomerTimeoutBasedOnDifficultyMedium
+	.word	.RandomCustomerTimeoutBasedOnDifficultyHard
+	.word	RandomCustomerTimeoutBasedOnDifficultyEasy
+	.word	.RandomCustomerTimeoutBasedOnDifficultyMedium
+	.word	.RandomCustomerTimeoutBasedOnDifficultyHard
+RandomCustomerTimeoutBasedOnDifficultyEasy:
+	vldr.64	d1, .RandomCustomerTimeoutBasedOnDifficultyVars
+	vldr.64	d0, .RandomCustomerTimeoutBasedOnDifficultyVars+8
+	bl	GetRandomDoubleValue
+	vmov.f64	d7, d0
+	b	.RandomCustomerTimeoutBasedOnDifficultyExit
+.RandomCustomerTimeoutBasedOnDifficultyMedium:
+	vldr.64	d1, .RandomCustomerTimeoutBasedOnDifficultyVars+16
+	vldr.64	d0, .RandomCustomerTimeoutBasedOnDifficultyVars+24
+	bl	GetRandomDoubleValue
+	vmov.f64	d7, d0
+	b	.RandomCustomerTimeoutBasedOnDifficultyExit
+.RandomCustomerTimeoutBasedOnDifficultyHard:
+	vldr.64	d1, .RandomCustomerTimeoutBasedOnDifficultyVars+24
+	vldr.64	d0, .RandomCustomerTimeoutBasedOnDifficultyVars+32
+	bl	GetRandomDoubleValue
+	vmov.f64	d7, d0
+	b	.RandomCustomerTimeoutBasedOnDifficultyExit
+RandomCustomerTimeoutBasedOnDifficultyDefault:
+	vldr.64	d1, .RandomCustomerTimeoutBasedOnDifficultyVars
+	vldr.64	d0, .RandomCustomerTimeoutBasedOnDifficultyVars+8
+	bl	GetRandomDoubleValue
+	vmov.f64	d7, d0
+.RandomCustomerTimeoutBasedOnDifficultyExit:
+	vmov.f64	d0, d7
+	pop	{fp, pc}
+.RandomCustomerTimeoutBasedOnDifficultyAlign:
+	.align	3
+.RandomCustomerTimeoutBasedOnDifficultyVars:
+	.word	0
+	.word	1080213504
+	.word	0
+	.word	1079246848
+	.word	0
+	.word	1078853632
+	.word	0
+	.word	1078198272
+	.word	0
+	.word	1077149696
+	.word	options
+	.size	RandomCustomerTimeoutBasedOnDifficulty, .-RandomCustomerTimeoutBasedOnDifficulty
+	.align	2
+	.global	RandomCustomerInitialResetBasedOnDifficulty
+	.syntax unified
+	.arm
+	.fpu vfp
+	.type	RandomCustomerInitialResetBasedOnDifficulty, %function
 
 @ RandomCustomerBlinkTime
 RandomCustomerBlinkTime:
