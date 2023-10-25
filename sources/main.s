@@ -65,47 +65,6 @@ RandomCustomerBlinkTime:
 	.fpu vfp
 	.type	CreateCustomer, %function
 
-
-boilWater:
-    PUSH    {FP, LR}      @ Push FP and LR onto the stack
-    ADD     FP, SP, #4    @ Set up the frame pointer
-    SUB     SP, SP, #8    @ Allocate space for local variables
-    STR     R0, [FP, #-8] @ Store the argument in the stack frame
-
-    @ Load a byte from the address stored in R3 and toggle its bits
-    LDR     R3, [FP, #-8]
-    LDRB    R3, [R3, #20]
-    EOR     R3, R3, #1
-    UXTB    R3, R3
-
-    @ Compare R3 with 0 and branch to LabelZero if equal
-    CMP     R3, #0
-    BEQ     .LabelZero
-
-    @ Store 1 in the address pointed by R3
-    LDR     R3, .LabelNonZero
-    MOV     R2, #1
-    STRB    R2, [R3]
-
-    @ Call the GetTime function and store the result in a double-precision float register
-    BL      GetTime
-    VMOV.f64 d7, d0
-
-    @ Store the result in the address pointed by R3
-    LDR     R3, .LabelNonZero+4
-    VSTR.64 d7, [R3]
-
-.LabelZero:  @ Label for the branch target when R3 is equal to 0
-    @ Clean up the stack frame and return
-    SUB     SP, FP, #4
-    POP     {FP, PC}
-
-.LabelNonZero:  @ Label for some specific functionality, please specify the actual purpose
-    .word   triggerHotWater  @ Define a word with the address of triggerHotWater
-    .word   boilingTime     @ Define a word with the address of boilingTime
-    .size   boilWater, .-boilWater  @ Calculate the size of the boilWater function
-
-
 IsNight:
 	STR	FP, [SP, #-4]!
 	ADD	FP, SP, #0
@@ -336,55 +295,6 @@ PlayBgmIfStopped:
 .L582:
 	SUB	SP, FP, #8
 	POP	{R4, FP, PC}
-
-validiator:
-	PUSH	{FP, LR}
-	ADD	FP, SP, #4
-	SUB	SP, SP, #8
-	STR	R0, [FP, #-8]
-	STR	R1, [FP, #-12]
-	LDR	R3, [FP, #-8]
-	ADD	R3, R3, #34
-	MOV	R2, R3
-	LDR	R1, [FP, #-12]
-	LDR	R0, .LogDebugHandler
-	BL	LogDebug
-	LDR	R3, [FP, #-8]
-	ADD	R3, R3, #34
-	LDR	R1, [FP, #-12]
-	MOV	R0, R3
-	BL	strcmp
-	MOV	R3, R0
-	CMP	R3, #0
-	BNE	.DebugLogHandlerCheck
-	MOV	R3, #1
-	B	.DebugLogHandlerEnd
-
-.LogDebugHandler:
-	.word	.LC70
-	.size	validiator, .-validiator
-	.align	2
-	.global	render_customers
-	.syntax unified
-	.arm
-	.fpu vfp
-	.type	render_customers, %function
-.DebugLogHandlerCheck:
-	MOV	R3, #0
-.DebugLogHandlerEnd:
-	MOV	R0, R3
-	SUB	SP, FP, #4
-	POP	{FP, PC}
-
-.LC70:
-	.ascii	"Validating order: %s against %s\000"
-	.text
-	.align	2
-	.global	validiator
-	.syntax unified
-	.arm
-	.fpu vfp
-	.type	validiator, %function
 
 PauseBgm:
 	PUSH	{R4, FP, LR}
@@ -646,3 +556,107 @@ GetRandomIntValue:
         ADDS    R7, R7, #24
         MOV     SP, R7
         POP     {R7, PC}
+
+// Validiator
+
+validiator:
+    PUSH    {FP, LR}
+    ADD     FP, SP, #4
+    SUB     SP, SP, #8
+
+    @ Save R0 and R1
+    STR     R0, [FP, #-8]
+    STR     R1, [FP, #-12]
+
+    @ Calculate and copy values
+    LDR     R3, [FP, #-8]
+    ADD     R3, R3, #34
+    MOV     R2, R3
+
+    @ Call LogDebug function
+    LDR     R1, [FP, #-12]
+    LDR     R0, .LogDebugHandler
+    BL      LogDebug
+
+    @ Compare and set values
+    LDR     R3, [FP, #-8]
+    ADD     R3, R3, #34
+    LDR     R1, [FP, #-12]
+    MOV     R0, R3
+    BL      FTStrcmp
+    MOV     R3, R0
+
+    @ Check and branch
+    CMP     R3, #0
+    BNE     .DebugLogHandlerCheck
+    MOV     R3, #1
+    B       .DebugLogHandlerEnd
+
+.LogDebugHandler:
+    .word   .LogMsgFormat   @ Renamed .LC70
+    .size   validiator, .-validiator
+    .align  2
+    .global render_customers
+    .syntax unified
+    .arm
+    .fpu vfp
+    .type   render_customers, %function
+
+.DebugLogHandlerCheck:
+    MOV     R3, #0
+.DebugLogHandlerEnd:
+    MOV     R0, R3
+    SUB     SP, FP, #4
+    POP     {FP, PC}
+
+.LogMsgFormat:
+    .ascii  "Validating order: %s against %s\000"   @ Renamed .LC70
+    .text
+    .align  2
+    .global validiator
+    .syntax unified
+    .arm
+    .fpu vfp
+    .type   validiator, %function
+
+// Boil water
+
+boilWater:
+    PUSH    {FP, LR}      @ Push FP and LR onto the stack
+    ADD     FP, SP, #4    @ Set up the frame pointer
+    SUB     SP, SP, #8    @ Allocate space for local variables
+    STR     R0, [FP, #-8] @ Store the argument in the stack frame
+
+    @ Load a byte from the address stored in R3 and toggle its bits
+    LDR     R3, [FP, #-8]
+    LDRB    R3, [R3, #20]
+    EOR     R3, R3, #1
+    UXTB    R3, R3
+
+    @ Compare R3 with 0 and branch to LabelZero if equal
+    CMP     R3, #0
+    BEQ     .LabelZero
+
+    @ Store 1 in the address pointed by R3
+    LDR     R3, .LabelNonZero
+    MOV     R2, #1
+    STRB    R2, [R3]
+
+    @ Call the GetTime function and store the result in a double-precision float register
+    BL      GetTime
+    VMOV.f64 d7, d0
+
+    @ Store the result in the address pointed by R3
+    LDR     R3, .LabelNonZero+4
+    VSTR.64 d7, [R3]
+
+.LabelZero:  @ Label for the branch target when R3 is equal to 0
+    @ Clean up the stack frame and return
+    SUB     SP, FP, #4
+    POP     {FP, PC}
+
+.LabelNonZero:  @ Label for some specific functionality, please specify the actual purpose
+    .word   triggerHotWater  @ Define a word with the address of triggerHotWater
+    .word   boilingTime     @ Define a word with the address of boilingTime
+    .size   boilWater, .-boilWater  @ Calculate the size of the boilWater function
+
