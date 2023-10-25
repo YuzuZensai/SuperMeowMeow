@@ -96,14 +96,11 @@ boilWater:
     VSTR.64 d7, [R3]
 
 .LabelZero:  @ Label for the branch target when R3 is equal to 0
-    NOP
-
     @ Clean up the stack frame and return
     SUB     SP, FP, #4
     POP     {FP, PC}
 
 .LabelNonZero:  @ Label for some specific functionality, please specify the actual purpose
-
     .word   triggerHotWater  @ Define a word with the address of triggerHotWater
     .word   boilingTime     @ Define a word with the address of boilingTime
     .size   boilWater, .-boilWater  @ Calculate the size of the boilWater function
