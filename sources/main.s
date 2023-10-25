@@ -40,7 +40,7 @@ tickBoil:
 	sub	sp, sp, #24
 	str	r0, [fp, #-24]
 	ldr	r3, .tickBoilData+16
-	ldrb	r3, [r3]	@ zero_extendqisi2
+	ldrb	r3, [r3]
 	cmp	r3, #0
 	beq	.tickBoilDataTick2
 	ldr	r3, .tickBoilData+20
@@ -100,7 +100,6 @@ tickBoil:
 	str	r2, [r3, #60]
 .tickBoilDataTick2:
 	sub	sp, fp, #12
-	@ sp needed
 	vldm	sp!, {d8}
 	pop	{fp, pc}
 .tickBoilAlign:
@@ -926,7 +925,6 @@ GetRandomDoubleValue:
 	nop
 	vmov.f64	d0, d7
 	sub	sp, fp, #4
-	@ sp needed
 	pop	{fp, pc}
 .GetRandomDoubleValueAlign:
 	.align	3
