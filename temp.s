@@ -533,18 +533,19 @@ StringFromCustomerEmotionEnum:
 	bx	lr
 .L8:
 	.align	2
-
-.L12:
-	.align	3
-
-
-.L15:
-	.align	3
-
+.L7:
+	.word	strings.1
+	.size	StringFromCustomerEmotionEnum, .-StringFromCustomerEmotionEnum
+	.align	2
+	.global	CreateCustomer
+	.syntax unified
+	.arm
+	.fpu vfp
+	.type	CreateCustomer, %function
 CreateCustomer:
 	@ args = 0, pretend = 0, frame = 152
 	@ frame_needed = 1, uses_anonymous_args = 0
-	PUSH	{fp, lr}
+	push	{fp, lr}
 	add	fp, sp, #4
 	sub	sp, sp, #152
 	str	r0, [fp, #-104]
@@ -679,6 +680,48 @@ trashCan:
 	.size	plate, 28
 plate:
 	.space	28
+	.text
+	.align	2
+	.global	GetRandomDoubleValue
+	.syntax unified
+	.arm
+	.fpu vfp
+	.type	GetRandomDoubleValue, %function
+GetRandomDoubleValue:
+	@ args = 0, pretend = 0, frame = 40
+	@ frame_needed = 1, uses_anonymous_args = 0
+	push	{fp, lr}
+	add	fp, sp, #4
+	sub	sp, sp, #40
+	vstr.64	d0, [fp, #-36]
+	vstr.64	d1, [fp, #-44]
+	vldr.64	d6, [fp, #-44]
+	vldr.64	d7, [fp, #-36]
+	vsub.f64	d7, d6, d7
+	vstr.64	d7, [fp, #-12]
+	vldr.64	d5, .L12
+	vldr.64	d6, [fp, #-12]
+	vdiv.f64	d7, d5, d6
+	vstr.64	d7, [fp, #-20]
+	bl	rand
+	vmov	s15, r0	@ int
+	vcvt.f64.s32	d5, s15
+	vldr.64	d6, [fp, #-20]
+	vdiv.f64	d7, d5, d6
+	vldr.64	d6, [fp, #-36]
+	vadd.f64	d7, d6, d7
+	vstr.64	d7, [fp, #-28]
+	nop
+	vmov.f64	d0, d7
+	sub	sp, fp, #4
+	@ sp needed
+	pop	{fp, pc}
+.L13:
+	.align	3
+.L12:
+	.word	-4194304
+	.word	1105199103
+	.size	GetRandomDoubleValue, .-GetRandomDoubleValue
 	.global	oricupPosition
 	.section	.rodata
 	.align	2
@@ -822,23 +865,14 @@ dragAndDropLocked:
 ExitApplication:
 	@ args = 0, pretend = 0, frame = 0
 	@ frame_needed = 1, uses_anonymous_args = 0
-	PUSH	{fp, lr}
+	push	{fp, lr}
 	add	fp, sp, #4
 	bl	UnloadGlobalAssets
 	mov	r0, #0
 	bl	exit
 	.size	ExitApplication, .-ExitApplication
+	.section	.rodata
 	.align	2
-	.global	boilWater
-	.syntax unified
-	.arm
-	.fpu vfp
-	.type	boilWater, %function
-
-
-.L23:
-	.align	2
-
 .LC14:
 	.ascii	"trashCanPosition.x: %f, trashCanPosition.y: %f, tra"
 	.ascii	"shCanTexture.width: %d, trashCanTexture.height: %d\012"
@@ -852,8 +886,8 @@ ExitApplication:
 	.ascii	"CheckCollisionRecs(trashCanBond, cupBond) %d\012\000"
 	.align	2
 .LC17:
-	.ascii	"/home/pi/SuperMeowMeow/assets/combination/EMPTY.png"
-	.ascii	"\000"
+	.ascii	"/home/yuzu/Desktop/SuperMeowMeow/assets/combination"
+	.ascii	"/EMPTY.png\000"
 	.text
 	.align	2
 	.global	DragAndDropCup
@@ -864,7 +898,7 @@ ExitApplication:
 DragAndDropCup:
 	@ args = 4, pretend = 0, frame = 248
 	@ frame_needed = 1, uses_anonymous_args = 0
-	PUSH	{r4, fp, lr}
+	push	{r4, fp, lr}
 	add	fp, sp, #8
 	sub	sp, sp, #268
 	str	r0, [fp, #-224]
@@ -903,7 +937,7 @@ DragAndDropCup:
 	bl	IsMouseButtonDown
 	mov	r3, r0
 	cmp	r3, #0
-	beq	.L25
+	beq	.L16
 	bl	GetMousePosition
 	vmov.f32	s14, s0
 	vmov.f32	s15, s1
@@ -936,21 +970,21 @@ DragAndDropCup:
 	ldr	r3, [fp, #4]
 	ldr	r3, [r3, #52]	@ float
 	str	r3, [fp, #-112]	@ float
-	ldr	r3, .L53+4
+	ldr	r3, .L44+4
 	vldr.32	s15, [r3]
 	vcvt.f64.f32	d6, s15
-	ldr	r3, .L53+4
+	ldr	r3, .L44+4
 	vldr.32	s15, [r3, #4]
 	vcvt.f64.f32	d7, s15
-	ldr	r3, .L53+8
+	ldr	r3, .L44+8
 	ldr	r3, [r3, #4]
-	ldr	r2, .L53+8
+	ldr	r2, .L44+8
 	ldr	r2, [r2, #8]
 	str	r2, [sp, #12]
 	str	r3, [sp, #8]
 	vstr.64	d7, [sp]
 	vmov	r2, r3, d6
-	ldr	r0, .L53+12
+	ldr	r0, .L44+12
 	bl	LogDebug
 	ldr	r3, [fp, #-224]
 	ldr	r3, [r3, #20]	@ float
@@ -982,7 +1016,7 @@ DragAndDropCup:
 	str	r3, [sp, #8]
 	vstr.64	d7, [sp]
 	vmov	r2, r3, d6
-	ldr	r0, .L53+16
+	ldr	r0, .L44+16
 	bl	LogDebug
 	vldr.32	s8, [fp, #-140]
 	vldr.32	s9, [fp, #-136]
@@ -1003,7 +1037,7 @@ DragAndDropCup:
 	bl	CheckCollisionRecs
 	mov	r3, r0
 	mov	r1, r3
-	ldr	r0, .L53+20
+	ldr	r0, .L44+20
 	bl	LogDebug
 	vldr.32	s8, [fp, #-140]
 	vldr.32	s9, [fp, #-136]
@@ -1024,7 +1058,7 @@ DragAndDropCup:
 	bl	CheckCollisionRecs
 	mov	r3, r0
 	cmp	r3, #0
-	beq	.L26
+	beq	.L17
 	ldr	r3, [fp, #-224]
 	mov	r2, #0
 	str	r2, [r3, #52]
@@ -1043,11 +1077,11 @@ DragAndDropCup:
 	ldr	r3, [fp, #-224]
 	mov	r2, #0
 	strb	r2, [r3, #72]
-.L26:
+.L17:
 	ldr	r3, [fp, #-224]
 	ldrb	r3, [r3, #72]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L27
+	beq	.L18
 	vldr.32	s10, [fp, #-84]
 	vldr.32	s11, [fp, #-80]
 	vldr.32	s12, [fp, #-76]
@@ -1063,63 +1097,63 @@ DragAndDropCup:
 	bl	CheckCollisionPointRec
 	mov	r3, r0
 	cmp	r3, #0
-	beq	.L27
-	ldr	r3, .L53+56
+	beq	.L18
+	ldr	r3, .L44+56
 	ldr	r3, [r3]
 	cmp	r3, #0
-	beq	.L28
+	beq	.L19
 	ldr	r2, [fp, #-224]
-	ldr	r3, .L53+56
+	ldr	r3, .L44+56
 	ldr	r3, [r3]
 	cmp	r2, r3
-	bne	.L27
-.L28:
-	ldr	r3, .L53+44
+	bne	.L18
+.L19:
+	ldr	r3, .L44+44
 	mov	r2, #1
 	strb	r2, [r3]
 	ldr	r3, [fp, #-224]
 	vldr.32	s14, [r3, #44]
-	vldr.32	s13, .L53+60
+	vldr.32	s13, .L44+60
 	vdiv.f32	s15, s14, s13
-	ldr	r3, .L53+48
+	ldr	r3, .L44+48
 	vstr.32	s15, [r3]
 	ldr	r3, [fp, #-224]
 	vldr.32	s14, [r3, #48]
-	vldr.32	s13, .L53+60
+	vldr.32	s13, .L44+60
 	vdiv.f32	s15, s14, s13
-	ldr	r3, .L53+52
+	ldr	r3, .L44+52
 	vstr.32	s15, [r3]
 	ldr	r3, [fp, #-108]	@ float
 	str	r3, [fp, #-20]	@ float
 	ldr	r3, [fp, #-104]	@ float
 	str	r3, [fp, #-24]	@ float
-	ldr	r3, .L53+48
+	ldr	r3, .L44+48
 	vldr.32	s15, [r3]
 	vldr.32	s14, [fp, #-20]
 	vsub.f32	s15, s14, s15
 	ldr	r3, [fp, #-224]
 	vstr.32	s15, [r3, #20]
-	ldr	r3, .L53+52
+	ldr	r3, .L44+52
 	vldr.32	s15, [r3]
 	vldr.32	s14, [fp, #-24]
 	vsub.f32	s15, s14, s15
 	ldr	r3, [fp, #-224]
 	vstr.32	s15, [r3, #24]
 	ldr	r3, [fp, #-224]
-	ldr	r2, .L53+56
+	ldr	r2, .L44+56
 	str	r3, [r2]
 	ldr	r3, [fp, #-224]
-	b	.L47
-.L27:
+	b	.L38
+.L18:
 	ldr	r3, [fp, #-224]
 	ldrb	r3, [r3, #72]	@ zero_extendqisi2
 	eor	r3, r3, #1
 	uxtb	r3, r3
 	cmp	r3, #0
-	beq	.L25
-	ldr	r3, .L53+24
+	beq	.L16
+	ldr	r3, .L44+24
 	str	r3, [fp, #-156]	@ float
-	ldr	r3, .L53+28
+	ldr	r3, .L44+28
 	str	r3, [fp, #-152]	@ float
 	ldr	r3, [fp, #-224]
 	ldr	r3, [r3, #4]
@@ -1146,8 +1180,8 @@ DragAndDropCup:
 	bl	CheckCollisionPointRec
 	mov	r3, r0
 	cmp	r3, #0
-	beq	.L25
-	ldr	r3, .L53+44
+	beq	.L16
+	ldr	r3, .L44+44
 	mov	r2, #1
 	strb	r2, [r3]
 	ldr	r3, [fp, #-224]
@@ -1157,7 +1191,7 @@ DragAndDropCup:
 	asr	r3, r3, #1
 	vmov	s15, r3	@ int
 	vcvt.f32.s32	s15, s15
-	ldr	r3, .L53+48
+	ldr	r3, .L44+48
 	vstr.32	s15, [r3]
 	ldr	r3, [fp, #-224]
 	ldr	r3, [r3, #8]
@@ -1166,19 +1200,19 @@ DragAndDropCup:
 	asr	r3, r3, #1
 	vmov	s15, r3	@ int
 	vcvt.f32.s32	s15, s15
-	ldr	r3, .L53+52
+	ldr	r3, .L44+52
 	vstr.32	s15, [r3]
 	ldr	r3, [fp, #-108]	@ float
 	str	r3, [fp, #-28]	@ float
 	ldr	r3, [fp, #-104]	@ float
 	str	r3, [fp, #-32]	@ float
-	ldr	r3, .L53+48
+	ldr	r3, .L44+48
 	vldr.32	s15, [r3]
 	vldr.32	s14, [fp, #-28]
 	vsub.f32	s15, s14, s15
 	ldr	r3, [fp, #-224]
 	vstr.32	s15, [r3, #20]
-	ldr	r3, .L53+52
+	ldr	r3, .L44+52
 	vldr.32	s15, [r3]
 	vldr.32	s14, [fp, #-32]
 	vsub.f32	s15, s14, s15
@@ -1186,7 +1220,7 @@ DragAndDropCup:
 	vstr.32	s15, [r3, #24]
 	ldr	r4, [fp, #-224]
 	sub	r3, fp, #260
-	ldr	r1, .L53+40
+	ldr	r1, .L44+40
 	mov	r0, r3
 	bl	LoadTexture
 	mov	lr, r4
@@ -1196,7 +1230,7 @@ DragAndDropCup:
 	ldr	r3, [ip]
 	str	r3, [lr]
 	ldr	r3, [fp, #-224]
-	ldr	r2, .L53+56
+	ldr	r2, .L44+56
 	str	r3, [r2]
 	ldr	r3, [fp, #-224]
 	mov	r2, #0
@@ -1217,17 +1251,17 @@ DragAndDropCup:
 	mov	r2, #1
 	strb	r2, [r3, #72]
 	ldr	r3, [fp, #-224]
-	b	.L47
-.L25:
+	b	.L38
+.L16:
 	mov	r0, #0
 	bl	IsMouseButtonReleased
 	mov	r3, r0
 	cmp	r3, #0
-	beq	.L32
-	ldr	r3, .L53+44
+	beq	.L23
+	ldr	r3, .L44+44
 	mov	r2, #0
 	strb	r2, [r3]
-	ldr	r3, .L53+56
+	ldr	r3, .L44+56
 	mov	r2, #0
 	str	r2, [r3]
 	bl	GetMousePosition
@@ -1271,20 +1305,20 @@ DragAndDropCup:
 	ldr	r3, [r3, #48]	@ float
 	str	r3, [fp, #-180]	@ float
 	vldr.32	s15, [fp, #-160]
-	vldr.32	s14, .L53
+	vldr.32	s14, .L44
 	vcmpe.f32	s15, s14
 	vmrs	APSR_nzcv, FPSCR
-	bhi	.L33
+	bhi	.L24
 	ldr	r3, [fp, #-224]
 	ldrb	r3, [r3, #72]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L33
+	beq	.L24
 	mov	r3, #0
 	str	r3, [fp, #-16]
-	b	.L35
-.L54:
+	b	.L26
+.L45:
 	.align	2
-.L53:
+.L44:
 	.word	1097859072
 	.word	trashCanPosition
 	.word	trashCanTexture
@@ -1301,7 +1335,7 @@ DragAndDropCup:
 	.word	offsetY.11
 	.word	current_dragging.14
 	.word	1073741824
-.L44:
+.L35:
 	ldr	r3, [fp, #-16]
 	lsl	r3, r3, #2
 	sub	r2, fp, #12
@@ -1309,7 +1343,7 @@ DragAndDropCup:
 	ldr	r3, [r3, #-164]
 	ldrb	r3, [r3, #33]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L36
+	beq	.L27
 	ldr	r3, [fp, #-16]
 	lsl	r3, r3, #2
 	sub	r2, fp, #12
@@ -1324,7 +1358,7 @@ DragAndDropCup:
 	ldr	r3, [r3, #-164]
 	ldr	r3, [r3, #72]	@ float
 	str	r3, [fp, #-204]	@ float
-	ldr	r1, .L53+32
+	ldr	r1, .L44+32
 	ldr	r2, [fp, #-16]
 	mov	r3, r2
 	lsl	r3, r3, #4
@@ -1339,7 +1373,7 @@ DragAndDropCup:
 	vmov	s15, r3	@ int
 	vcvt.f32.s32	s15, s15
 	vstr.32	s15, [fp, #-200]
-	ldr	r1, .L53+32
+	ldr	r1, .L44+32
 	ldr	r2, [fp, #-16]
 	mov	r3, r2
 	lsl	r3, r3, #4
@@ -1358,12 +1392,12 @@ DragAndDropCup:
 	vldr.32	s15, [fp, #-208]
 	vcmpe.f32	s14, s15
 	vmrs	APSR_nzcv, FPSCR
-	blt	.L36
+	blt	.L27
 	vldr.32	s14, [fp, #-188]
 	vldr.32	s15, [fp, #-204]
 	vcmpe.f32	s14, s15
 	vmrs	APSR_nzcv, FPSCR
-	blt	.L36
+	blt	.L27
 	vldr.32	s14, [fp, #-192]
 	vldr.32	s15, [fp, #-184]
 	vadd.f32	s14, s14, s15
@@ -1372,7 +1406,7 @@ DragAndDropCup:
 	vadd.f32	s15, s13, s15
 	vcmpe.f32	s14, s15
 	vmrs	APSR_nzcv, FPSCR
-	bhi	.L36
+	bhi	.L27
 	vldr.32	s14, [fp, #-188]
 	vldr.32	s15, [fp, #-180]
 	vadd.f32	s14, s14, s15
@@ -1381,7 +1415,7 @@ DragAndDropCup:
 	vadd.f32	s15, s13, s15
 	vcmpe.f32	s14, s15
 	vmrs	APSR_nzcv, FPSCR
-	bhi	.L36
+	bhi	.L27
 	ldr	r3, [fp, #-16]
 	lsl	r3, r3, #2
 	sub	r2, fp, #12
@@ -1396,11 +1430,11 @@ DragAndDropCup:
 	strb	r3, [fp, #-33]
 	ldrb	r3, [fp, #-33]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L42
-	ldr	r3, .L53+36
+	beq	.L33
+	ldr	r3, .L44+36
 	ldr	r3, [r3]
 	add	r3, r3, #50
-	ldr	r2, .L53+36
+	ldr	r2, .L44+36
 	str	r3, [r2]
 	mov	r0, #5
 	bl	PlaySoundFx
@@ -1418,19 +1452,19 @@ DragAndDropCup:
 	ldr	r3, [r3, #-164]
 	mov	r0, r3
 	bl	RemoveCustomer
-	b	.L43
-.L42:
-	ldr	r3, .L53+36
+	b	.L34
+.L33:
+	ldr	r3, .L44+36
 	ldr	r3, [r3]
 	sub	r3, r3, #50
-	ldr	r2, .L53+36
+	ldr	r2, .L44+36
 	str	r3, [r2]
 	mov	r0, #4
 	bl	PlaySoundFx
-.L43:
+.L34:
 	ldr	r4, [fp, #-224]
 	sub	r3, fp, #260
-	ldr	r1, .L53+40
+	ldr	r1, .L44+40
 	mov	r0, r3
 	bl	LoadTexture
 	mov	lr, r4
@@ -1458,16 +1492,16 @@ DragAndDropCup:
 	mov	r2, #0
 	strb	r2, [r3, #72]
 	ldr	r3, [fp, #-224]
-	b	.L47
-.L36:
+	b	.L38
+.L27:
 	ldr	r3, [fp, #-16]
 	add	r3, r3, #1
 	str	r3, [fp, #-16]
-.L35:
+.L26:
 	ldr	r3, [fp, #-16]
 	cmp	r3, #2
-	ble	.L44
-.L33:
+	ble	.L35
+.L24:
 	mov	r3, #10
 	str	r3, [fp, #-40]
 	mvn	r3, #39
@@ -1488,7 +1522,7 @@ DragAndDropCup:
 	vadd.f32	s14, s14, s15
 	ldr	r3, [fp, #-224]
 	vldr.32	s13, [r3, #44]
-	vldr.32	s12, .L53+60
+	vldr.32	s12, .L44+60
 	vdiv.f32	s15, s13, s12
 	vsub.f32	s15, s14, s15
 	ldr	r3, [fp, #-224]
@@ -1509,16 +1543,16 @@ DragAndDropCup:
 	vadd.f32	s14, s14, s15
 	ldr	r3, [fp, #-224]
 	vldr.32	s13, [r3, #48]
-	vldr.32	s12, .L53+60
+	vldr.32	s12, .L44+60
 	vdiv.f32	s15, s13, s12
 	vsub.f32	s15, s14, s15
 	ldr	r3, [fp, #-224]
 	vstr.32	s15, [r3, #24]
-.L32:
-	ldr	r3, .L53+44
+.L23:
+	ldr	r3, .L44+44
 	ldrb	r3, [r3]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L45
+	beq	.L36
 	bl	GetMousePosition
 	vmov.f32	s14, s0
 	vmov.f32	s15, s1
@@ -1540,28 +1574,28 @@ DragAndDropCup:
 	vstr.32	s14, [fp, #-216]
 	vstr.32	s15, [fp, #-212]
 	vldr.32	s14, [fp, #-216]
-	ldr	r3, .L53+48
+	ldr	r3, .L44+48
 	vldr.32	s15, [r3]
 	vsub.f32	s15, s14, s15
 	ldr	r3, [fp, #-224]
 	vstr.32	s15, [r3, #20]
 	vldr.32	s14, [fp, #-212]
-	ldr	r3, .L53+52
+	ldr	r3, .L44+52
 	vldr.32	s15, [r3]
 	vsub.f32	s15, s14, s15
 	ldr	r3, [fp, #-224]
 	vstr.32	s15, [r3, #24]
-.L45:
-	ldr	r3, .L53+56
+.L36:
+	ldr	r3, .L44+56
 	ldr	r3, [r3]
 	cmp	r3, #0
-	beq	.L46
-	ldr	r3, .L53+56
+	beq	.L37
+	ldr	r3, .L44+56
 	ldr	r3, [r3]
-	b	.L47
-.L46:
+	b	.L38
+.L37:
 	mov	r3, #0
-.L47:
+.L38:
 	mov	r0, r3
 	sub	sp, fp, #8
 	@ sp needed
@@ -1603,19 +1637,23 @@ DragAndDropCup:
 	.ascii	"CH\000"
 	.align	2
 .LC29:
-	.ascii	"EMPTY\000"
+	.ascii	"\000"
 	.align	2
 .LC30:
-	.ascii	".png\000"
+	.ascii	"EMPTY\000"
 	.align	2
 .LC31:
-	.ascii	"/home/pi/SuperMeowMeow/assets/combination/\000"
+	.ascii	".png\000"
 	.align	2
 .LC32:
+	.ascii	"/home/yuzu/Desktop/SuperMeowMeow/assets/combination"
+	.ascii	"/\000"
+	.align	2
+.LC33:
 	.ascii	"Powder type: %d, Water: %d, Creamer: %d, Topping: %"
 	.ascii	"d, Sauce: %d\012\000"
 	.align	2
-.LC33:
+.LC34:
 	.ascii	"NEW CUP IMAGE IS %s\012\000"
 	.text
 	.align	2
@@ -1627,237 +1665,153 @@ DragAndDropCup:
 UpdateCupImage:
 	@ args = 0, pretend = 0, frame = 1136
 	@ frame_needed = 1, uses_anonymous_args = 0
-	PUSH	{r4, fp, lr}
+	push	{r4, fp, lr}
 	add	fp, sp, #8
 	sub	sp, sp, #1136
 	sub	sp, sp, #12
 	str	r0, [fp, #-1120]
 	str	r1, [fp, #-1124]
-	ldr	r0, .L81
+	ldr	r0, .L72
 	bl	LogDebug
 	mov	r3, #0
 	strb	r3, [fp, #-112]
 	ldr	r3, [fp, #-1120]
 	ldr	r3, [r3, #52]
 	cmp	r3, #1
-	beq	.L56
+	beq	.L47
 	cmp	r3, #2
-	beq	.L57
-	b	.L59
-.L56:
+	beq	.L48
+	b	.L50
+.L47:
 	sub	r3, fp, #112
+	ldr	r1, .L72+4
 	mov	r0, r3
-	bl	strlen
-	mov	r3, r0
-	mov	r2, r3
+	bl	FTStrcat
+	b	.L50
+.L48:
 	sub	r3, fp, #112
-	add	r3, r3, r2
-	ldr	r2, .L81+4
-	ldrh	r1, [r2]	@ unaligned
-	ldrb	r2, [r2, #2]
-	strh	r1, [r3]	@ unaligned
-	strb	r2, [r3, #2]
-	b	.L59
-.L57:
-	sub	r3, fp, #112
+	ldr	r1, .L72+8
 	mov	r0, r3
-	bl	strlen
-	mov	r3, r0
-	mov	r2, r3
-	sub	r3, fp, #112
-	add	r3, r3, r2
-	ldr	r2, .L81+8
-	ldrh	r1, [r2]	@ unaligned
-	ldrb	r2, [r2, #2]
-	strh	r1, [r3]	@ unaligned
-	strb	r2, [r3, #2]
+	bl	FTStrcat
 	nop
-.L59:
+.L50:
 	ldr	r3, [fp, #-1120]
 	ldr	r3, [r3, #52]
 	cmp	r3, #0
-	beq	.L76
+	beq	.L67
 	ldr	r3, [fp, #-1120]
 	ldrb	r3, [r3, #56]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L61
+	beq	.L52
 	cmp	r3, #1
-	bne	.L77
+	bne	.L68
 	sub	r3, fp, #112
+	ldr	r1, .L72+12
 	mov	r0, r3
-	bl	strlen
-	mov	r3, r0
-	mov	r2, r3
+	bl	FTStrcat
+	b	.L51
+.L52:
 	sub	r3, fp, #112
-	add	r3, r3, r2
-	ldr	r1, .L81+12
-	mov	r2, r3
-	mov	r3, r1
-	ldrh	r3, [r3]	@ unaligned
-	strh	r3, [r2]	@ unaligned
-	b	.L60
-.L61:
-	sub	r3, fp, #112
+	ldr	r1, .L72+16
 	mov	r0, r3
-	bl	strlen
-	mov	r3, r0
-	mov	r2, r3
-	sub	r3, fp, #112
-	add	r3, r3, r2
-	ldr	r1, .L81+16
-	mov	r2, r3
-	mov	r3, r1
-	ldrh	r3, [r3]	@ unaligned
-	strh	r3, [r2]	@ unaligned
-	b	.L60
-.L76:
+	bl	FTStrcat
+	b	.L51
+.L67:
 	nop
-	b	.L60
-.L77:
+	b	.L51
+.L68:
 	nop
-.L60:
+.L51:
 	ldr	r3, [fp, #-1120]
 	ldrb	r3, [r3, #56]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L78
+	beq	.L69
 	ldr	r3, [fp, #-1120]
 	ldr	r3, [r3, #60]
 	cmp	r3, #3
-	beq	.L64
+	beq	.L55
 	cmp	r3, #4
-	beq	.L65
-	b	.L63
-.L64:
+	beq	.L56
+	b	.L54
+.L55:
 	sub	r3, fp, #112
+	ldr	r1, .L72+20
 	mov	r0, r3
-	bl	strlen
-	mov	r3, r0
-	mov	r2, r3
+	bl	FTStrcat
+	b	.L54
+.L56:
 	sub	r3, fp, #112
-	add	r3, r3, r2
-	ldr	r2, .L81+20
-	ldrh	r1, [r2]	@ unaligned
-	ldrb	r2, [r2, #2]
-	strh	r1, [r3]	@ unaligned
-	strb	r2, [r3, #2]
-	b	.L63
-.L65:
-	sub	r3, fp, #112
+	ldr	r1, .L72+24
 	mov	r0, r3
-	bl	strlen
-	mov	r3, r0
-	mov	r2, r3
-	sub	r3, fp, #112
-	add	r3, r3, r2
-	ldr	r2, .L81+24
-	ldrh	r1, [r2]	@ unaligned
-	ldrb	r2, [r2, #2]
-	strh	r1, [r3]	@ unaligned
-	strb	r2, [r3, #2]
-	b	.L63
-.L78:
+	bl	FTStrcat
+	b	.L54
+.L69:
 	nop
-.L63:
+.L54:
 	ldr	r3, [fp, #-1120]
 	ldr	r3, [r3, #60]
 	cmp	r3, #0
-	beq	.L79
+	beq	.L70
 	ldr	r3, [fp, #-1120]
 	ldr	r3, [r3, #64]
 	cmp	r3, #5
-	beq	.L68
+	beq	.L59
 	cmp	r3, #6
-	beq	.L69
-	b	.L67
-.L68:
+	beq	.L60
+	b	.L58
+.L59:
 	sub	r3, fp, #112
+	ldr	r1, .L72+28
 	mov	r0, r3
-	bl	strlen
-	mov	r3, r0
-	mov	r2, r3
+	bl	FTStrcat
+	b	.L58
+.L60:
 	sub	r3, fp, #112
-	add	r3, r3, r2
-	ldr	r2, .L81+28
-	ldrh	r1, [r2]	@ unaligned
-	ldrb	r2, [r2, #2]
-	strh	r1, [r3]	@ unaligned
-	strb	r2, [r3, #2]
-	b	.L67
-.L69:
-	sub	r3, fp, #112
+	ldr	r1, .L72+32
 	mov	r0, r3
-	bl	strlen
-	mov	r3, r0
-	mov	r2, r3
-	sub	r3, fp, #112
-	add	r3, r3, r2
-	ldr	r2, .L81+32
-	ldrh	r1, [r2]	@ unaligned
-	ldrb	r2, [r2, #2]
-	strh	r1, [r3]	@ unaligned
-	strb	r2, [r3, #2]
-	b	.L67
-.L79:
+	bl	FTStrcat
+	b	.L58
+.L70:
 	nop
-.L67:
+.L58:
 	ldr	r3, [fp, #-1120]
 	ldr	r3, [r3, #64]
 	cmp	r3, #0
-	beq	.L80
+	beq	.L71
 	ldr	r3, [fp, #-1120]
 	ldr	r3, [r3, #68]
 	cmp	r3, #7
-	beq	.L72
+	beq	.L63
 	cmp	r3, #8
-	beq	.L73
-	b	.L71
-.L72:
+	beq	.L64
+	b	.L62
+.L63:
 	sub	r3, fp, #112
+	ldr	r1, .L72+36
 	mov	r0, r3
-	bl	strlen
-	mov	r3, r0
-	mov	r2, r3
+	bl	FTStrcat
+	b	.L62
+.L64:
 	sub	r3, fp, #112
-	add	r3, r3, r2
-	ldr	r2, .L81+36
-	ldrh	r1, [r2]	@ unaligned
-	ldrb	r2, [r2, #2]
-	strh	r1, [r3]	@ unaligned
-	strb	r2, [r3, #2]
-	b	.L71
-.L73:
-	sub	r3, fp, #112
+	ldr	r1, .L72+40
 	mov	r0, r3
-	bl	strlen
-	mov	r3, r0
-	mov	r2, r3
-	sub	r3, fp, #112
-	add	r3, r3, r2
-	ldr	r2, .L81+40
-	ldrh	r1, [r2]	@ unaligned
-	ldrb	r2, [r2, #2]
-	strh	r1, [r3]	@ unaligned
-	strb	r2, [r3, #2]
-	b	.L71
-.L80:
-	nop
+	bl	FTStrcat
+	b	.L62
 .L71:
-	ldrb	r3, [fp, #-112]	@ zero_extendqisi2
-	cmp	r3, #0
-	bne	.L75
+	nop
+.L62:
 	sub	r3, fp, #112
+	ldr	r1, .L72+44
 	mov	r0, r3
-	bl	strlen
+	bl	FTStrcmp
 	mov	r3, r0
-	mov	r2, r3
+	cmp	r3, #0
+	bne	.L66
 	sub	r3, fp, #112
-	add	r3, r3, r2
-	ldr	r2, .L81+44
-	ldr	r0, [r2]
-	str	r0, [r3]	@ unaligned
-	ldrh	r2, [r2, #4]	@ unaligned
-	strh	r2, [r3, #4]	@ unaligned
-.L75:
+	ldr	r1, .L72+48
+	mov	r0, r3
+	bl	FTStrcat
+.L66:
 	ldr	r3, [fp, #-1120]
 	add	r3, r3, #76
 	sub	r2, fp, #112
@@ -1865,40 +1819,32 @@ UpdateCupImage:
 	mov	r0, r3
 	bl	strcpy
 	sub	r3, fp, #112
+	ldr	r1, .L72+52
 	mov	r0, r3
-	bl	strlen
-	mov	r3, r0
-	mov	r2, r3
-	sub	r3, fp, #112
-	add	r3, r3, r2
-	ldr	r2, .L81+48
-	ldr	r0, [r2]
-	str	r0, [r3]	@ unaligned
-	ldrb	r2, [r2, #4]
-	strb	r2, [r3, #4]
+	bl	FTStrcat
 	sub	r3, fp, #1088
 	sub	r3, r3, #12
 	sub	r3, r3, #12
-	ldr	r2, .L81+52
+	ldr	r2, .L72+56
 	mov	ip, r3
 	mov	lr, r2
 	ldmia	lr!, {r0, r1, r2, r3}
 	stmia	ip!, {r0, r1, r2, r3}
 	ldmia	lr!, {r0, r1, r2, r3}
 	stmia	ip!, {r0, r1, r2, r3}
-	ldm	lr, {r0, r1, r2}
-	stmia	ip!, {r0, r1}
-	strh	r2, [ip]	@ movhi
-	add	ip, ip, #2
-	lsr	r3, r2, #16
-	strb	r3, [ip]
+	ldmia	lr!, {r0, r1, r2, r3}
+	stmia	ip!, {r0, r1, r2, r3}
+	ldm	lr, {r0, r1}
+	str	r0, [ip]
+	add	ip, ip, #4
+	strb	r1, [ip]
 	sub	r2, fp, #112
 	sub	r3, fp, #1088
 	sub	r3, r3, #12
 	sub	r3, r3, #12
 	mov	r1, r2
 	mov	r0, r3
-	bl	strcat
+	bl	FTStrcat
 	ldr	r3, [fp, #-1120]
 	ldr	r1, [r3, #52]
 	ldr	r3, [fp, #-1120]
@@ -1914,13 +1860,13 @@ UpdateCupImage:
 	str	r3, [sp]
 	mov	r3, r0
 	mov	r2, ip
-	ldr	r0, .L81+56
+	ldr	r0, .L72+60
 	bl	LogDebug
 	sub	r3, fp, #1088
 	sub	r3, r3, #12
 	sub	r3, r3, #12
 	mov	r1, r3
-	ldr	r0, .L81+60
+	ldr	r0, .L72+64
 	bl	LogDebug
 	ldr	r4, [fp, #-1120]
 	sub	r2, fp, #1136
@@ -1942,9 +1888,9 @@ UpdateCupImage:
 	sub	sp, fp, #8
 	@ sp needed
 	pop	{r4, fp, pc}
-.L82:
+.L73:
 	.align	2
-.L81:
+.L72:
 	.word	.LC18
 	.word	.LC19
 	.word	.LC20
@@ -1961,6 +1907,7 @@ UpdateCupImage:
 	.word	.LC31
 	.word	.LC32
 	.word	.LC33
+	.word	.LC34
 	.size	UpdateCupImage, .-UpdateCupImage
 	.align	2
 	.global	UpdateCup
@@ -1971,7 +1918,7 @@ UpdateCupImage:
 UpdateCup:
 	@ args = 0, pretend = 0, frame = 8
 	@ frame_needed = 1, uses_anonymous_args = 0
-	PUSH	{fp, lr}
+	push	{fp, lr}
 	add	fp, sp, #4
 	sub	sp, sp, #8
 	str	r0, [fp, #-8]
@@ -1981,41 +1928,41 @@ UpdateCup:
 	eor	r3, r3, #1
 	uxtb	r3, r3
 	cmp	r3, #0
-	bne	.L95
-	ldr	r3, [fp, #-12]
-	ldr	r2, .L96
-	cmp	r3, r2
 	bne	.L86
+	ldr	r3, [fp, #-12]
+	ldr	r2, .L87
+	cmp	r3, r2
+	bne	.L77
 	ldr	r3, [fp, #-8]
 	ldr	r3, [r3, #52]
 	cmp	r3, #0
-	bne	.L86
+	bne	.L77
 	ldr	r3, [fp, #-8]
 	mov	r2, #1
 	str	r2, [r3, #52]
-	b	.L87
-.L86:
+	b	.L78
+.L77:
 	ldr	r3, [fp, #-12]
-	ldr	r2, .L96+4
+	ldr	r2, .L87+4
 	cmp	r3, r2
-	bne	.L88
+	bne	.L79
 	ldr	r3, [fp, #-8]
 	ldr	r3, [r3, #52]
 	cmp	r3, #0
-	bne	.L88
+	bne	.L79
 	ldr	r3, [fp, #-8]
 	mov	r2, #2
 	str	r2, [r3, #52]
-	b	.L87
-.L88:
+	b	.L78
+.L79:
 	ldr	r3, [fp, #-12]
-	ldr	r2, .L96+8
+	ldr	r2, .L87+8
 	cmp	r3, r2
-	bne	.L89
+	bne	.L80
 	ldr	r3, [fp, #-8]
 	ldr	r3, [r3, #52]
 	cmp	r3, #0
-	beq	.L89
+	beq	.L80
 	ldr	r3, [fp, #-8]
 	mov	r2, #1
 	strb	r2, [r3, #56]
@@ -2023,128 +1970,128 @@ UpdateCup:
 	bl	PlaySoundFx
 	mov	r0, #9
 	bl	PlaySoundFx
-	b	.L87
-.L89:
+	b	.L78
+.L80:
 	ldr	r3, [fp, #-12]
-	ldr	r2, .L96+12
+	ldr	r2, .L87+12
 	cmp	r3, r2
-	bne	.L90
+	bne	.L81
 	ldr	r3, [fp, #-8]
 	ldrb	r3, [r3, #56]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L90
+	beq	.L81
 	ldr	r3, [fp, #-8]
 	ldr	r3, [r3, #60]
 	cmp	r3, #0
-	bne	.L90
+	bne	.L81
 	ldr	r3, [fp, #-8]
 	mov	r2, #3
 	str	r2, [r3, #60]
-	b	.L87
-.L90:
+	b	.L78
+.L81:
 	ldr	r3, [fp, #-12]
-	ldr	r2, .L96+16
+	ldr	r2, .L87+16
 	cmp	r3, r2
-	bne	.L91
+	bne	.L82
 	ldr	r3, [fp, #-8]
 	ldrb	r3, [r3, #56]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L91
+	beq	.L82
 	ldr	r3, [fp, #-8]
 	ldr	r3, [r3, #60]
 	cmp	r3, #0
-	bne	.L91
+	bne	.L82
 	ldr	r3, [fp, #-8]
 	mov	r2, #4
 	str	r2, [r3, #60]
 	mov	r0, #8
 	bl	PlaySoundFx
-	b	.L87
-.L91:
+	b	.L78
+.L82:
 	ldr	r3, [fp, #-12]
-	ldr	r2, .L96+20
+	ldr	r2, .L87+20
 	cmp	r3, r2
-	bne	.L92
+	bne	.L83
 	ldr	r3, [fp, #-8]
 	ldr	r3, [r3, #60]
 	cmp	r3, #0
-	beq	.L92
+	beq	.L83
 	ldr	r3, [fp, #-8]
 	ldr	r3, [r3, #64]
 	cmp	r3, #0
-	bne	.L92
+	bne	.L83
 	ldr	r3, [fp, #-8]
 	mov	r2, #5
 	str	r2, [r3, #64]
-	b	.L87
-.L92:
+	b	.L78
+.L83:
 	ldr	r3, [fp, #-12]
-	ldr	r2, .L96+24
+	ldr	r2, .L87+24
 	cmp	r3, r2
-	bne	.L93
+	bne	.L84
 	ldr	r3, [fp, #-8]
 	ldr	r3, [r3, #60]
 	cmp	r3, #0
-	beq	.L93
+	beq	.L84
 	ldr	r3, [fp, #-8]
 	ldr	r3, [r3, #64]
 	cmp	r3, #0
-	bne	.L93
+	bne	.L84
 	ldr	r3, [fp, #-8]
 	mov	r2, #6
 	str	r2, [r3, #64]
-	b	.L87
-.L93:
+	b	.L78
+.L84:
 	ldr	r3, [fp, #-12]
-	ldr	r2, .L96+28
+	ldr	r2, .L87+28
 	cmp	r3, r2
-	bne	.L94
+	bne	.L85
 	ldr	r3, [fp, #-8]
 	ldr	r3, [r3, #64]
 	cmp	r3, #0
-	beq	.L94
+	beq	.L85
 	ldr	r3, [fp, #-8]
 	ldr	r3, [r3, #68]
 	cmp	r3, #0
-	bne	.L94
+	bne	.L85
 	ldr	r3, [fp, #-8]
 	mov	r2, #7
 	str	r2, [r3, #68]
 	mov	r0, #3
 	bl	PlaySoundFx
-	b	.L87
-.L94:
+	b	.L78
+.L85:
 	ldr	r3, [fp, #-12]
-	ldr	r2, .L96+32
+	ldr	r2, .L87+32
 	cmp	r3, r2
-	bne	.L87
+	bne	.L78
 	ldr	r3, [fp, #-8]
 	ldr	r3, [r3, #64]
 	cmp	r3, #0
-	beq	.L87
+	beq	.L78
 	ldr	r3, [fp, #-8]
 	ldr	r3, [r3, #68]
 	cmp	r3, #0
-	bne	.L87
+	bne	.L78
 	ldr	r3, [fp, #-8]
 	mov	r2, #8
 	str	r2, [r3, #68]
 	mov	r0, #3
 	bl	PlaySoundFx
-.L87:
+.L78:
 	ldr	r1, [fp, #-12]
 	ldr	r0, [fp, #-8]
 	bl	UpdateCupImage
-	b	.L83
-.L95:
+	b	.L74
+.L86:
 	nop
-.L83:
+.L74:
 	sub	sp, fp, #4
 	@ sp needed
 	pop	{fp, pc}
-.L97:
+.L88:
 	.align	2
-.L96:
+.L87:
 	.word	teaPowder
 	.word	cocoaPowder
 	.word	hotWater
@@ -2164,7 +2111,7 @@ UpdateCup:
 DragAndDropIngredient:
 	@ args = 0, pretend = 0, frame = 88
 	@ frame_needed = 1, uses_anonymous_args = 0
-	PUSH	{fp, lr}
+	push	{fp, lr}
 	add	fp, sp, #4
 	sub	sp, sp, #96
 	str	r0, [fp, #-80]
@@ -2202,7 +2149,7 @@ DragAndDropIngredient:
 	bl	IsMouseButtonDown
 	mov	r3, r0
 	cmp	r3, #0
-	beq	.L99
+	beq	.L90
 	bl	GetMousePosition
 	vmov.f32	s14, s0
 	vmov.f32	s15, s1
@@ -2238,27 +2185,27 @@ DragAndDropIngredient:
 	bl	CheckCollisionPointRec
 	mov	r3, r0
 	cmp	r3, #0
-	beq	.L99
-	ldr	r3, .L110+4
+	beq	.L90
+	ldr	r3, .L101+4
 	ldr	r3, [r3]
 	cmp	r3, #0
-	beq	.L101
+	beq	.L92
 	ldr	r2, [fp, #-80]
-	ldr	r3, .L110+4
+	ldr	r3, .L101+4
 	ldr	r3, [r3]
 	cmp	r2, r3
-	bne	.L99
-.L101:
+	bne	.L90
+.L92:
 	ldr	r3, [fp, #-80]
-	ldr	r2, .L110+8
+	ldr	r2, .L101+8
 	cmp	r3, r2
-	bne	.L102
+	bne	.L93
 	ldr	r3, [fp, #-80]
 	ldrb	r3, [r3, #20]	@ zero_extendqisi2
 	eor	r3, r3, #1
 	uxtb	r3, r3
 	cmp	r3, #0
-	beq	.L102
+	beq	.L93
 	ldr	r3, [fp, #-80]
 	mov	r2, #0
 	strb	r2, [r3, #20]
@@ -2266,54 +2213,54 @@ DragAndDropIngredient:
 	bl	PlaySoundFx
 	ldr	r0, [fp, #-80]
 	bl	boilWater
-	b	.L99
-.L102:
-	ldr	r3, .L110+12
+	b	.L90
+.L93:
+	ldr	r3, .L101+12
 	mov	r2, #1
 	strb	r2, [r3]
 	ldr	r3, [fp, #-80]
 	vldr.32	s14, [r3, #48]
-	vldr.32	s13, .L110
+	vldr.32	s13, .L101
 	vdiv.f32	s15, s14, s13
-	ldr	r3, .L110+16
+	ldr	r3, .L101+16
 	vstr.32	s15, [r3]
 	ldr	r3, [fp, #-80]
 	vldr.32	s14, [r3, #52]
-	vldr.32	s13, .L110
+	vldr.32	s13, .L101
 	vdiv.f32	s15, s14, s13
-	ldr	r3, .L110+20
+	ldr	r3, .L101+20
 	vstr.32	s15, [r3]
 	ldr	r3, [fp, #-68]	@ float
 	str	r3, [fp, #-8]	@ float
 	ldr	r3, [fp, #-64]	@ float
 	str	r3, [fp, #-12]	@ float
-	ldr	r3, .L110+16
+	ldr	r3, .L101+16
 	vldr.32	s15, [r3]
 	vldr.32	s14, [fp, #-8]
 	vsub.f32	s15, s14, s15
 	ldr	r3, [fp, #-80]
 	vstr.32	s15, [r3, #24]
-	ldr	r3, .L110+20
+	ldr	r3, .L101+20
 	vldr.32	s15, [r3]
 	vldr.32	s14, [fp, #-12]
 	vsub.f32	s15, s14, s15
 	ldr	r3, [fp, #-80]
 	vstr.32	s15, [r3, #28]
 	ldr	r3, [fp, #-80]
-	ldr	r2, .L110+4
+	ldr	r2, .L101+4
 	str	r3, [r2]
 	ldr	r3, [fp, #-80]
-	b	.L109
-.L99:
+	b	.L100
+.L90:
 	mov	r0, #0
 	bl	IsMouseButtonReleased
 	mov	r3, r0
 	cmp	r3, #0
-	beq	.L104
-	ldr	r3, .L110+12
+	beq	.L95
+	ldr	r3, .L101+12
 	mov	r2, #0
 	strb	r2, [r3]
-	ldr	r3, .L110+4
+	ldr	r3, .L101+4
 	mov	r2, #0
 	str	r2, [r3]
 	vldr.32	s8, [fp, #-60]
@@ -2335,20 +2282,20 @@ DragAndDropIngredient:
 	bl	CheckCollisionRecs
 	mov	r3, r0
 	cmp	r3, #0
-	beq	.L105
+	beq	.L96
 	ldr	r3, [fp, #-80]
 	ldrb	r3, [r3, #20]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L104
+	beq	.L95
 	ldr	r3, [fp, #-80]
-	ldr	r2, .L110+8
+	ldr	r2, .L101+8
 	cmp	r3, r2
-	bne	.L106
+	bne	.L97
 	ldr	r3, [fp, #-84]
 	ldr	r3, [r3, #52]
 	cmp	r3, #0
-	beq	.L106
-	ldr	r3, .L110+24
+	beq	.L97
+	ldr	r3, .L101+24
 	mov	r2, #0
 	strb	r2, [r3]
 	ldr	r3, [fp, #-80]
@@ -2357,7 +2304,7 @@ DragAndDropIngredient:
 	ldr	r3, [fp, #-80]
 	mov	r2, #1
 	str	r2, [r3, #60]
-.L106:
+.L97:
 	ldr	r1, [fp, #-80]
 	ldr	r0, [fp, #-84]
 	bl	UpdateCup
@@ -2369,8 +2316,8 @@ DragAndDropIngredient:
 	ldr	r2, [r3, #36]	@ float
 	ldr	r3, [fp, #-80]
 	str	r2, [r3, #28]	@ float
-	b	.L104
-.L105:
+	b	.L95
+.L96:
 	ldr	r3, [fp, #-80]
 	ldr	r2, [r3, #32]	@ float
 	ldr	r3, [fp, #-80]
@@ -2379,11 +2326,11 @@ DragAndDropIngredient:
 	ldr	r2, [r3, #36]	@ float
 	ldr	r3, [fp, #-80]
 	str	r2, [r3, #28]	@ float
-.L104:
-	ldr	r3, .L110+12
+.L95:
+	ldr	r3, .L101+12
 	ldrb	r3, [r3]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L107
+	beq	.L98
 	bl	GetMousePosition
 	vmov.f32	s14, s0
 	vmov.f32	s15, s1
@@ -2405,35 +2352,35 @@ DragAndDropIngredient:
 	vstr.32	s14, [fp, #-76]
 	vstr.32	s15, [fp, #-72]
 	vldr.32	s14, [fp, #-76]
-	ldr	r3, .L110+16
+	ldr	r3, .L101+16
 	vldr.32	s15, [r3]
 	vsub.f32	s15, s14, s15
 	ldr	r3, [fp, #-80]
 	vstr.32	s15, [r3, #24]
 	vldr.32	s14, [fp, #-72]
-	ldr	r3, .L110+20
+	ldr	r3, .L101+20
 	vldr.32	s15, [r3]
 	vsub.f32	s15, s14, s15
 	ldr	r3, [fp, #-80]
 	vstr.32	s15, [r3, #28]
-.L107:
-	ldr	r3, .L110+4
+.L98:
+	ldr	r3, .L101+4
 	ldr	r3, [r3]
 	cmp	r3, #0
-	beq	.L108
-	ldr	r3, .L110+4
+	beq	.L99
+	ldr	r3, .L101+4
 	ldr	r3, [r3]
-	b	.L109
-.L108:
+	b	.L100
+.L99:
 	mov	r3, #0
-.L109:
+.L100:
 	mov	r0, r3
 	sub	sp, fp, #4
 	@ sp needed
 	pop	{fp, pc}
-.L111:
+.L102:
 	.align	2
-.L110:
+.L101:
 	.word	1073741824
 	.word	current_dragging.10
 	.word	hotWater
@@ -2451,7 +2398,7 @@ DragAndDropIngredient:
 DragAndDropIngredientPop:
 	@ args = 0, pretend = 0, frame = 104
 	@ frame_needed = 1, uses_anonymous_args = 0
-	PUSH	{fp, lr}
+	push	{fp, lr}
 	add	fp, sp, #4
 	sub	sp, sp, #112
 	str	r0, [fp, #-96]
@@ -2502,7 +2449,7 @@ DragAndDropIngredientPop:
 	bl	IsMouseButtonDown
 	mov	r3, r0
 	cmp	r3, #0
-	beq	.L113
+	beq	.L104
 	bl	GetMousePosition
 	vmov.f32	s14, s0
 	vmov.f32	s15, s1
@@ -2538,7 +2485,7 @@ DragAndDropIngredientPop:
 	bl	CheckCollisionPointRec
 	mov	r3, r0
 	cmp	r3, #0
-	bne	.L114
+	bne	.L105
 	vldr.32	s10, [fp, #-60]
 	vldr.32	s11, [fp, #-56]
 	vldr.32	s12, [fp, #-52]
@@ -2554,64 +2501,64 @@ DragAndDropIngredientPop:
 	bl	CheckCollisionPointRec
 	mov	r3, r0
 	cmp	r3, #0
-	beq	.L113
-.L114:
-	ldr	r3, .L123+4
+	beq	.L104
+.L105:
+	ldr	r3, .L114+4
 	ldr	r3, [r3]
 	cmp	r3, #0
-	beq	.L116
+	beq	.L107
 	ldr	r2, [fp, #-96]
-	ldr	r3, .L123+4
+	ldr	r3, .L114+4
 	ldr	r3, [r3]
 	cmp	r2, r3
-	bne	.L113
-.L116:
-	ldr	r3, .L123+8
+	bne	.L104
+.L107:
+	ldr	r3, .L114+8
 	mov	r2, #1
 	strb	r2, [r3]
 	ldr	r3, [fp, #-100]
 	vldr.32	s14, [r3, #48]
-	vldr.32	s13, .L123
+	vldr.32	s13, .L114
 	vdiv.f32	s15, s14, s13
-	ldr	r3, .L123+12
+	ldr	r3, .L114+12
 	vstr.32	s15, [r3]
 	ldr	r3, [fp, #-100]
 	vldr.32	s14, [r3, #52]
-	vldr.32	s13, .L123
+	vldr.32	s13, .L114
 	vdiv.f32	s15, s14, s13
-	ldr	r3, .L123+16
+	ldr	r3, .L114+16
 	vstr.32	s15, [r3]
 	ldr	r3, [fp, #-84]	@ float
 	str	r3, [fp, #-8]	@ float
 	ldr	r3, [fp, #-80]	@ float
 	str	r3, [fp, #-12]	@ float
-	ldr	r3, .L123+12
+	ldr	r3, .L114+12
 	vldr.32	s15, [r3]
 	vldr.32	s14, [fp, #-8]
 	vsub.f32	s15, s14, s15
 	ldr	r3, [fp, #-100]
 	vstr.32	s15, [r3, #24]
-	ldr	r3, .L123+16
+	ldr	r3, .L114+16
 	vldr.32	s15, [r3]
 	vldr.32	s14, [fp, #-12]
 	vsub.f32	s15, s14, s15
 	ldr	r3, [fp, #-100]
 	vstr.32	s15, [r3, #28]
 	ldr	r3, [fp, #-96]
-	ldr	r2, .L123+4
+	ldr	r2, .L114+4
 	str	r3, [r2]
 	ldr	r3, [fp, #-96]
-	b	.L122
-.L113:
+	b	.L113
+.L104:
 	mov	r0, #0
 	bl	IsMouseButtonReleased
 	mov	r3, r0
 	cmp	r3, #0
-	beq	.L118
-	ldr	r3, .L123+8
+	beq	.L109
+	ldr	r3, .L114+8
 	mov	r2, #0
 	strb	r2, [r3]
-	ldr	r3, .L123+4
+	ldr	r3, .L114+4
 	mov	r2, #0
 	str	r2, [r3]
 	vldr.32	s8, [fp, #-76]
@@ -2633,11 +2580,11 @@ DragAndDropIngredientPop:
 	bl	CheckCollisionRecs
 	mov	r3, r0
 	cmp	r3, #0
-	beq	.L119
+	beq	.L110
 	ldr	r3, [fp, #-96]
 	ldrb	r3, [r3, #20]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L118
+	beq	.L109
 	ldr	r1, [fp, #-96]
 	ldr	r0, [fp, #-104]
 	bl	UpdateCup
@@ -2649,8 +2596,8 @@ DragAndDropIngredientPop:
 	ldr	r2, [r3, #36]	@ float
 	ldr	r3, [fp, #-100]
 	str	r2, [r3, #28]	@ float
-	b	.L118
-.L119:
+	b	.L109
+.L110:
 	ldr	r3, [fp, #-100]
 	ldr	r2, [r3, #32]	@ float
 	ldr	r3, [fp, #-100]
@@ -2659,11 +2606,11 @@ DragAndDropIngredientPop:
 	ldr	r2, [r3, #36]	@ float
 	ldr	r3, [fp, #-100]
 	str	r2, [r3, #28]	@ float
-.L118:
-	ldr	r3, .L123+8
+.L109:
+	ldr	r3, .L114+8
 	ldrb	r3, [r3]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L120
+	beq	.L111
 	bl	GetMousePosition
 	vmov.f32	s14, s0
 	vmov.f32	s15, s1
@@ -2685,35 +2632,35 @@ DragAndDropIngredientPop:
 	vstr.32	s14, [fp, #-92]
 	vstr.32	s15, [fp, #-88]
 	vldr.32	s14, [fp, #-92]
-	ldr	r3, .L123+12
+	ldr	r3, .L114+12
 	vldr.32	s15, [r3]
 	vsub.f32	s15, s14, s15
 	ldr	r3, [fp, #-100]
 	vstr.32	s15, [r3, #24]
 	vldr.32	s14, [fp, #-88]
-	ldr	r3, .L123+16
+	ldr	r3, .L114+16
 	vldr.32	s15, [r3]
 	vsub.f32	s15, s14, s15
 	ldr	r3, [fp, #-100]
 	vstr.32	s15, [r3, #28]
-.L120:
-	ldr	r3, .L123+4
+.L111:
+	ldr	r3, .L114+4
 	ldr	r3, [r3]
 	cmp	r3, #0
-	beq	.L121
-	ldr	r3, .L123+4
+	beq	.L112
+	ldr	r3, .L114+4
 	ldr	r3, [r3]
-	b	.L122
-.L121:
+	b	.L113
+.L112:
 	mov	r3, #0
-.L122:
+.L113:
 	mov	r0, r3
 	sub	sp, fp, #4
 	@ sp needed
 	pop	{fp, pc}
-.L124:
+.L115:
 	.align	2
-.L123:
+.L114:
 	.word	1073741824
 	.word	current_dragging.6
 	.word	isObjectBeingDragged.5
@@ -2731,7 +2678,7 @@ frameRect:
 	@ args = 72, pretend = 16, frame = 56
 	@ frame_needed = 1, uses_anonymous_args = 0
 	sub	sp, sp, #16
-	PUSH	{fp, lr}
+	push	{fp, lr}
 	add	fp, sp, #4
 	sub	sp, sp, #56
 	add	ip, fp, #4
@@ -2791,7 +2738,7 @@ frameRectCup:
 	@ args = 164, pretend = 16, frame = 56
 	@ frame_needed = 1, uses_anonymous_args = 0
 	sub	sp, sp, #16
-	PUSH	{fp, lr}
+	push	{fp, lr}
 	add	fp, sp, #4
 	sub	sp, sp, #56
 	add	ip, fp, #4
@@ -2850,40 +2797,40 @@ frameRectCup:
 tickBoil:
 	@ args = 0, pretend = 0, frame = 16
 	@ frame_needed = 1, uses_anonymous_args = 0
-	PUSH	{fp, lr}
-	vPUSH.64	{d8}
+	push	{fp, lr}
+	vpush.64	{d8}
 	add	fp, sp, #12
 	sub	sp, sp, #24
 	str	r0, [fp, #-24]
-	ldr	r3, .L138+16
+	ldr	r3, .L129+16
 	ldrb	r3, [r3]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L129
-	ldr	r3, .L138+20
+	beq	.L120
+	ldr	r3, .L129+20
 	vldr.64	d7, [r3]
-	vldr.64	d6, .L138
+	vldr.64	d6, .L129
 	vadd.f64	d8, d7, d6
 	bl	GetTime
 	vmov.f64	d7, d0
 	vcmpe.f64	d8, d7
 	vmrs	APSR_nzcv, FPSCR
-	ble	.L137
+	ble	.L128
 	ldr	r3, [fp, #-24]
 	ldr	r2, [r3, #56]
 	ldr	r3, [fp, #-24]
 	str	r2, [r3, #60]
-	b	.L129
-.L137:
-	ldr	r3, .L138+24
+	b	.L120
+.L128:
+	ldr	r3, .L129+24
 	vldr.64	d7, [r3]
-	vldr.64	d6, .L138+8
+	vldr.64	d6, .L129+8
 	vadd.f64	d8, d7, d6
 	bl	GetTime
 	vmov.f64	d7, d0
 	vcmpe.f64	d8, d7
 	vmrs	APSR_nzcv, FPSCR
-	bpl	.L129
-	ldr	r3, .L138+28
+	bpl	.L120
+	ldr	r3, .L129+28
 	mov	ip, sp
 	add	r2, r3, #16
 	ldm	r2, {r0, r1}
@@ -2897,7 +2844,7 @@ tickBoil:
 	strb	r2, [r3, #20]
 	bl	GetTime
 	vmov.f64	d7, d0
-	ldr	r3, .L138+24
+	ldr	r3, .L129+24
 	vstr.64	d7, [r3]
 	ldr	r3, [fp, #-24]
 	ldr	r3, [r3, #60]
@@ -2907,21 +2854,21 @@ tickBoil:
 	ldr	r3, [r3, #56]
 	ldr	r2, [fp, #-16]
 	cmp	r2, r3
-	ble	.L134
+	ble	.L125
 	mov	r3, #1
 	str	r3, [fp, #-16]
-.L134:
+.L125:
 	ldr	r3, [fp, #-24]
 	ldr	r2, [fp, #-16]
 	str	r2, [r3, #60]
-.L129:
+.L120:
 	sub	sp, fp, #12
 	@ sp needed
 	vldm	sp!, {d8}
 	pop	{fp, pc}
-.L139:
+.L130:
 	.align	3
-.L138:
+.L129:
 	.word	0
 	.word	1074266112
 	.word	0
@@ -2940,7 +2887,7 @@ tickBoil:
 highlightItem:
 	@ args = 0, pretend = 0, frame = 40
 	@ frame_needed = 1, uses_anonymous_args = 0
-	PUSH	{r4, r5, fp, lr}
+	push	{r4, r5, fp, lr}
 	add	fp, sp, #12
 	sub	sp, sp, #96
 	str	r0, [fp, #-48]
@@ -2992,13 +2939,13 @@ highlightItem:
 	bl	CheckCollisionPointRec
 	mov	r3, r0
 	cmp	r3, #0
-	beq	.L141
+	beq	.L132
 	ldr	r3, [fp, #-48]
 	ldr	r2, [r3, #56]
 	ldr	r3, [fp, #-48]
 	ldr	r3, [r3, #60]
 	cmp	r2, r3
-	ble	.L141
+	ble	.L132
 	ldr	r3, [fp, #-48]
 	ldr	r3, [r3, #56]
 	ldr	r2, [fp, #-48]
@@ -3027,8 +2974,8 @@ highlightItem:
 	vstr.32	s14, [r4, #48]
 	vstr.32	s15, [r4, #52]
 	mov	r3, #1
-	b	.L143
-.L141:
+	b	.L134
+.L132:
 	ldr	r3, [fp, #-48]
 	ldr	r3, [r3, #56]
 	ldr	r2, [fp, #-48]
@@ -3056,7 +3003,7 @@ highlightItem:
 	vstr.32	s14, [r4, #48]
 	vstr.32	s15, [r4, #52]
 	mov	r3, #0
-.L143:
+.L134:
 	mov	r0, r3
 	sub	sp, fp, #12
 	@ sp needed
@@ -3142,25 +3089,25 @@ colorTransitionTime:
 	.word	1056964608
 	.section	.rodata
 	.align	2
-.LC34:
+.LC35:
 	.ascii	"%Y-%m-%d %H:%M:%S\000"
 	.align	2
-.LC35:
+.LC36:
 	.ascii	"[%s] \000"
 	.align	2
-.LC36:
+.LC37:
 	.ascii	"[DEBUG]: \000"
 	.align	2
-.LC37:
+.LC38:
 	.ascii	"[INFO] : \000"
 	.align	2
-.LC38:
+.LC39:
 	.ascii	"[WARN] : \000"
 	.align	2
-.LC39:
+.LC40:
 	.ascii	"[ERROR]: \000"
 	.align	2
-.LC40:
+.LC41:
 	.ascii	"[FATAL]: \000"
 	.text
 	.align	2
@@ -3172,7 +3119,7 @@ colorTransitionTime:
 CustomLogger:
 	@ args = 0, pretend = 0, frame = 104
 	@ frame_needed = 1, uses_anonymous_args = 0
-	PUSH	{fp, lr}
+	push	{fp, lr}
 	add	fp, sp, #4
 	sub	sp, sp, #104
 	str	r0, [fp, #-96]
@@ -3195,12 +3142,12 @@ CustomLogger:
 	str	r0, [fp, #-12]
 	sub	r0, fp, #84
 	ldr	r3, [fp, #-12]
-	ldr	r2, .L157
+	ldr	r2, .L148
 	mov	r1, #64
 	bl	strftime
 	sub	r3, fp, #84
 	mov	r1, r3
-	ldr	r0, .L157+4
+	ldr	r0, .L148+4
 	bl	printf
 	ldr	r3, [fp, #-104]
 	ldr	r2, [fp, #-100]
@@ -3219,54 +3166,54 @@ CustomLogger:
 	sub	r3, r3, #2
 	cmp	r3, #4
 	ldrls	pc, [pc, r3, asl #2]
-	b	.L156
+	b	.L147
+.L138:
+	.word	.L142
+	.word	.L141
+	.word	.L140
+	.word	.L139
+	.word	.L137
+.L142:
+	ldr	r0, .L148+8
+	bl	printf
+	b	.L143
+.L141:
+	ldr	r0, .L148+12
+	bl	printf
+	b	.L143
+.L140:
+	ldr	r0, .L148+16
+	bl	printf
+	b	.L143
+.L139:
+	ldr	r0, .L148+20
+	bl	printf
+	b	.L143
+.L137:
+	ldr	r0, .L148+24
+	bl	printf
+	b	.L143
 .L147:
-	.word	.L151
-	.word	.L150
-	.word	.L149
-	.word	.L148
-	.word	.L146
-.L151:
-	ldr	r0, .L157+8
-	bl	printf
-	b	.L152
-.L150:
-	ldr	r0, .L157+12
-	bl	printf
-	b	.L152
-.L149:
-	ldr	r0, .L157+16
-	bl	printf
-	b	.L152
-.L148:
-	ldr	r0, .L157+20
-	bl	printf
-	b	.L152
-.L146:
-	ldr	r0, .L157+24
-	bl	printf
-	b	.L152
-.L156:
 	nop
-.L152:
+.L143:
 	ldr	r1, [fp, #-16]
 	ldr	r3, [fp, #-104]
 	ldr	r2, [fp, #-100]
 	ldr	r0, [fp, #-20]
 	bl	vsnprintf
-	ldr	r3, .L157+28
+	ldr	r3, .L148+28
 	ldr	r3, [r3]
 	cmp	r3, #25
-	bne	.L153
+	bne	.L144
 	mov	r3, #0
 	str	r3, [fp, #-8]
-	b	.L154
-.L155:
+	b	.L145
+.L146:
 	ldr	r3, [fp, #-8]
 	add	r2, r3, #1
-	ldr	r0, .L157+32
+	ldr	r0, .L148+32
 	ldr	r3, [fp, #-8]
-	ldr	r1, .L157+32
+	ldr	r1, .L148+32
 	lsl	r3, r3, #3
 	add	r3, r0, r3
 	lsl	r2, r2, #3
@@ -3276,30 +3223,30 @@ CustomLogger:
 	ldr	r3, [fp, #-8]
 	add	r3, r3, #1
 	str	r3, [fp, #-8]
-.L154:
+.L145:
 	ldr	r3, [fp, #-8]
 	cmp	r3, #23
-	ble	.L155
-	ldr	r3, .L157+28
+	ble	.L146
+	ldr	r3, .L148+28
 	mov	r2, #24
 	str	r2, [r3]
-.L153:
-	ldr	r3, .L157+28
+.L144:
+	ldr	r3, .L148+28
 	ldr	r3, [r3]
-	ldr	r1, .L157+32
+	ldr	r1, .L148+32
 	ldr	r2, [fp, #-96]
 	str	r2, [r1, r3, lsl #3]
-	ldr	r3, .L157+28
+	ldr	r3, .L148+28
 	ldr	r3, [r3]
-	ldr	r2, .L157+32
+	ldr	r2, .L148+32
 	lsl	r3, r3, #3
 	add	r3, r2, r3
 	ldr	r2, [fp, #-20]
 	str	r2, [r3, #4]
-	ldr	r3, .L157+28
+	ldr	r3, .L148+28
 	ldr	r3, [r3]
 	add	r3, r3, #1
-	ldr	r2, .L157+28
+	ldr	r2, .L148+28
 	str	r3, [r2]
 	ldr	r0, [fp, #-20]
 	bl	puts
@@ -3307,16 +3254,16 @@ CustomLogger:
 	sub	sp, fp, #4
 	@ sp needed
 	pop	{fp, pc}
-.L158:
+.L149:
 	.align	2
-.L157:
-	.word	.LC34
+.L148:
 	.word	.LC35
 	.word	.LC36
 	.word	.LC37
 	.word	.LC38
 	.word	.LC39
 	.word	.LC40
+	.word	.LC41
 	.word	DebugLogsIndex
 	.word	DebugLogs
 	.size	CustomLogger, .-CustomLogger
@@ -3329,8 +3276,8 @@ CustomLogger:
 LogDebug:
 	@ args = 4, pretend = 16, frame = 8
 	@ frame_needed = 1, uses_anonymous_args = 1
-	PUSH	{r0, r1, r2, r3}
-	PUSH	{fp, lr}
+	push	{r0, r1, r2, r3}
+	push	{fp, lr}
 	add	fp, sp, #4
 	sub	sp, sp, #8
 	add	r3, fp, #8
@@ -3355,8 +3302,8 @@ LogDebug:
 Log:
 	@ args = 4, pretend = 12, frame = 16
 	@ frame_needed = 1, uses_anonymous_args = 1
-	PUSH	{r1, r2, r3}
-	PUSH	{fp, lr}
+	push	{r1, r2, r3}
+	push	{fp, lr}
 	add	fp, sp, #4
 	sub	sp, sp, #20
 	str	r0, [fp, #-20]
@@ -3423,43 +3370,43 @@ GetTextColorFromLogType:
 	sub	r3, r3, #2
 	cmp	r3, #4
 	ldrls	pc, [pc, r3, asl #2]
-	b	.L162
-.L164:
-	.word	.L168
-	.word	.L167
-	.word	.L166
-	.word	.L165
-	.word	.L163
-.L168:
-	ldr	r3, .L171
+	b	.L153
+.L155:
+	.word	.L159
+	.word	.L158
+	.word	.L157
+	.word	.L156
+	.word	.L154
+.L159:
+	ldr	r3, .L162
 	ldr	r3, [r3]
 	str	r3, [fp, #-8]
-	b	.L170
-.L167:
-	ldr	r3, .L171+4
+	b	.L161
+.L158:
+	ldr	r3, .L162+4
 	ldr	r3, [r3]
 	str	r3, [fp, #-8]
-	b	.L170
-.L166:
-	ldr	r3, .L171+8
+	b	.L161
+.L157:
+	ldr	r3, .L162+8
 	ldr	r3, [r3]
 	str	r3, [fp, #-8]
-	b	.L170
-.L165:
-	ldr	r3, .L171+12
+	b	.L161
+.L156:
+	ldr	r3, .L162+12
 	ldr	r3, [r3]
 	str	r3, [fp, #-8]
-	b	.L170
-.L163:
-	ldr	r3, .L171+16
+	b	.L161
+.L154:
+	ldr	r3, .L162+16
 	ldr	r3, [r3]
 	str	r3, [fp, #-8]
-	b	.L170
-.L162:
-	ldr	r3, .L171+4
+	b	.L161
+.L153:
+	ldr	r3, .L162+4
 	ldr	r3, [r3]
 	str	r3, [fp, #-8]
-.L170:
+.L161:
 	mov	r3, #0
 	ldrb	r2, [fp, #-8]	@ zero_extendqisi2
 	uxtb	r2, r2
@@ -3485,9 +3432,9 @@ GetTextColorFromLogType:
 	@ sp needed
 	ldr	fp, [sp], #4
 	bx	lr
-.L172:
+.L163:
 	.align	2
-.L171:
+.L162:
 	.word	.LC0
 	.word	.LC1
 	.word	.LC2
@@ -3496,10 +3443,10 @@ GetTextColorFromLogType:
 	.size	GetTextColorFromLogType, .-GetTextColorFromLogType
 	.section	.rodata
 	.align	2
-.LC41:
+.LC42:
 	.ascii	"Ingredient\000"
 	.align	2
-.LC42:
+.LC43:
 	.ascii	"%s | XY %.2f,%.2f\000"
 	.align	2
 .LC5:
@@ -3524,13 +3471,13 @@ DrawDragableItemFrame:
 	@ args = 64, pretend = 16, frame = 48
 	@ frame_needed = 1, uses_anonymous_args = 0
 	sub	sp, sp, #16
-	PUSH	{r4, fp, lr}
-	vPUSH.64	{d8}
+	push	{r4, fp, lr}
+	vpush.64	{d8}
 	add	fp, sp, #16
 	sub	sp, sp, #84
 	add	ip, fp, #4
 	stm	ip, {r0, r1, r2, r3}
-	ldr	r3, .L176+12
+	ldr	r3, .L167+12
 	ldr	r3, [r3]
 	str	r3, [fp, #-28]
 	vldr.32	s10, [fp, #28]
@@ -3552,15 +3499,15 @@ DrawDragableItemFrame:
 	vmov.f32	s2, s14
 	vmov.f32	s3, s15
 	bl	DrawTextureRec
-	ldr	r3, .L176+16
+	ldr	r3, .L167+16
 	ldr	r3, [r3]
 	ldrb	r3, [r3, #20]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L175
-	ldr	r3, .L176+20
+	beq	.L166
+	ldr	r3, .L167+20
 	ldrb	r3, [r3, #3]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L175
+	beq	.L166
 	ldr	r3, [fp, #28]	@ float
 	str	r3, [fp, #-44]	@ float
 	ldr	r3, [fp, #32]	@ float
@@ -3569,7 +3516,7 @@ DrawDragableItemFrame:
 	str	r3, [fp, #-36]	@ float
 	ldr	r3, [fp, #56]	@ float
 	str	r3, [fp, #-32]	@ float
-	ldr	r3, .L176+24
+	ldr	r3, .L167+24
 	ldr	r3, [r3]
 	str	r3, [fp, #-48]
 	vldr.32	s12, [fp, #-44]
@@ -3577,7 +3524,7 @@ DrawDragableItemFrame:
 	vldr.32	s14, [fp, #-36]
 	vldr.32	s15, [fp, #-32]
 	ldr	r0, [fp, #-48]
-	vldr.32	s4, .L176
+	vldr.32	s4, .L167
 	vmov.f32	s0, s12
 	vmov.f32	s1, s13
 	vmov.f32	s2, s14
@@ -3586,13 +3533,13 @@ DrawDragableItemFrame:
 	vldr.32	s15, [fp, #28]
 	vcvt.s32.f32	s16, s15
 	vldr.32	s15, [fp, #32]
-	vldr.32	s14, .L176+4
+	vldr.32	s14, .L167+4
 	vsub.f32	s15, s15, s14
 	vcvt.s32.f32	s17, s15
-	ldr	r3, .L176+28
+	ldr	r3, .L167+28
 	ldr	r3, [r3]
 	str	r3, [fp, #-52]
-	vldr.32	s0, .L176+8
+	vldr.32	s0, .L167+8
 	ldr	r0, [fp, #-52]
 	bl	Fade
 	mov	r3, r0
@@ -3610,22 +3557,22 @@ DrawDragableItemFrame:
 	vcvt.f64.f32	d7, s15
 	vstr.64	d7, [sp]
 	vmov	r2, r3, d6
-	ldr	r1, .L176+32
-	ldr	r0, .L176+36
+	ldr	r1, .L167+32
+	ldr	r0, .L167+36
 	bl	TextFormat
 	mov	r2, r0
 	ldr	r3, [fp, #28]	@ float
 	str	r3, [fp, #-60]	@ float
 	vldr.32	s15, [fp, #32]
-	vldr.32	s14, .L176+4
+	vldr.32	s14, .L167+4
 	vsub.f32	s15, s15, s14
 	vstr.32	s15, [fp, #-56]
-	ldr	r3, .L176+40
+	ldr	r3, .L167+40
 	ldr	r3, [r3]
 	str	r3, [fp, #-64]
 	vldr.32	s14, [fp, #-60]
 	vldr.32	s15, [fp, #-56]
-	ldr	r4, .L176+44
+	ldr	r4, .L167+44
 	ldr	r3, [fp, #-64]
 	str	r3, [sp, #28]
 	str	r2, [sp, #24]
@@ -3636,12 +3583,12 @@ DrawDragableItemFrame:
 	ldm	ip, {r0, r1}
 	stm	lr, {r0, r1}
 	ldm	r4, {r0, r1, r2, r3}
-	vldr.32	s3, .L176
-	vldr.32	s2, .L176+4
+	vldr.32	s3, .L167
+	vldr.32	s2, .L167+4
 	vmov.f32	s0, s14
 	vmov.f32	s1, s15
 	bl	DrawTextEx
-.L175:
+.L166:
 	nop
 	sub	sp, fp, #16
 	@ sp needed
@@ -3649,9 +3596,9 @@ DrawDragableItemFrame:
 	pop	{r4, fp, lr}
 	add	sp, sp, #16
 	bx	lr
-.L177:
+.L168:
 	.align	2
-.L176:
+.L167:
 	.word	1065353216
 	.word	1101004800
 	.word	1060320051
@@ -3660,20 +3607,20 @@ DrawDragableItemFrame:
 	.word	debugToolToggles
 	.word	.LC3
 	.word	.LC6
-	.word	.LC41
 	.word	.LC42
+	.word	.LC43
 	.word	.LC1
 	.word	meowFont
 	.size	DrawDragableItemFrame, .-DrawDragableItemFrame
 	.section	.rodata
 	.align	2
-.LC43:
+.LC44:
 	.ascii	"[Yes]\000"
 	.align	2
-.LC44:
+.LC45:
 	.ascii	"[No]\000"
 	.align	2
-.LC45:
+.LC46:
 	.ascii	"%d | XY %.2f,%.2f | R %.2f | G %.2f | Behide %s\000"
 	.text
 	.align	2
@@ -3685,8 +3632,8 @@ DrawDragableItemFrame:
 DrawMenuFallingItems:
 	@ args = 0, pretend = 0, frame = 200
 	@ frame_needed = 1, uses_anonymous_args = 0
-	PUSH	{r4, fp, lr}
-	vPUSH.64	{d8, d9}
+	push	{r4, fp, lr}
+	vpush.64	{d8, d9}
 	add	fp, sp, #24
 	sub	sp, sp, #236
 	vstr.64	d0, [fp, #-220]
@@ -3694,32 +3641,32 @@ DrawMenuFallingItems:
 	strb	r3, [fp, #-221]
 	ldrb	r3, [fp, #-221]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L179
+	beq	.L170
 	mov	r3, #0
-	b	.L180
-.L179:
+	b	.L171
+.L170:
 	mov	r3, #11
-.L180:
+.L171:
 	str	r3, [fp, #-40]
 	ldrb	r3, [fp, #-221]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L181
+	beq	.L172
 	mov	r3, #11
-	b	.L182
-.L181:
+	b	.L173
+.L172:
 	mov	r3, #20
-.L182:
+.L173:
 	str	r3, [fp, #-44]
 	ldr	r3, [fp, #-40]
 	str	r3, [fp, #-32]
-	b	.L183
-.L194:
+	b	.L174
+.L185:
 	ldr	r2, [fp, #-32]
 	mov	r3, r2
 	lsl	r3, r3, #1
 	add	r3, r3, r2
 	lsl	r3, r3, #3
-	ldr	r2, .L197+4
+	ldr	r2, .L188+4
 	add	r3, r3, r2
 	str	r3, [fp, #-48]
 	ldr	r3, [fp, #-48]
@@ -3748,7 +3695,7 @@ DrawMenuFallingItems:
 	vstr.32	s15, [r3, #8]
 	ldr	r3, [fp, #-48]
 	ldr	r2, [r3, #12]
-	ldr	r1, .L197+8
+	ldr	r1, .L188+8
 	mov	r3, r2
 	lsl	r3, r3, #2
 	add	r3, r3, r2
@@ -3758,12 +3705,12 @@ DrawMenuFallingItems:
 	ldr	r3, [r3]
 	vmov	s15, r3	@ int
 	vcvt.f32.s32	s14, s15
-	vldr.32	s13, .L197
+	vldr.32	s13, .L188
 	vdiv.f32	s15, s14, s13
 	vstr.32	s15, [fp, #-68]
 	ldr	r3, [fp, #-48]
 	ldr	r2, [r3, #12]
-	ldr	r1, .L197+8
+	ldr	r1, .L188+8
 	mov	r3, r2
 	lsl	r3, r3, #2
 	add	r3, r3, r2
@@ -3773,7 +3720,7 @@ DrawMenuFallingItems:
 	ldr	r3, [r3]
 	vmov	s15, r3	@ int
 	vcvt.f32.s32	s14, s15
-	vldr.32	s13, .L197
+	vldr.32	s13, .L188
 	vdiv.f32	s15, s14, s13
 	vstr.32	s15, [fp, #-64]
 	ldr	r3, [fp, #-48]
@@ -3784,7 +3731,7 @@ DrawMenuFallingItems:
 	str	r3, [fp, #-80]	@ float
 	ldr	r3, [fp, #-48]
 	ldr	r1, [r3, #12]
-	ldr	r0, .L197+8
+	ldr	r0, .L188+8
 	mov	r3, r1
 	lsl	r3, r3, #2
 	add	r3, r3, r1
@@ -3797,7 +3744,7 @@ DrawMenuFallingItems:
 	vstr.32	s15, [fp, #-76]
 	ldr	r3, [fp, #-48]
 	ldr	r1, [r3, #12]
-	ldr	r0, .L197+8
+	ldr	r0, .L188+8
 	mov	r3, r1
 	lsl	r3, r3, #2
 	add	r3, r3, r1
@@ -3816,7 +3763,7 @@ DrawMenuFallingItems:
 	str	r3, [fp, #-96]	@ float
 	ldr	r3, [fp, #-48]
 	ldr	r1, [r3, #12]
-	ldr	r0, .L197+8
+	ldr	r0, .L188+8
 	mov	r3, r1
 	lsl	r3, r3, #2
 	add	r3, r3, r1
@@ -3829,7 +3776,7 @@ DrawMenuFallingItems:
 	vstr.32	s15, [fp, #-92]
 	ldr	r3, [fp, #-48]
 	ldr	r1, [r3, #12]
-	ldr	r0, .L197+8
+	ldr	r0, .L188+8
 	mov	r3, r1
 	lsl	r3, r3, #2
 	add	r3, r3, r1
@@ -3842,7 +3789,7 @@ DrawMenuFallingItems:
 	vstr.32	s15, [fp, #-88]
 	ldr	r3, [fp, #-48]
 	vldr.32	s10, [r3, #8]
-	ldr	r3, .L197+44
+	ldr	r3, .L188+44
 	ldr	r3, [r3]
 	str	r3, [fp, #-104]
 	vldr.32	s8, [fp, #-68]
@@ -3855,7 +3802,7 @@ DrawMenuFallingItems:
 	vldr.32	s13, [fp, #-80]
 	vldr.32	s14, [fp, #-76]
 	vldr.32	s15, [fp, #-72]
-	ldr	r1, .L197+8
+	ldr	r1, .L188+8
 	mov	r3, r2
 	lsl	r3, r3, #2
 	add	r3, r3, r2
@@ -3875,15 +3822,15 @@ DrawMenuFallingItems:
 	vmov.f32	s2, s14
 	vmov.f32	s3, s15
 	bl	DrawTexturePro
-	ldr	r3, .L197+12
+	ldr	r3, .L188+12
 	ldr	r3, [r3]
 	ldrb	r3, [r3, #20]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L184
-	ldr	r3, .L197+16
+	beq	.L175
+	ldr	r3, .L188+16
 	ldrb	r3, [r3, #3]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L184
+	beq	.L175
 	vldr.32	s15, [fp, #-68]
 	vneg.f32	s14, s15
 	vldr.32	s15, [fp, #-64]
@@ -3906,10 +3853,10 @@ DrawMenuFallingItems:
 	vstr.32	s15, [fp, #-180]
 	mov	r3, #0
 	str	r3, [fp, #-36]
-	b	.L185
-.L198:
+	b	.L176
+.L189:
 	.align	2
-.L197:
+.L188:
 	.word	1073741824
 	.word	menuFallingItems
 	.word	menuFallingItemTextures
@@ -3918,9 +3865,9 @@ DrawMenuFallingItems:
 	.word	.LC3
 	.word	.LC6
 	.word	550
-	.word	.LC43
 	.word	.LC44
 	.word	.LC45
+	.word	.LC46
 	.word	.LC1
 	.word	meowFont
 	.word	1016003125
@@ -3932,7 +3879,7 @@ DrawMenuFallingItems:
 	.word	1156579328
 	.word	1101004800
 	.word	-1006174208
-.L186:
+.L177:
 	ldr	r3, [fp, #-36]
 	lsl	r3, r3, #3
 	sub	r2, fp, #28
@@ -3942,7 +3889,7 @@ DrawMenuFallingItems:
 	vcvt.f64.f32	d8, s15
 	ldr	r3, [fp, #-48]
 	vldr.32	s15, [r3, #8]
-	vldr.32	s14, .L197+52
+	vldr.32	s14, .L188+52
 	vmul.f32	s15, s15, s14
 	vcvt.f64.f32	d7, s15
 	vmov.f64	d0, d7
@@ -3958,7 +3905,7 @@ DrawMenuFallingItems:
 	vcvt.f64.f32	d9, s15
 	ldr	r3, [fp, #-48]
 	vldr.32	s15, [r3, #8]
-	vldr.32	s14, .L197+52
+	vldr.32	s14, .L188+52
 	vmul.f32	s15, s15, s14
 	vcvt.f64.f32	d7, s15
 	vmov.f64	d0, d7
@@ -3977,7 +3924,7 @@ DrawMenuFallingItems:
 	vcvt.f64.f32	d8, s15
 	ldr	r3, [fp, #-48]
 	vldr.32	s15, [r3, #8]
-	vldr.32	s14, .L197+52
+	vldr.32	s14, .L188+52
 	vmul.f32	s15, s15, s14
 	vcvt.f64.f32	d7, s15
 	vmov.f64	d0, d7
@@ -3993,7 +3940,7 @@ DrawMenuFallingItems:
 	vcvt.f64.f32	d9, s15
 	ldr	r3, [fp, #-48]
 	vldr.32	s15, [r3, #8]
-	vldr.32	s14, .L197+52
+	vldr.32	s14, .L188+52
 	vmul.f32	s15, s15, s14
 	vcvt.f64.f32	d7, s15
 	vmov.f64	d0, d7
@@ -4026,11 +3973,11 @@ DrawMenuFallingItems:
 	ldr	r3, [fp, #-36]
 	add	r3, r3, #1
 	str	r3, [fp, #-36]
-.L185:
+.L176:
 	ldr	r3, [fp, #-36]
 	cmp	r3, #3
-	ble	.L186
-	ldr	r3, .L197+20
+	ble	.L177
+	ldr	r3, .L188+20
 	ldr	r3, [r3]
 	str	r3, [fp, #-140]
 	vldr.32	s12, [fp, #-200]
@@ -4038,13 +3985,13 @@ DrawMenuFallingItems:
 	vldr.32	s14, [fp, #-208]
 	vldr.32	s15, [fp, #-204]
 	ldr	r0, [fp, #-140]
-	vldr.32	s4, .L197+60
+	vldr.32	s4, .L188+60
 	vmov.f32	s2, s12
 	vmov.f32	s3, s13
 	vmov.f32	s0, s14
 	vmov.f32	s1, s15
 	bl	DrawLineEx
-	ldr	r3, .L197+20
+	ldr	r3, .L188+20
 	ldr	r3, [r3]
 	str	r3, [fp, #-144]
 	vldr.32	s12, [fp, #-192]
@@ -4052,13 +3999,13 @@ DrawMenuFallingItems:
 	vldr.32	s14, [fp, #-200]
 	vldr.32	s15, [fp, #-196]
 	ldr	r0, [fp, #-144]
-	vldr.32	s4, .L197+60
+	vldr.32	s4, .L188+60
 	vmov.f32	s2, s12
 	vmov.f32	s3, s13
 	vmov.f32	s0, s14
 	vmov.f32	s1, s15
 	bl	DrawLineEx
-	ldr	r3, .L197+20
+	ldr	r3, .L188+20
 	ldr	r3, [r3]
 	str	r3, [fp, #-148]
 	vldr.32	s12, [fp, #-184]
@@ -4066,13 +4013,13 @@ DrawMenuFallingItems:
 	vldr.32	s14, [fp, #-192]
 	vldr.32	s15, [fp, #-188]
 	ldr	r0, [fp, #-148]
-	vldr.32	s4, .L197+60
+	vldr.32	s4, .L188+60
 	vmov.f32	s2, s12
 	vmov.f32	s3, s13
 	vmov.f32	s0, s14
 	vmov.f32	s1, s15
 	bl	DrawLineEx
-	ldr	r3, .L197+20
+	ldr	r3, .L188+20
 	ldr	r3, [r3]
 	str	r3, [fp, #-152]
 	vldr.32	s12, [fp, #-208]
@@ -4080,7 +4027,7 @@ DrawMenuFallingItems:
 	vldr.32	s14, [fp, #-184]
 	vldr.32	s15, [fp, #-180]
 	ldr	r0, [fp, #-152]
-	vldr.32	s4, .L197+60
+	vldr.32	s4, .L188+60
 	vmov.f32	s2, s12
 	vmov.f32	s3, s13
 	vmov.f32	s0, s14
@@ -4092,10 +4039,10 @@ DrawMenuFallingItems:
 	ldr	r3, [fp, #-48]
 	vldr.32	s15, [r3, #4]
 	vcvt.s32.f32	s17, s15
-	ldr	r3, .L197+24
+	ldr	r3, .L188+24
 	ldr	r3, [r3]
 	str	r3, [fp, #-156]
-	vldr.32	s0, .L197+56
+	vldr.32	s0, .L188+56
 	ldr	r0, [fp, #-156]
 	bl	Fade
 	mov	r3, r0
@@ -4103,7 +4050,7 @@ DrawMenuFallingItems:
 	ldr	r3, [fp, #-60]
 	str	r3, [sp]
 	mov	r3, #20
-	ldr	r2, .L197+28
+	ldr	r2, .L188+28
 	vmov	r1, s17	@ int
 	vmov	r0, s16	@ int
 	bl	DrawRectangle
@@ -4121,19 +4068,19 @@ DrawMenuFallingItems:
 	vcvt.f64.f32	d5, s11
 	ldrb	r3, [fp, #-221]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L187
-	ldr	r3, .L197+32
-	b	.L188
-.L187:
-	ldr	r3, .L197+36
-.L188:
+	beq	.L178
+	ldr	r3, .L188+32
+	b	.L179
+.L178:
+	ldr	r3, .L188+36
+.L179:
 	str	r3, [sp, #24]
 	vstr.64	d5, [sp, #16]
 	vstr.64	d6, [sp, #8]
 	vstr.64	d7, [sp]
 	vmov	r2, r3, d4
 	ldr	r1, [fp, #-32]
-	ldr	r0, .L197+40
+	ldr	r0, .L188+40
 	bl	TextFormat
 	mov	r2, r0
 	ldr	r3, [fp, #-48]
@@ -4142,12 +4089,12 @@ DrawMenuFallingItems:
 	ldr	r3, [fp, #-48]
 	ldr	r3, [r3, #4]	@ float
 	str	r3, [fp, #-160]	@ float
-	ldr	r3, .L197+44
+	ldr	r3, .L188+44
 	ldr	r3, [r3]
 	str	r3, [fp, #-168]
 	vldr.32	s14, [fp, #-164]
 	vldr.32	s15, [fp, #-160]
-	ldr	r4, .L197+48
+	ldr	r4, .L188+48
 	ldr	r3, [fp, #-168]
 	str	r3, [sp, #28]
 	str	r2, [sp, #24]
@@ -4158,28 +4105,28 @@ DrawMenuFallingItems:
 	ldm	ip, {r0, r1}
 	stm	lr, {r0, r1}
 	ldm	r4, {r0, r1, r2, r3}
-	vldr.32	s3, .L197+60
-	vldr.32	s2, .L197+80
+	vldr.32	s3, .L188+60
+	vldr.32	s2, .L188+80
 	vmov.f32	s0, s14
 	vmov.f32	s1, s15
 	bl	DrawTextEx
-.L184:
+.L175:
 	ldr	r3, [fp, #-48]
 	vldr.32	s14, [r3, #4]
-	vldr.32	s13, .L197+84
-	vldr.32	s15, .L197+64
+	vldr.32	s13, .L188+84
+	vldr.32	s15, .L188+64
 	vadd.f32	s15, s13, s15
-	vldr.32	s13, .L197+68
+	vldr.32	s13, .L188+68
 	vadd.f32	s15, s15, s13
 	vcmpe.f32	s14, s15
 	vmrs	APSR_nzcv, FPSCR
-	ble	.L189
-	vldr.32	s15, .L197+72
+	ble	.L180
+	vldr.32	s15, .L188+72
 	vcvt.f64.f32	d7, s15
-	vldr.32	s12, .L197+72
-	vldr.32	s13, .L197+76
+	vldr.32	s12, .L188+72
+	vldr.32	s13, .L188+76
 	vadd.f32	s13, s12, s13
-	vldr.32	s12, .L197+80
+	vldr.32	s12, .L188+80
 	vsub.f32	s13, s13, s12
 	vcvt.f64.f32	d6, s13
 	vmov.f64	d1, d6
@@ -4187,10 +4134,10 @@ DrawMenuFallingItems:
 	bl	GetRandomDoubleValue
 	vmov.f64	d7, d0
 	vcvt.f32.f64	s18, d7
-	vldr.32	s15, .L197+84
+	vldr.32	s15, .L188+84
 	vcvt.f64.f32	d8, s15
-	vldr.64	d1, .L199
-	vldr.64	d0, .L199+8
+	vldr.64	d1, .L190
+	vldr.64	d0, .L190+8
 	bl	GetRandomDoubleValue
 	vmov.f64	d7, d0
 	vsub.f64	d7, d8, d7
@@ -4205,8 +4152,8 @@ DrawMenuFallingItems:
 	mov	r2, r0
 	ldr	r3, [fp, #-48]
 	str	r2, [r3, #12]
-	vldr.64	d1, .L199+16
-	vldr.64	d0, .L199+24
+	vldr.64	d1, .L190+16
+	vldr.64	d0, .L190+24
 	bl	GetRandomDoubleValue
 	vmov.f64	d7, d0
 	vcvt.f32.f64	s15, d7
@@ -4214,12 +4161,12 @@ DrawMenuFallingItems:
 	vstr.32	s15, [r3, #16]
 	ldr	r3, [fp, #-48]
 	vldr.32	s15, [r3, #16]
-	vldr.32	s14, .L199+48
+	vldr.32	s14, .L190+48
 	vmul.f32	s15, s15, s14
 	ldr	r3, [fp, #-48]
 	vstr.32	s15, [r3, #16]
-	vldr.64	d1, .L199+32
-	vldr.64	d0, .L199+40
+	vldr.64	d1, .L190+32
+	vldr.64	d0, .L190+40
 	bl	GetRandomDoubleValue
 	vmov.f64	d7, d0
 	vcvt.f32.f64	s15, d7
@@ -4234,7 +4181,7 @@ DrawMenuFallingItems:
 	vstr.32	s15, [r3, #20]
 	ldr	r3, [fp, #-48]
 	vldr.32	s15, [r3, #20]
-	vldr.32	s14, .L199+48
+	vldr.32	s14, .L190+48
 	vmul.f32	s15, s15, s14
 	ldr	r3, [fp, #-48]
 	vstr.32	s15, [r3, #20]
@@ -4250,38 +4197,38 @@ DrawMenuFallingItems:
 	vldr.32	s15, [r3, #16]
 	vcmpe.f32	s14, s15
 	vmrs	APSR_nzcv, FPSCR
-	ble	.L191
+	ble	.L182
 	ldr	r3, [fp, #-48]
 	ldr	r2, [r3, #16]	@ float
 	ldr	r3, [fp, #-48]
 	str	r2, [r3, #20]	@ float
-.L191:
+.L182:
 	ldr	r3, [fp, #-48]
 	vldr.32	s15, [r3, #20]
 	vcmp.f32	s15, #0
 	vmrs	APSR_nzcv, FPSCR
-	bne	.L189
+	bne	.L180
 	ldr	r3, [fp, #-48]
-	ldr	r2, .L199+52
+	ldr	r2, .L190+52
 	str	r2, [r3, #20]	@ float
-.L189:
+.L180:
 	ldr	r3, [fp, #-32]
 	add	r3, r3, #1
 	str	r3, [fp, #-32]
-.L183:
+.L174:
 	ldr	r2, [fp, #-32]
 	ldr	r3, [fp, #-44]
 	cmp	r2, r3
-	blt	.L194
+	blt	.L185
 	nop
 	nop
 	sub	sp, fp, #24
 	@ sp needed
 	vldm	sp!, {d8-d9}
 	pop	{r4, fp, pc}
-.L200:
+.L191:
 	.align	3
-.L199:
+.L190:
 	.word	0
 	.word	1083129856
 	.word	0
@@ -4297,58 +4244,15 @@ DrawMenuFallingItems:
 	.word	1120403456
 	.word	1120403456
 	.size	DrawMenuFallingItems, .-DrawMenuFallingItems
-	.align	2
-	.global	IsNight
-	.syntax unified
-	.arm
-	.fpu vfp
-	.type	IsNight, %function
-IsNight:
-	@ args = 0, pretend = 0, frame = 0
-	@ frame_needed = 1, uses_anonymous_args = 0
-	@ link register save eliminated.
-	str	fp, [sp, #-4]!
-	add	fp, sp, #0
-	ldr	r3, .L207+8
-	ldr	r3, [r3]
-	cmp	r3, #3
-	bne	.L202
-	ldr	r3, .L207+12
-	vldr.32	s15, [r3]
-	vcvt.f64.f32	d7, s15
-	vldr.64	d6, .L207
-	vcmpe.f64	d7, d6
-	vmrs	APSR_nzcv, FPSCR
-	bpl	.L202
-	mov	r3, #1
-	b	.L204
-.L202:
-	mov	r3, #0
-.L204:
-	and	r3, r3, #1
-	uxtb	r3, r3
-	mov	r0, r3
-	add	sp, fp, #0
-	@ sp needed
-	ldr	fp, [sp], #4
-	bx	lr
-.L208:
-	.align	3
-.L207:
-	.word	-1717986918
-	.word	1071225241
-	.word	currentColorIndex
-	.word	colorTransitionTime
-	.size	IsNight, .-IsNight
 	.section	.rodata
 	.align	2
-.LC46:
+.LC47:
 	.ascii	"Stars\000"
 	.align	2
-.LC47:
+.LC48:
 	.ascii	"%s | XY %.2f,%.2f | Speed %.2f | Scale %.2f\000"
 	.align	2
-.LC48:
+.LC49:
 	.ascii	"Cloud\000"
 	.text
 	.align	2
@@ -4360,8 +4264,8 @@ IsNight:
 DrawMovingCloudAndStar:
 	@ args = 0, pretend = 0, frame = 128
 	@ frame_needed = 1, uses_anonymous_args = 0
-	PUSH	{r4, fp, lr}
-	vPUSH.64	{d8}
+	push	{r4, fp, lr}
+	vpush.64	{d8}
 	add	fp, sp, #16
 	sub	sp, sp, #164
 	vstr.64	d0, [fp, #-148]
@@ -4372,61 +4276,61 @@ DrawMovingCloudAndStar:
 	bl	IsNight
 	mov	r3, r0
 	cmp	r3, #0
-	beq	.L210
+	beq	.L193
 	mov	r3, #0
 	str	r3, [fp, #-24]
-	b	.L211
-.L223:
+	b	.L194
+.L206:
 	ldr	r2, [fp, #-24]
 	mov	r3, r2
 	lsl	r3, r3, #3
 	add	r3, r3, r2
 	lsl	r3, r3, #2
-	ldr	r2, .L251+24
+	ldr	r2, .L234+24
 	add	r3, r3, r2
 	str	r3, [fp, #-48]
 	mov	r3, #0
 	strb	r3, [fp, #-49]
 	ldr	r3, [fp, #-48]
 	vldr.32	s15, [r3]
-	vldr.32	s14, .L251+32
+	vldr.32	s14, .L234+32
 	vcmpe.f32	s15, s14
 	vmrs	APSR_nzcv, FPSCR
-	blt	.L212
+	blt	.L195
 	ldr	r3, [fp, #-48]
 	vldr.32	s14, [r3]
-	vldr.32	s13, .L251+32
-	vldr.32	s15, .L251+28
+	vldr.32	s13, .L234+32
+	vldr.32	s15, .L234+28
 	vadd.f32	s15, s13, s15
 	vcmpe.f32	s14, s15
 	vmrs	APSR_nzcv, FPSCR
-	bhi	.L212
+	bhi	.L195
 	ldr	r3, [fp, #-48]
 	vldr.32	s15, [r3, #4]
-	vldr.32	s14, .L251+16
+	vldr.32	s14, .L234+16
 	vcmpe.f32	s15, s14
 	vmrs	APSR_nzcv, FPSCR
-	blt	.L212
+	blt	.L195
 	ldr	r3, [fp, #-48]
 	vldr.32	s14, [r3, #4]
-	vldr.32	s13, .L251+16
-	vldr.32	s15, .L251+20
+	vldr.32	s13, .L234+16
+	vldr.32	s15, .L234+20
 	vadd.f32	s15, s13, s15
 	vcmpe.f32	s14, s15
 	vmrs	APSR_nzcv, FPSCR
-	bhi	.L212
+	bhi	.L195
 	mov	r3, #1
-	b	.L217
-.L212:
+	b	.L200
+.L195:
 	mov	r3, #0
-.L217:
+.L200:
 	strb	r3, [fp, #-50]
 	ldrb	r3, [fp, #-50]
 	and	r3, r3, #1
 	strb	r3, [fp, #-50]
 	ldrb	r3, [fp, #-49]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L218
+	beq	.L201
 	ldr	r3, [fp, #-48]
 	vldr.32	s15, [r3]
 	vcvt.f64.f32	d6, s15
@@ -4449,12 +4353,12 @@ DrawMovingCloudAndStar:
 	vldr.32	s15, [r3, #12]
 	vmul.f32	s15, s13, s15
 	vadd.f32	s15, s14, s15
-	vldr.32	s14, .L251+32
+	vldr.32	s14, .L234+32
 	vcmpe.f32	s15, s14
 	vmrs	APSR_nzcv, FPSCR
-	bhi	.L219
-	vldr.32	s14, .L251+32
-	vldr.32	s15, .L251+28
+	bhi	.L202
+	vldr.32	s14, .L234+32
+	vldr.32	s15, .L234+28
 	vadd.f32	s14, s14, s15
 	ldr	r3, [fp, #-48]
 	ldr	r3, [r3, #20]
@@ -4465,18 +4369,18 @@ DrawMovingCloudAndStar:
 	vmul.f32	s15, s13, s15
 	vadd.f32	s15, s14, s15
 	vcvt.f64.f32	d8, s15
-	vldr.64	d1, .L251
-	vldr.64	d0, .L251+8
+	vldr.64	d1, .L234
+	vldr.64	d0, .L234+8
 	bl	GetRandomDoubleValue
 	vmov.f64	d7, d0
 	vadd.f64	d7, d8, d7
 	vcvt.f32.f64	s15, d7
 	ldr	r3, [fp, #-48]
 	vstr.32	s15, [r3]
-	b	.L219
-.L252:
+	b	.L202
+.L235:
 	.align	3
-.L251:
+.L234:
 	.word	0
 	.word	1082081280
 	.word	0
@@ -4486,7 +4390,7 @@ DrawMovingCloudAndStar:
 	.word	movingStars
 	.word	1156579328
 	.word	-999292928
-.L218:
+.L201:
 	ldr	r3, [fp, #-48]
 	vldr.32	s15, [r3]
 	vcvt.f64.f32	d6, s15
@@ -4501,13 +4405,13 @@ DrawMovingCloudAndStar:
 	vstr.32	s15, [r3]
 	ldr	r3, [fp, #-48]
 	vldr.32	s14, [r3]
-	vldr.32	s13, .L251+32
-	vldr.32	s15, .L251+28
+	vldr.32	s13, .L234+32
+	vldr.32	s15, .L234+28
 	vadd.f32	s15, s13, s15
 	vcmpe.f32	s14, s15
 	vmrs	APSR_nzcv, FPSCR
-	ble	.L219
-	vldr.32	s13, .L251+32
+	ble	.L202
+	vldr.32	s13, .L234+32
 	ldr	r3, [fp, #-48]
 	ldr	r3, [r3, #20]
 	vmov	s15, r3	@ int
@@ -4517,15 +4421,15 @@ DrawMovingCloudAndStar:
 	vmul.f32	s15, s14, s15
 	vsub.f32	s15, s13, s15
 	vcvt.f64.f32	d8, s15
-	vldr.64	d1, .L253
-	vldr.64	d0, .L253+8
+	vldr.64	d1, .L236
+	vldr.64	d0, .L236+8
 	bl	GetRandomDoubleValue
 	vmov.f64	d7, d0
 	vsub.f64	d7, d8, d7
 	vcvt.f32.f64	s15, d7
 	ldr	r3, [fp, #-48]
 	vstr.32	s15, [r3]
-.L219:
+.L202:
 	ldr	r3, [fp, #-48]
 	vldr.32	s15, [r3]
 	vcvt.s32.f32	s15, s15
@@ -4534,7 +4438,7 @@ DrawMovingCloudAndStar:
 	vldr.32	s15, [r3, #4]
 	vcvt.s32.f32	s15, s15
 	vmov	r0, s15	@ int
-	ldr	r3, .L253+36
+	ldr	r3, .L236+36
 	ldr	r3, [r3]
 	str	r3, [fp, #-64]
 	ldr	r3, [fp, #-48]
@@ -4547,15 +4451,15 @@ DrawMovingCloudAndStar:
 	add	r3, r3, #16
 	ldm	r3, {r0, r1, r2, r3}
 	bl	DrawTexture
-	ldr	r3, .L253+40
+	ldr	r3, .L236+40
 	ldr	r3, [r3]
 	ldrb	r3, [r3, #20]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L222
-	ldr	r3, .L253+44
+	beq	.L205
+	ldr	r3, .L236+44
 	ldrb	r3, [r3, #3]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L222
+	beq	.L205
 	ldr	r3, [fp, #-48]
 	ldr	r3, [r3]	@ float
 	str	r3, [fp, #-80]	@ float
@@ -4578,7 +4482,7 @@ DrawMovingCloudAndStar:
 	vldr.32	s15, [r3, #12]
 	vmul.f32	s15, s14, s15
 	vstr.32	s15, [fp, #-68]
-	ldr	r3, .L253+48
+	ldr	r3, .L236+48
 	ldr	r3, [r3]
 	str	r3, [fp, #-84]
 	vldr.32	s12, [fp, #-80]
@@ -4586,7 +4490,7 @@ DrawMovingCloudAndStar:
 	vldr.32	s14, [fp, #-72]
 	vldr.32	s15, [fp, #-68]
 	ldr	r0, [fp, #-84]
-	vldr.32	s4, .L253+16
+	vldr.32	s4, .L236+16
 	vmov.f32	s0, s12
 	vmov.f32	s1, s13
 	vmov.f32	s2, s14
@@ -4597,13 +4501,13 @@ DrawMovingCloudAndStar:
 	vcvt.s32.f32	s16, s15
 	ldr	r3, [fp, #-48]
 	vldr.32	s15, [r3, #4]
-	vldr.32	s14, .L253+20
+	vldr.32	s14, .L236+20
 	vsub.f32	s15, s15, s14
 	vcvt.s32.f32	s17, s15
-	ldr	r3, .L253+52
+	ldr	r3, .L236+52
 	ldr	r3, [r3]
 	str	r3, [fp, #-88]
-	vldr.32	s0, .L253+24
+	vldr.32	s0, .L236+24
 	ldr	r0, [fp, #-88]
 	bl	Fade
 	mov	r3, r0
@@ -4631,8 +4535,8 @@ DrawMovingCloudAndStar:
 	vstr.64	d6, [sp, #8]
 	vstr.64	d7, [sp]
 	vmov	r2, r3, d4
-	ldr	r1, .L253+56
-	ldr	r0, .L253+60
+	ldr	r1, .L236+56
+	ldr	r0, .L236+60
 	bl	TextFormat
 	mov	r2, r0
 	ldr	r3, [fp, #-48]
@@ -4640,15 +4544,15 @@ DrawMovingCloudAndStar:
 	str	r3, [fp, #-96]	@ float
 	ldr	r3, [fp, #-48]
 	vldr.32	s15, [r3, #4]
-	vldr.32	s14, .L253+20
+	vldr.32	s14, .L236+20
 	vsub.f32	s15, s15, s14
 	vstr.32	s15, [fp, #-92]
-	ldr	r3, .L253+36
+	ldr	r3, .L236+36
 	ldr	r3, [r3]
 	str	r3, [fp, #-100]
 	vldr.32	s14, [fp, #-96]
 	vldr.32	s15, [fp, #-92]
-	ldr	r4, .L253+64
+	ldr	r4, .L236+64
 	ldr	r3, [fp, #-100]
 	str	r3, [sp, #28]
 	str	r2, [sp, #24]
@@ -4659,32 +4563,32 @@ DrawMovingCloudAndStar:
 	ldm	ip, {r0, r1}
 	stm	lr, {r0, r1}
 	ldm	r4, {r0, r1, r2, r3}
-	vldr.32	s3, .L253+16
-	vldr.32	s2, .L253+20
+	vldr.32	s3, .L236+16
+	vldr.32	s2, .L236+20
 	vmov.f32	s0, s14
 	vmov.f32	s1, s15
 	bl	DrawTextEx
-.L222:
+.L205:
 	ldr	r3, [fp, #-24]
 	add	r3, r3, #1
 	str	r3, [fp, #-24]
-.L211:
+.L194:
 	ldr	r2, [fp, #-24]
 	ldr	r3, [fp, #-36]
 	cmp	r2, r3
-	blt	.L223
-	b	.L250
-.L210:
+	blt	.L206
+	b	.L233
+.L193:
 	mov	r3, #0
 	str	r3, [fp, #-28]
-	b	.L225
-.L237:
+	b	.L208
+.L220:
 	ldr	r2, [fp, #-28]
 	mov	r3, r2
 	lsl	r3, r3, #2
 	add	r3, r3, r2
 	lsl	r3, r3, #3
-	ldr	r2, .L253+68
+	ldr	r2, .L236+68
 	add	r3, r3, r2
 	str	r3, [fp, #-40]
 	ldr	r3, [fp, #-40]
@@ -4692,37 +4596,37 @@ DrawMovingCloudAndStar:
 	strb	r3, [fp, #-41]
 	ldr	r3, [fp, #-40]
 	vldr.32	s15, [r3]
-	vldr.32	s14, .L253+72
+	vldr.32	s14, .L236+72
 	vcmpe.f32	s15, s14
 	vmrs	APSR_nzcv, FPSCR
-	blt	.L226
+	blt	.L209
 	ldr	r3, [fp, #-40]
 	vldr.32	s14, [r3]
-	vldr.32	s13, .L253+72
-	vldr.32	s15, .L253+76
+	vldr.32	s13, .L236+72
+	vldr.32	s15, .L236+76
 	vadd.f32	s15, s13, s15
 	vcmpe.f32	s14, s15
 	vmrs	APSR_nzcv, FPSCR
-	bhi	.L226
+	bhi	.L209
 	ldr	r3, [fp, #-40]
 	vldr.32	s15, [r3, #4]
-	vldr.32	s14, .L253+28
+	vldr.32	s14, .L236+28
 	vcmpe.f32	s15, s14
 	vmrs	APSR_nzcv, FPSCR
-	blt	.L226
+	blt	.L209
 	ldr	r3, [fp, #-40]
 	vldr.32	s14, [r3, #4]
-	vldr.32	s13, .L253+28
-	vldr.32	s15, .L253+32
+	vldr.32	s13, .L236+28
+	vldr.32	s15, .L236+32
 	vadd.f32	s15, s13, s15
 	vcmpe.f32	s14, s15
 	vmrs	APSR_nzcv, FPSCR
-	bhi	.L226
+	bhi	.L209
 	mov	r3, #1
-	b	.L231
-.L254:
+	b	.L214
+.L237:
 	.align	3
-.L253:
+.L236:
 	.word	0
 	.word	1082081280
 	.word	0
@@ -4737,22 +4641,22 @@ DrawMovingCloudAndStar:
 	.word	debugToolToggles
 	.word	.LC3
 	.word	.LC6
-	.word	.LC46
 	.word	.LC47
+	.word	.LC48
 	.word	meowFont
 	.word	movingClouds
 	.word	-999292928
 	.word	1156579328
-.L226:
+.L209:
 	mov	r3, #0
-.L231:
+.L214:
 	strb	r3, [fp, #-42]
 	ldrb	r3, [fp, #-42]
 	and	r3, r3, #1
 	strb	r3, [fp, #-42]
 	ldrb	r3, [fp, #-41]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L232
+	beq	.L215
 	ldr	r3, [fp, #-40]
 	vldr.32	s15, [r3]
 	vcvt.f64.f32	d6, s15
@@ -4775,12 +4679,12 @@ DrawMovingCloudAndStar:
 	vldr.32	s15, [r3, #12]
 	vmul.f32	s15, s13, s15
 	vadd.f32	s15, s14, s15
-	vldr.32	s14, .L253+72
+	vldr.32	s14, .L236+72
 	vcmpe.f32	s15, s14
 	vmrs	APSR_nzcv, FPSCR
-	bhi	.L233
-	vldr.32	s14, .L253+72
-	vldr.32	s15, .L253+76
+	bhi	.L216
+	vldr.32	s14, .L236+72
+	vldr.32	s15, .L236+76
 	vadd.f32	s14, s14, s15
 	ldr	r3, [fp, #-40]
 	ldr	r3, [r3, #20]
@@ -4791,25 +4695,25 @@ DrawMovingCloudAndStar:
 	vmul.f32	s15, s13, s15
 	vadd.f32	s15, s14, s15
 	vcvt.f64.f32	d8, s15
-	vldr.64	d1, .L255
-	vldr.64	d0, .L255+8
+	vldr.64	d1, .L238
+	vldr.64	d0, .L238+8
 	bl	GetRandomDoubleValue
 	vmov.f64	d7, d0
 	vadd.f64	d7, d8, d7
 	vcvt.f32.f64	s15, d7
 	ldr	r3, [fp, #-40]
 	vstr.32	s15, [r3]
-	vldr.32	s15, .L255+24
+	vldr.32	s15, .L238+24
 	vcvt.f64.f32	d7, s15
-	vldr.64	d1, .L255+16
+	vldr.64	d1, .L238+16
 	vmov.f64	d0, d7
 	bl	GetRandomDoubleValue
 	vmov.f64	d7, d0
 	vcvt.f32.f64	s15, d7
 	ldr	r3, [fp, #-40]
 	vstr.32	s15, [r3, #4]
-	b	.L233
-.L232:
+	b	.L216
+.L215:
 	ldr	r3, [fp, #-40]
 	vldr.32	s15, [r3]
 	vcvt.f64.f32	d6, s15
@@ -4824,13 +4728,13 @@ DrawMovingCloudAndStar:
 	vstr.32	s15, [r3]
 	ldr	r3, [fp, #-40]
 	vldr.32	s14, [r3]
-	vldr.32	s13, .L255+28
-	vldr.32	s15, .L255+32
+	vldr.32	s13, .L238+28
+	vldr.32	s15, .L238+32
 	vadd.f32	s15, s13, s15
 	vcmpe.f32	s14, s15
 	vmrs	APSR_nzcv, FPSCR
-	ble	.L233
-	vldr.32	s13, .L255+28
+	ble	.L216
+	vldr.32	s13, .L238+28
 	ldr	r3, [fp, #-40]
 	ldr	r3, [r3, #20]
 	vmov	s15, r3	@ int
@@ -4840,24 +4744,24 @@ DrawMovingCloudAndStar:
 	vmul.f32	s15, s14, s15
 	vsub.f32	s15, s13, s15
 	vcvt.f64.f32	d8, s15
-	vldr.64	d1, .L255
-	vldr.64	d0, .L255+8
+	vldr.64	d1, .L238
+	vldr.64	d0, .L238+8
 	bl	GetRandomDoubleValue
 	vmov.f64	d7, d0
 	vsub.f64	d7, d8, d7
 	vcvt.f32.f64	s15, d7
 	ldr	r3, [fp, #-40]
 	vstr.32	s15, [r3]
-	vldr.32	s15, .L255+24
+	vldr.32	s15, .L238+24
 	vcvt.f64.f32	d7, s15
-	vldr.64	d1, .L255+16
+	vldr.64	d1, .L238+16
 	vmov.f64	d0, d7
 	bl	GetRandomDoubleValue
 	vmov.f64	d7, d0
 	vcvt.f32.f64	s15, d7
 	ldr	r3, [fp, #-40]
 	vstr.32	s15, [r3, #4]
-.L233:
+.L216:
 	ldr	r3, [fp, #-40]
 	vldr.32	s15, [r3]
 	vcvt.s32.f32	s15, s15
@@ -4866,7 +4770,7 @@ DrawMovingCloudAndStar:
 	vldr.32	s15, [r3, #4]
 	vcvt.s32.f32	s15, s15
 	vmov	r0, s15	@ int
-	ldr	r3, .L255+48
+	ldr	r3, .L238+48
 	ldr	r3, [r3]
 	str	r3, [fp, #-104]
 	ldr	r3, [fp, #-40]
@@ -4879,15 +4783,15 @@ DrawMovingCloudAndStar:
 	add	r3, r3, #16
 	ldm	r3, {r0, r1, r2, r3}
 	bl	DrawTexture
-	ldr	r3, .L255+52
+	ldr	r3, .L238+52
 	ldr	r3, [r3]
 	ldrb	r3, [r3, #20]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L236
-	ldr	r3, .L255+56
+	beq	.L219
+	ldr	r3, .L238+56
 	ldrb	r3, [r3, #3]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L236
+	beq	.L219
 	ldr	r3, [fp, #-40]
 	ldr	r3, [r3]	@ float
 	str	r3, [fp, #-120]	@ float
@@ -4910,7 +4814,7 @@ DrawMovingCloudAndStar:
 	vldr.32	s15, [r3, #12]
 	vmul.f32	s15, s14, s15
 	vstr.32	s15, [fp, #-108]
-	ldr	r3, .L255+60
+	ldr	r3, .L238+60
 	ldr	r3, [r3]
 	str	r3, [fp, #-124]
 	vldr.32	s12, [fp, #-120]
@@ -4918,7 +4822,7 @@ DrawMovingCloudAndStar:
 	vldr.32	s14, [fp, #-112]
 	vldr.32	s15, [fp, #-108]
 	ldr	r0, [fp, #-124]
-	vldr.32	s4, .L255+36
+	vldr.32	s4, .L238+36
 	vmov.f32	s0, s12
 	vmov.f32	s1, s13
 	vmov.f32	s2, s14
@@ -4929,13 +4833,13 @@ DrawMovingCloudAndStar:
 	vcvt.s32.f32	s16, s15
 	ldr	r3, [fp, #-40]
 	vldr.32	s15, [r3, #4]
-	vldr.32	s14, .L255+40
+	vldr.32	s14, .L238+40
 	vsub.f32	s15, s15, s14
 	vcvt.s32.f32	s17, s15
-	ldr	r3, .L255+64
+	ldr	r3, .L238+64
 	ldr	r3, [r3]
 	str	r3, [fp, #-128]
-	vldr.32	s0, .L255+44
+	vldr.32	s0, .L238+44
 	ldr	r0, [fp, #-128]
 	bl	Fade
 	mov	r3, r0
@@ -4963,8 +4867,8 @@ DrawMovingCloudAndStar:
 	vstr.64	d6, [sp, #8]
 	vstr.64	d7, [sp]
 	vmov	r2, r3, d4
-	ldr	r1, .L255+68
-	ldr	r0, .L255+72
+	ldr	r1, .L238+68
+	ldr	r0, .L238+72
 	bl	TextFormat
 	mov	r2, r0
 	ldr	r3, [fp, #-40]
@@ -4972,15 +4876,15 @@ DrawMovingCloudAndStar:
 	str	r3, [fp, #-136]	@ float
 	ldr	r3, [fp, #-40]
 	vldr.32	s15, [r3, #4]
-	vldr.32	s14, .L255+40
+	vldr.32	s14, .L238+40
 	vsub.f32	s15, s15, s14
 	vstr.32	s15, [fp, #-132]
-	ldr	r3, .L255+48
+	ldr	r3, .L238+48
 	ldr	r3, [r3]
 	str	r3, [fp, #-140]
 	vldr.32	s14, [fp, #-136]
 	vldr.32	s15, [fp, #-132]
-	ldr	r4, .L255+76
+	ldr	r4, .L238+76
 	ldr	r3, [fp, #-140]
 	str	r3, [sp, #28]
 	str	r2, [sp, #24]
@@ -4991,29 +4895,29 @@ DrawMovingCloudAndStar:
 	ldm	ip, {r0, r1}
 	stm	lr, {r0, r1}
 	ldm	r4, {r0, r1, r2, r3}
-	vldr.32	s3, .L255+36
-	vldr.32	s2, .L255+40
+	vldr.32	s3, .L238+36
+	vldr.32	s2, .L238+40
 	vmov.f32	s0, s14
 	vmov.f32	s1, s15
 	bl	DrawTextEx
-.L236:
+.L219:
 	ldr	r3, [fp, #-28]
 	add	r3, r3, #1
 	str	r3, [fp, #-28]
-.L225:
+.L208:
 	ldr	r2, [fp, #-28]
 	ldr	r3, [fp, #-32]
 	cmp	r2, r3
-	blt	.L237
-.L250:
+	blt	.L220
+.L233:
 	nop
 	sub	sp, fp, #16
 	@ sp needed
 	vldm	sp!, {d8}
 	pop	{r4, fp, pc}
-.L256:
+.L239:
 	.align	3
-.L255:
+.L238:
 	.word	0
 	.word	1082081280
 	.word	0
@@ -5031,8 +4935,8 @@ DrawMovingCloudAndStar:
 	.word	debugToolToggles
 	.word	.LC3
 	.word	.LC6
+	.word	.LC49
 	.word	.LC48
-	.word	.LC47
 	.word	meowFont
 	.size	DrawMovingCloudAndStar, .-DrawMovingCloudAndStar
 	.align	2
@@ -5044,50 +4948,50 @@ DrawMovingCloudAndStar:
 RandomCustomerTimeoutBasedOnDifficulty:
 	@ args = 0, pretend = 0, frame = 0
 	@ frame_needed = 1, uses_anonymous_args = 0
-	PUSH	{fp, lr}
+	push	{fp, lr}
 	add	fp, sp, #4
-	ldr	r3, .L264+40
+	ldr	r3, .L247+40
 	ldr	r3, [r3]
 	ldr	r3, [r3, #16]
 	cmp	r3, #5
 	ldrls	pc, [pc, r3, asl #2]
-	b	.L258
-.L260:
-	.word	.L262
-	.word	.L261
-	.word	.L259
-	.word	.L262
-	.word	.L261
-	.word	.L259
-.L262:
-	vldr.64	d1, .L264
-	vldr.64	d0, .L264+8
+	b	.L241
+.L243:
+	.word	.L245
+	.word	.L244
+	.word	.L242
+	.word	.L245
+	.word	.L244
+	.word	.L242
+.L245:
+	vldr.64	d1, .L247
+	vldr.64	d0, .L247+8
 	bl	GetRandomDoubleValue
 	vmov.f64	d7, d0
-	b	.L263
-.L261:
-	vldr.64	d1, .L264+16
-	vldr.64	d0, .L264+24
+	b	.L246
+.L244:
+	vldr.64	d1, .L247+16
+	vldr.64	d0, .L247+24
 	bl	GetRandomDoubleValue
 	vmov.f64	d7, d0
-	b	.L263
-.L259:
-	vldr.64	d1, .L264+24
-	vldr.64	d0, .L264+32
+	b	.L246
+.L242:
+	vldr.64	d1, .L247+24
+	vldr.64	d0, .L247+32
 	bl	GetRandomDoubleValue
 	vmov.f64	d7, d0
-	b	.L263
-.L258:
-	vldr.64	d1, .L264
-	vldr.64	d0, .L264+8
+	b	.L246
+.L241:
+	vldr.64	d1, .L247
+	vldr.64	d0, .L247+8
 	bl	GetRandomDoubleValue
 	vmov.f64	d7, d0
-.L263:
+.L246:
 	vmov.f64	d0, d7
 	pop	{fp, pc}
-.L265:
+.L248:
 	.align	3
-.L264:
+.L247:
 	.word	0
 	.word	1080213504
 	.word	0
@@ -5109,119 +5013,119 @@ RandomCustomerTimeoutBasedOnDifficulty:
 RandomCustomerInitialResetBasedOnDifficulty:
 	@ args = 0, pretend = 0, frame = 8
 	@ frame_needed = 1, uses_anonymous_args = 0
-	PUSH	{r4, fp, lr}
+	push	{r4, fp, lr}
 	add	fp, sp, #8
 	sub	sp, sp, #12
 	str	r0, [fp, #-16]
-	ldr	r3, .L273+80
+	ldr	r3, .L256+80
 	ldr	r3, [r3]
 	ldr	r3, [r3, #16]
 	cmp	r3, #5
 	ldrls	pc, [pc, r3, asl #2]
-	b	.L267
-.L269:
-	.word	.L271
-	.word	.L270
-	.word	.L268
-	.word	.L271
-	.word	.L270
-	.word	.L268
-.L271:
-	vldr.64	d1, .L273
-	vldr.64	d0, .L273+8
+	b	.L250
+.L252:
+	.word	.L254
+	.word	.L253
+	.word	.L251
+	.word	.L254
+	.word	.L253
+	.word	.L251
+.L254:
+	vldr.64	d1, .L256
+	vldr.64	d0, .L256+8
 	bl	GetRandomDoubleValue
 	vmov.f64	d7, d0
 	ldr	r3, [fp, #-16]
 	vstr.64	d7, [r3]
 	ldr	r3, [fp, #-16]
 	add	r4, r3, #8
-	vldr.64	d1, .L273+16
-	vldr.64	d0, .L273+24
+	vldr.64	d1, .L256+16
+	vldr.64	d0, .L256+24
 	bl	GetRandomDoubleValue
 	vmov.f64	d7, d0
 	vstr.64	d7, [r4]
 	ldr	r3, [fp, #-16]
 	add	r4, r3, #16
-	vldr.64	d1, .L273+32
-	vldr.64	d0, .L273+40
+	vldr.64	d1, .L256+32
+	vldr.64	d0, .L256+40
 	bl	GetRandomDoubleValue
 	vmov.f64	d7, d0
 	vstr.64	d7, [r4]
-	b	.L272
-.L270:
-	vldr.64	d1, .L273
-	vldr.64	d0, .L273+48
+	b	.L255
+.L253:
+	vldr.64	d1, .L256
+	vldr.64	d0, .L256+48
 	bl	GetRandomDoubleValue
 	vmov.f64	d7, d0
 	ldr	r3, [fp, #-16]
 	vstr.64	d7, [r3]
 	ldr	r3, [fp, #-16]
 	add	r4, r3, #8
-	vldr.64	d1, .L273+40
-	vldr.64	d0, .L273+8
+	vldr.64	d1, .L256+40
+	vldr.64	d0, .L256+8
 	bl	GetRandomDoubleValue
 	vmov.f64	d7, d0
 	vstr.64	d7, [r4]
 	ldr	r3, [fp, #-16]
 	add	r4, r3, #16
-	vldr.64	d1, .L273+56
-	vldr.64	d0, .L273+64
+	vldr.64	d1, .L256+56
+	vldr.64	d0, .L256+64
 	bl	GetRandomDoubleValue
 	vmov.f64	d7, d0
 	vstr.64	d7, [r4]
-	b	.L272
-.L268:
-	vldr.64	d1, .L273+8
-	vldr.64	d0, .L273+48
+	b	.L255
+.L251:
+	vldr.64	d1, .L256+8
+	vldr.64	d0, .L256+48
 	bl	GetRandomDoubleValue
 	vmov.f64	d7, d0
 	ldr	r3, [fp, #-16]
 	vstr.64	d7, [r3]
 	ldr	r3, [fp, #-16]
 	add	r4, r3, #8
-	vldr.64	d1, .L273
-	vldr.64	d0, .L273+72
+	vldr.64	d1, .L256
+	vldr.64	d0, .L256+72
 	bl	GetRandomDoubleValue
 	vmov.f64	d7, d0
 	vstr.64	d7, [r4]
 	ldr	r3, [fp, #-16]
 	add	r4, r3, #16
-	vldr.64	d1, .L273+40
-	vldr.64	d0, .L273
+	vldr.64	d1, .L256+40
+	vldr.64	d0, .L256
 	bl	GetRandomDoubleValue
 	vmov.f64	d7, d0
 	vstr.64	d7, [r4]
-	b	.L272
-.L267:
-	vldr.64	d1, .L273
-	vldr.64	d0, .L273+8
+	b	.L255
+.L250:
+	vldr.64	d1, .L256
+	vldr.64	d0, .L256+8
 	bl	GetRandomDoubleValue
 	vmov.f64	d7, d0
 	ldr	r3, [fp, #-16]
 	vstr.64	d7, [r3]
 	ldr	r3, [fp, #-16]
 	add	r4, r3, #8
-	vldr.64	d1, .L273+16
-	vldr.64	d0, .L273+24
+	vldr.64	d1, .L256+16
+	vldr.64	d0, .L256+24
 	bl	GetRandomDoubleValue
 	vmov.f64	d7, d0
 	vstr.64	d7, [r4]
 	ldr	r3, [fp, #-16]
 	add	r4, r3, #16
-	vldr.64	d1, .L273+32
-	vldr.64	d0, .L273+40
+	vldr.64	d1, .L256+32
+	vldr.64	d0, .L256+40
 	bl	GetRandomDoubleValue
 	vmov.f64	d7, d0
 	vstr.64	d7, [r4]
 	nop
-.L272:
+.L255:
 	nop
 	sub	sp, fp, #8
 	@ sp needed
 	pop	{r4, fp, pc}
-.L274:
+.L257:
 	.align	3
-.L273:
+.L256:
 	.word	0
 	.word	1075314688
 	.word	0
@@ -5253,50 +5157,50 @@ RandomCustomerInitialResetBasedOnDifficulty:
 RandomCustomerResetBasedOnDifficulty:
 	@ args = 0, pretend = 0, frame = 0
 	@ frame_needed = 1, uses_anonymous_args = 0
-	PUSH	{fp, lr}
+	push	{fp, lr}
 	add	fp, sp, #4
-	ldr	r3, .L282+40
+	ldr	r3, .L265+40
 	ldr	r3, [r3]
 	ldr	r3, [r3, #16]
 	cmp	r3, #5
 	ldrls	pc, [pc, r3, asl #2]
-	b	.L276
-.L278:
-	.word	.L280
-	.word	.L279
-	.word	.L277
-	.word	.L280
-	.word	.L279
-	.word	.L277
-.L280:
-	vldr.64	d1, .L282
-	vldr.64	d0, .L282+8
+	b	.L259
+.L261:
+	.word	.L263
+	.word	.L262
+	.word	.L260
+	.word	.L263
+	.word	.L262
+	.word	.L260
+.L263:
+	vldr.64	d1, .L265
+	vldr.64	d0, .L265+8
 	bl	GetRandomDoubleValue
 	vmov.f64	d7, d0
-	b	.L281
-.L279:
-	vldr.64	d1, .L282+8
-	vldr.64	d0, .L282+16
+	b	.L264
+.L262:
+	vldr.64	d1, .L265+8
+	vldr.64	d0, .L265+16
 	bl	GetRandomDoubleValue
 	vmov.f64	d7, d0
-	b	.L281
-.L277:
-	vldr.64	d1, .L282+24
-	vldr.64	d0, .L282+32
+	b	.L264
+.L260:
+	vldr.64	d1, .L265+24
+	vldr.64	d0, .L265+32
 	bl	GetRandomDoubleValue
 	vmov.f64	d7, d0
-	b	.L281
-.L276:
-	vldr.64	d1, .L282
-	vldr.64	d0, .L282+8
+	b	.L264
+.L259:
+	vldr.64	d1, .L265
+	vldr.64	d0, .L265+8
 	bl	GetRandomDoubleValue
 	vmov.f64	d7, d0
-.L281:
+.L264:
 	vmov.f64	d0, d7
 	pop	{fp, pc}
-.L283:
+.L266:
 	.align	3
-.L282:
+.L265:
 	.word	0
 	.word	1078525952
 	.word	0
@@ -5311,7 +5215,7 @@ RandomCustomerResetBasedOnDifficulty:
 	.size	RandomCustomerResetBasedOnDifficulty, .-RandomCustomerResetBasedOnDifficulty
 	.section	.rodata
 	.align	2
-.LC49:
+.LC50:
 	.ascii	"New order: %s\000"
 	.text
 	.align	2
@@ -5323,7 +5227,7 @@ RandomCustomerResetBasedOnDifficulty:
 RandomGenerateOrder:
 	@ args = 0, pretend = 0, frame = 16
 	@ frame_needed = 1, uses_anonymous_args = 0
-	PUSH	{fp, lr}
+	push	{fp, lr}
 	add	fp, sp, #4
 	sub	sp, sp, #16
 	str	r0, [fp, #-16]
@@ -5339,91 +5243,51 @@ RandomGenerateOrder:
 	bl	GetRandomValue
 	mov	r3, r0
 	cmp	r3, #0
-	beq	.L285
+	beq	.L268
+	ldr	r1, .L279
 	ldr	r0, [fp, #-16]
-	bl	strlen
-	mov	r3, r0
-	mov	r2, r3
-	ldr	r3, [fp, #-16]
-	add	r3, r3, r2
-	ldr	r2, .L296
-	ldrh	r1, [r2]	@ unaligned
-	ldrb	r2, [r2, #2]
-	strh	r1, [r3]	@ unaligned
-	strb	r2, [r3, #2]
-	b	.L286
-.L285:
+	bl	FTStrcat
+	b	.L269
+.L268:
+	ldr	r1, .L279+4
 	ldr	r0, [fp, #-16]
-	bl	strlen
-	mov	r3, r0
-	mov	r2, r3
-	ldr	r3, [fp, #-16]
-	add	r3, r3, r2
-	ldr	r2, .L296+4
-	ldrh	r1, [r2]	@ unaligned
-	ldrb	r2, [r2, #2]
-	strh	r1, [r3]	@ unaligned
-	strb	r2, [r3, #2]
-.L286:
+	bl	FTStrcat
+.L269:
+	ldr	r1, .L279+8
 	ldr	r0, [fp, #-16]
-	bl	strlen
-	mov	r3, r0
-	mov	r2, r3
-	ldr	r3, [fp, #-16]
-	add	r3, r3, r2
-	ldr	r1, .L296+8
-	mov	r2, r3
-	mov	r3, r1
-	ldrh	r3, [r3]	@ unaligned
-	strh	r3, [r2]	@ unaligned
+	bl	FTStrcat
 	mov	r1, #100
 	mov	r0, #0
 	bl	GetRandomValue
 	mov	r3, r0
 	cmp	r3, #0
-	beq	.L295
+	beq	.L278
 	mov	r1, #1
 	mov	r0, #0
 	bl	GetRandomValue
 	mov	r3, r0
 	cmp	r3, #0
-	beq	.L289
+	beq	.L272
+	ldr	r1, .L279+12
 	ldr	r0, [fp, #-16]
-	bl	strlen
-	mov	r3, r0
-	mov	r2, r3
-	ldr	r3, [fp, #-16]
-	add	r3, r3, r2
-	ldr	r2, .L296+12
-	ldrh	r1, [r2]	@ unaligned
-	ldrb	r2, [r2, #2]
-	strh	r1, [r3]	@ unaligned
-	strb	r2, [r3, #2]
-	b	.L290
-.L289:
+	bl	FTStrcat
+	b	.L273
+.L272:
+	ldr	r1, .L279+16
 	ldr	r0, [fp, #-16]
-	bl	strlen
-	mov	r3, r0
-	mov	r2, r3
-	ldr	r3, [fp, #-16]
-	add	r3, r3, r2
-	ldr	r2, .L296+16
-	ldrh	r1, [r2]	@ unaligned
-	ldrb	r2, [r2, #2]
-	strh	r1, [r3]	@ unaligned
-	strb	r2, [r3, #2]
-.L290:
+	bl	FTStrcat
+.L273:
 	mov	r3, #0
 	strb	r3, [fp, #-5]
 	ldr	r3, [fp, #-12]
 	cmp	r3, #0
-	ble	.L291
+	ble	.L274
 	mov	r1, #1
 	mov	r0, #0
 	bl	GetRandomValue
 	mov	r3, r0
 	cmp	r3, #0
-	beq	.L291
+	beq	.L274
 	mov	r3, #1
 	strb	r3, [fp, #-5]
 	mov	r1, #1
@@ -5431,91 +5295,59 @@ RandomGenerateOrder:
 	bl	GetRandomValue
 	mov	r3, r0
 	cmp	r3, #0
-	beq	.L292
+	beq	.L275
+	ldr	r1, .L279+20
 	ldr	r0, [fp, #-16]
-	bl	strlen
-	mov	r3, r0
-	mov	r2, r3
-	ldr	r3, [fp, #-16]
-	add	r3, r3, r2
-	ldr	r2, .L296+20
-	ldrh	r1, [r2]	@ unaligned
-	ldrb	r2, [r2, #2]
-	strh	r1, [r3]	@ unaligned
-	strb	r2, [r3, #2]
-	b	.L291
-.L292:
+	bl	FTStrcat
+	b	.L274
+.L275:
+	ldr	r1, .L279+24
 	ldr	r0, [fp, #-16]
-	bl	strlen
-	mov	r3, r0
-	mov	r2, r3
-	ldr	r3, [fp, #-16]
-	add	r3, r3, r2
-	ldr	r2, .L296+24
-	ldrh	r1, [r2]	@ unaligned
-	ldrb	r2, [r2, #2]
-	strh	r1, [r3]	@ unaligned
-	strb	r2, [r3, #2]
-.L291:
+	bl	FTStrcat
+.L274:
 	ldrb	r3, [fp, #-5]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L293
+	beq	.L276
 	ldr	r3, [fp, #-12]
 	cmp	r3, #1
-	ble	.L293
+	ble	.L276
 	mov	r1, #1
 	mov	r0, #0
 	bl	GetRandomValue
 	mov	r3, r0
 	cmp	r3, #0
-	beq	.L293
+	beq	.L276
 	mov	r1, #1
 	mov	r0, #0
 	bl	GetRandomValue
 	mov	r3, r0
 	cmp	r3, #0
-	beq	.L294
+	beq	.L277
+	ldr	r1, .L279+28
 	ldr	r0, [fp, #-16]
-	bl	strlen
-	mov	r3, r0
-	mov	r2, r3
-	ldr	r3, [fp, #-16]
-	add	r3, r3, r2
-	ldr	r2, .L296+28
-	ldrh	r1, [r2]	@ unaligned
-	ldrb	r2, [r2, #2]
-	strh	r1, [r3]	@ unaligned
-	strb	r2, [r3, #2]
-	b	.L293
-.L294:
+	bl	FTStrcat
+	b	.L276
+.L277:
+	ldr	r1, .L279+32
 	ldr	r0, [fp, #-16]
-	bl	strlen
-	mov	r3, r0
-	mov	r2, r3
-	ldr	r3, [fp, #-16]
-	add	r3, r3, r2
-	ldr	r2, .L296+32
-	ldrh	r1, [r2]	@ unaligned
-	ldrb	r2, [r2, #2]
-	strh	r1, [r3]	@ unaligned
-	strb	r2, [r3, #2]
-.L293:
+	bl	FTStrcat
+.L276:
 	ldr	r1, [fp, #-16]
-	ldr	r0, .L296+36
+	ldr	r0, .L279+36
 	bl	TextFormat
 	mov	r3, r0
 	mov	r0, r3
 	bl	LogDebug
-	b	.L284
-.L295:
+	b	.L267
+.L278:
 	nop
-.L284:
+.L267:
 	sub	sp, fp, #4
 	@ sp needed
 	pop	{fp, pc}
-.L297:
+.L280:
 	.align	2
-.L296:
+.L279:
 	.word	.LC20
 	.word	.LC19
 	.word	.LC21
@@ -5525,26 +5357,26 @@ RandomGenerateOrder:
 	.word	.LC26
 	.word	.LC27
 	.word	.LC28
-	.word	.LC49
+	.word	.LC50
 	.size	RandomGenerateOrder, .-RandomGenerateOrder
 	.section	.rodata
 	.align	2
-.LC50:
+.LC51:
 	.ascii	"CPY\000"
 	.align	2
-.LC51:
+.LC52:
 	.ascii	"GPY\000"
 	.align	2
-.LC52:
+.LC53:
 	.ascii	"%s | Blink %s (%.2f) %.2f/%.2f\000"
 	.align	2
-.LC53:
+.LC54:
 	.ascii	"Timeout %.2f/%.2f\000"
 	.align	2
-.LC54:
+.LC55:
 	.ascii	"Reset %.2f/%.2f\000"
 	.align	2
-.LC55:
+.LC56:
 	.ascii	"Visible %s | Order %s\000"
 	.text
 	.align	2
@@ -5556,8 +5388,8 @@ RandomGenerateOrder:
 DrawCustomer:
 	@ args = 0, pretend = 0, frame = 280
 	@ frame_needed = 1, uses_anonymous_args = 0
-	PUSH	{r4, r5, r6, fp, lr}
-	vPUSH.64	{d8}
+	push	{r4, r5, r6, fp, lr}
+	vpush.64	{d8}
 	add	fp, sp, #24
 	sub	sp, sp, #316
 	str	r0, [fp, #-304]
@@ -5571,30 +5403,30 @@ DrawCustomer:
 	str	r3, [fp, #-32]
 	ldr	r3, [fp, #-304]
 	cmp	r3, #0
-	beq	.L329
+	beq	.L312
 	ldr	r3, [fp, #-304]
 	ldrb	r3, [r3, #33]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L330
+	beq	.L313
 	ldr	r3, [fp, #-304]
 	ldr	r3, [r3]
 	cmp	r3, #2
-	beq	.L302
+	beq	.L285
 	cmp	r3, #2
-	bhi	.L331
+	bhi	.L314
 	cmp	r3, #0
-	beq	.L304
+	beq	.L287
 	cmp	r3, #1
-	beq	.L305
-	b	.L331
-.L304:
+	beq	.L288
+	b	.L314
+.L287:
 	ldr	r3, [fp, #-304]
 	ldrb	r3, [r3, #32]	@ zero_extendqisi2
 	eor	r3, r3, #1
 	uxtb	r3, r3
 	cmp	r3, #0
-	beq	.L306
-	ldr	r1, .L332+96
+	beq	.L289
+	ldr	r1, .L315+96
 	ldr	r2, [fp, #-32]
 	mov	r3, r2
 	lsl	r3, r3, #4
@@ -5607,9 +5439,9 @@ DrawCustomer:
 	stmia	ip!, {r0, r1, r2, r3}
 	ldr	r3, [lr]
 	str	r3, [ip]
-	b	.L307
-.L306:
-	ldr	r1, .L332+96
+	b	.L290
+.L289:
+	ldr	r1, .L315+96
 	ldr	r2, [fp, #-32]
 	mov	r3, r2
 	lsl	r3, r3, #4
@@ -5623,8 +5455,8 @@ DrawCustomer:
 	stmia	ip!, {r0, r1, r2, r3}
 	ldr	r3, [lr]
 	str	r3, [ip]
-.L307:
-	ldr	r3, .L332+12
+.L290:
+	ldr	r3, .L315+12
 	ldr	r3, [r3]
 	str	r3, [fp, #-108]
 	vldr.32	s14, [fp, #-104]
@@ -5635,20 +5467,20 @@ DrawCustomer:
 	str	r3, [sp]
 	sub	r3, fp, #96
 	ldm	r3, {r0, r1, r2, r3}
-	vldr.32	s3, .L332
-	vldr.32	s2, .L332+4
+	vldr.32	s3, .L315
+	vldr.32	s2, .L315+4
 	vmov.f32	s0, s14
 	vmov.f32	s1, s15
 	bl	DrawTextureEx
-	b	.L301
-.L305:
+	b	.L284
+.L288:
 	ldr	r3, [fp, #-304]
 	ldrb	r3, [r3, #32]	@ zero_extendqisi2
 	eor	r3, r3, #1
 	uxtb	r3, r3
 	cmp	r3, #0
-	beq	.L309
-	ldr	r1, .L332+96
+	beq	.L292
+	ldr	r1, .L315+96
 	ldr	r2, [fp, #-32]
 	mov	r3, r2
 	lsl	r3, r3, #4
@@ -5662,9 +5494,9 @@ DrawCustomer:
 	stmia	ip!, {r0, r1, r2, r3}
 	ldr	r3, [lr]
 	str	r3, [ip]
-	b	.L310
-.L309:
-	ldr	r1, .L332+96
+	b	.L293
+.L292:
+	ldr	r1, .L315+96
 	ldr	r2, [fp, #-32]
 	mov	r3, r2
 	lsl	r3, r3, #4
@@ -5678,8 +5510,8 @@ DrawCustomer:
 	stmia	ip!, {r0, r1, r2, r3}
 	ldr	r3, [lr]
 	str	r3, [ip]
-.L310:
-	ldr	r3, .L332+12
+.L293:
+	ldr	r3, .L315+12
 	ldr	r3, [r3]
 	str	r3, [fp, #-112]
 	vldr.32	s14, [fp, #-104]
@@ -5690,20 +5522,20 @@ DrawCustomer:
 	str	r3, [sp]
 	sub	r3, fp, #76
 	ldm	r3, {r0, r1, r2, r3}
-	vldr.32	s3, .L332
-	vldr.32	s2, .L332+4
+	vldr.32	s3, .L315
+	vldr.32	s2, .L315+4
 	vmov.f32	s0, s14
 	vmov.f32	s1, s15
 	bl	DrawTextureEx
-	b	.L301
-.L302:
+	b	.L284
+.L285:
 	ldr	r3, [fp, #-304]
 	ldrb	r3, [r3, #32]	@ zero_extendqisi2
 	eor	r3, r3, #1
 	uxtb	r3, r3
 	cmp	r3, #0
-	beq	.L311
-	ldr	r1, .L332+96
+	beq	.L294
+	ldr	r1, .L315+96
 	ldr	r2, [fp, #-32]
 	mov	r3, r2
 	lsl	r3, r3, #4
@@ -5717,9 +5549,9 @@ DrawCustomer:
 	stmia	ip!, {r0, r1, r2, r3}
 	ldr	r3, [lr]
 	str	r3, [ip]
-	b	.L312
-.L311:
-	ldr	r1, .L332+96
+	b	.L295
+.L294:
+	ldr	r1, .L315+96
 	ldr	r2, [fp, #-32]
 	mov	r3, r2
 	lsl	r3, r3, #4
@@ -5733,8 +5565,8 @@ DrawCustomer:
 	stmia	ip!, {r0, r1, r2, r3}
 	ldr	r3, [lr]
 	str	r3, [ip]
-.L312:
-	ldr	r3, .L332+12
+.L295:
+	ldr	r3, .L315+12
 	ldr	r3, [r3]
 	str	r3, [fp, #-116]
 	vldr.32	s14, [fp, #-104]
@@ -5745,146 +5577,146 @@ DrawCustomer:
 	str	r3, [sp]
 	sub	r3, fp, #56
 	ldm	r3, {r0, r1, r2, r3}
-	vldr.32	s3, .L332
-	vldr.32	s2, .L332+4
+	vldr.32	s3, .L315
+	vldr.32	s2, .L315+4
 	vmov.f32	s0, s14
 	vmov.f32	s1, s15
 	bl	DrawTextureEx
-	b	.L301
-.L330:
+	b	.L284
+.L313:
 	nop
-	b	.L301
-.L331:
+	b	.L284
+.L314:
 	nop
-.L301:
+.L284:
 	ldr	r3, [fp, #-304]
 	ldrb	r3, [r3, #33]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L313
+	beq	.L296
 	ldr	r3, [fp, #-304]
 	ldrb	r3, [r3, #80]	@ zero_extendqisi2
 	eor	r3, r3, #1
 	uxtb	r3, r3
 	cmp	r3, #0
-	beq	.L313
+	beq	.L296
 	vldr.32	s15, [fp, #-104]
-	vldr.32	s14, .L332+8
+	vldr.32	s14, .L315+8
 	vadd.f32	s15, s15, s14
 	vstr.32	s15, [fp, #-124]
 	vldr.32	s15, [fp, #-100]
-	vldr.32	s14, .L332+104
+	vldr.32	s14, .L315+104
 	vadd.f32	s15, s15, s14
 	vstr.32	s15, [fp, #-120]
-	ldr	r3, .L332+12
+	ldr	r3, .L315+12
 	ldr	r3, [r3]
 	str	r3, [fp, #-128]
 	vldr.32	s14, [fp, #-124]
 	vldr.32	s15, [fp, #-120]
-	ldr	r3, .L332+16
+	ldr	r3, .L315+16
 	ldr	r2, [fp, #-128]
 	str	r2, [sp, #4]
 	ldr	r2, [r3, #16]
 	str	r2, [sp]
 	ldm	r3, {r0, r1, r2, r3}
-	vldr.32	s3, .L332
-	vldr.32	s2, .L332+4
+	vldr.32	s3, .L315
+	vldr.32	s2, .L315+4
 	vmov.f32	s0, s14
 	vmov.f32	s1, s15
 	bl	DrawTextureEx
 	ldr	r3, [fp, #-304]
 	add	r3, r3, #34
-	ldr	r1, .L332+20
+	ldr	r1, .L315+20
 	mov	r0, r3
 	bl	strstr
 	mov	r3, r0
 	cmp	r3, #0
-	beq	.L314
+	beq	.L297
 	vldr.32	s15, [fp, #-104]
-	vldr.32	s14, .L332+108
+	vldr.32	s14, .L315+108
 	vadd.f32	s15, s15, s14
 	vstr.32	s15, [fp, #-136]
 	vldr.32	s15, [fp, #-100]
-	vldr.32	s14, .L332+104
+	vldr.32	s14, .L315+104
 	vadd.f32	s15, s15, s14
 	vstr.32	s15, [fp, #-132]
-	ldr	r3, .L332+12
+	ldr	r3, .L315+12
 	ldr	r3, [r3]
 	str	r3, [fp, #-140]
 	vldr.32	s14, [fp, #-136]
 	vldr.32	s15, [fp, #-132]
-	ldr	r3, .L332+24
+	ldr	r3, .L315+24
 	ldr	r2, [fp, #-140]
 	str	r2, [sp, #4]
 	ldr	r2, [r3, #16]
 	str	r2, [sp]
 	ldm	r3, {r0, r1, r2, r3}
-	vldr.32	s3, .L332
-	vldr.32	s2, .L332+4
+	vldr.32	s3, .L315
+	vldr.32	s2, .L315+4
 	vmov.f32	s0, s14
 	vmov.f32	s1, s15
 	bl	DrawTextureEx
-	b	.L315
-.L314:
+	b	.L298
+.L297:
 	ldr	r3, [fp, #-304]
 	add	r3, r3, #34
-	ldr	r1, .L332+28
+	ldr	r1, .L315+28
 	mov	r0, r3
 	bl	strstr
 	mov	r3, r0
 	cmp	r3, #0
-	beq	.L315
+	beq	.L298
 	vldr.32	s15, [fp, #-104]
-	vldr.32	s14, .L332+108
+	vldr.32	s14, .L315+108
 	vadd.f32	s15, s15, s14
 	vstr.32	s15, [fp, #-148]
 	vldr.32	s15, [fp, #-100]
-	vldr.32	s14, .L332+104
+	vldr.32	s14, .L315+104
 	vadd.f32	s15, s15, s14
 	vstr.32	s15, [fp, #-144]
-	ldr	r3, .L332+12
+	ldr	r3, .L315+12
 	ldr	r3, [r3]
 	str	r3, [fp, #-152]
 	vldr.32	s14, [fp, #-148]
 	vldr.32	s15, [fp, #-144]
-	ldr	r3, .L332+32
+	ldr	r3, .L315+32
 	ldr	r2, [fp, #-152]
 	str	r2, [sp, #4]
 	ldr	r2, [r3, #16]
 	str	r2, [sp]
 	ldm	r3, {r0, r1, r2, r3}
-	vldr.32	s3, .L332
-	vldr.32	s2, .L332+4
+	vldr.32	s3, .L315
+	vldr.32	s2, .L315+4
 	vmov.f32	s0, s14
 	vmov.f32	s1, s15
 	bl	DrawTextureEx
-.L315:
+.L298:
 	ldr	r3, [fp, #-304]
 	add	r3, r3, #34
-	ldr	r1, .L332+36
+	ldr	r1, .L315+36
 	mov	r0, r3
 	bl	strstr
 	mov	r3, r0
 	cmp	r3, #0
-	beq	.L316
+	beq	.L299
 	vldr.32	s15, [fp, #-104]
-	vldr.32	s14, .L332+112
+	vldr.32	s14, .L315+112
 	vadd.f32	s15, s15, s14
 	vstr.32	s15, [fp, #-160]
 	vldr.32	s15, [fp, #-100]
-	vldr.32	s14, .L332+104
+	vldr.32	s14, .L315+104
 	vadd.f32	s15, s15, s14
 	vstr.32	s15, [fp, #-156]
-	ldr	r3, .L332+80
+	ldr	r3, .L315+80
 	ldr	r3, [r3]
 	str	r3, [fp, #-164]
 	vldr.32	s10, [fp, #-160]
 	vldr.32	s11, [fp, #-156]
-	ldr	r3, .L332+40
+	ldr	r3, .L315+40
 	vldr.32	s12, [r3, #40]
 	vldr.32	s13, [r3, #44]
 	vldr.32	s14, [r3, #48]
 	vldr.32	s15, [r3, #52]
-	ldr	r3, .L332+40
+	ldr	r3, .L315+40
 	ldr	r2, [fp, #-164]
 	str	r2, [sp, #4]
 	ldr	r2, [r3, #16]
@@ -5897,18 +5729,18 @@ DrawCustomer:
 	vmov.f32	s2, s14
 	vmov.f32	s3, s15
 	bl	DrawTextureRec
-	b	.L317
-.L333:
+	b	.L300
+.L316:
 	.align	2
-.L332:
+.L315:
 	.word	1056964608
 	.word	0
 	.word	1135542272
 	.word	.LC1
 	.word	bubbles
-	.word	.LC50
-	.word	cocoaChon
 	.word	.LC51
+	.word	cocoaChon
+	.word	.LC52
 	.word	greenChon
 	.word	.LC23
 	.word	condensedMilk
@@ -5932,34 +5764,34 @@ DrawCustomer:
 	.word	1137999872
 	.word	1125515264
 	.word	1065353216
-.L316:
+.L299:
 	ldr	r3, [fp, #-304]
 	add	r3, r3, #34
-	ldr	r1, .L332+44
+	ldr	r1, .L315+44
 	mov	r0, r3
 	bl	strstr
 	mov	r3, r0
 	cmp	r3, #0
-	beq	.L317
+	beq	.L300
 	vldr.32	s15, [fp, #-104]
-	vldr.32	s14, .L332+112
+	vldr.32	s14, .L315+112
 	vadd.f32	s15, s15, s14
 	vstr.32	s15, [fp, #-172]
 	vldr.32	s15, [fp, #-100]
-	vldr.32	s14, .L332+104
+	vldr.32	s14, .L315+104
 	vadd.f32	s15, s15, s14
 	vstr.32	s15, [fp, #-168]
-	ldr	r3, .L332+80
+	ldr	r3, .L315+80
 	ldr	r3, [r3]
 	str	r3, [fp, #-176]
 	vldr.32	s10, [fp, #-172]
 	vldr.32	s11, [fp, #-168]
-	ldr	r3, .L332+48
+	ldr	r3, .L315+48
 	vldr.32	s12, [r3, #40]
 	vldr.32	s13, [r3, #44]
 	vldr.32	s14, [r3, #48]
 	vldr.32	s15, [r3, #52]
-	ldr	r3, .L332+48
+	ldr	r3, .L315+48
 	ldr	r2, [fp, #-176]
 	str	r2, [sp, #4]
 	ldr	r2, [r3, #16]
@@ -5972,34 +5804,34 @@ DrawCustomer:
 	vmov.f32	s2, s14
 	vmov.f32	s3, s15
 	bl	DrawTextureRec
-.L317:
+.L300:
 	ldr	r3, [fp, #-304]
 	add	r3, r3, #34
-	ldr	r1, .L332+52
+	ldr	r1, .L315+52
 	mov	r0, r3
 	bl	strstr
 	mov	r3, r0
 	cmp	r3, #0
-	beq	.L318
+	beq	.L301
 	vldr.32	s15, [fp, #-104]
-	vldr.32	s14, .L332+108
+	vldr.32	s14, .L315+108
 	vadd.f32	s15, s15, s14
 	vstr.32	s15, [fp, #-184]
 	vldr.32	s15, [fp, #-100]
-	vldr.32	s14, .L332+116
+	vldr.32	s14, .L315+116
 	vadd.f32	s15, s15, s14
 	vstr.32	s15, [fp, #-180]
-	ldr	r3, .L332+80
+	ldr	r3, .L315+80
 	ldr	r3, [r3]
 	str	r3, [fp, #-188]
 	vldr.32	s10, [fp, #-184]
 	vldr.32	s11, [fp, #-180]
-	ldr	r3, .L332+56
+	ldr	r3, .L315+56
 	vldr.32	s12, [r3, #40]
 	vldr.32	s13, [r3, #44]
 	vldr.32	s14, [r3, #48]
 	vldr.32	s15, [r3, #52]
-	ldr	r3, .L332+56
+	ldr	r3, .L315+56
 	ldr	r2, [fp, #-188]
 	str	r2, [sp, #4]
 	ldr	r2, [r3, #16]
@@ -6012,35 +5844,35 @@ DrawCustomer:
 	vmov.f32	s2, s14
 	vmov.f32	s3, s15
 	bl	DrawTextureRec
-	b	.L319
-.L318:
+	b	.L302
+.L301:
 	ldr	r3, [fp, #-304]
 	add	r3, r3, #34
-	ldr	r1, .L332+60
+	ldr	r1, .L315+60
 	mov	r0, r3
 	bl	strstr
 	mov	r3, r0
 	cmp	r3, #0
-	beq	.L319
+	beq	.L302
 	vldr.32	s15, [fp, #-104]
-	vldr.32	s14, .L332+108
+	vldr.32	s14, .L315+108
 	vadd.f32	s15, s15, s14
 	vstr.32	s15, [fp, #-196]
 	vldr.32	s15, [fp, #-100]
-	vldr.32	s14, .L332+116
+	vldr.32	s14, .L315+116
 	vadd.f32	s15, s15, s14
 	vstr.32	s15, [fp, #-192]
-	ldr	r3, .L332+80
+	ldr	r3, .L315+80
 	ldr	r3, [r3]
 	str	r3, [fp, #-200]
 	vldr.32	s10, [fp, #-196]
 	vldr.32	s11, [fp, #-192]
-	ldr	r3, .L332+64
+	ldr	r3, .L315+64
 	vldr.32	s12, [r3, #40]
 	vldr.32	s13, [r3, #44]
 	vldr.32	s14, [r3, #48]
 	vldr.32	s15, [r3, #52]
-	ldr	r3, .L332+64
+	ldr	r3, .L315+64
 	ldr	r2, [fp, #-200]
 	str	r2, [sp, #4]
 	ldr	r2, [r3, #16]
@@ -6053,34 +5885,34 @@ DrawCustomer:
 	vmov.f32	s2, s14
 	vmov.f32	s3, s15
 	bl	DrawTextureRec
-.L319:
+.L302:
 	ldr	r3, [fp, #-304]
 	add	r3, r3, #34
-	ldr	r1, .L332+68
+	ldr	r1, .L315+68
 	mov	r0, r3
 	bl	strstr
 	mov	r3, r0
 	cmp	r3, #0
-	beq	.L320
+	beq	.L303
 	vldr.32	s15, [fp, #-104]
-	vldr.32	s14, .L332+112
+	vldr.32	s14, .L315+112
 	vadd.f32	s15, s15, s14
 	vstr.32	s15, [fp, #-208]
 	vldr.32	s15, [fp, #-100]
-	vldr.32	s14, .L332+116
+	vldr.32	s14, .L315+116
 	vadd.f32	s15, s15, s14
 	vstr.32	s15, [fp, #-204]
-	ldr	r3, .L332+80
+	ldr	r3, .L315+80
 	ldr	r3, [r3]
 	str	r3, [fp, #-212]
 	vldr.32	s10, [fp, #-208]
 	vldr.32	s11, [fp, #-204]
-	ldr	r3, .L332+72
+	ldr	r3, .L315+72
 	vldr.32	s12, [r3, #40]
 	vldr.32	s13, [r3, #44]
 	vldr.32	s14, [r3, #48]
 	vldr.32	s15, [r3, #52]
-	ldr	r3, .L332+72
+	ldr	r3, .L315+72
 	ldr	r2, [fp, #-212]
 	str	r2, [sp, #4]
 	ldr	r2, [r3, #16]
@@ -6093,35 +5925,35 @@ DrawCustomer:
 	vmov.f32	s2, s14
 	vmov.f32	s3, s15
 	bl	DrawTextureRec
-	b	.L313
-.L320:
+	b	.L296
+.L303:
 	ldr	r3, [fp, #-304]
 	add	r3, r3, #34
-	ldr	r1, .L332+76
+	ldr	r1, .L315+76
 	mov	r0, r3
 	bl	strstr
 	mov	r3, r0
 	cmp	r3, #0
-	beq	.L313
+	beq	.L296
 	vldr.32	s15, [fp, #-104]
-	vldr.32	s14, .L332+112
+	vldr.32	s14, .L315+112
 	vadd.f32	s15, s15, s14
 	vstr.32	s15, [fp, #-220]
 	vldr.32	s15, [fp, #-100]
-	vldr.32	s14, .L332+116
+	vldr.32	s14, .L315+116
 	vadd.f32	s15, s15, s14
 	vstr.32	s15, [fp, #-216]
-	ldr	r3, .L332+80
+	ldr	r3, .L315+80
 	ldr	r3, [r3]
 	str	r3, [fp, #-224]
 	vldr.32	s10, [fp, #-220]
 	vldr.32	s11, [fp, #-216]
-	ldr	r3, .L332+84
+	ldr	r3, .L315+84
 	vldr.32	s12, [r3, #40]
 	vldr.32	s13, [r3, #44]
 	vldr.32	s14, [r3, #48]
 	vldr.32	s15, [r3, #52]
-	ldr	r3, .L332+84
+	ldr	r3, .L315+84
 	ldr	r2, [fp, #-224]
 	str	r2, [sp, #4]
 	ldr	r2, [r3, #16]
@@ -6134,21 +5966,21 @@ DrawCustomer:
 	vmov.f32	s2, s14
 	vmov.f32	s3, s15
 	bl	DrawTextureRec
-.L313:
-	ldr	r3, .L332+88
+.L296:
+	ldr	r3, .L315+88
 	ldr	r3, [r3]
 	ldrb	r3, [r3, #20]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L298
-	ldr	r3, .L332+92
+	beq	.L281
+	ldr	r3, .L315+92
 	ldrb	r3, [r3, #3]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L298
+	beq	.L281
 	ldr	r3, [fp, #-104]	@ float
 	str	r3, [fp, #-240]	@ float
 	ldr	r3, [fp, #-100]	@ float
 	str	r3, [fp, #-236]	@ float
-	ldr	r1, .L332+96
+	ldr	r1, .L315+96
 	ldr	r2, [fp, #-32]
 	mov	r3, r2
 	lsl	r3, r3, #4
@@ -6163,7 +5995,7 @@ DrawCustomer:
 	vmov	s15, r3	@ int
 	vcvt.f32.s32	s15, s15
 	vstr.32	s15, [fp, #-232]
-	ldr	r1, .L332+96
+	ldr	r1, .L315+96
 	ldr	r2, [fp, #-32]
 	mov	r3, r2
 	lsl	r3, r3, #4
@@ -6178,7 +6010,7 @@ DrawCustomer:
 	vmov	s15, r3	@ int
 	vcvt.f32.s32	s15, s15
 	vstr.32	s15, [fp, #-228]
-	ldr	r3, .L332+100
+	ldr	r3, .L315+100
 	ldr	r3, [r3]
 	str	r3, [fp, #-244]
 	vldr.32	s12, [fp, #-240]
@@ -6186,7 +6018,7 @@ DrawCustomer:
 	vldr.32	s14, [fp, #-232]
 	vldr.32	s15, [fp, #-228]
 	ldr	r0, [fp, #-244]
-	vldr.32	s4, .L332+120
+	vldr.32	s4, .L315+120
 	vmov.f32	s0, s12
 	vmov.f32	s1, s13
 	vmov.f32	s2, s14
@@ -6195,13 +6027,13 @@ DrawCustomer:
 	vldr.32	s15, [fp, #-104]
 	vcvt.s32.f32	s16, s15
 	vldr.32	s15, [fp, #-100]
-	vldr.32	s14, .L334
+	vldr.32	s14, .L317
 	vsub.f32	s15, s15, s14
 	vcvt.s32.f32	s17, s15
-	ldr	r3, .L334+12
+	ldr	r3, .L317+12
 	ldr	r3, [r3]
 	str	r3, [fp, #-248]
-	vldr.32	s0, .L334+4
+	vldr.32	s0, .L317+4
 	ldr	r0, [fp, #-248]
 	bl	Fade
 	mov	r3, r0
@@ -6221,12 +6053,12 @@ DrawCustomer:
 	ldr	r3, [fp, #-304]
 	ldrb	r3, [r3, #32]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L323
-	ldr	lr, .L334+16
-	b	.L324
-.L323:
-	ldr	lr, .L334+20
-.L324:
+	beq	.L306
+	ldr	lr, .L317+16
+	b	.L307
+.L306:
+	ldr	lr, .L317+20
+.L307:
 	ldr	r3, [fp, #-304]
 	ldrd	r2, [r3, #24]
 	ldr	r1, [fp, #-304]
@@ -6238,21 +6070,21 @@ DrawCustomer:
 	strd	r2, [sp]
 	mov	r2, lr
 	mov	r1, r6
-	ldr	r0, .L334+24
+	ldr	r0, .L317+24
 	bl	TextFormat
 	mov	r2, r0
 	ldr	r3, [fp, #-104]	@ float
 	str	r3, [fp, #-256]	@ float
 	vldr.32	s15, [fp, #-100]
-	vldr.32	s14, .L334
+	vldr.32	s14, .L317
 	vsub.f32	s15, s15, s14
 	vstr.32	s15, [fp, #-252]
-	ldr	r3, .L334+28
+	ldr	r3, .L317+28
 	ldr	r3, [r3]
 	str	r3, [fp, #-260]
 	vldr.32	s14, [fp, #-256]
 	vldr.32	s15, [fp, #-252]
-	ldr	r4, .L334+32
+	ldr	r4, .L317+32
 	ldr	r3, [fp, #-260]
 	str	r3, [sp, #28]
 	str	r2, [sp, #24]
@@ -6263,15 +6095,15 @@ DrawCustomer:
 	ldm	ip, {r0, r1}
 	stm	lr, {r0, r1}
 	ldm	r4, {r0, r1, r2, r3}
-	vldr.32	s3, .L334+8
-	vldr.32	s2, .L334
+	vldr.32	s3, .L317+8
+	vldr.32	s2, .L317
 	vmov.f32	s0, s14
 	vmov.f32	s1, s15
 	bl	DrawTextEx
 	ldr	r3, [fp, #-304]
 	ldrb	r3, [r3, #33]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L325
+	beq	.L308
 	ldr	r3, [fp, #-304]
 	vldr.64	d7, [r3, #56]
 	vcvt.f32.f64	s15, d7
@@ -6283,19 +6115,19 @@ DrawCustomer:
 	vcvt.f64.f32	d7, s15
 	vstr.64	d7, [sp]
 	vmov	r2, r3, d6
-	ldr	r0, .L334+36
+	ldr	r0, .L317+36
 	bl	TextFormat
 	mov	r2, r0
 	ldr	r3, [fp, #-104]	@ float
 	str	r3, [fp, #-280]	@ float
 	ldr	r3, [fp, #-100]	@ float
 	str	r3, [fp, #-276]	@ float
-	ldr	r3, .L334+28
+	ldr	r3, .L317+28
 	ldr	r3, [r3]
 	str	r3, [fp, #-284]
 	vldr.32	s14, [fp, #-280]
 	vldr.32	s15, [fp, #-276]
-	ldr	r4, .L334+32
+	ldr	r4, .L317+32
 	ldr	r3, [fp, #-284]
 	str	r3, [sp, #28]
 	str	r2, [sp, #24]
@@ -6306,13 +6138,13 @@ DrawCustomer:
 	ldm	ip, {r0, r1}
 	stm	lr, {r0, r1}
 	ldm	r4, {r0, r1, r2, r3}
-	vldr.32	s3, .L334+8
-	vldr.32	s2, .L334
+	vldr.32	s3, .L317+8
+	vldr.32	s2, .L317
 	vmov.f32	s0, s14
 	vmov.f32	s1, s15
 	bl	DrawTextEx
-	b	.L326
-.L325:
+	b	.L309
+.L308:
 	ldr	r3, [fp, #-304]
 	vldr.64	d7, [r3, #56]
 	vcvt.f32.f64	s15, d7
@@ -6323,19 +6155,19 @@ DrawCustomer:
 	vcvt.f64.f32	d7, s15
 	vstr.64	d7, [sp]
 	vmov	r2, r3, d6
-	ldr	r0, .L334+40
+	ldr	r0, .L317+40
 	bl	TextFormat
 	mov	r2, r0
 	ldr	r3, [fp, #-104]	@ float
 	str	r3, [fp, #-292]	@ float
 	ldr	r3, [fp, #-100]	@ float
 	str	r3, [fp, #-288]	@ float
-	ldr	r3, .L334+28
+	ldr	r3, .L317+28
 	ldr	r3, [r3]
 	str	r3, [fp, #-296]
 	vldr.32	s14, [fp, #-292]
 	vldr.32	s15, [fp, #-288]
-	ldr	r4, .L334+32
+	ldr	r4, .L317+32
 	ldr	r3, [fp, #-296]
 	str	r3, [sp, #28]
 	str	r2, [sp, #24]
@@ -6346,39 +6178,39 @@ DrawCustomer:
 	ldm	ip, {r0, r1}
 	stm	lr, {r0, r1}
 	ldm	r4, {r0, r1, r2, r3}
-	vldr.32	s3, .L334+8
-	vldr.32	s2, .L334
+	vldr.32	s3, .L317+8
+	vldr.32	s2, .L317
 	vmov.f32	s0, s14
 	vmov.f32	s1, s15
 	bl	DrawTextEx
-.L326:
+.L309:
 	ldr	r3, [fp, #-304]
 	ldrb	r3, [r3, #33]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L327
-	ldr	r1, .L334+16
-	b	.L328
-.L327:
-	ldr	r1, .L334+20
-.L328:
+	beq	.L310
+	ldr	r1, .L317+16
+	b	.L311
+.L310:
+	ldr	r1, .L317+20
+.L311:
 	ldr	r3, [fp, #-304]
 	add	r3, r3, #34
 	mov	r2, r3
-	ldr	r0, .L334+44
+	ldr	r0, .L317+44
 	bl	TextFormat
 	mov	r2, r0
 	ldr	r3, [fp, #-104]	@ float
 	str	r3, [fp, #-268]	@ float
 	vldr.32	s15, [fp, #-100]
-	vldr.32	s14, .L334
+	vldr.32	s14, .L317
 	vadd.f32	s15, s15, s14
 	vstr.32	s15, [fp, #-264]
-	ldr	r3, .L334+28
+	ldr	r3, .L317+28
 	ldr	r3, [r3]
 	str	r3, [fp, #-272]
 	vldr.32	s14, [fp, #-268]
 	vldr.32	s15, [fp, #-264]
-	ldr	r4, .L334+32
+	ldr	r4, .L317+32
 	ldr	r3, [fp, #-272]
 	str	r3, [sp, #28]
 	str	r2, [sp, #24]
@@ -6389,34 +6221,34 @@ DrawCustomer:
 	ldm	ip, {r0, r1}
 	stm	lr, {r0, r1}
 	ldm	r4, {r0, r1, r2, r3}
-	vldr.32	s3, .L334+8
-	vldr.32	s2, .L334
+	vldr.32	s3, .L317+8
+	vldr.32	s2, .L317
 	vmov.f32	s0, s14
 	vmov.f32	s1, s15
 	bl	DrawTextEx
-	b	.L298
-.L329:
+	b	.L281
+.L312:
 	nop
-.L298:
+.L281:
 	sub	sp, fp, #24
 	@ sp needed
 	vldm	sp!, {d8}
 	pop	{r4, r5, r6, fp, pc}
-.L335:
+.L318:
 	.align	2
-.L334:
+.L317:
 	.word	1101004800
 	.word	1060320051
 	.word	1065353216
 	.word	.LC6
-	.word	.LC43
 	.word	.LC44
-	.word	.LC52
+	.word	.LC45
+	.word	.LC53
 	.word	.LC1
 	.word	meowFont
-	.word	.LC53
 	.word	.LC54
 	.word	.LC55
+	.word	.LC56
 	.size	DrawCustomer, .-DrawCustomer
 	.align	2
 	.global	UpdateMenuCustomerBlink
@@ -6444,14 +6276,14 @@ UpdateMenuCustomerBlink:
 	eor	r3, r3, #1
 	uxtb	r3, r3
 	cmp	r3, #0
-	beq	.L337
+	beq	.L320
 	ldr	r3, [fp, #-8]
 	vldr.64	d6, [r3, #8]
 	ldr	r3, [fp, #-8]
 	vldr.64	d7, [r3, #16]
 	vcmpe.f64	d6, d7
 	vmrs	APSR_nzcv, FPSCR
-	ble	.L337
+	ble	.L320
 	ldr	r1, [fp, #-8]
 	mov	r2, #0
 	mov	r3, #0
@@ -6459,21 +6291,21 @@ UpdateMenuCustomerBlink:
 	ldr	r3, [fp, #-8]
 	mov	r2, #1
 	strb	r2, [r3, #32]
-	b	.L343
-.L337:
+	b	.L326
+.L320:
 	ldr	r3, [fp, #-8]
 	ldrb	r3, [r3, #32]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L343
+	beq	.L326
 	ldr	r3, [fp, #-8]
 	vldr.64	d6, [r3, #8]
 	ldr	r3, [fp, #-8]
 	vldr.64	d7, [r3, #24]
 	vcmpe.f64	d6, d7
 	vmrs	APSR_nzcv, FPSCR
-	bgt	.L342
-	b	.L343
-.L342:
+	bgt	.L325
+	b	.L326
+.L325:
 	ldr	r1, [fp, #-8]
 	mov	r2, #0
 	mov	r3, #0
@@ -6481,7 +6313,7 @@ UpdateMenuCustomerBlink:
 	ldr	r3, [fp, #-8]
 	mov	r2, #0
 	strb	r2, [r3, #32]
-.L343:
+.L326:
 	nop
 	add	sp, fp, #0
 	@ sp needed
@@ -6497,73 +6329,73 @@ UpdateMenuCustomerBlink:
 DrawCustomerInMenu:
 	@ args = 0, pretend = 0, frame = 8
 	@ frame_needed = 1, uses_anonymous_args = 0
-	PUSH	{fp, lr}
+	push	{fp, lr}
 	add	fp, sp, #4
 	sub	sp, sp, #8
 	vstr.64	d0, [fp, #-12]
 	vldr.64	d0, [fp, #-12]
-	ldr	r0, .L351
+	ldr	r0, .L334
 	bl	UpdateMenuCustomerBlink
 	vldr.64	d0, [fp, #-12]
-	ldr	r0, .L351+4
+	ldr	r0, .L334+4
 	bl	UpdateMenuCustomerBlink
-	ldr	r3, .L351+8
+	ldr	r3, .L334+8
 	ldr	r3, [r3]
 	ldr	r3, [r3, #16]
 	cmp	r3, #5
 	ldrls	pc, [pc, r3, asl #2]
-	b	.L345
-.L347:
-	.word	.L349
-	.word	.L348
-	.word	.L346
-	.word	.L349
-	.word	.L348
-	.word	.L346
-.L349:
-	ldr	r3, .L351
+	b	.L328
+.L330:
+	.word	.L332
+	.word	.L331
+	.word	.L329
+	.word	.L332
+	.word	.L331
+	.word	.L329
+.L332:
+	ldr	r3, .L334
 	mov	r2, #0
 	str	r2, [r3]
-	ldr	r3, .L351+4
+	ldr	r3, .L334+4
 	mov	r2, #0
 	str	r2, [r3]
-	b	.L350
-.L348:
-	ldr	r3, .L351
+	b	.L333
+.L331:
+	ldr	r3, .L334
 	mov	r2, #1
 	str	r2, [r3]
-	ldr	r3, .L351+4
+	ldr	r3, .L334+4
 	mov	r2, #1
 	str	r2, [r3]
-	b	.L350
-.L346:
-	ldr	r3, .L351
+	b	.L333
+.L329:
+	ldr	r3, .L334
 	mov	r2, #2
 	str	r2, [r3]
-	ldr	r3, .L351+4
+	ldr	r3, .L334+4
 	mov	r2, #2
 	str	r2, [r3]
-	b	.L350
-.L345:
-	ldr	r3, .L351
+	b	.L333
+.L328:
+	ldr	r3, .L334
 	mov	r2, #0
 	str	r2, [r3]
-	ldr	r3, .L351+4
+	ldr	r3, .L334+4
 	mov	r2, #0
 	str	r2, [r3]
 	nop
-.L350:
-	ldr	r0, .L351
+.L333:
+	ldr	r0, .L334
 	bl	DrawCustomer
-	ldr	r0, .L351+4
+	ldr	r0, .L334+4
 	bl	DrawCustomer
 	nop
 	sub	sp, fp, #4
 	@ sp needed
 	pop	{fp, pc}
-.L352:
+.L335:
 	.align	2
-.L351:
+.L334:
 	.word	menuCustomer1
 	.word	menuCustomer2
 	.word	options
@@ -6577,13 +6409,13 @@ DrawCustomerInMenu:
 DrawOuterWorld:
 	@ args = 0, pretend = 0, frame = 16
 	@ frame_needed = 1, uses_anonymous_args = 0
-	PUSH	{fp, lr}
+	push	{fp, lr}
 	add	fp, sp, #4
 	sub	sp, sp, #24
-	vldr.32	s15, .L354
+	vldr.32	s15, .L337
 	vcvt.s32.f32	s13, s15
-	vldr.32	s14, .L354+4
-	vldr.32	s15, .L354+8
+	vldr.32	s14, .L337+4
+	vldr.32	s15, .L337+8
 	vsub.f32	s15, s14, s15
 	vcvt.s32.f32	s15, s15
 	mov	r3, #0
@@ -6601,10 +6433,10 @@ DrawOuterWorld:
 	vmov	r1, s15	@ int
 	vmov	r0, s13	@ int
 	bl	DrawRectangle
-	vldr.32	s15, .L354
+	vldr.32	s15, .L337
 	vcvt.s32.f32	s13, s15
-	vldr.32	s14, .L354+4
-	vldr.32	s15, .L354+12
+	vldr.32	s14, .L337+4
+	vldr.32	s15, .L337+12
 	vadd.f32	s15, s14, s15
 	vcvt.s32.f32	s15, s15
 	mov	r3, #0
@@ -6622,11 +6454,11 @@ DrawOuterWorld:
 	vmov	r1, s15	@ int
 	vmov	r0, s13	@ int
 	bl	DrawRectangle
-	vldr.32	s14, .L354
-	vldr.32	s15, .L354+8
+	vldr.32	s14, .L337
+	vldr.32	s15, .L337+8
 	vsub.f32	s15, s14, s15
 	vcvt.s32.f32	s14, s15
-	vldr.32	s15, .L354+4
+	vldr.32	s15, .L337+4
 	vcvt.s32.f32	s15, s15
 	mov	r3, #0
 	strb	r3, [fp, #-16]
@@ -6638,16 +6470,16 @@ DrawOuterWorld:
 	strb	r3, [fp, #-13]
 	ldr	r3, [fp, #-16]
 	str	r3, [sp]
-	ldr	r3, .L354+20
+	ldr	r3, .L337+20
 	mov	r2, #2000
 	vmov	r1, s15	@ int
 	vmov	r0, s14	@ int
 	bl	DrawRectangle
-	vldr.32	s14, .L354
-	vldr.32	s15, .L354+16
+	vldr.32	s14, .L337
+	vldr.32	s15, .L337+16
 	vadd.f32	s15, s14, s15
 	vcvt.s32.f32	s14, s15
-	vldr.32	s15, .L354+4
+	vldr.32	s15, .L337+4
 	vcvt.s32.f32	s15, s15
 	mov	r3, #0
 	strb	r3, [fp, #-20]
@@ -6659,7 +6491,7 @@ DrawOuterWorld:
 	strb	r3, [fp, #-17]
 	ldr	r3, [fp, #-20]
 	str	r3, [sp]
-	ldr	r3, .L354+20
+	ldr	r3, .L337+20
 	mov	r2, #2000
 	vmov	r1, s15	@ int
 	vmov	r0, s14	@ int
@@ -6668,9 +6500,9 @@ DrawOuterWorld:
 	sub	sp, fp, #4
 	@ sp needed
 	pop	{fp, pc}
-.L355:
+.L338:
 	.align	2
-.L354:
+.L337:
 	.word	-999292928
 	.word	-1006174208
 	.word	1157234688
@@ -6687,7 +6519,7 @@ DrawOuterWorld:
 SetRuntimeResolution:
 	@ args = 0, pretend = 0, frame = 24
 	@ frame_needed = 1, uses_anonymous_args = 0
-	PUSH	{fp, lr}
+	push	{fp, lr}
 	add	fp, sp, #4
 	sub	sp, sp, #24
 	str	r0, [fp, #-16]
@@ -6704,24 +6536,24 @@ SetRuntimeResolution:
 	vcvt.f32.s32	s14, s15
 	vdiv.f32	s15, s13, s14
 	vstr.32	s15, [fp, #-8]
-	vldr.32	s14, .L362
+	vldr.32	s14, .L345
 	vldr.32	s15, [fp, #-8]
 	vcmpe.f32	s15, s14
 	vmrs	APSR_nzcv, FPSCR
-	ble	.L361
+	ble	.L344
 	ldr	r3, [fp, #-24]
 	vmov	s15, r3	@ int
 	vcvt.f32.s32	s14, s15
-	vldr.32	s13, .L362+4
+	vldr.32	s13, .L345+4
 	vdiv.f32	s15, s14, s13
-	b	.L359
-.L361:
+	b	.L342
+.L344:
 	ldr	r3, [fp, #-20]
 	vmov	s15, r3	@ int
 	vcvt.f32.s32	s14, s15
-	vldr.32	s13, .L362+8
+	vldr.32	s13, .L345+8
 	vdiv.f32	s15, s14, s13
-.L359:
+.L342:
 	vstr.32	s15, [fp, #-12]
 	ldr	r3, [fp, #-16]
 	ldr	r2, [fp, #-12]	@ float
@@ -6729,22 +6561,22 @@ SetRuntimeResolution:
 	ldr	r3, [fp, #-20]
 	vmov	s15, r3	@ int
 	vcvt.f32.s32	s14, s15
-	vldr.32	s13, .L362+12
+	vldr.32	s13, .L345+12
 	vdiv.f32	s15, s14, s13
 	ldr	r3, [fp, #-16]
 	vstr.32	s15, [r3]
 	ldr	r3, [fp, #-24]
 	vmov	s15, r3	@ int
 	vcvt.f32.s32	s14, s15
-	vldr.32	s13, .L362+12
+	vldr.32	s13, .L345+12
 	vdiv.f32	s15, s14, s13
 	ldr	r3, [fp, #-16]
 	vstr.32	s15, [r3, #4]
-	ldr	r3, .L362+16
+	ldr	r3, .L345+16
 	ldr	r3, [r3]
 	ldr	r2, [fp, #-20]
 	str	r2, [r3]
-	ldr	r3, .L362+16
+	ldr	r3, .L345+16
 	ldr	r3, [r3]
 	ldr	r2, [fp, #-24]
 	str	r2, [r3, #4]
@@ -6752,9 +6584,9 @@ SetRuntimeResolution:
 	sub	sp, fp, #4
 	@ sp needed
 	pop	{fp, pc}
-.L363:
+.L346:
 	.align	2
-.L362:
+.L345:
 	.word	1071877689
 	.word	1149698048
 	.word	1156579328
@@ -6770,7 +6602,7 @@ SetRuntimeResolution:
 IsMousePositionInGameWindow:
 	@ args = 0, pretend = 0, frame = 24
 	@ frame_needed = 1, uses_anonymous_args = 0
-	PUSH	{fp, lr}
+	push	{fp, lr}
 	add	fp, sp, #4
 	sub	sp, sp, #32
 	str	r0, [fp, #-24]
@@ -6795,43 +6627,43 @@ IsMousePositionInGameWindow:
 	vstr.32	s14, [fp, #-20]
 	vstr.32	s15, [fp, #-16]
 	vldr.32	s15, [fp, #-20]
-	vldr.32	s14, .L376
+	vldr.32	s14, .L359
 	vcmpe.f32	s15, s14
 	vmrs	APSR_nzcv, FPSCR
-	blt	.L365
+	blt	.L348
 	vldr.32	s14, [fp, #-20]
-	vldr.32	s13, .L376
-	vldr.32	s15, .L376+4
+	vldr.32	s13, .L359
+	vldr.32	s15, .L359+4
 	vadd.f32	s15, s13, s15
 	vcmpe.f32	s14, s15
 	vmrs	APSR_nzcv, FPSCR
-	bhi	.L365
+	bhi	.L348
 	vldr.32	s15, [fp, #-16]
-	vldr.32	s14, .L376+8
+	vldr.32	s14, .L359+8
 	vcmpe.f32	s15, s14
 	vmrs	APSR_nzcv, FPSCR
-	blt	.L365
+	blt	.L348
 	vldr.32	s14, [fp, #-16]
-	vldr.32	s13, .L376+8
-	vldr.32	s15, .L376+12
+	vldr.32	s13, .L359+8
+	vldr.32	s15, .L359+12
 	vadd.f32	s15, s13, s15
 	vcmpe.f32	s14, s15
 	vmrs	APSR_nzcv, FPSCR
-	bhi	.L365
+	bhi	.L348
 	mov	r3, #1
-	b	.L370
-.L365:
+	b	.L353
+.L348:
 	mov	r3, #0
-.L370:
+.L353:
 	and	r3, r3, #1
 	uxtb	r3, r3
 	mov	r0, r3
 	sub	sp, fp, #4
 	@ sp needed
 	pop	{fp, pc}
-.L377:
+.L360:
 	.align	2
-.L376:
+.L359:
 	.word	-999292928
 	.word	1156579328
 	.word	-1006174208
@@ -6846,25 +6678,25 @@ IsMousePositionInGameWindow:
 DrawDebugLogs:
 	@ args = 0, pretend = 0, frame = 40
 	@ frame_needed = 1, uses_anonymous_args = 0
-	PUSH	{r4, r5, fp, lr}
-	vPUSH.64	{d8}
+	push	{r4, r5, fp, lr}
+	vpush.64	{d8}
 	add	fp, sp, #20
 	sub	sp, sp, #72
 	str	r0, [fp, #-56]
-	vldr.32	s15, .L386
+	vldr.32	s15, .L369
 	vcvt.s32.f32	s16, s15
-	vldr.32	s14, .L386+4
-	vldr.32	s15, .L386+8
+	vldr.32	s14, .L369+4
+	vldr.32	s15, .L369+8
 	vadd.f32	s15, s14, s15
-	vldr.32	s14, .L386+12
+	vldr.32	s14, .L369+12
 	vsub.f32	s15, s15, s14
-	vldr.32	s14, .L386+16
+	vldr.32	s14, .L369+16
 	vsub.f32	s15, s15, s14
 	vcvt.s32.f32	s17, s15
-	ldr	r3, .L386+36
+	ldr	r3, .L369+36
 	ldr	r3, [r3]
 	str	r3, [fp, #-40]
-	vldr.32	s0, .L386+20
+	vldr.32	s0, .L369+20
 	ldr	r0, [fp, #-40]
 	bl	Fade
 	mov	r3, r0
@@ -6878,31 +6710,31 @@ DrawDebugLogs:
 	bl	DrawRectangle
 	mov	r3, #0
 	str	r3, [fp, #-24]
-	b	.L379
-.L383:
+	b	.L362
+.L366:
 	ldr	r3, [fp, #-24]
 	rsb	r3, r3, #24
 	str	r3, [fp, #-28]
-	ldr	r2, .L386+40
+	ldr	r2, .L369+40
 	ldr	r3, [fp, #-28]
 	lsl	r3, r3, #3
 	add	r3, r2, r3
 	ldr	r3, [r3, #4]
 	cmp	r3, #0
-	beq	.L384
-	ldr	r2, .L386+40
+	beq	.L367
+	ldr	r2, .L369+40
 	ldr	r3, [fp, #-28]
 	lsl	r3, r3, #3
 	add	r3, r2, r3
 	ldr	r5, [r3, #4]
-	vldr.32	s14, .L386
-	vldr.32	s15, .L386+24
+	vldr.32	s14, .L369
+	vldr.32	s15, .L369+24
 	vadd.f32	s15, s14, s15
 	vstr.32	s15, [fp, #-48]
-	vldr.32	s14, .L386+4
-	vldr.32	s15, .L386+8
+	vldr.32	s14, .L369+4
+	vldr.32	s15, .L369+8
 	vadd.f32	s15, s14, s15
-	vldr.32	s14, .L386+12
+	vldr.32	s14, .L369+12
 	vsub.f32	s14, s15, s14
 	ldr	r2, [fp, #-24]
 	mov	r3, r2
@@ -6913,7 +6745,7 @@ DrawDebugLogs:
 	vcvt.f32.s32	s15, s15
 	vsub.f32	s15, s14, s15
 	vstr.32	s15, [fp, #-44]
-	ldr	r2, .L386+40
+	ldr	r2, .L369+40
 	ldr	r3, [fp, #-28]
 	ldr	r3, [r2, r3, lsl #3]
 	mov	r0, r3
@@ -6922,7 +6754,7 @@ DrawDebugLogs:
 	str	r3, [fp, #-32]
 	vldr.32	s14, [fp, #-48]
 	vldr.32	s15, [fp, #-44]
-	ldr	r4, .L386+44
+	ldr	r4, .L369+44
 	ldr	r3, [fp, #-32]
 	str	r3, [sp, #28]
 	str	r5, [sp, #24]
@@ -6933,30 +6765,30 @@ DrawDebugLogs:
 	ldm	ip, {r0, r1}
 	stm	lr, {r0, r1}
 	ldm	r4, {r0, r1, r2, r3}
-	vldr.32	s3, .L386+28
-	vldr.32	s2, .L386+32
+	vldr.32	s3, .L369+28
+	vldr.32	s2, .L369+32
 	vmov.f32	s0, s14
 	vmov.f32	s1, s15
 	bl	DrawTextEx
 	ldr	r3, [fp, #-24]
 	add	r3, r3, #1
 	str	r3, [fp, #-24]
-.L379:
+.L362:
 	ldr	r3, [fp, #-24]
 	cmp	r3, #24
-	ble	.L383
-	b	.L385
-.L384:
+	ble	.L366
+	b	.L368
+.L367:
 	nop
-.L385:
+.L368:
 	nop
 	sub	sp, fp, #20
 	@ sp needed
 	vldm	sp!, {d8}
 	pop	{r4, r5, fp, pc}
-.L387:
+.L370:
 	.align	2
-.L386:
+.L369:
 	.word	-999292928
 	.word	-1006174208
 	.word	1149698048
@@ -6972,13 +6804,13 @@ DrawDebugLogs:
 	.size	DrawDebugLogs, .-DrawDebugLogs
 	.section	.rodata
 	.align	2
-.LC56:
+.LC57:
 	.ascii	"FPS\000"
 	.align	2
-.LC57:
+.LC58:
 	.ascii	"%.2f\000"
 	.align	2
-.LC58:
+.LC59:
 	.ascii	"0\000"
 	.align	2
 .LC7:
@@ -6996,7 +6828,7 @@ DrawDebugLogs:
 DrawFpsGraph:
 	@ args = 0, pretend = 0, frame = 120
 	@ frame_needed = 1, uses_anonymous_args = 0
-	PUSH	{r4, fp, lr}
+	push	{r4, fp, lr}
 	add	fp, sp, #8
 	sub	sp, sp, #156
 	str	r0, [fp, #-128]
@@ -7004,10 +6836,10 @@ DrawFpsGraph:
 	str	r3, [fp, #-32]
 	mov	r3, #200
 	str	r3, [fp, #-36]
-	vldr.32	s14, .L415+64
-	vldr.32	s15, .L415+68
+	vldr.32	s14, .L398+64
+	vldr.32	s15, .L398+68
 	vadd.f32	s15, s14, s15
-	vldr.32	s14, .L415+92
+	vldr.32	s14, .L398+92
 	vsub.f32	s14, s15, s14
 	ldr	r3, [fp, #-32]
 	vmov	s15, r3	@ int
@@ -7016,8 +6848,8 @@ DrawFpsGraph:
 	vcvt.s32.f32	s15, s15
 	vmov	r3, s15	@ int
 	str	r3, [fp, #-40]
-	vldr.32	s14, .L415+76
-	vldr.32	s15, .L415
+	vldr.32	s14, .L398+76
+	vldr.32	s15, .L398
 	vadd.f32	s15, s14, s15
 	vcvt.s32.f32	s15, s15
 	vmov	r3, s15	@ int
@@ -7026,9 +6858,9 @@ DrawFpsGraph:
 	str	r3, [fp, #-16]	@ float
 	mov	r3, #0
 	str	r3, [fp, #-20]
-	b	.L389
-.L392:
-	ldr	r2, .L415+12
+	b	.L372
+.L375:
+	ldr	r2, .L398+12
 	ldr	r3, [fp, #-20]
 	ldr	r3, [r2, r3, lsl #2]
 	vmov	s15, r3	@ int
@@ -7036,22 +6868,22 @@ DrawFpsGraph:
 	vldr.32	s14, [fp, #-16]
 	vcmpe.f32	s14, s15
 	vmrs	APSR_nzcv, FPSCR
-	bpl	.L390
-	ldr	r2, .L415+12
+	bpl	.L373
+	ldr	r2, .L398+12
 	ldr	r3, [fp, #-20]
 	ldr	r3, [r2, r3, lsl #2]
 	vmov	s15, r3	@ int
 	vcvt.f32.s32	s15, s15
 	vstr.32	s15, [fp, #-16]
-.L390:
+.L373:
 	ldr	r3, [fp, #-20]
 	add	r3, r3, #1
 	str	r3, [fp, #-20]
-.L389:
+.L372:
 	ldr	r3, [fp, #-20]
 	cmp	r3, #500
-	blt	.L392
-	ldr	r3, .L415+44
+	blt	.L375
+	ldr	r3, .L398+44
 	ldr	r3, [r3]
 	ldr	r3, [r3, #8]
 	vmov	s15, r3	@ int
@@ -7059,30 +6891,30 @@ DrawFpsGraph:
 	vldr.32	s14, [fp, #-16]
 	vcmpe.f32	s14, s15
 	vmrs	APSR_nzcv, FPSCR
-	bpl	.L411
+	bpl	.L394
 	ldr	r3, [fp, #-36]
 	vmov	s15, r3	@ int
 	vcvt.f32.s32	s13, s15
-	ldr	r3, .L415+44
+	ldr	r3, .L398+44
 	ldr	r3, [r3]
 	ldr	r3, [r3, #8]
 	vmov	s15, r3	@ int
 	vcvt.f32.s32	s14, s15
 	vdiv.f32	s15, s13, s14
 	vstr.32	s15, [fp, #-24]
-	b	.L395
-.L411:
+	b	.L378
+.L394:
 	ldr	r3, [fp, #-36]
 	vmov	s15, r3	@ int
 	vcvt.f32.s32	s13, s15
 	vldr.32	s14, [fp, #-16]
 	vdiv.f32	s15, s13, s14
 	vstr.32	s15, [fp, #-24]
-.L395:
-	ldr	r3, .L415+36
+.L378:
+	ldr	r3, .L398+36
 	ldr	r3, [r3]
 	str	r3, [fp, #-72]
-	vldr.32	s0, .L415+4
+	vldr.32	s0, .L398+4
 	ldr	r0, [fp, #-72]
 	bl	Fade
 	mov	r3, r0
@@ -7096,8 +6928,8 @@ DrawFpsGraph:
 	bl	DrawRectangle
 	mov	r3, #1
 	str	r3, [fp, #-28]
-	b	.L396
-.L402:
+	b	.L379
+.L385:
 	ldr	r2, [fp, #-40]
 	ldr	r3, [fp, #-28]
 	add	r3, r2, r3
@@ -7112,12 +6944,12 @@ DrawFpsGraph:
 	add	r3, r2, r3
 	vmov	s15, r3	@ int
 	vcvt.f32.s32	s14, s15
-	ldr	r3, .L415+16
+	ldr	r3, .L398+16
 	ldr	r2, [r3]
 	ldr	r3, [fp, #-28]
 	add	r3, r2, r3
 	sub	r1, r3, #1
-	ldr	r3, .L415+20
+	ldr	r3, .L398+20
 	smull	r2, r3, r3, r1
 	asr	r2, r3, #5
 	asr	r3, r1, #31
@@ -7129,7 +6961,7 @@ DrawFpsGraph:
 	add	r3, r3, r2
 	lsl	r3, r3, #2
 	sub	r2, r1, r3
-	ldr	r3, .L415+12
+	ldr	r3, .L398+12
 	ldr	r3, [r3, r2, lsl #2]
 	vmov	s15, r3	@ int
 	vcvt.f32.s32	s13, s15
@@ -7144,11 +6976,11 @@ DrawFpsGraph:
 	add	r3, r2, r3
 	vmov	s15, r3	@ int
 	vcvt.f32.s32	s14, s15
-	ldr	r3, .L415+16
+	ldr	r3, .L398+16
 	ldr	r2, [r3]
 	ldr	r3, [fp, #-28]
 	add	r1, r2, r3
-	ldr	r3, .L415+20
+	ldr	r3, .L398+20
 	smull	r2, r3, r3, r1
 	asr	r2, r3, #5
 	asr	r3, r1, #31
@@ -7160,7 +6992,7 @@ DrawFpsGraph:
 	add	r3, r3, r2
 	lsl	r3, r3, #2
 	sub	r2, r1, r3
-	ldr	r3, .L415+12
+	ldr	r3, .L398+12
 	ldr	r3, [r3, r2, lsl #2]
 	vmov	s15, r3	@ int
 	vcvt.f32.s32	s13, s15
@@ -7170,11 +7002,11 @@ DrawFpsGraph:
 	vcvt.s32.f32	s15, s15
 	vmov	r3, s15	@ int
 	str	r3, [fp, #-60]
-	ldr	r3, .L415+16
+	ldr	r3, .L398+16
 	ldr	r2, [r3]
 	ldr	r3, [fp, #-28]
 	add	r1, r2, r3
-	ldr	r3, .L415+20
+	ldr	r3, .L398+20
 	smull	r2, r3, r3, r1
 	asr	r2, r3, #5
 	asr	r3, r1, #31
@@ -7186,11 +7018,11 @@ DrawFpsGraph:
 	add	r3, r3, r2
 	lsl	r3, r3, #2
 	sub	r2, r1, r3
-	ldr	r3, .L415+12
+	ldr	r3, .L398+12
 	ldr	r3, [r3, r2, lsl #2]
 	vmov	s15, r3	@ int
 	vcvt.f32.s32	s13, s15
-	ldr	r3, .L415+44
+	ldr	r3, .L398+44
 	ldr	r3, [r3]
 	ldr	r3, [r3, #8]
 	vmov	s15, r3	@ int
@@ -7198,27 +7030,27 @@ DrawFpsGraph:
 	vdiv.f32	s15, s13, s14
 	vstr.32	s15, [fp, #-64]
 	vldr.32	s15, [fp, #-64]
-	vldr.32	s14, .L415+8
+	vldr.32	s14, .L398+8
 	vcmpe.f32	s15, s14
 	vmrs	APSR_nzcv, FPSCR
-	blt	.L412
-	ldr	r3, .L415+24
+	blt	.L395
+	ldr	r3, .L398+24
 	ldr	r3, [r3]
 	str	r3, [fp, #-112]
-	b	.L399
-.L412:
+	b	.L382
+.L395:
 	vldr.32	s15, [fp, #-64]
-	vldr.32	s14, .L415+4
+	vldr.32	s14, .L398+4
 	vcmpe.f32	s15, s14
 	vmrs	APSR_nzcv, FPSCR
-	blt	.L413
-	ldr	r3, .L415+28
+	blt	.L396
+	ldr	r3, .L398+28
 	ldr	r3, [r3]
 	str	r3, [fp, #-112]
-	b	.L399
-.L416:
+	b	.L382
+.L399:
 	.align	2
-.L415:
+.L398:
 	.word	1103626240
 	.word	1060320051
 	.word	1063675494
@@ -7229,12 +7061,12 @@ DrawFpsGraph:
 	.word	.LC2
 	.word	.LC3
 	.word	.LC6
-	.word	.LC56
-	.word	options
 	.word	.LC57
+	.word	options
+	.word	.LC58
 	.word	.LC1
 	.word	meowFont
-	.word	.LC58
+	.word	.LC59
 	.word	-999292928
 	.word	1156579328
 	.word	1112014848
@@ -7243,11 +7075,11 @@ DrawFpsGraph:
 	.word	1101004800
 	.word	1073741824
 	.word	1097859072
-.L413:
-	ldr	r3, .L415+32
+.L396:
+	ldr	r3, .L398+32
 	ldr	r3, [r3]
 	str	r3, [fp, #-112]
-.L399:
+.L382:
 	ldr	r3, [fp, #-112]
 	str	r3, [sp]
 	ldr	r3, [fp, #-60]
@@ -7258,29 +7090,29 @@ DrawFpsGraph:
 	ldr	r3, [fp, #-28]
 	add	r3, r3, #1
 	str	r3, [fp, #-28]
-.L396:
+.L379:
 	ldr	r3, [fp, #-28]
 	cmp	r3, #500
-	blt	.L402
-	vldr.32	s14, .L415+64
-	vldr.32	s15, .L415+68
+	blt	.L385
+	vldr.32	s14, .L398+64
+	vldr.32	s15, .L398+68
 	vadd.f32	s15, s14, s15
-	vldr.32	s14, .L415+72
+	vldr.32	s14, .L398+72
 	vsub.f32	s15, s15, s14
 	vstr.32	s15, [fp, #-80]
-	vldr.32	s14, .L415+76
-	vldr.32	s15, .L415+80
+	vldr.32	s14, .L398+76
+	vldr.32	s15, .L398+80
 	vadd.f32	s15, s14, s15
 	vstr.32	s15, [fp, #-76]
-	ldr	r3, .L415+36
+	ldr	r3, .L398+36
 	ldr	r3, [r3]
 	str	r3, [fp, #-84]
 	vldr.32	s14, [fp, #-80]
 	vldr.32	s15, [fp, #-76]
-	ldr	r4, .L415+56
+	ldr	r4, .L398+56
 	ldr	r3, [fp, #-84]
 	str	r3, [sp, #28]
-	ldr	r3, .L415+40
+	ldr	r3, .L398+40
 	str	r3, [sp, #24]
 	mov	lr, sp
 	add	ip, r4, #16
@@ -7289,12 +7121,12 @@ DrawFpsGraph:
 	ldm	ip, {r0, r1}
 	stm	lr, {r0, r1}
 	ldm	r4, {r0, r1, r2, r3}
-	vldr.32	s3, .L415+88
-	vldr.32	s2, .L415+84
+	vldr.32	s3, .L398+88
+	vldr.32	s2, .L398+84
 	vmov.f32	s0, s14
 	vmov.f32	s1, s15
 	bl	DrawTextEx
-	ldr	r3, .L415+44
+	ldr	r3, .L398+44
 	ldr	r3, [r3]
 	ldr	r3, [r3, #8]
 	vmov	s15, r3	@ int
@@ -7302,19 +7134,19 @@ DrawFpsGraph:
 	vldr.32	s14, [fp, #-16]
 	vcmpe.f32	s14, s15
 	vmrs	APSR_nzcv, FPSCR
-	ble	.L414
+	ble	.L397
 	vldr.32	s15, [fp, #-16]
-	b	.L405
-.L414:
-	ldr	r3, .L415+44
+	b	.L388
+.L397:
+	ldr	r3, .L398+44
 	ldr	r3, [r3]
 	ldr	r3, [r3, #8]
 	vmov	s15, r3	@ int
 	vcvt.f32.s32	s15, s15
-.L405:
+.L388:
 	vcvt.f64.f32	d7, s15
 	vmov	r2, r3, d7
-	ldr	r0, .L415+48
+	ldr	r0, .L398+48
 	bl	TextFormat
 	mov	r2, r0
 	ldr	r3, [fp, #-40]
@@ -7327,12 +7159,12 @@ DrawFpsGraph:
 	vmov	s15, r3	@ int
 	vcvt.f32.s32	s15, s15
 	vstr.32	s15, [fp, #-88]
-	ldr	r3, .L415+52
+	ldr	r3, .L398+52
 	ldr	r3, [r3]
 	str	r3, [fp, #-96]
 	vldr.32	s14, [fp, #-92]
 	vldr.32	s15, [fp, #-88]
-	ldr	r4, .L415+56
+	ldr	r4, .L398+56
 	ldr	r3, [fp, #-96]
 	str	r3, [sp, #28]
 	str	r2, [sp, #24]
@@ -7343,8 +7175,8 @@ DrawFpsGraph:
 	ldm	ip, {r0, r1}
 	stm	lr, {r0, r1}
 	ldm	r4, {r0, r1, r2, r3}
-	vldr.32	s3, .L415+88
-	vldr.32	s2, .L415+92
+	vldr.32	s3, .L398+88
+	vldr.32	s2, .L398+92
 	vmov.f32	s0, s14
 	vmov.f32	s1, s15
 	bl	DrawTextEx
@@ -7360,15 +7192,15 @@ DrawFpsGraph:
 	vmov	s15, r3	@ int
 	vcvt.f32.s32	s15, s15
 	vstr.32	s15, [fp, #-100]
-	ldr	r3, .L415+52
+	ldr	r3, .L398+52
 	ldr	r3, [r3]
 	str	r3, [fp, #-108]
 	vldr.32	s14, [fp, #-104]
 	vldr.32	s15, [fp, #-100]
-	ldr	r4, .L415+56
+	ldr	r4, .L398+56
 	ldr	r3, [fp, #-108]
 	str	r3, [sp, #28]
-	ldr	r3, .L415+60
+	ldr	r3, .L398+60
 	str	r3, [sp, #24]
 	mov	lr, sp
 	add	ip, r4, #16
@@ -7377,8 +7209,8 @@ DrawFpsGraph:
 	ldm	ip, {r0, r1}
 	stm	lr, {r0, r1}
 	ldm	r4, {r0, r1, r2, r3}
-	vldr.32	s3, .L415+88
-	vldr.32	s2, .L415+92
+	vldr.32	s3, .L398+88
+	vldr.32	s2, .L398+92
 	vmov.f32	s0, s14
 	vmov.f32	s1, s15
 	bl	DrawTextEx
@@ -7389,7 +7221,7 @@ DrawFpsGraph:
 	.size	DrawFpsGraph, .-DrawFpsGraph
 	.section	.rodata
 	.align	2
-.LC59:
+.LC60:
 	.ascii	"Frame Time (ms)\000"
 	.text
 	.align	2
@@ -7401,7 +7233,7 @@ DrawFpsGraph:
 DrawFrameTime:
 	@ args = 0, pretend = 0, frame = 128
 	@ frame_needed = 1, uses_anonymous_args = 0
-	PUSH	{r4, fp, lr}
+	push	{r4, fp, lr}
 	add	fp, sp, #8
 	sub	sp, sp, #164
 	str	r0, [fp, #-136]
@@ -7409,10 +7241,10 @@ DrawFrameTime:
 	str	r3, [fp, #-28]
 	mov	r3, #200
 	str	r3, [fp, #-32]
-	vldr.32	s14, .L444+76
-	vldr.32	s15, .L444+84
+	vldr.32	s14, .L427+76
+	vldr.32	s15, .L427+84
 	vadd.f32	s15, s14, s15
-	vldr.32	s14, .L444+100
+	vldr.32	s14, .L427+100
 	vsub.f32	s14, s15, s14
 	ldr	r3, [fp, #-28]
 	vmov	s15, r3	@ int
@@ -7421,27 +7253,27 @@ DrawFrameTime:
 	vcvt.s32.f32	s15, s15
 	vmov	r3, s15	@ int
 	str	r3, [fp, #-36]
-	vldr.32	s14, .L444
-	vldr.32	s15, .L444+4
+	vldr.32	s14, .L427
+	vldr.32	s15, .L427+4
 	vadd.f32	s15, s14, s15
 	vcvt.s32.f32	s15, s15
 	vmov	r3, s15	@ int
 	str	r3, [fp, #-40]
-	ldr	r3, .L444+24
+	ldr	r3, .L427+24
 	ldr	r3, [r3]
 	ldr	r3, [r3, #8]
 	vmov	s15, r3	@ int
 	vcvt.f32.s32	s14, s15
-	vldr.32	s13, .L444+8
+	vldr.32	s13, .L427+8
 	vdiv.f32	s15, s13, s14
 	vstr.32	s15, [fp, #-44]
 	mov	r3, #0
 	str	r3, [fp, #-16]	@ float
 	mov	r3, #0
 	str	r3, [fp, #-20]
-	b	.L418
-.L421:
-	ldr	r2, .L444+28
+	b	.L401
+.L404:
+	ldr	r2, .L427+28
 	ldr	r3, [fp, #-20]
 	ldr	r3, [r2, r3, lsl #2]
 	vmov	s15, r3	@ int
@@ -7449,47 +7281,47 @@ DrawFrameTime:
 	vldr.32	s14, [fp, #-16]
 	vcmpe.f32	s14, s15
 	vmrs	APSR_nzcv, FPSCR
-	bpl	.L419
-	ldr	r2, .L444+28
+	bpl	.L402
+	ldr	r2, .L427+28
 	ldr	r3, [fp, #-20]
 	ldr	r3, [r2, r3, lsl #2]
 	vmov	s15, r3	@ int
 	vcvt.f32.s32	s15, s15
 	vstr.32	s15, [fp, #-16]
-.L419:
+.L402:
 	ldr	r3, [fp, #-20]
 	add	r3, r3, #1
 	str	r3, [fp, #-20]
-.L418:
+.L401:
 	ldr	r3, [fp, #-20]
 	cmp	r3, #500
-	blt	.L421
-	ldr	r3, .L444+24
+	blt	.L404
+	ldr	r3, .L427+24
 	ldr	r3, [r3]
 	ldr	r3, [r3, #8]
 	vmov	s15, r3	@ int
 	vcvt.f32.s32	s14, s15
-	vldr.32	s13, .L444+8
+	vldr.32	s13, .L427+8
 	vdiv.f32	s15, s13, s14
 	vstr.32	s15, [fp, #-48]
 	vldr.32	s15, [fp, #-16]
 	vcmpe.f32	s15, #0
 	vmrs	APSR_nzcv, FPSCR
-	ble	.L440
+	ble	.L423
 	ldr	r3, [fp, #-32]
 	vmov	s15, r3	@ int
 	vcvt.f32.s32	s13, s15
 	vldr.32	s14, [fp, #-16]
 	vdiv.f32	s15, s13, s14
-	b	.L424
-.L440:
-	vldr.32	s15, .L444+12
-.L424:
+	b	.L407
+.L423:
+	vldr.32	s15, .L427+12
+.L407:
 	vstr.32	s15, [fp, #-52]
-	ldr	r3, .L444+52
+	ldr	r3, .L427+52
 	ldr	r3, [r3]
 	str	r3, [fp, #-80]
-	vldr.32	s0, .L444+16
+	vldr.32	s0, .L427+16
 	ldr	r0, [fp, #-80]
 	bl	Fade
 	mov	r3, r0
@@ -7503,8 +7335,8 @@ DrawFrameTime:
 	bl	DrawRectangle
 	mov	r3, #1
 	str	r3, [fp, #-24]
-	b	.L425
-.L431:
+	b	.L408
+.L414:
 	ldr	r2, [fp, #-36]
 	ldr	r3, [fp, #-24]
 	add	r3, r2, r3
@@ -7519,12 +7351,12 @@ DrawFrameTime:
 	add	r3, r2, r3
 	vmov	s15, r3	@ int
 	vcvt.f32.s32	s14, s15
-	ldr	r3, .L444+32
+	ldr	r3, .L427+32
 	ldr	r2, [r3]
 	ldr	r3, [fp, #-24]
 	add	r3, r2, r3
 	sub	r1, r3, #1
-	ldr	r3, .L444+36
+	ldr	r3, .L427+36
 	smull	r2, r3, r3, r1
 	asr	r2, r3, #5
 	asr	r3, r1, #31
@@ -7536,7 +7368,7 @@ DrawFrameTime:
 	add	r3, r3, r2
 	lsl	r3, r3, #2
 	sub	r2, r1, r3
-	ldr	r3, .L444+28
+	ldr	r3, .L427+28
 	ldr	r3, [r3, r2, lsl #2]
 	vmov	s15, r3	@ int
 	vcvt.f32.s32	s13, s15
@@ -7551,11 +7383,11 @@ DrawFrameTime:
 	add	r3, r2, r3
 	vmov	s15, r3	@ int
 	vcvt.f32.s32	s14, s15
-	ldr	r3, .L444+32
+	ldr	r3, .L427+32
 	ldr	r2, [r3]
 	ldr	r3, [fp, #-24]
 	add	r1, r2, r3
-	ldr	r3, .L444+36
+	ldr	r3, .L427+36
 	smull	r2, r3, r3, r1
 	asr	r2, r3, #5
 	asr	r3, r1, #31
@@ -7567,7 +7399,7 @@ DrawFrameTime:
 	add	r3, r3, r2
 	lsl	r3, r3, #2
 	sub	r2, r1, r3
-	ldr	r3, .L444+28
+	ldr	r3, .L427+28
 	ldr	r3, [r3, r2, lsl #2]
 	vmov	s15, r3	@ int
 	vcvt.f32.s32	s13, s15
@@ -7577,11 +7409,11 @@ DrawFrameTime:
 	vcvt.s32.f32	s15, s15
 	vmov	r3, s15	@ int
 	str	r3, [fp, #-68]
-	ldr	r3, .L444+32
+	ldr	r3, .L427+32
 	ldr	r2, [r3]
 	ldr	r3, [fp, #-24]
 	add	r1, r2, r3
-	ldr	r3, .L444+36
+	ldr	r3, .L427+36
 	smull	r2, r3, r3, r1
 	asr	r2, r3, #5
 	asr	r3, r1, #31
@@ -7593,7 +7425,7 @@ DrawFrameTime:
 	add	r3, r3, r2
 	lsl	r3, r3, #2
 	sub	r2, r1, r3
-	ldr	r3, .L444+28
+	ldr	r3, .L427+28
 	ldr	r3, [r3, r2, lsl #2]
 	vmov	s15, r3	@ int
 	vcvt.f32.s32	s13, s15
@@ -7601,27 +7433,27 @@ DrawFrameTime:
 	vdiv.f32	s15, s13, s14
 	vstr.32	s15, [fp, #-72]
 	vldr.32	s15, [fp, #-72]
-	vldr.32	s14, .L444+12
+	vldr.32	s14, .L427+12
 	vcmpe.f32	s15, s14
 	vmrs	APSR_nzcv, FPSCR
-	bhi	.L441
-	ldr	r3, .L444+40
+	bhi	.L424
+	ldr	r3, .L427+40
 	ldr	r3, [r3]
 	str	r3, [fp, #-120]
-	b	.L428
-.L441:
+	b	.L411
+.L424:
 	vldr.32	s15, [fp, #-72]
-	vldr.32	s14, .L444+20
+	vldr.32	s14, .L427+20
 	vcmpe.f32	s15, s14
 	vmrs	APSR_nzcv, FPSCR
-	bhi	.L442
-	ldr	r3, .L444+44
+	bhi	.L425
+	ldr	r3, .L427+44
 	ldr	r3, [r3]
 	str	r3, [fp, #-120]
-	b	.L428
-.L445:
+	b	.L411
+.L428:
 	.align	2
-.L444:
+.L427:
 	.word	-1006174208
 	.word	1132396544
 	.word	1148846080
@@ -7636,11 +7468,11 @@ DrawFrameTime:
 	.word	.LC2
 	.word	.LC3
 	.word	.LC6
-	.word	.LC59
-	.word	.LC57
+	.word	.LC60
+	.word	.LC58
 	.word	.LC1
 	.word	meowFont
-	.word	.LC58
+	.word	.LC59
 	.word	-999292928
 	.word	1124532224
 	.word	1156579328
@@ -7648,11 +7480,11 @@ DrawFrameTime:
 	.word	1101004800
 	.word	1073741824
 	.word	1097859072
-.L442:
-	ldr	r3, .L444+48
+.L425:
+	ldr	r3, .L427+48
 	ldr	r3, [r3]
 	str	r3, [fp, #-120]
-.L428:
+.L411:
 	ldr	r3, [fp, #-120]
 	str	r3, [sp]
 	ldr	r3, [fp, #-68]
@@ -7663,16 +7495,16 @@ DrawFrameTime:
 	ldr	r3, [fp, #-24]
 	add	r3, r3, #1
 	str	r3, [fp, #-24]
-.L425:
+.L408:
 	ldr	r3, [fp, #-24]
 	cmp	r3, #500
-	blt	.L431
-	vldr.32	s14, .L444+76
-	vldr.32	s15, .L444+80
+	blt	.L414
+	vldr.32	s14, .L427+76
+	vldr.32	s15, .L427+80
 	vsub.f32	s15, s14, s15
-	vldr.32	s14, .L444+84
+	vldr.32	s14, .L427+84
 	vadd.f32	s15, s15, s14
-	vldr.32	s14, .L444+88
+	vldr.32	s14, .L427+88
 	vsub.f32	s15, s15, s14
 	vstr.32	s15, [fp, #-88]
 	ldr	r3, [fp, #-40]
@@ -7680,15 +7512,15 @@ DrawFrameTime:
 	vmov	s15, r3	@ int
 	vcvt.f32.s32	s15, s15
 	vstr.32	s15, [fp, #-84]
-	ldr	r3, .L444+52
+	ldr	r3, .L427+52
 	ldr	r3, [r3]
 	str	r3, [fp, #-92]
 	vldr.32	s14, [fp, #-88]
 	vldr.32	s15, [fp, #-84]
-	ldr	r4, .L444+68
+	ldr	r4, .L427+68
 	ldr	r3, [fp, #-92]
 	str	r3, [sp, #28]
-	ldr	r3, .L444+56
+	ldr	r3, .L427+56
 	str	r3, [sp, #24]
 	mov	lr, sp
 	add	ip, r4, #16
@@ -7697,8 +7529,8 @@ DrawFrameTime:
 	ldm	ip, {r0, r1}
 	stm	lr, {r0, r1}
 	ldm	r4, {r0, r1, r2, r3}
-	vldr.32	s3, .L444+96
-	vldr.32	s2, .L444+92
+	vldr.32	s3, .L427+96
+	vldr.32	s2, .L427+92
 	vmov.f32	s0, s14
 	vmov.f32	s1, s15
 	bl	DrawTextEx
@@ -7706,15 +7538,15 @@ DrawFrameTime:
 	vldr.32	s15, [fp, #-48]
 	vcmpe.f32	s14, s15
 	vmrs	APSR_nzcv, FPSCR
-	ble	.L443
+	ble	.L426
 	vldr.32	s15, [fp, #-16]
-	b	.L434
-.L443:
+	b	.L417
+.L426:
 	vldr.32	s15, [fp, #-48]
-.L434:
+.L417:
 	vcvt.f64.f32	d7, s15
 	vmov	r2, r3, d7
-	ldr	r0, .L444+60
+	ldr	r0, .L427+60
 	bl	TextFormat
 	mov	r2, r0
 	ldr	r3, [fp, #-36]
@@ -7727,12 +7559,12 @@ DrawFrameTime:
 	vmov	s15, r3	@ int
 	vcvt.f32.s32	s15, s15
 	vstr.32	s15, [fp, #-96]
-	ldr	r3, .L444+64
+	ldr	r3, .L427+64
 	ldr	r3, [r3]
 	str	r3, [fp, #-104]
 	vldr.32	s14, [fp, #-100]
 	vldr.32	s15, [fp, #-96]
-	ldr	r4, .L444+68
+	ldr	r4, .L427+68
 	ldr	r3, [fp, #-104]
 	str	r3, [sp, #28]
 	str	r2, [sp, #24]
@@ -7743,8 +7575,8 @@ DrawFrameTime:
 	ldm	ip, {r0, r1}
 	stm	lr, {r0, r1}
 	ldm	r4, {r0, r1, r2, r3}
-	vldr.32	s3, .L444+96
-	vldr.32	s2, .L444+100
+	vldr.32	s3, .L427+96
+	vldr.32	s2, .L427+100
 	vmov.f32	s0, s14
 	vmov.f32	s1, s15
 	bl	DrawTextEx
@@ -7760,15 +7592,15 @@ DrawFrameTime:
 	vmov	s15, r3	@ int
 	vcvt.f32.s32	s15, s15
 	vstr.32	s15, [fp, #-108]
-	ldr	r3, .L444+64
+	ldr	r3, .L427+64
 	ldr	r3, [r3]
 	str	r3, [fp, #-116]
 	vldr.32	s14, [fp, #-112]
 	vldr.32	s15, [fp, #-108]
-	ldr	r4, .L444+68
+	ldr	r4, .L427+68
 	ldr	r3, [fp, #-116]
 	str	r3, [sp, #28]
-	ldr	r3, .L444+72
+	ldr	r3, .L427+72
 	str	r3, [sp, #24]
 	mov	lr, sp
 	add	ip, r4, #16
@@ -7777,8 +7609,8 @@ DrawFrameTime:
 	ldm	ip, {r0, r1}
 	stm	lr, {r0, r1}
 	ldm	r4, {r0, r1, r2, r3}
-	vldr.32	s3, .L444+96
-	vldr.32	s2, .L444+100
+	vldr.32	s3, .L427+96
+	vldr.32	s2, .L427+100
 	vmov.f32	s0, s14
 	vmov.f32	s1, s15
 	bl	DrawTextEx
@@ -7796,18 +7628,18 @@ DrawFrameTime:
 UpdateDebugFpsHistory:
 	@ args = 0, pretend = 0, frame = 0
 	@ frame_needed = 1, uses_anonymous_args = 0
-	PUSH	{r4, r5, fp, lr}
+	push	{r4, r5, fp, lr}
 	add	fp, sp, #12
-	ldr	r3, .L447
+	ldr	r3, .L430
 	ldr	r4, [r3]
 	bl	GetFPS
 	mov	r3, r0
-	ldr	r2, .L447+4
+	ldr	r2, .L430+4
 	str	r3, [r2, r4, lsl #2]
-	ldr	r3, .L447
+	ldr	r3, .L430
 	ldr	r3, [r3]
 	add	r1, r3, #1
-	ldr	r3, .L447+8
+	ldr	r3, .L430+8
 	smull	r2, r3, r3, r1
 	asr	r2, r3, #5
 	asr	r3, r1, #31
@@ -7819,13 +7651,13 @@ UpdateDebugFpsHistory:
 	add	r3, r3, r2
 	lsl	r3, r3, #2
 	sub	r2, r1, r3
-	ldr	r3, .L447
+	ldr	r3, .L430
 	str	r2, [r3]
 	nop
 	pop	{r4, r5, fp, pc}
-.L448:
+.L431:
 	.align	2
-.L447:
+.L430:
 	.word	DebugFpsHistoryIndex
 	.word	DebugFpsHistory
 	.word	274877907
@@ -7839,22 +7671,22 @@ UpdateDebugFpsHistory:
 UpdateDebugFrameTimeHistory:
 	@ args = 0, pretend = 0, frame = 0
 	@ frame_needed = 1, uses_anonymous_args = 0
-	PUSH	{fp, lr}
+	push	{fp, lr}
 	add	fp, sp, #4
 	bl	GetFrameTime
 	vmov.f32	s15, s0
-	vldr.32	s14, .L450
+	vldr.32	s14, .L433
 	vmul.f32	s15, s15, s14
-	ldr	r3, .L450+4
+	ldr	r3, .L433+4
 	ldr	r3, [r3]
 	vcvt.s32.f32	s15, s15
 	vmov	r1, s15	@ int
-	ldr	r2, .L450+8
+	ldr	r2, .L433+8
 	str	r1, [r2, r3, lsl #2]
-	ldr	r3, .L450+4
+	ldr	r3, .L433+4
 	ldr	r3, [r3]
 	add	r1, r3, #1
-	ldr	r3, .L450+12
+	ldr	r3, .L433+12
 	smull	r2, r3, r3, r1
 	asr	r2, r3, #5
 	asr	r3, r1, #31
@@ -7866,13 +7698,13 @@ UpdateDebugFrameTimeHistory:
 	add	r3, r3, r2
 	lsl	r3, r3, #2
 	sub	r2, r1, r3
-	ldr	r3, .L450+4
+	ldr	r3, .L433+4
 	str	r2, [r3]
 	nop
 	pop	{fp, pc}
-.L451:
+.L434:
 	.align	2
-.L450:
+.L433:
 	.word	1148846080
 	.word	DebugFrameTimeHistoryIndex
 	.word	DebugFrameTimeHistory
@@ -7880,15 +7712,15 @@ UpdateDebugFrameTimeHistory:
 	.size	UpdateDebugFrameTimeHistory, .-UpdateDebugFrameTimeHistory
 	.section	.rodata
 	.align	2
-.LC60:
+.LC61:
 	.ascii	"%d FPS | Target FPS %d | Window (%dx%d) | Render (%"
 	.ascii	"dx%d) | Fullscreen \000"
 	.align	2
-.LC61:
+.LC62:
 	.ascii	"Cursor %.2f,%.2f (%dx%d) | World %.2f,%.2f (%dx%d) "
 	.ascii	"| R Base World %.2f,%.2f\000"
 	.align	2
-.LC62:
+.LC63:
 	.ascii	"Zoom %.2f | In View %s\000"
 	.text
 	.align	2
@@ -7900,19 +7732,19 @@ UpdateDebugFrameTimeHistory:
 DrawDebugStats:
 	@ args = 0, pretend = 0, frame = 88
 	@ frame_needed = 1, uses_anonymous_args = 0
-	PUSH	{r4, fp, lr}
-	vPUSH.64	{d8}
+	push	{r4, fp, lr}
+	vpush.64	{d8}
 	add	fp, sp, #16
 	sub	sp, sp, #148
 	str	r0, [fp, #-104]
-	vldr.32	s15, .L464
+	vldr.32	s15, .L447
 	vcvt.s32.f32	s16, s15
-	vldr.32	s15, .L464+4
+	vldr.32	s15, .L447+4
 	vcvt.s32.f32	s17, s15
-	ldr	r3, .L464+40
+	ldr	r3, .L447+40
 	ldr	r3, [r3]
 	str	r3, [fp, #-32]
-	vldr.32	s0, .L464+8
+	vldr.32	s0, .L447+8
 	ldr	r0, [fp, #-32]
 	bl	Fade
 	mov	r3, r0
@@ -7920,11 +7752,11 @@ DrawDebugStats:
 	ldr	r3, [fp, #-28]
 	str	r3, [sp]
 	mov	r3, #70
-	ldr	r2, .L464+44
+	ldr	r2, .L447+44
 	vmov	r1, s17	@ int
 	vmov	r0, s16	@ int
 	bl	DrawRectangle
-	ldr	r3, .L464+48
+	ldr	r3, .L447+48
 	ldr	r3, [r3]
 	str	r3, [fp, #-36]
 	bl	GetFPS
@@ -7932,38 +7764,38 @@ DrawDebugStats:
 	ldr	r3, [fp, #-24]
 	vmov	s15, r3	@ int
 	vcvt.f32.s32	s14, s15
-	ldr	r3, .L464+52
+	ldr	r3, .L447+52
 	ldr	r3, [r3]
 	ldr	r3, [r3, #8]
 	vmov	s15, r3	@ int
 	vcvt.f32.s32	s15, s15
-	vldr.32	s13, .L464+8
+	vldr.32	s13, .L447+8
 	vmul.f32	s15, s15, s13
 	vcmpe.f32	s14, s15
 	vmrs	APSR_nzcv, FPSCR
-	bpl	.L463
-	ldr	r3, .L464+56
+	bpl	.L446
+	ldr	r3, .L447+56
 	ldr	r3, [r3]
 	str	r3, [fp, #-36]
-	b	.L455
-.L463:
+	b	.L438
+.L446:
 	ldr	r3, [fp, #-24]
 	vmov	s15, r3	@ int
 	vcvt.f32.s32	s14, s15
-	ldr	r3, .L464+52
+	ldr	r3, .L447+52
 	ldr	r3, [r3]
 	ldr	r3, [r3, #8]
 	vmov	s15, r3	@ int
 	vcvt.f32.s32	s15, s15
-	vldr.32	s13, .L464+12
+	vldr.32	s13, .L447+12
 	vmul.f32	s15, s15, s13
 	vcmpe.f32	s14, s15
 	vmrs	APSR_nzcv, FPSCR
-	bpl	.L455
-	ldr	r3, .L464+60
+	bpl	.L438
+	ldr	r3, .L447+60
 	ldr	r3, [r3]
 	str	r3, [fp, #-36]
-.L455:
+.L438:
 	bl	GetMousePosition
 	vmov.f32	s14, s0
 	vmov.f32	s15, s1
@@ -7984,27 +7816,27 @@ DrawDebugStats:
 	vmov.f32	s15, s1
 	vstr.32	s14, [fp, #-56]
 	vstr.32	s15, [fp, #-52]
-	ldr	r3, .L464+52
+	ldr	r3, .L447+52
 	ldr	r3, [r3]
 	ldr	r1, [r3, #8]
-	ldr	r3, .L464+52
+	ldr	r3, .L447+52
 	ldr	r3, [r3]
 	ldr	r0, [r3]
-	ldr	r3, .L464+52
+	ldr	r3, .L447+52
 	ldr	r3, [r3]
 	ldr	r3, [r3, #4]
-	ldr	r2, .L464+52
+	ldr	r2, .L447+52
 	ldr	r2, [r2]
 	ldrb	r2, [r2, #12]	@ zero_extendqisi2
 	cmp	r2, #0
-	beq	.L457
-	ldr	r2, .L464+64
-	b	.L458
-.L457:
-	ldr	r2, .L464+68
-.L458:
+	beq	.L440
+	ldr	r2, .L447+64
+	b	.L441
+.L440:
+	ldr	r2, .L447+68
+.L441:
 	str	r2, [sp, #12]
-	ldr	r2, .L464+72
+	ldr	r2, .L447+72
 	str	r2, [sp, #8]
 	mov	r2, #1920
 	str	r2, [sp, #4]
@@ -8012,20 +7844,20 @@ DrawDebugStats:
 	mov	r3, r0
 	mov	r2, r1
 	ldr	r1, [fp, #-24]
-	ldr	r0, .L464+76
+	ldr	r0, .L447+76
 	bl	TextFormat
 	mov	r2, r0
-	vldr.32	s14, .L464
-	vldr.32	s15, .L464+16
+	vldr.32	s14, .L447
+	vldr.32	s15, .L447+16
 	vadd.f32	s15, s14, s15
 	vstr.32	s15, [fp, #-64]
-	vldr.32	s14, .L464+4
-	vldr.32	s15, .L464+20
+	vldr.32	s14, .L447+4
+	vldr.32	s15, .L447+20
 	vadd.f32	s15, s14, s15
 	vstr.32	s15, [fp, #-60]
 	vldr.32	s14, [fp, #-64]
 	vldr.32	s15, [fp, #-60]
-	ldr	r4, .L464+80
+	ldr	r4, .L447+80
 	ldr	r3, [fp, #-36]
 	str	r3, [sp, #28]
 	str	r2, [sp, #24]
@@ -8036,8 +7868,8 @@ DrawDebugStats:
 	ldm	ip, {r0, r1}
 	stm	lr, {r0, r1}
 	ldm	r4, {r0, r1, r2, r3}
-	vldr.32	s3, .L464+24
-	vldr.32	s2, .L464+28
+	vldr.32	s3, .L447+24
+	vldr.32	s2, .L447+28
 	vmov.f32	s0, s14
 	vmov.f32	s1, s15
 	bl	DrawTextEx
@@ -8045,10 +7877,10 @@ DrawDebugStats:
 	vcvt.f64.f32	d2, s15
 	vldr.32	s15, [fp, #-44]
 	vcvt.f64.f32	d7, s15
-	ldr	r3, .L464+52
+	ldr	r3, .L447+52
 	ldr	r3, [r3]
 	ldr	r3, [r3]
-	ldr	r2, .L464+52
+	ldr	r2, .L447+52
 	ldr	r2, [r2]
 	ldr	r2, [r2, #4]
 	vldr.32	s13, [fp, #-56]
@@ -8056,16 +7888,16 @@ DrawDebugStats:
 	vldr.32	s11, [fp, #-52]
 	vcvt.f64.f32	d5, s11
 	vldr.32	s9, [fp, #-56]
-	vldr.32	s8, .L464
+	vldr.32	s8, .L447
 	vsub.f32	s9, s9, s8
 	vcvt.f64.f32	d4, s9
 	vldr.32	s7, [fp, #-52]
-	vldr.32	s6, .L464+4
+	vldr.32	s6, .L447+4
 	vsub.f32	s7, s7, s6
 	vcvt.f64.f32	d3, s7
 	vstr.64	d3, [sp, #48]
 	vstr.64	d4, [sp, #40]
-	ldr	r1, .L464+72
+	ldr	r1, .L447+72
 	str	r1, [sp, #36]
 	mov	r1, #1920
 	str	r1, [sp, #32]
@@ -8075,23 +7907,23 @@ DrawDebugStats:
 	str	r3, [sp, #8]
 	vstr.64	d7, [sp]
 	vmov	r2, r3, d2
-	ldr	r0, .L464+84
+	ldr	r0, .L447+84
 	bl	TextFormat
 	mov	r2, r0
-	vldr.32	s14, .L464
-	vldr.32	s15, .L464+16
+	vldr.32	s14, .L447
+	vldr.32	s15, .L447+16
 	vadd.f32	s15, s14, s15
 	vstr.32	s15, [fp, #-72]
-	vldr.32	s14, .L464+4
-	vldr.32	s15, .L464+32
+	vldr.32	s14, .L447+4
+	vldr.32	s15, .L447+32
 	vadd.f32	s15, s14, s15
 	vstr.32	s15, [fp, #-68]
-	ldr	r3, .L464+88
+	ldr	r3, .L447+88
 	ldr	r3, [r3]
 	str	r3, [fp, #-76]
 	vldr.32	s14, [fp, #-72]
 	vldr.32	s15, [fp, #-68]
-	ldr	r4, .L464+80
+	ldr	r4, .L447+80
 	ldr	r3, [fp, #-76]
 	str	r3, [sp, #28]
 	str	r2, [sp, #24]
@@ -8102,8 +7934,8 @@ DrawDebugStats:
 	ldm	ip, {r0, r1}
 	stm	lr, {r0, r1}
 	ldm	r4, {r0, r1, r2, r3}
-	vldr.32	s3, .L464+24
-	vldr.32	s2, .L464+28
+	vldr.32	s3, .L447+24
+	vldr.32	s2, .L447+28
 	vmov.f32	s0, s14
 	vmov.f32	s1, s15
 	bl	DrawTextEx
@@ -8114,31 +7946,31 @@ DrawDebugStats:
 	bl	IsMousePositionInGameWindow
 	mov	r3, r0
 	cmp	r3, #0
-	beq	.L459
-	ldr	r3, .L464+64
-	b	.L460
-.L459:
-	ldr	r3, .L464+68
-.L460:
+	beq	.L442
+	ldr	r3, .L447+64
+	b	.L443
+.L442:
+	ldr	r3, .L447+68
+.L443:
 	str	r3, [sp]
 	vmov	r2, r3, d8
-	ldr	r0, .L464+92
+	ldr	r0, .L447+92
 	bl	TextFormat
 	mov	r2, r0
-	vldr.32	s14, .L464
-	vldr.32	s15, .L464+16
+	vldr.32	s14, .L447
+	vldr.32	s15, .L447+16
 	vadd.f32	s15, s14, s15
 	vstr.32	s15, [fp, #-84]
-	vldr.32	s14, .L464+4
-	vldr.32	s15, .L464+36
+	vldr.32	s14, .L447+4
+	vldr.32	s15, .L447+36
 	vadd.f32	s15, s14, s15
 	vstr.32	s15, [fp, #-80]
-	ldr	r3, .L464+88
+	ldr	r3, .L447+88
 	ldr	r3, [r3]
 	str	r3, [fp, #-88]
 	vldr.32	s14, [fp, #-84]
 	vldr.32	s15, [fp, #-80]
-	ldr	r4, .L464+80
+	ldr	r4, .L447+80
 	ldr	r3, [fp, #-88]
 	str	r3, [sp, #28]
 	str	r2, [sp, #24]
@@ -8149,8 +7981,8 @@ DrawDebugStats:
 	ldm	ip, {r0, r1}
 	stm	lr, {r0, r1}
 	ldm	r4, {r0, r1, r2, r3}
-	vldr.32	s3, .L464+24
-	vldr.32	s2, .L464+28
+	vldr.32	s3, .L447+24
+	vldr.32	s2, .L447+28
 	vmov.f32	s0, s14
 	vmov.f32	s1, s15
 	bl	DrawTextEx
@@ -8159,9 +7991,9 @@ DrawDebugStats:
 	@ sp needed
 	vldm	sp!, {d8}
 	pop	{r4, fp, pc}
-.L465:
+.L448:
 	.align	2
-.L464:
+.L447:
 	.word	-999292928
 	.word	-1006174208
 	.word	1060320051
@@ -8178,36 +8010,36 @@ DrawDebugStats:
 	.word	options
 	.word	.LC3
 	.word	.LC2
-	.word	.LC43
 	.word	.LC44
+	.word	.LC45
 	.word	1080
-	.word	.LC60
-	.word	meowFont
 	.word	.LC61
-	.word	.LC1
+	.word	meowFont
 	.word	.LC62
+	.word	.LC1
+	.word	.LC63
 	.size	DrawDebugStats, .-DrawDebugStats
 	.section	.rodata
 	.align	2
-.LC63:
+.LC64:
 	.ascii	"Debug Tools\000"
 	.align	2
-.LC64:
+.LC65:
 	.ascii	"[On]\000"
 	.align	2
-.LC65:
+.LC66:
 	.ascii	"[Off]\000"
 	.align	2
-.LC66:
+.LC67:
 	.ascii	"Logs | %s | F1\000"
 	.align	2
-.LC67:
+.LC68:
 	.ascii	"Stats | %s | F2\000"
 	.align	2
-.LC68:
+.LC69:
 	.ascii	"Graph | %s | F3\000"
 	.align	2
-.LC69:
+.LC70:
 	.ascii	"Objects | %s | F4\000"
 	.text
 	.align	2
@@ -8219,22 +8051,22 @@ DrawDebugStats:
 DrawDebugOverlay:
 	@ args = 0, pretend = 0, frame = 112
 	@ frame_needed = 1, uses_anonymous_args = 0
-	PUSH	{r4, fp, lr}
-	vPUSH.64	{d8}
+	push	{r4, fp, lr}
+	vpush.64	{d8}
 	add	fp, sp, #16
 	sub	sp, sp, #148
 	str	r0, [fp, #-128]
-	ldr	r3, .L491+48
+	ldr	r3, .L474+48
 	ldr	r3, [r3]
 	ldrb	r3, [r3, #20]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L467
-	ldr	r0, .L491+52
+	beq	.L450
+	ldr	r0, .L474+52
 	bl	IsKeyPressed
 	mov	r3, r0
 	cmp	r3, #0
-	beq	.L468
-	ldr	r3, .L491+108
+	beq	.L451
+	ldr	r3, .L474+108
 	ldrb	r3, [r3]	@ zero_extendqisi2
 	cmp	r3, #0
 	movne	r3, #1
@@ -8244,16 +8076,16 @@ DrawDebugOverlay:
 	uxtb	r3, r3
 	and	r3, r3, #1
 	uxtb	r2, r3
-	ldr	r3, .L491+108
+	ldr	r3, .L474+108
 	strb	r2, [r3]
-	b	.L467
-.L468:
-	ldr	r0, .L491+56
+	b	.L450
+.L451:
+	ldr	r0, .L474+56
 	bl	IsKeyPressed
 	mov	r3, r0
 	cmp	r3, #0
-	beq	.L469
-	ldr	r3, .L491+108
+	beq	.L452
+	ldr	r3, .L474+108
 	ldrb	r3, [r3, #1]	@ zero_extendqisi2
 	cmp	r3, #0
 	movne	r3, #1
@@ -8263,16 +8095,16 @@ DrawDebugOverlay:
 	uxtb	r3, r3
 	and	r3, r3, #1
 	uxtb	r2, r3
-	ldr	r3, .L491+108
+	ldr	r3, .L474+108
 	strb	r2, [r3, #1]
-	b	.L467
-.L469:
+	b	.L450
+.L452:
 	mov	r0, #292
 	bl	IsKeyPressed
 	mov	r3, r0
 	cmp	r3, #0
-	beq	.L470
-	ldr	r3, .L491+108
+	beq	.L453
+	ldr	r3, .L474+108
 	ldrb	r3, [r3, #2]	@ zero_extendqisi2
 	cmp	r3, #0
 	movne	r3, #1
@@ -8282,16 +8114,16 @@ DrawDebugOverlay:
 	uxtb	r3, r3
 	and	r3, r3, #1
 	uxtb	r2, r3
-	ldr	r3, .L491+108
+	ldr	r3, .L474+108
 	strb	r2, [r3, #2]
-	b	.L467
-.L470:
-	ldr	r0, .L491+60
+	b	.L450
+.L453:
+	ldr	r0, .L474+60
 	bl	IsKeyPressed
 	mov	r3, r0
 	cmp	r3, #0
-	beq	.L467
-	ldr	r3, .L491+108
+	beq	.L450
+	ldr	r3, .L474+108
 	ldrb	r3, [r3, #3]	@ zero_extendqisi2
 	cmp	r3, #0
 	movne	r3, #1
@@ -8301,31 +8133,31 @@ DrawDebugOverlay:
 	uxtb	r3, r3
 	and	r3, r3, #1
 	uxtb	r2, r3
-	ldr	r3, .L491+108
+	ldr	r3, .L474+108
 	strb	r2, [r3, #3]
-.L467:
+.L450:
 	bl	UpdateDebugFpsHistory
 	bl	UpdateDebugFrameTimeHistory
-	vldr.32	s14, .L491
-	vldr.32	s15, .L491+4
+	vldr.32	s14, .L474
+	vldr.32	s15, .L474+4
 	vadd.f32	s15, s14, s15
-	vldr.32	s14, .L491+8
+	vldr.32	s14, .L474+8
 	vsub.f32	s15, s15, s14
-	vldr.32	s14, .L491+12
+	vldr.32	s14, .L474+12
 	vsub.f32	s15, s15, s14
 	vcvt.s32.f32	s16, s15
-	vldr.32	s14, .L491+16
-	vldr.32	s15, .L491+20
+	vldr.32	s14, .L474+16
+	vldr.32	s15, .L474+20
 	vadd.f32	s15, s14, s15
-	vldr.32	s14, .L491+8
+	vldr.32	s14, .L474+8
 	vsub.f32	s15, s15, s14
-	vldr.32	s14, .L491+24
+	vldr.32	s14, .L474+24
 	vsub.f32	s15, s15, s14
 	vcvt.s32.f32	s17, s15
-	ldr	r3, .L491+64
+	ldr	r3, .L474+64
 	ldr	r3, [r3]
 	str	r3, [fp, #-44]
-	vldr.32	s0, .L491+28
+	vldr.32	s0, .L474+28
 	ldr	r0, [fp, #-44]
 	bl	Fade
 	mov	r3, r0
@@ -8337,31 +8169,31 @@ DrawDebugOverlay:
 	vmov	r1, s17	@ int
 	vmov	r0, s16	@ int
 	bl	DrawRectangle
-	vldr.32	s14, .L491
-	vldr.32	s15, .L491+4
+	vldr.32	s14, .L474
+	vldr.32	s15, .L474+4
 	vadd.f32	s15, s14, s15
-	vldr.32	s14, .L491+8
+	vldr.32	s14, .L474+8
 	vsub.f32	s15, s15, s14
-	vldr.32	s14, .L491+120
+	vldr.32	s14, .L474+120
 	vsub.f32	s15, s15, s14
 	vstr.32	s15, [fp, #-52]
-	vldr.32	s14, .L491+16
-	vldr.32	s15, .L491+20
+	vldr.32	s14, .L474+16
+	vldr.32	s15, .L474+20
 	vadd.f32	s15, s14, s15
-	vldr.32	s14, .L491+8
+	vldr.32	s14, .L474+8
 	vsub.f32	s15, s15, s14
-	vldr.32	s14, .L491+32
+	vldr.32	s14, .L474+32
 	vsub.f32	s15, s15, s14
 	vstr.32	s15, [fp, #-48]
-	ldr	r3, .L491+100
+	ldr	r3, .L474+100
 	ldr	r3, [r3]
 	str	r3, [fp, #-56]
 	vldr.32	s14, [fp, #-52]
 	vldr.32	s15, [fp, #-48]
-	ldr	r4, .L491+104
+	ldr	r4, .L474+104
 	ldr	r3, [fp, #-56]
 	str	r3, [sp, #28]
-	ldr	r3, .L491+68
+	ldr	r3, .L474+68
 	str	r3, [sp, #24]
 	mov	lr, sp
 	add	ip, r4, #16
@@ -8370,56 +8202,56 @@ DrawDebugOverlay:
 	ldm	ip, {r0, r1}
 	stm	lr, {r0, r1}
 	ldm	r4, {r0, r1, r2, r3}
-	vldr.32	s3, .L491+136
-	vldr.32	s2, .L491+140
+	vldr.32	s3, .L474+136
+	vldr.32	s2, .L474+140
 	vmov.f32	s0, s14
 	vmov.f32	s1, s15
 	bl	DrawTextEx
-	ldr	r3, .L491+108
+	ldr	r3, .L474+108
 	ldrb	r3, [r3]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L471
-	ldr	r3, .L491+72
-	b	.L472
-.L471:
-	ldr	r3, .L491+88
-.L472:
+	beq	.L454
+	ldr	r3, .L474+72
+	b	.L455
+.L454:
+	ldr	r3, .L474+88
+.L455:
 	mov	r1, r3
-	ldr	r0, .L491+76
+	ldr	r0, .L474+76
 	bl	TextFormat
 	mov	r2, r0
-	vldr.32	s14, .L491
-	vldr.32	s15, .L491+4
+	vldr.32	s14, .L474
+	vldr.32	s15, .L474+4
 	vadd.f32	s15, s14, s15
-	vldr.32	s14, .L491+8
+	vldr.32	s14, .L474+8
 	vsub.f32	s15, s15, s14
-	vldr.32	s14, .L491+120
+	vldr.32	s14, .L474+120
 	vsub.f32	s15, s15, s14
 	vstr.32	s15, [fp, #-64]
-	vldr.32	s14, .L491+16
-	vldr.32	s15, .L491+20
+	vldr.32	s14, .L474+16
+	vldr.32	s15, .L474+20
 	vadd.f32	s15, s14, s15
-	vldr.32	s14, .L491+8
+	vldr.32	s14, .L474+8
 	vsub.f32	s15, s15, s14
-	vldr.32	s14, .L491+36
+	vldr.32	s14, .L474+36
 	vsub.f32	s15, s15, s14
 	vstr.32	s15, [fp, #-60]
-	ldr	r3, .L491+108
+	ldr	r3, .L474+108
 	ldrb	r3, [r3]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L473
-	ldr	r3, .L491+96
+	beq	.L456
+	ldr	r3, .L474+96
 	ldr	r3, [r3]
 	str	r3, [fp, #-36]
-	b	.L474
-.L473:
-	ldr	r3, .L491+100
+	b	.L457
+.L456:
+	ldr	r3, .L474+100
 	ldr	r3, [r3]
 	str	r3, [fp, #-36]
-.L474:
+.L457:
 	vldr.32	s14, [fp, #-64]
 	vldr.32	s15, [fp, #-60]
-	ldr	r4, .L491+104
+	ldr	r4, .L474+104
 	ldr	r3, [fp, #-36]
 	str	r3, [sp, #28]
 	str	r2, [sp, #24]
@@ -8430,56 +8262,56 @@ DrawDebugOverlay:
 	ldm	ip, {r0, r1}
 	stm	lr, {r0, r1}
 	ldm	r4, {r0, r1, r2, r3}
-	vldr.32	s3, .L491+136
-	vldr.32	s2, .L491+140
+	vldr.32	s3, .L474+136
+	vldr.32	s2, .L474+140
 	vmov.f32	s0, s14
 	vmov.f32	s1, s15
 	bl	DrawTextEx
-	ldr	r3, .L491+108
+	ldr	r3, .L474+108
 	ldrb	r3, [r3, #1]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L475
-	ldr	r3, .L491+72
-	b	.L476
-.L475:
-	ldr	r3, .L491+88
-.L476:
+	beq	.L458
+	ldr	r3, .L474+72
+	b	.L459
+.L458:
+	ldr	r3, .L474+88
+.L459:
 	mov	r1, r3
-	ldr	r0, .L491+80
+	ldr	r0, .L474+80
 	bl	TextFormat
 	mov	r2, r0
-	vldr.32	s14, .L491
-	vldr.32	s15, .L491+4
+	vldr.32	s14, .L474
+	vldr.32	s15, .L474+4
 	vadd.f32	s15, s14, s15
-	vldr.32	s14, .L491+8
+	vldr.32	s14, .L474+8
 	vsub.f32	s15, s15, s14
-	vldr.32	s14, .L491+120
+	vldr.32	s14, .L474+120
 	vsub.f32	s15, s15, s14
 	vstr.32	s15, [fp, #-80]
-	vldr.32	s14, .L491+16
-	vldr.32	s15, .L491+20
+	vldr.32	s14, .L474+16
+	vldr.32	s15, .L474+20
 	vadd.f32	s15, s14, s15
-	vldr.32	s14, .L491+8
+	vldr.32	s14, .L474+8
 	vsub.f32	s15, s15, s14
-	vldr.32	s14, .L491+40
+	vldr.32	s14, .L474+40
 	vsub.f32	s15, s15, s14
 	vstr.32	s15, [fp, #-76]
-	ldr	r3, .L491+108
+	ldr	r3, .L474+108
 	ldrb	r3, [r3, #1]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L477
-	ldr	r3, .L491+96
+	beq	.L460
+	ldr	r3, .L474+96
 	ldr	r3, [r3]
 	str	r3, [fp, #-32]
-	b	.L478
-.L477:
-	ldr	r3, .L491+100
+	b	.L461
+.L460:
+	ldr	r3, .L474+100
 	ldr	r3, [r3]
 	str	r3, [fp, #-32]
-.L478:
+.L461:
 	vldr.32	s14, [fp, #-80]
 	vldr.32	s15, [fp, #-76]
-	ldr	r4, .L491+104
+	ldr	r4, .L474+104
 	ldr	r3, [fp, #-32]
 	str	r3, [sp, #28]
 	str	r2, [sp, #24]
@@ -8490,56 +8322,56 @@ DrawDebugOverlay:
 	ldm	ip, {r0, r1}
 	stm	lr, {r0, r1}
 	ldm	r4, {r0, r1, r2, r3}
-	vldr.32	s3, .L491+136
-	vldr.32	s2, .L491+140
+	vldr.32	s3, .L474+136
+	vldr.32	s2, .L474+140
 	vmov.f32	s0, s14
 	vmov.f32	s1, s15
 	bl	DrawTextEx
-	ldr	r3, .L491+108
+	ldr	r3, .L474+108
 	ldrb	r3, [r3, #2]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L479
-	ldr	r3, .L491+72
-	b	.L480
-.L479:
-	ldr	r3, .L491+88
-.L480:
+	beq	.L462
+	ldr	r3, .L474+72
+	b	.L463
+.L462:
+	ldr	r3, .L474+88
+.L463:
 	mov	r1, r3
-	ldr	r0, .L491+84
+	ldr	r0, .L474+84
 	bl	TextFormat
 	mov	r2, r0
-	vldr.32	s14, .L491
-	vldr.32	s15, .L491+4
+	vldr.32	s14, .L474
+	vldr.32	s15, .L474+4
 	vadd.f32	s15, s14, s15
-	vldr.32	s14, .L491+8
+	vldr.32	s14, .L474+8
 	vsub.f32	s15, s15, s14
-	vldr.32	s14, .L491+120
+	vldr.32	s14, .L474+120
 	vsub.f32	s15, s15, s14
 	vstr.32	s15, [fp, #-96]
-	vldr.32	s14, .L491+16
-	vldr.32	s15, .L491+20
+	vldr.32	s14, .L474+16
+	vldr.32	s15, .L474+20
 	vadd.f32	s15, s14, s15
-	vldr.32	s14, .L491+8
+	vldr.32	s14, .L474+8
 	vsub.f32	s15, s15, s14
-	vldr.32	s14, .L491+44
+	vldr.32	s14, .L474+44
 	vsub.f32	s15, s15, s14
 	vstr.32	s15, [fp, #-92]
-	ldr	r3, .L491+108
+	ldr	r3, .L474+108
 	ldrb	r3, [r3, #2]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L481
-	ldr	r3, .L491+96
+	beq	.L464
+	ldr	r3, .L474+96
 	ldr	r3, [r3]
 	str	r3, [fp, #-28]
-	b	.L482
-.L481:
-	ldr	r3, .L491+100
+	b	.L465
+.L464:
+	ldr	r3, .L474+100
 	ldr	r3, [r3]
 	str	r3, [fp, #-28]
-.L482:
+.L465:
 	vldr.32	s14, [fp, #-96]
 	vldr.32	s15, [fp, #-92]
-	ldr	r4, .L491+104
+	ldr	r4, .L474+104
 	ldr	r3, [fp, #-28]
 	str	r3, [sp, #28]
 	str	r2, [sp, #24]
@@ -8550,20 +8382,20 @@ DrawDebugOverlay:
 	ldm	ip, {r0, r1}
 	stm	lr, {r0, r1}
 	ldm	r4, {r0, r1, r2, r3}
-	vldr.32	s3, .L491+136
-	vldr.32	s2, .L491+140
+	vldr.32	s3, .L474+136
+	vldr.32	s2, .L474+140
 	vmov.f32	s0, s14
 	vmov.f32	s1, s15
 	bl	DrawTextEx
-	ldr	r3, .L491+108
+	ldr	r3, .L474+108
 	ldrb	r3, [r3, #3]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L483
-	ldr	r3, .L491+72
-	b	.L484
-.L492:
+	beq	.L466
+	ldr	r3, .L474+72
+	b	.L467
+.L475:
 	.align	2
-.L491:
+.L474:
 	.word	-999292928
 	.word	1156579328
 	.word	1097859072
@@ -8581,13 +8413,13 @@ DrawDebugOverlay:
 	.word	291
 	.word	293
 	.word	.LC6
-	.word	.LC63
 	.word	.LC64
-	.word	.LC66
+	.word	.LC65
 	.word	.LC67
 	.word	.LC68
-	.word	.LC65
 	.word	.LC69
+	.word	.LC66
+	.word	.LC70
 	.word	.LC7
 	.word	.LC1
 	.word	meowFont
@@ -8600,45 +8432,45 @@ DrawDebugOverlay:
 	.word	1097859072
 	.word	1073741824
 	.word	1101004800
-.L483:
-	ldr	r3, .L491+88
-.L484:
+.L466:
+	ldr	r3, .L474+88
+.L467:
 	mov	r1, r3
-	ldr	r0, .L491+92
+	ldr	r0, .L474+92
 	bl	TextFormat
 	mov	r2, r0
-	vldr.32	s14, .L491+112
-	vldr.32	s15, .L491+116
+	vldr.32	s14, .L474+112
+	vldr.32	s15, .L474+116
 	vadd.f32	s15, s14, s15
-	vldr.32	s14, .L491+132
+	vldr.32	s14, .L474+132
 	vsub.f32	s15, s15, s14
-	vldr.32	s14, .L491+120
+	vldr.32	s14, .L474+120
 	vsub.f32	s15, s15, s14
 	vstr.32	s15, [fp, #-112]
-	vldr.32	s14, .L491+124
-	vldr.32	s15, .L491+128
+	vldr.32	s14, .L474+124
+	vldr.32	s15, .L474+128
 	vadd.f32	s15, s14, s15
-	vldr.32	s14, .L491+132
+	vldr.32	s14, .L474+132
 	vsub.f32	s15, s15, s14
-	vldr.32	s14, .L491+140
+	vldr.32	s14, .L474+140
 	vsub.f32	s15, s15, s14
 	vstr.32	s15, [fp, #-108]
-	ldr	r3, .L491+108
+	ldr	r3, .L474+108
 	ldrb	r3, [r3, #3]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L485
-	ldr	r3, .L491+96
+	beq	.L468
+	ldr	r3, .L474+96
 	ldr	r3, [r3]
 	str	r3, [fp, #-24]
-	b	.L486
-.L485:
-	ldr	r3, .L491+100
+	b	.L469
+.L468:
+	ldr	r3, .L474+100
 	ldr	r3, [r3]
 	str	r3, [fp, #-24]
-.L486:
+.L469:
 	vldr.32	s14, [fp, #-112]
 	vldr.32	s15, [fp, #-108]
-	ldr	r4, .L491+104
+	ldr	r4, .L474+104
 	ldr	r3, [fp, #-24]
 	str	r3, [sp, #28]
 	str	r2, [sp, #24]
@@ -8649,34 +8481,34 @@ DrawDebugOverlay:
 	ldm	ip, {r0, r1}
 	stm	lr, {r0, r1}
 	ldm	r4, {r0, r1, r2, r3}
-	vldr.32	s3, .L491+136
-	vldr.32	s2, .L491+140
+	vldr.32	s3, .L474+136
+	vldr.32	s2, .L474+140
 	vmov.f32	s0, s14
 	vmov.f32	s1, s15
 	bl	DrawTextEx
-	ldr	r3, .L491+108
+	ldr	r3, .L474+108
 	ldrb	r3, [r3]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L487
+	beq	.L470
 	ldr	r0, [fp, #-128]
 	bl	DrawDebugLogs
-.L487:
-	ldr	r3, .L491+108
+.L470:
+	ldr	r3, .L474+108
 	ldrb	r3, [r3, #1]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L488
+	beq	.L471
 	ldr	r0, [fp, #-128]
 	bl	DrawDebugStats
-.L488:
-	ldr	r3, .L491+108
+.L471:
+	ldr	r3, .L474+108
 	ldrb	r3, [r3, #2]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L490
+	beq	.L473
 	ldr	r0, [fp, #-128]
 	bl	DrawFpsGraph
 	ldr	r0, [fp, #-128]
 	bl	DrawFrameTime
-.L490:
+.L473:
 	nop
 	sub	sp, fp, #16
 	@ sp needed
@@ -8692,7 +8524,7 @@ DrawDebugOverlay:
 CreateCustomerWithOrder:
 	@ args = 0, pretend = 0, frame = 136
 	@ frame_needed = 1, uses_anonymous_args = 0
-	PUSH	{fp, lr}
+	push	{fp, lr}
 	add	fp, sp, #4
 	sub	sp, sp, #136
 	str	r0, [fp, #-104]
@@ -8713,9 +8545,9 @@ CreateCustomerWithOrder:
 	vmov.f32	s6, s14
 	vmov.f32	s7, s15
 	mov	r2, #1
-	vldr.64	d2, .L495
-	vldr.64	d1, .L495+8
-	vldr.64	d0, .L495+8
+	vldr.64	d2, .L478
+	vldr.64	d1, .L478+8
+	vldr.64	d0, .L478+8
 	mov	r1, #0
 	bl	CreateCustomer
 	sub	r3, fp, #100
@@ -8743,61 +8575,14 @@ CreateCustomerWithOrder:
 	sub	sp, fp, #4
 	@ sp needed
 	pop	{fp, pc}
-.L496:
+.L479:
 	.align	3
-.L495:
+.L478:
 	.word	0
 	.word	1070596096
 	.word	0
 	.word	0
 	.size	CreateCustomerWithOrder, .-CreateCustomerWithOrder
-	.section	.rodata
-	.align	2
-.LC70:
-	.ascii	"Validating order: %s against %s\000"
-	.text
-	.align	2
-	.global	validiator
-	.syntax unified
-	.arm
-	.fpu vfp
-	.type	validiator, %function
-validiator:
-	@ args = 0, pretend = 0, frame = 8
-	@ frame_needed = 1, uses_anonymous_args = 0
-	PUSH	{fp, lr}
-	add	fp, sp, #4
-	sub	sp, sp, #8
-	str	r0, [fp, #-8]
-	str	r1, [fp, #-12]
-	ldr	r3, [fp, #-8]
-	add	r3, r3, #34
-	mov	r2, r3
-	ldr	r1, [fp, #-12]
-	ldr	r0, .L500
-	bl	LogDebug
-	ldr	r3, [fp, #-8]
-	add	r3, r3, #34
-	ldr	r1, [fp, #-12]
-	mov	r0, r3
-	bl	strcmp
-	mov	r3, r0
-	cmp	r3, #0
-	bne	.L498
-	mov	r3, #1
-	b	.L499
-.L498:
-	mov	r3, #0
-.L499:
-	mov	r0, r3
-	sub	sp, fp, #4
-	@ sp needed
-	pop	{fp, pc}
-.L501:
-	.align	2
-.L500:
-	.word	.LC70
-	.size	validiator, .-validiator
 	.align	2
 	.global	render_customers
 	.syntax unified
@@ -8807,35 +8592,35 @@ validiator:
 render_customers:
 	@ args = 0, pretend = 0, frame = 8
 	@ frame_needed = 1, uses_anonymous_args = 0
-	PUSH	{fp, lr}
+	push	{fp, lr}
 	add	fp, sp, #4
 	sub	sp, sp, #8
 	str	r0, [fp, #-8]
 	ldr	r3, [fp, #-8]
 	cmp	r3, #0
-	beq	.L503
+	beq	.L481
 	ldr	r3, [fp, #-8]
 	mov	r0, r3
 	bl	DrawCustomer
-.L503:
+.L481:
 	ldr	r3, [fp, #-8]
 	add	r3, r3, #96
 	cmp	r3, #0
-	beq	.L504
+	beq	.L482
 	ldr	r3, [fp, #-8]
 	add	r3, r3, #96
 	mov	r0, r3
 	bl	DrawCustomer
-.L504:
+.L482:
 	ldr	r3, [fp, #-8]
 	add	r3, r3, #192
 	cmp	r3, #0
-	beq	.L506
+	beq	.L484
 	ldr	r3, [fp, #-8]
 	add	r3, r3, #192
 	mov	r0, r3
 	bl	DrawCustomer
-.L506:
+.L484:
 	nop
 	sub	sp, fp, #4
 	@ sp needed
@@ -8850,7 +8635,7 @@ render_customers:
 RemoveCustomer:
 	@ args = 0, pretend = 0, frame = 8
 	@ frame_needed = 1, uses_anonymous_args = 0
-	PUSH	{fp, lr}
+	push	{fp, lr}
 	add	fp, sp, #4
 	sub	sp, sp, #8
 	str	r0, [fp, #-8]
@@ -8882,7 +8667,7 @@ RemoveCustomer:
 UpdateCustomerState:
 	@ args = 0, pretend = 0, frame = 16
 	@ frame_needed = 1, uses_anonymous_args = 0
-	PUSH	{fp, lr}
+	push	{fp, lr}
 	add	fp, sp, #4
 	sub	sp, sp, #16
 	str	r0, [fp, #-16]
@@ -8897,7 +8682,7 @@ UpdateCustomerState:
 	ldr	r3, [fp, #-16]
 	ldrb	r3, [r3, #33]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L509
+	beq	.L487
 	ldr	r3, [fp, #-16]
 	vldr.64	d7, [r3, #56]
 	vcvt.f32.f64	s14, d7
@@ -8907,7 +8692,7 @@ UpdateCustomerState:
 	vcvt.f32.s32	s15, s15
 	vcmpe.f32	s14, s15
 	vmrs	APSR_nzcv, FPSCR
-	bpl	.L522
+	bpl	.L500
 	ldr	r3, [fp, #-16]
 	vldr.64	d7, [r3, #56]
 	vcvt.f32.f64	s13, d7
@@ -8918,41 +8703,41 @@ UpdateCustomerState:
 	vdiv.f32	s15, s13, s14
 	vstr.32	s15, [fp, #-8]
 	vldr.32	s15, [fp, #-8]
-	vldr.32	s14, .L526
+	vldr.32	s14, .L504
 	vcmpe.f32	s15, s14
 	vmrs	APSR_nzcv, FPSCR
-	ble	.L523
+	ble	.L501
 	ldr	r3, [fp, #-16]
 	mov	r2, #2
 	str	r2, [r3]
-	b	.L525
-.L523:
+	b	.L503
+.L501:
 	vldr.32	s15, [fp, #-8]
-	vldr.32	s14, .L526+4
+	vldr.32	s14, .L504+4
 	vcmpe.f32	s15, s14
 	vmrs	APSR_nzcv, FPSCR
-	ble	.L524
+	ble	.L502
 	ldr	r3, [fp, #-16]
 	mov	r2, #1
 	str	r2, [r3]
-	b	.L525
-.L524:
+	b	.L503
+.L502:
 	ldr	r3, [fp, #-16]
 	mov	r2, #0
 	str	r2, [r3]
-	b	.L525
-.L522:
+	b	.L503
+.L500:
 	mov	r0, #2
 	bl	PlaySoundFx
 	ldr	r0, [fp, #-16]
 	bl	RemoveCustomer
-	ldr	r3, .L526+8
+	ldr	r3, .L504+8
 	ldr	r3, [r3]
 	sub	r3, r3, #50
-	ldr	r2, .L526+8
+	ldr	r2, .L504+8
 	str	r3, [r2]
-	b	.L525
-.L509:
+	b	.L503
+.L487:
 	ldr	r3, [fp, #-16]
 	vldr.64	d7, [r3, #56]
 	vcvt.f32.f64	s15, d7
@@ -8961,9 +8746,9 @@ UpdateCustomerState:
 	vldr.64	d7, [r3, #88]
 	vcmpe.f64	d6, d7
 	vmrs	APSR_nzcv, FPSCR
-	bgt	.L521
-	b	.L525
-.L521:
+	bgt	.L499
+	b	.L503
+.L499:
 	ldr	r1, [fp, #-16]
 	mov	r2, #0
 	mov	r3, #0
@@ -8985,14 +8770,14 @@ UpdateCustomerState:
 	add	r3, r3, #34
 	mov	r0, r3
 	bl	RandomGenerateOrder
-.L525:
+.L503:
 	nop
 	sub	sp, fp, #4
 	@ sp needed
 	pop	{fp, pc}
-.L527:
+.L505:
 	.align	2
-.L526:
+.L504:
 	.word	1061158912
 	.word	1056964608
 	.word	global_score
@@ -9006,7 +8791,7 @@ UpdateCustomerState:
 Tick:
 	@ args = 0, pretend = 0, frame = 8
 	@ frame_needed = 1, uses_anonymous_args = 0
-	PUSH	{fp, lr}
+	push	{fp, lr}
 	add	fp, sp, #4
 	sub	sp, sp, #8
 	str	r0, [fp, #-8]
@@ -9039,69 +8824,69 @@ Tick:
 PlaySoundFx:
 	@ args = 0, pretend = 0, frame = 112
 	@ frame_needed = 1, uses_anonymous_args = 0
-	PUSH	{fp, lr}
+	push	{fp, lr}
 	add	fp, sp, #4
 	sub	sp, sp, #120
 	str	r0, [fp, #-112]
 	mov	r3, #0
 	str	r3, [fp, #-8]
-	ldr	r3, .L546
+	ldr	r3, .L524
 	ldr	r3, [r3]
 	ldrb	r3, [r3, #21]	@ zero_extendqisi2
 	eor	r3, r3, #1
 	uxtb	r3, r3
 	cmp	r3, #0
-	bne	.L545
+	bne	.L523
 	ldr	r3, [fp, #-112]
 	cmp	r3, #11
 	ldrls	pc, [pc, r3, asl #2]
-	b	.L529
-.L533:
-	.word	.L544
-	.word	.L543
-	.word	.L542
-	.word	.L541
-	.word	.L540
-	.word	.L539
-	.word	.L538
-	.word	.L537
-	.word	.L536
-	.word	.L535
-	.word	.L534
-	.word	.L532
-.L542:
-	ldr	r3, .L546+4
+	b	.L507
+.L511:
+	.word	.L522
+	.word	.L521
+	.word	.L520
+	.word	.L519
+	.word	.L518
+	.word	.L517
+	.word	.L516
+	.word	.L515
+	.word	.L514
+	.word	.L513
+	.word	.L512
+	.word	.L510
+.L520:
+	ldr	r3, .L524+4
 	sub	ip, fp, #104
 	mov	lr, r3
 	ldmia	lr!, {r0, r1, r2, r3}
 	stmia	ip!, {r0, r1, r2, r3}
 	ldm	lr, {r0, r1}
 	stm	ip, {r0, r1}
-	ldr	r3, .L546+8
+	ldr	r3, .L524+8
 	sub	ip, fp, #80
 	mov	lr, r3
 	ldmia	lr!, {r0, r1, r2, r3}
 	stmia	ip!, {r0, r1, r2, r3}
 	ldm	lr, {r0, r1}
 	stm	ip, {r0, r1}
-	ldr	r3, .L546+12
+	ldr	r3, .L524+12
 	sub	ip, fp, #56
 	mov	lr, r3
 	ldmia	lr!, {r0, r1, r2, r3}
 	stmia	ip!, {r0, r1, r2, r3}
 	ldm	lr, {r0, r1}
 	stm	ip, {r0, r1}
-	ldr	r3, .L546+16
+	ldr	r3, .L524+16
 	sub	ip, fp, #32
 	mov	lr, r3
 	ldmia	lr!, {r0, r1, r2, r3}
 	stmia	ip!, {r0, r1, r2, r3}
 	ldm	lr, {r0, r1}
 	stm	ip, {r0, r1}
-	bl	rand
-	mov	r3, r0
-	and	r3, r3, #3
-	str	r3, [fp, #-8]
+	mov	r1, #3
+	mov	r0, #0
+	bl	GetRandomIntValue
+	str	r0, [fp, #-8]
 	ldr	r2, [fp, #-8]
 	mov	r3, r2
 	lsl	r3, r3, #1
@@ -9116,40 +8901,33 @@ PlaySoundFx:
 	stm	ip, {r0, r1}
 	ldm	r3, {r0, r1, r2, r3}
 	bl	PlaySound
-	b	.L529
-.L541:
-	ldr	r3, .L546+20
+	b	.L507
+.L519:
+	ldr	r3, .L524+20
 	sub	ip, fp, #104
 	mov	lr, r3
 	ldmia	lr!, {r0, r1, r2, r3}
 	stmia	ip!, {r0, r1, r2, r3}
 	ldm	lr, {r0, r1}
 	stm	ip, {r0, r1}
-	ldr	r3, .L546+24
+	ldr	r3, .L524+24
 	sub	ip, fp, #80
 	mov	lr, r3
 	ldmia	lr!, {r0, r1, r2, r3}
 	stmia	ip!, {r0, r1, r2, r3}
 	ldm	lr, {r0, r1}
 	stm	ip, {r0, r1}
-	ldr	r3, .L546+28
+	ldr	r3, .L524+28
 	sub	ip, fp, #56
 	mov	lr, r3
 	ldmia	lr!, {r0, r1, r2, r3}
 	stmia	ip!, {r0, r1, r2, r3}
 	ldm	lr, {r0, r1}
 	stm	ip, {r0, r1}
-	bl	rand
-	mov	r3, r0
-	mov	r1, r3
-	ldr	r3, .L546+32
-	umull	r2, r3, r3, r1
-	lsr	r2, r3, #1
-	mov	r3, r2
-	lsl	r3, r3, #1
-	add	r3, r3, r2
-	sub	r2, r1, r3
-	str	r2, [fp, #-8]
+	mov	r1, #2
+	mov	r0, #0
+	bl	GetRandomIntValue
+	str	r0, [fp, #-8]
 	ldr	r2, [fp, #-8]
 	mov	r3, r2
 	lsl	r3, r3, #1
@@ -9164,40 +8942,40 @@ PlaySoundFx:
 	stm	ip, {r0, r1}
 	ldm	r3, {r0, r1, r2, r3}
 	bl	PlaySound
-	b	.L529
-.L540:
-	ldr	r3, .L546+36
+	b	.L507
+.L518:
+	ldr	r3, .L524+32
 	sub	ip, fp, #104
 	mov	lr, r3
 	ldmia	lr!, {r0, r1, r2, r3}
 	stmia	ip!, {r0, r1, r2, r3}
 	ldm	lr, {r0, r1}
 	stm	ip, {r0, r1}
-	ldr	r3, .L546+40
+	ldr	r3, .L524+36
 	sub	ip, fp, #80
 	mov	lr, r3
 	ldmia	lr!, {r0, r1, r2, r3}
 	stmia	ip!, {r0, r1, r2, r3}
 	ldm	lr, {r0, r1}
 	stm	ip, {r0, r1}
-	ldr	r3, .L546+44
+	ldr	r3, .L524+40
 	sub	ip, fp, #56
 	mov	lr, r3
 	ldmia	lr!, {r0, r1, r2, r3}
 	stmia	ip!, {r0, r1, r2, r3}
 	ldm	lr, {r0, r1}
 	stm	ip, {r0, r1}
-	ldr	r3, .L546+48
+	ldr	r3, .L524+44
 	sub	ip, fp, #32
 	mov	lr, r3
 	ldmia	lr!, {r0, r1, r2, r3}
 	stmia	ip!, {r0, r1, r2, r3}
 	ldm	lr, {r0, r1}
 	stm	ip, {r0, r1}
-	bl	rand
-	mov	r3, r0
-	and	r3, r3, #3
-	str	r3, [fp, #-8]
+	mov	r1, #3
+	mov	r0, #0
+	bl	GetRandomIntValue
+	str	r0, [fp, #-8]
 	ldr	r2, [fp, #-8]
 	mov	r3, r2
 	lsl	r3, r3, #1
@@ -9212,49 +8990,42 @@ PlaySoundFx:
 	stm	ip, {r0, r1}
 	ldm	r3, {r0, r1, r2, r3}
 	bl	PlaySound
-	b	.L529
-.L539:
-	ldr	r3, .L546+52
+	b	.L507
+.L517:
+	ldr	r3, .L524+48
 	mov	ip, sp
 	add	r2, r3, #16
 	ldm	r2, {r0, r1}
 	stm	ip, {r0, r1}
 	ldm	r3, {r0, r1, r2, r3}
 	bl	PlaySound
-	b	.L529
-.L538:
-	ldr	r3, .L546+56
+	b	.L507
+.L516:
+	ldr	r3, .L524+52
 	sub	ip, fp, #104
 	mov	lr, r3
 	ldmia	lr!, {r0, r1, r2, r3}
 	stmia	ip!, {r0, r1, r2, r3}
 	ldm	lr, {r0, r1}
 	stm	ip, {r0, r1}
-	ldr	r3, .L546+60
+	ldr	r3, .L524+56
 	sub	ip, fp, #80
 	mov	lr, r3
 	ldmia	lr!, {r0, r1, r2, r3}
 	stmia	ip!, {r0, r1, r2, r3}
 	ldm	lr, {r0, r1}
 	stm	ip, {r0, r1}
-	ldr	r3, .L546+64
+	ldr	r3, .L524+60
 	sub	ip, fp, #56
 	mov	lr, r3
 	ldmia	lr!, {r0, r1, r2, r3}
 	stmia	ip!, {r0, r1, r2, r3}
 	ldm	lr, {r0, r1}
 	stm	ip, {r0, r1}
-	bl	rand
-	mov	r3, r0
-	mov	r1, r3
-	ldr	r3, .L546+32
-	umull	r2, r3, r3, r1
-	lsr	r2, r3, #1
-	mov	r3, r2
-	lsl	r3, r3, #1
-	add	r3, r3, r2
-	sub	r2, r1, r3
-	str	r2, [fp, #-8]
+	mov	r1, #2
+	mov	r0, #0
+	bl	GetRandomIntValue
+	str	r0, [fp, #-8]
 	ldr	r2, [fp, #-8]
 	mov	r3, r2
 	lsl	r3, r3, #1
@@ -9269,40 +9040,33 @@ PlaySoundFx:
 	stm	ip, {r0, r1}
 	ldm	r3, {r0, r1, r2, r3}
 	bl	PlaySound
-	b	.L529
-.L537:
-	ldr	r3, .L546+68
+	b	.L507
+.L515:
+	ldr	r3, .L524+64
 	sub	ip, fp, #104
 	mov	lr, r3
 	ldmia	lr!, {r0, r1, r2, r3}
 	stmia	ip!, {r0, r1, r2, r3}
 	ldm	lr, {r0, r1}
 	stm	ip, {r0, r1}
-	ldr	r3, .L546+72
+	ldr	r3, .L524+68
 	sub	ip, fp, #80
 	mov	lr, r3
 	ldmia	lr!, {r0, r1, r2, r3}
 	stmia	ip!, {r0, r1, r2, r3}
 	ldm	lr, {r0, r1}
 	stm	ip, {r0, r1}
-	ldr	r3, .L546+76
+	ldr	r3, .L524+72
 	sub	ip, fp, #56
 	mov	lr, r3
 	ldmia	lr!, {r0, r1, r2, r3}
 	stmia	ip!, {r0, r1, r2, r3}
 	ldm	lr, {r0, r1}
 	stm	ip, {r0, r1}
-	bl	rand
-	mov	r3, r0
-	mov	r1, r3
-	ldr	r3, .L546+32
-	umull	r2, r3, r3, r1
-	lsr	r2, r3, #1
-	mov	r3, r2
-	lsl	r3, r3, #1
-	add	r3, r3, r2
-	sub	r2, r1, r3
-	str	r2, [fp, #-8]
+	mov	r1, #2
+	mov	r0, #0
+	bl	GetRandomIntValue
+	str	r0, [fp, #-8]
 	ldr	r2, [fp, #-8]
 	mov	r3, r2
 	lsl	r3, r3, #1
@@ -9317,40 +9081,33 @@ PlaySoundFx:
 	stm	ip, {r0, r1}
 	ldm	r3, {r0, r1, r2, r3}
 	bl	PlaySound
-	b	.L529
-.L536:
-	ldr	r3, .L546+80
+	b	.L507
+.L514:
+	ldr	r3, .L524+76
 	sub	ip, fp, #104
 	mov	lr, r3
 	ldmia	lr!, {r0, r1, r2, r3}
 	stmia	ip!, {r0, r1, r2, r3}
 	ldm	lr, {r0, r1}
 	stm	ip, {r0, r1}
-	ldr	r3, .L546+84
+	ldr	r3, .L524+80
 	sub	ip, fp, #80
 	mov	lr, r3
 	ldmia	lr!, {r0, r1, r2, r3}
 	stmia	ip!, {r0, r1, r2, r3}
 	ldm	lr, {r0, r1}
 	stm	ip, {r0, r1}
-	ldr	r3, .L546+88
+	ldr	r3, .L524+84
 	sub	ip, fp, #56
 	mov	lr, r3
 	ldmia	lr!, {r0, r1, r2, r3}
 	stmia	ip!, {r0, r1, r2, r3}
 	ldm	lr, {r0, r1}
 	stm	ip, {r0, r1}
-	bl	rand
-	mov	r3, r0
-	mov	r1, r3
-	ldr	r3, .L546+32
-	umull	r2, r3, r3, r1
-	lsr	r2, r3, #1
-	mov	r3, r2
-	lsl	r3, r3, #1
-	add	r3, r3, r2
-	sub	r2, r1, r3
-	str	r2, [fp, #-8]
+	mov	r1, #2
+	mov	r0, #0
+	bl	GetRandomIntValue
+	str	r0, [fp, #-8]
 	ldr	r2, [fp, #-8]
 	mov	r3, r2
 	lsl	r3, r3, #1
@@ -9365,40 +9122,33 @@ PlaySoundFx:
 	stm	ip, {r0, r1}
 	ldm	r3, {r0, r1, r2, r3}
 	bl	PlaySound
-	b	.L529
-.L535:
-	ldr	r3, .L546+92
+	b	.L507
+.L513:
+	ldr	r3, .L524+88
 	sub	ip, fp, #104
 	mov	lr, r3
 	ldmia	lr!, {r0, r1, r2, r3}
 	stmia	ip!, {r0, r1, r2, r3}
 	ldm	lr, {r0, r1}
 	stm	ip, {r0, r1}
-	ldr	r3, .L546+96
+	ldr	r3, .L524+92
 	sub	ip, fp, #80
 	mov	lr, r3
 	ldmia	lr!, {r0, r1, r2, r3}
 	stmia	ip!, {r0, r1, r2, r3}
 	ldm	lr, {r0, r1}
 	stm	ip, {r0, r1}
-	ldr	r3, .L546+100
+	ldr	r3, .L524+96
 	sub	ip, fp, #56
 	mov	lr, r3
 	ldmia	lr!, {r0, r1, r2, r3}
 	stmia	ip!, {r0, r1, r2, r3}
 	ldm	lr, {r0, r1}
 	stm	ip, {r0, r1}
-	bl	rand
-	mov	r3, r0
-	mov	r1, r3
-	ldr	r3, .L546+32
-	umull	r2, r3, r3, r1
-	lsr	r2, r3, #1
-	mov	r3, r2
-	lsl	r3, r3, #1
-	add	r3, r3, r2
-	sub	r2, r1, r3
-	str	r2, [fp, #-8]
+	mov	r1, #2
+	mov	r0, #0
+	bl	GetRandomIntValue
+	str	r0, [fp, #-8]
 	ldr	r2, [fp, #-8]
 	mov	r3, r2
 	lsl	r3, r3, #1
@@ -9413,52 +9163,52 @@ PlaySoundFx:
 	stm	ip, {r0, r1}
 	ldm	r3, {r0, r1, r2, r3}
 	bl	PlaySound
-	b	.L529
-.L534:
-	ldr	r3, .L546+104
+	b	.L507
+.L512:
+	ldr	r3, .L524+100
 	mov	ip, sp
 	add	r2, r3, #16
 	ldm	r2, {r0, r1}
 	stm	ip, {r0, r1}
 	ldm	r3, {r0, r1, r2, r3}
 	bl	PlaySound
-	b	.L529
-.L544:
-	ldr	r3, .L546+108
+	b	.L507
+.L522:
+	ldr	r3, .L524+104
 	mov	ip, sp
 	add	r2, r3, #16
 	ldm	r2, {r0, r1}
 	stm	ip, {r0, r1}
 	ldm	r3, {r0, r1, r2, r3}
 	bl	PlaySound
-	b	.L529
-.L543:
-	ldr	r3, .L546+112
+	b	.L507
+.L521:
+	ldr	r3, .L524+108
 	mov	ip, sp
 	add	r2, r3, #16
 	ldm	r2, {r0, r1}
 	stm	ip, {r0, r1}
 	ldm	r3, {r0, r1, r2, r3}
 	bl	PlaySound
-	b	.L529
-.L532:
-	ldr	r3, .L546+116
+	b	.L507
+.L510:
+	ldr	r3, .L524+112
 	mov	ip, sp
 	add	r2, r3, #16
 	ldm	r2, {r0, r1}
 	stm	ip, {r0, r1}
 	ldm	r3, {r0, r1, r2, r3}
 	bl	PlaySound
-	b	.L529
-.L545:
+	b	.L507
+.L523:
 	nop
-.L529:
+.L507:
 	sub	sp, fp, #4
 	@ sp needed
 	pop	{fp, pc}
-.L547:
+.L525:
 	.align	2
-.L546:
+.L524:
 	.word	options
 	.word	angry1Fx
 	.word	angry2Fx
@@ -9467,7 +9217,6 @@ PlaySoundFx:
 	.word	bottle1Fx
 	.word	bottle2Fx
 	.word	bottle3Fx
-	.word	-1431655765
 	.word	confused1Fx
 	.word	confused2Fx
 	.word	confused3Fx
@@ -9499,14 +9248,14 @@ PlaySoundFx:
 WindowUpdate:
 	@ args = 0, pretend = 0, frame = 24
 	@ frame_needed = 1, uses_anonymous_args = 0
-	PUSH	{r4, fp, lr}
+	push	{r4, fp, lr}
 	add	fp, sp, #8
 	sub	sp, sp, #52
 	str	r0, [fp, #-32]
 	bl	IsWindowResized
 	mov	r3, r0
 	cmp	r3, #0
-	beq	.L549
+	beq	.L527
 	bl	GetScreenWidth
 	str	r0, [fp, #-16]
 	bl	GetScreenHeight
@@ -9519,24 +9268,24 @@ WindowUpdate:
 	vcvt.f32.s32	s14, s15
 	vdiv.f32	s15, s13, s14
 	vstr.32	s15, [fp, #-24]
-	vldr.32	s14, .L561
+	vldr.32	s14, .L539
 	vldr.32	s15, [fp, #-24]
 	vcmpe.f32	s15, s14
 	vmrs	APSR_nzcv, FPSCR
-	ble	.L559
+	ble	.L537
 	ldr	r3, [fp, #-20]
 	vmov	s15, r3	@ int
 	vcvt.f32.s32	s14, s15
-	vldr.32	s13, .L561+4
+	vldr.32	s13, .L539+4
 	vdiv.f32	s15, s14, s13
-	b	.L552
-.L559:
+	b	.L530
+.L537:
 	ldr	r3, [fp, #-16]
 	vmov	s15, r3	@ int
 	vcvt.f32.s32	s14, s15
-	vldr.32	s13, .L561+8
+	vldr.32	s13, .L539+8
 	vdiv.f32	s15, s14, s13
-.L552:
+.L530:
 	vstr.32	s15, [fp, #-28]
 	ldr	r3, [fp, #-32]
 	ldr	r2, [fp, #-28]	@ float
@@ -9544,66 +9293,66 @@ WindowUpdate:
 	ldr	r3, [fp, #-16]
 	vmov	s15, r3	@ int
 	vcvt.f32.s32	s14, s15
-	vldr.32	s13, .L561+12
+	vldr.32	s13, .L539+12
 	vdiv.f32	s15, s14, s13
 	ldr	r3, [fp, #-32]
 	vstr.32	s15, [r3]
 	ldr	r3, [fp, #-20]
 	vmov	s15, r3	@ int
 	vcvt.f32.s32	s14, s15
-	vldr.32	s13, .L561+12
+	vldr.32	s13, .L539+12
 	vdiv.f32	s15, s14, s13
 	ldr	r3, [fp, #-32]
 	vstr.32	s15, [r3, #4]
-	ldr	r3, .L561+16
+	ldr	r3, .L539+16
 	ldr	r3, [r3]
 	ldr	r2, [fp, #-16]
 	str	r2, [r3]
-	ldr	r3, .L561+16
+	ldr	r3, .L539+16
 	ldr	r3, [r3]
 	ldr	r2, [fp, #-20]
 	str	r2, [r3, #4]
-.L549:
-	ldr	r0, .L561+20
+.L527:
+	ldr	r0, .L539+20
 	bl	IsKeyDown
 	mov	r3, r0
 	cmp	r3, #0
-	beq	.L553
-	ldr	r0, .L561+24
+	beq	.L531
+	ldr	r0, .L539+24
 	bl	IsKeyPressed
 	mov	r3, r0
 	cmp	r3, #0
-	bne	.L554
-.L553:
-	ldr	r0, .L561+28
+	bne	.L532
+.L531:
+	ldr	r0, .L539+28
 	bl	IsKeyDown
 	mov	r3, r0
 	cmp	r3, #0
-	beq	.L555
-	ldr	r0, .L561+24
+	beq	.L533
+	ldr	r0, .L539+24
 	bl	IsKeyPressed
 	mov	r3, r0
 	cmp	r3, #0
-	beq	.L555
-.L554:
-	ldr	r2, .L561+32
+	beq	.L533
+.L532:
+	ldr	r2, .L539+32
 	mov	r1, #1920
 	ldr	r0, [fp, #-32]
 	bl	SetRuntimeResolution
 	bl	ToggleFullscreen
-.L555:
+.L533:
 	mov	r0, #256
 	bl	IsKeyPressed
 	mov	r3, r0
 	cmp	r3, #0
-	beq	.L556
+	beq	.L534
 	bl	ExitApplication
-.L556:
-	ldr	r3, .L561+36
+.L534:
+	ldr	r3, .L539+36
 	ldr	r3, [r3]
 	cmp	r3, #0
-	beq	.L560
-	ldr	r3, .L561+36
+	beq	.L538
+	ldr	r3, .L539+36
 	ldr	r4, [r3]
 	mov	lr, sp
 	add	ip, r4, #16
@@ -9613,14 +9362,14 @@ WindowUpdate:
 	str	r3, [lr]
 	ldm	r4, {r0, r1, r2, r3}
 	bl	UpdateMusicStream
-.L560:
+.L538:
 	nop
 	sub	sp, fp, #8
 	@ sp needed
 	pop	{r4, fp, pc}
-.L562:
+.L540:
 	.align	2
-.L561:
+.L539:
 	.word	1071877689
 	.word	1149698048
 	.word	1156579328
@@ -9635,244 +9384,280 @@ WindowUpdate:
 	.section	.rodata
 	.align	2
 .LC71:
-	.ascii	"/home/pi/SuperMeowMeow/assets/image/backgrounds/mai"
-	.ascii	"n.png\000"
+	.ascii	"/home/yuzu/Desktop/SuperMeowMeow/assets/image/backg"
+	.ascii	"rounds/main.png\000"
 	.align	2
 .LC72:
-	.ascii	"/home/pi/SuperMeowMeow/assets/image/backgrounds/mai"
-	.ascii	"n_overlay_1.png\000"
+	.ascii	"/home/yuzu/Desktop/SuperMeowMeow/assets/image/backg"
+	.ascii	"rounds/main_overlay_1.png\000"
 	.align	2
 .LC73:
-	.ascii	"/home/pi/SuperMeowMeow/assets/image/backgrounds/mai"
-	.ascii	"n_overlay_2.png\000"
+	.ascii	"/home/yuzu/Desktop/SuperMeowMeow/assets/image/backg"
+	.ascii	"rounds/main_overlay_2.png\000"
 	.align	2
 .LC74:
-	.ascii	"/home/pi/SuperMeowMeow/assets/image/elements/paw.pn"
-	.ascii	"g\000"
+	.ascii	"/home/yuzu/Desktop/SuperMeowMeow/assets/image/eleme"
+	.ascii	"nts/paw.png\000"
 	.align	2
 .LC75:
-	.ascii	"/home/pi/SuperMeowMeow/assets/image/elements/checkb"
-	.ascii	"ox.png\000"
+	.ascii	"/home/yuzu/Desktop/SuperMeowMeow/assets/image/eleme"
+	.ascii	"nts/checkbox.png\000"
 	.align	2
 .LC76:
-	.ascii	"/home/pi/SuperMeowMeow/assets/image/elements/checkb"
-	.ascii	"ox_checked.png\000"
+	.ascii	"/home/yuzu/Desktop/SuperMeowMeow/assets/image/eleme"
+	.ascii	"nts/checkbox_checked.png\000"
 	.align	2
 .LC77:
-	.ascii	"/home/pi/SuperMeowMeow/assets/image/elements/left_a"
-	.ascii	"rrow.png\000"
+	.ascii	"/home/yuzu/Desktop/SuperMeowMeow/assets/image/eleme"
+	.ascii	"nts/left_arrow.png\000"
 	.align	2
 .LC78:
-	.ascii	"/home/pi/SuperMeowMeow/assets/image/elements/right_"
-	.ascii	"arrow.png\000"
+	.ascii	"/home/yuzu/Desktop/SuperMeowMeow/assets/image/eleme"
+	.ascii	"nts/right_arrow.png\000"
 	.align	2
 .LC79:
-	.ascii	"/home/pi/SuperMeowMeow/assets/audio/hover.wav\000"
+	.ascii	"/home/yuzu/Desktop/SuperMeowMeow/assets/audio/hover"
+	.ascii	".wav\000"
 	.align	2
 .LC80:
-	.ascii	"/home/pi/SuperMeowMeow/assets/audio/select.wav\000"
+	.ascii	"/home/yuzu/Desktop/SuperMeowMeow/assets/audio/selec"
+	.ascii	"t.wav\000"
 	.align	2
 .LC81:
-	.ascii	"/home/pi/SuperMeowMeow/assets/audio/boong.wav\000"
+	.ascii	"/home/yuzu/Desktop/SuperMeowMeow/assets/audio/boong"
+	.ascii	".wav\000"
 	.align	2
 .LC82:
-	.ascii	"/home/pi/SuperMeowMeow/assets/audio/angry_1.wav\000"
+	.ascii	"/home/yuzu/Desktop/SuperMeowMeow/assets/audio/angry"
+	.ascii	"_1.wav\000"
 	.align	2
 .LC83:
-	.ascii	"/home/pi/SuperMeowMeow/assets/audio/angry_2.wav\000"
+	.ascii	"/home/yuzu/Desktop/SuperMeowMeow/assets/audio/angry"
+	.ascii	"_2.wav\000"
 	.align	2
 .LC84:
-	.ascii	"/home/pi/SuperMeowMeow/assets/audio/angry_3.wav\000"
+	.ascii	"/home/yuzu/Desktop/SuperMeowMeow/assets/audio/angry"
+	.ascii	"_3.wav\000"
 	.align	2
 .LC85:
-	.ascii	"/home/pi/SuperMeowMeow/assets/audio/angry_4.wav\000"
+	.ascii	"/home/yuzu/Desktop/SuperMeowMeow/assets/audio/angry"
+	.ascii	"_4.wav\000"
 	.align	2
 .LC86:
-	.ascii	"/home/pi/SuperMeowMeow/assets/audio/bottle_1.wav\000"
+	.ascii	"/home/yuzu/Desktop/SuperMeowMeow/assets/audio/bottl"
+	.ascii	"e_1.wav\000"
 	.align	2
 .LC87:
-	.ascii	"/home/pi/SuperMeowMeow/assets/audio/bottle_2.wav\000"
+	.ascii	"/home/yuzu/Desktop/SuperMeowMeow/assets/audio/bottl"
+	.ascii	"e_2.wav\000"
 	.align	2
 .LC88:
-	.ascii	"/home/pi/SuperMeowMeow/assets/audio/bottle_3.wav\000"
+	.ascii	"/home/yuzu/Desktop/SuperMeowMeow/assets/audio/bottl"
+	.ascii	"e_3.wav\000"
 	.align	2
 .LC89:
-	.ascii	"/home/pi/SuperMeowMeow/assets/audio/confused_1.wav\000"
+	.ascii	"/home/yuzu/Desktop/SuperMeowMeow/assets/audio/confu"
+	.ascii	"sed_1.wav\000"
 	.align	2
 .LC90:
-	.ascii	"/home/pi/SuperMeowMeow/assets/audio/confused_2.wav\000"
+	.ascii	"/home/yuzu/Desktop/SuperMeowMeow/assets/audio/confu"
+	.ascii	"sed_2.wav\000"
 	.align	2
 .LC91:
-	.ascii	"/home/pi/SuperMeowMeow/assets/audio/confused_3.wav\000"
+	.ascii	"/home/yuzu/Desktop/SuperMeowMeow/assets/audio/confu"
+	.ascii	"sed_3.wav\000"
 	.align	2
 .LC92:
-	.ascii	"/home/pi/SuperMeowMeow/assets/audio/confused_4.wav\000"
+	.ascii	"/home/yuzu/Desktop/SuperMeowMeow/assets/audio/confu"
+	.ascii	"sed_4.wav\000"
 	.align	2
 .LC93:
-	.ascii	"/home/pi/SuperMeowMeow/assets/audio/correct.wav\000"
+	.ascii	"/home/yuzu/Desktop/SuperMeowMeow/assets/audio/corre"
+	.ascii	"ct.wav\000"
 	.align	2
 .LC94:
-	.ascii	"/home/pi/SuperMeowMeow/assets/audio/drop_1.wav\000"
+	.ascii	"/home/yuzu/Desktop/SuperMeowMeow/assets/audio/drop_"
+	.ascii	"1.wav\000"
 	.align	2
 .LC95:
-	.ascii	"/home/pi/SuperMeowMeow/assets/audio/drop_2.wav\000"
+	.ascii	"/home/yuzu/Desktop/SuperMeowMeow/assets/audio/drop_"
+	.ascii	"2.wav\000"
 	.align	2
 .LC96:
-	.ascii	"/home/pi/SuperMeowMeow/assets/audio/drop_3.wav\000"
+	.ascii	"/home/yuzu/Desktop/SuperMeowMeow/assets/audio/drop_"
+	.ascii	"3.wav\000"
 	.align	2
 .LC97:
-	.ascii	"/home/pi/SuperMeowMeow/assets/audio/pickup_1.wav\000"
+	.ascii	"/home/yuzu/Desktop/SuperMeowMeow/assets/audio/picku"
+	.ascii	"p_1.wav\000"
 	.align	2
 .LC98:
-	.ascii	"/home/pi/SuperMeowMeow/assets/audio/pickup_2.wav\000"
+	.ascii	"/home/yuzu/Desktop/SuperMeowMeow/assets/audio/picku"
+	.ascii	"p_2.wav\000"
 	.align	2
 .LC99:
-	.ascii	"/home/pi/SuperMeowMeow/assets/audio/pickup_3.wav\000"
+	.ascii	"/home/yuzu/Desktop/SuperMeowMeow/assets/audio/picku"
+	.ascii	"p_3.wav\000"
 	.align	2
 .LC100:
-	.ascii	"/home/pi/SuperMeowMeow/assets/audio/pour_1.wav\000"
+	.ascii	"/home/yuzu/Desktop/SuperMeowMeow/assets/audio/pour_"
+	.ascii	"1.wav\000"
 	.align	2
 .LC101:
-	.ascii	"/home/pi/SuperMeowMeow/assets/audio/pour_2.wav\000"
+	.ascii	"/home/yuzu/Desktop/SuperMeowMeow/assets/audio/pour_"
+	.ascii	"2.wav\000"
 	.align	2
 .LC102:
-	.ascii	"/home/pi/SuperMeowMeow/assets/audio/pour_3.wav\000"
+	.ascii	"/home/yuzu/Desktop/SuperMeowMeow/assets/audio/pour_"
+	.ascii	"3.wav\000"
 	.align	2
 .LC103:
-	.ascii	"/home/pi/SuperMeowMeow/assets/audio/stir_1.wav\000"
+	.ascii	"/home/yuzu/Desktop/SuperMeowMeow/assets/audio/stir_"
+	.ascii	"1.wav\000"
 	.align	2
 .LC104:
-	.ascii	"/home/pi/SuperMeowMeow/assets/audio/stir_2.wav\000"
+	.ascii	"/home/yuzu/Desktop/SuperMeowMeow/assets/audio/stir_"
+	.ascii	"2.wav\000"
 	.align	2
 .LC105:
-	.ascii	"/home/pi/SuperMeowMeow/assets/audio/stir_3.wav\000"
+	.ascii	"/home/yuzu/Desktop/SuperMeowMeow/assets/audio/stir_"
+	.ascii	"3.wav\000"
 	.align	2
 .LC106:
-	.ascii	"/home/pi/SuperMeowMeow/assets/audio/flick.wav\000"
+	.ascii	"/home/yuzu/Desktop/SuperMeowMeow/assets/audio/flick"
+	.ascii	".wav\000"
 	.align	2
 .LC107:
-	.ascii	"/home/pi/SuperMeowMeow/assets/image/falling_items/c"
-	.ascii	"ara.png\000"
+	.ascii	"/home/yuzu/Desktop/SuperMeowMeow/assets/image/falli"
+	.ascii	"ng_items/cara.png\000"
 	.align	2
 .LC108:
-	.ascii	"/home/pi/SuperMeowMeow/assets/image/falling_items/c"
-	.ascii	"milk.png\000"
+	.ascii	"/home/yuzu/Desktop/SuperMeowMeow/assets/image/falli"
+	.ascii	"ng_items/cmilk.png\000"
 	.align	2
 .LC109:
-	.ascii	"/home/pi/SuperMeowMeow/assets/image/falling_items/c"
-	.ascii	"ocoa.png\000"
+	.ascii	"/home/yuzu/Desktop/SuperMeowMeow/assets/image/falli"
+	.ascii	"ng_items/cocoa.png\000"
 	.align	2
 .LC110:
-	.ascii	"/home/pi/SuperMeowMeow/assets/image/falling_items/g"
-	.ascii	"ar.png\000"
+	.ascii	"/home/yuzu/Desktop/SuperMeowMeow/assets/image/falli"
+	.ascii	"ng_items/gar.png\000"
 	.align	2
 .LC111:
-	.ascii	"/home/pi/SuperMeowMeow/assets/image/falling_items/m"
-	.ascii	"arshmello.png\000"
+	.ascii	"/home/yuzu/Desktop/SuperMeowMeow/assets/image/falli"
+	.ascii	"ng_items/marshmello.png\000"
 	.align	2
 .LC112:
-	.ascii	"/home/pi/SuperMeowMeow/assets/image/falling_items/m"
-	.ascii	"atcha.png\000"
+	.ascii	"/home/yuzu/Desktop/SuperMeowMeow/assets/image/falli"
+	.ascii	"ng_items/matcha.png\000"
 	.align	2
 .LC113:
-	.ascii	"/home/pi/SuperMeowMeow/assets/image/falling_items/m"
-	.ascii	"ilk.png\000"
+	.ascii	"/home/yuzu/Desktop/SuperMeowMeow/assets/image/falli"
+	.ascii	"ng_items/milk.png\000"
 	.align	2
 .LC114:
-	.ascii	"/home/pi/SuperMeowMeow/assets/image/falling_items/w"
-	.ascii	"cream.png\000"
+	.ascii	"/home/yuzu/Desktop/SuperMeowMeow/assets/image/falli"
+	.ascii	"ng_items/wcream.png\000"
 	.align	2
 .LC115:
-	.ascii	"/home/pi/SuperMeowMeow/assets//spritesheets/GP.png\000"
+	.ascii	"/home/yuzu/Desktop/SuperMeowMeow/assets//spriteshee"
+	.ascii	"ts/GP.png\000"
 	.align	2
 .LC116:
-	.ascii	"/home/pi/SuperMeowMeow/assets//spritesheets/CP.png\000"
+	.ascii	"/home/yuzu/Desktop/SuperMeowMeow/assets//spriteshee"
+	.ascii	"ts/CP.png\000"
 	.align	2
 .LC117:
-	.ascii	"/home/pi/SuperMeowMeow/assets//spritesheets/CA.png\000"
+	.ascii	"/home/yuzu/Desktop/SuperMeowMeow/assets//spriteshee"
+	.ascii	"ts/CA.png\000"
 	.align	2
 .LC118:
-	.ascii	"/home/pi/SuperMeowMeow/assets//spritesheets/CH.png\000"
+	.ascii	"/home/yuzu/Desktop/SuperMeowMeow/assets//spriteshee"
+	.ascii	"ts/CH.png\000"
 	.align	2
 .LC119:
-	.ascii	"/home/pi/SuperMeowMeow/assets//spritesheets/CM.png\000"
+	.ascii	"/home/yuzu/Desktop/SuperMeowMeow/assets//spriteshee"
+	.ascii	"ts/CM.png\000"
 	.align	2
 .LC120:
-	.ascii	"/home/pi/SuperMeowMeow/assets//spritesheets/MI.png\000"
+	.ascii	"/home/yuzu/Desktop/SuperMeowMeow/assets//spriteshee"
+	.ascii	"ts/MI.png\000"
 	.align	2
 .LC121:
-	.ascii	"/home/pi/SuperMeowMeow/assets//spritesheets/MA.png\000"
+	.ascii	"/home/yuzu/Desktop/SuperMeowMeow/assets//spriteshee"
+	.ascii	"ts/MA.png\000"
 	.align	2
 .LC122:
-	.ascii	"/home/pi/SuperMeowMeow/assets//spritesheets/WC.png\000"
+	.ascii	"/home/yuzu/Desktop/SuperMeowMeow/assets//spriteshee"
+	.ascii	"ts/WC.png\000"
 	.align	2
 .LC123:
-	.ascii	"/home/pi/SuperMeowMeow/assets//spritesheets/GAR.png"
-	.ascii	"\000"
+	.ascii	"/home/yuzu/Desktop/SuperMeowMeow/assets//spriteshee"
+	.ascii	"ts/GAR.png\000"
 	.align	2
 .LC124:
-	.ascii	"/home/pi/SuperMeowMeow/assets//spritesheets/greench"
-	.ascii	"on.png\000"
+	.ascii	"/home/yuzu/Desktop/SuperMeowMeow/assets//spriteshee"
+	.ascii	"ts/greenchon.png\000"
 	.align	2
 .LC125:
-	.ascii	"/home/pi/SuperMeowMeow/assets//spritesheets/cocoach"
-	.ascii	"on.png\000"
+	.ascii	"/home/yuzu/Desktop/SuperMeowMeow/assets//spriteshee"
+	.ascii	"ts/cocoachon.png\000"
 	.align	2
 .LC126:
-	.ascii	"/home/pi/SuperMeowMeow/assets/spritesheets/TRASHCAN"
-	.ascii	".png\000"
+	.ascii	"/home/yuzu/Desktop/SuperMeowMeow/assets/spritesheet"
+	.ascii	"s/TRASHCAN.png\000"
 	.align	2
 .LC127:
-	.ascii	"/home/pi/SuperMeowMeow/assets/image/sprite/customer"
-	.ascii	"_%d/happy.png\000"
+	.ascii	"/home/yuzu/Desktop/SuperMeowMeow/assets/image/sprit"
+	.ascii	"e/customer_%d/happy.png\000"
 	.align	2
 .LC128:
-	.ascii	"/home/pi/SuperMeowMeow/assets/image/sprite/customer"
-	.ascii	"_%d/happy_eyes_closed.png\000"
+	.ascii	"/home/yuzu/Desktop/SuperMeowMeow/assets/image/sprit"
+	.ascii	"e/customer_%d/happy_eyes_closed.png\000"
 	.align	2
 .LC129:
-	.ascii	"/home/pi/SuperMeowMeow/assets/image/sprite/customer"
-	.ascii	"_%d/frustrated.png\000"
+	.ascii	"/home/yuzu/Desktop/SuperMeowMeow/assets/image/sprit"
+	.ascii	"e/customer_%d/frustrated.png\000"
 	.align	2
 .LC130:
-	.ascii	"/home/pi/SuperMeowMeow/assets/image/sprite/customer"
-	.ascii	"_%d/frustrated_eyes_closed.png\000"
+	.ascii	"/home/yuzu/Desktop/SuperMeowMeow/assets/image/sprit"
+	.ascii	"e/customer_%d/frustrated_eyes_closed.png\000"
 	.align	2
 .LC131:
-	.ascii	"/home/pi/SuperMeowMeow/assets/image/sprite/customer"
-	.ascii	"_%d/angry.png\000"
+	.ascii	"/home/yuzu/Desktop/SuperMeowMeow/assets/image/sprit"
+	.ascii	"e/customer_%d/angry.png\000"
 	.align	2
 .LC132:
-	.ascii	"/home/pi/SuperMeowMeow/assets/image/sprite/customer"
-	.ascii	"_%d/angry_eyes_closed.png\000"
+	.ascii	"/home/yuzu/Desktop/SuperMeowMeow/assets/image/sprit"
+	.ascii	"e/customer_%d/angry_eyes_closed.png\000"
 	.align	2
 .LC133:
-	.ascii	"/home/pi/SuperMeowMeow/assets/image/sprite/cloud_1."
-	.ascii	"png\000"
+	.ascii	"/home/yuzu/Desktop/SuperMeowMeow/assets/image/sprit"
+	.ascii	"e/cloud_1.png\000"
 	.align	2
 .LC134:
-	.ascii	"/home/pi/SuperMeowMeow/assets/image/sprite/cloud_2."
-	.ascii	"png\000"
+	.ascii	"/home/yuzu/Desktop/SuperMeowMeow/assets/image/sprit"
+	.ascii	"e/cloud_2.png\000"
 	.align	2
 .LC135:
-	.ascii	"/home/pi/SuperMeowMeow/assets/image/sprite/cloud_3."
-	.ascii	"png\000"
+	.ascii	"/home/yuzu/Desktop/SuperMeowMeow/assets/image/sprit"
+	.ascii	"e/cloud_3.png\000"
 	.align	2
 .LC136:
-	.ascii	"/home/pi/SuperMeowMeow/assets/image/sprite/star_1.p"
-	.ascii	"ng\000"
+	.ascii	"/home/yuzu/Desktop/SuperMeowMeow/assets/image/sprit"
+	.ascii	"e/star_1.png\000"
 	.align	2
 .LC137:
-	.ascii	"/home/pi/SuperMeowMeow/assets/image/sprite/star_2.p"
-	.ascii	"ng\000"
+	.ascii	"/home/yuzu/Desktop/SuperMeowMeow/assets/image/sprit"
+	.ascii	"e/star_2.png\000"
 	.align	2
 .LC138:
-	.ascii	"/home/pi/SuperMeowMeow/assets/image/elements/bubble"
-	.ascii	"s.png\000"
+	.ascii	"/home/yuzu/Desktop/SuperMeowMeow/assets/image/eleme"
+	.ascii	"nts/bubbles.png\000"
 	.align	2
 .LC139:
-	.ascii	"/home/pi/SuperMeowMeow/assets/audio/bgm/Yojo_Summer"
-	.ascii	"_My_Heart.wav\000"
+	.ascii	"/home/yuzu/Desktop/SuperMeowMeow/assets/audio/bgm/Y"
+	.ascii	"ojo_Summer_My_Heart.wav\000"
 	.text
 	.align	2
 	.global	LoadGlobalAssets
@@ -9883,14 +9668,14 @@ WindowUpdate:
 LoadGlobalAssets:
 	@ args = 0, pretend = 0, frame = 192
 	@ frame_needed = 1, uses_anonymous_args = 0
-	PUSH	{r4, fp, lr}
+	push	{r4, fp, lr}
 	add	fp, sp, #8
 	sub	sp, sp, #196
 	bl	GetTime
 	vstr.64	d0, [fp, #-28]
-	ldr	r4, .L566+56
+	ldr	r4, .L544+56
 	sub	r3, fp, #68
-	ldr	r1, .L566+60
+	ldr	r1, .L544+60
 	mov	r0, r3
 	bl	LoadTexture
 	mov	lr, r4
@@ -9899,9 +9684,9 @@ LoadGlobalAssets:
 	stmia	lr!, {r0, r1, r2, r3}
 	ldr	r3, [ip]
 	str	r3, [lr]
-	ldr	r4, .L566+64
+	ldr	r4, .L544+64
 	sub	r3, fp, #68
-	ldr	r1, .L566+68
+	ldr	r1, .L544+68
 	mov	r0, r3
 	bl	LoadTexture
 	mov	lr, r4
@@ -9910,9 +9695,9 @@ LoadGlobalAssets:
 	stmia	lr!, {r0, r1, r2, r3}
 	ldr	r3, [ip]
 	str	r3, [lr]
-	ldr	r4, .L566+72
+	ldr	r4, .L544+72
 	sub	r3, fp, #68
-	ldr	r1, .L566+76
+	ldr	r1, .L544+76
 	mov	r0, r3
 	bl	LoadTexture
 	mov	lr, r4
@@ -9921,9 +9706,9 @@ LoadGlobalAssets:
 	stmia	lr!, {r0, r1, r2, r3}
 	ldr	r3, [ip]
 	str	r3, [lr]
-	ldr	r4, .L566+80
+	ldr	r4, .L544+80
 	sub	r3, fp, #68
-	ldr	r1, .L566+84
+	ldr	r1, .L544+84
 	mov	r0, r3
 	bl	LoadTexture
 	mov	lr, r4
@@ -9932,9 +9717,9 @@ LoadGlobalAssets:
 	stmia	lr!, {r0, r1, r2, r3}
 	ldr	r3, [ip]
 	str	r3, [lr]
-	ldr	r4, .L566+88
+	ldr	r4, .L544+88
 	sub	r3, fp, #68
-	ldr	r1, .L566+92
+	ldr	r1, .L544+92
 	mov	r0, r3
 	bl	LoadTexture
 	mov	lr, r4
@@ -9943,9 +9728,9 @@ LoadGlobalAssets:
 	stmia	lr!, {r0, r1, r2, r3}
 	ldr	r3, [ip]
 	str	r3, [lr]
-	ldr	r4, .L566+96
+	ldr	r4, .L544+96
 	sub	r3, fp, #68
-	ldr	r1, .L566+100
+	ldr	r1, .L544+100
 	mov	r0, r3
 	bl	LoadTexture
 	mov	lr, r4
@@ -9954,9 +9739,9 @@ LoadGlobalAssets:
 	stmia	lr!, {r0, r1, r2, r3}
 	ldr	r3, [ip]
 	str	r3, [lr]
-	ldr	r4, .L566+104
+	ldr	r4, .L544+104
 	sub	r3, fp, #68
-	ldr	r1, .L566+108
+	ldr	r1, .L544+108
 	mov	r0, r3
 	bl	LoadTexture
 	mov	lr, r4
@@ -9965,9 +9750,9 @@ LoadGlobalAssets:
 	stmia	lr!, {r0, r1, r2, r3}
 	ldr	r3, [ip]
 	str	r3, [lr]
-	ldr	r4, .L566+124
+	ldr	r4, .L544+124
 	sub	r3, fp, #68
-	ldr	r1, .L566+132
+	ldr	r1, .L544+132
 	mov	r0, r3
 	bl	LoadTexture
 	mov	lr, r4
@@ -9976,9 +9761,9 @@ LoadGlobalAssets:
 	stmia	lr!, {r0, r1, r2, r3}
 	ldr	r3, [ip]
 	str	r3, [lr]
-	ldr	r4, .L566+136
+	ldr	r4, .L544+136
 	sub	r3, fp, #68
-	ldr	r1, .L566+140
+	ldr	r1, .L544+140
 	mov	r0, r3
 	bl	LoadSound
 	mov	lr, r4
@@ -9987,9 +9772,9 @@ LoadGlobalAssets:
 	stmia	lr!, {r0, r1, r2, r3}
 	ldm	ip, {r0, r1}
 	stm	lr, {r0, r1}
-	ldr	r4, .L566+144
+	ldr	r4, .L544+144
 	sub	r3, fp, #68
-	ldr	r1, .L566+152
+	ldr	r1, .L544+152
 	mov	r0, r3
 	bl	LoadSound
 	mov	lr, r4
@@ -9998,9 +9783,9 @@ LoadGlobalAssets:
 	stmia	lr!, {r0, r1, r2, r3}
 	ldm	ip, {r0, r1}
 	stm	lr, {r0, r1}
-	ldr	r4, .L566+160
+	ldr	r4, .L544+160
 	sub	r3, fp, #68
-	ldr	r1, .L566+164
+	ldr	r1, .L544+164
 	mov	r0, r3
 	bl	LoadSound
 	mov	lr, r4
@@ -10009,9 +9794,9 @@ LoadGlobalAssets:
 	stmia	lr!, {r0, r1, r2, r3}
 	ldm	ip, {r0, r1}
 	stm	lr, {r0, r1}
-	ldr	r4, .L566+168
+	ldr	r4, .L544+168
 	sub	r3, fp, #68
-	ldr	r1, .L566+172
+	ldr	r1, .L544+172
 	mov	r0, r3
 	bl	LoadSound
 	mov	lr, r4
@@ -10020,9 +9805,9 @@ LoadGlobalAssets:
 	stmia	lr!, {r0, r1, r2, r3}
 	ldm	ip, {r0, r1}
 	stm	lr, {r0, r1}
-	ldr	r4, .L566+176
+	ldr	r4, .L544+176
 	sub	r3, fp, #68
-	ldr	r1, .L566+180
+	ldr	r1, .L544+180
 	mov	r0, r3
 	bl	LoadSound
 	mov	lr, r4
@@ -10031,9 +9816,9 @@ LoadGlobalAssets:
 	stmia	lr!, {r0, r1, r2, r3}
 	ldm	ip, {r0, r1}
 	stm	lr, {r0, r1}
-	ldr	r4, .L566+184
+	ldr	r4, .L544+184
 	sub	r3, fp, #68
-	ldr	r1, .L566+188
+	ldr	r1, .L544+188
 	mov	r0, r3
 	bl	LoadSound
 	mov	lr, r4
@@ -10042,9 +9827,9 @@ LoadGlobalAssets:
 	stmia	lr!, {r0, r1, r2, r3}
 	ldm	ip, {r0, r1}
 	stm	lr, {r0, r1}
-	ldr	r4, .L566+192
+	ldr	r4, .L544+192
 	sub	r3, fp, #68
-	ldr	r1, .L566+196
+	ldr	r1, .L544+196
 	mov	r0, r3
 	bl	LoadSound
 	mov	lr, r4
@@ -10053,9 +9838,9 @@ LoadGlobalAssets:
 	stmia	lr!, {r0, r1, r2, r3}
 	ldm	ip, {r0, r1}
 	stm	lr, {r0, r1}
-	ldr	r4, .L566+200
+	ldr	r4, .L544+200
 	sub	r3, fp, #68
-	ldr	r1, .L566+204
+	ldr	r1, .L544+204
 	mov	r0, r3
 	bl	LoadSound
 	mov	lr, r4
@@ -10064,9 +9849,9 @@ LoadGlobalAssets:
 	stmia	lr!, {r0, r1, r2, r3}
 	ldm	ip, {r0, r1}
 	stm	lr, {r0, r1}
-	ldr	r4, .L566+208
+	ldr	r4, .L544+208
 	sub	r3, fp, #68
-	ldr	r1, .L566+212
+	ldr	r1, .L544+212
 	mov	r0, r3
 	bl	LoadSound
 	mov	lr, r4
@@ -10075,9 +9860,9 @@ LoadGlobalAssets:
 	stmia	lr!, {r0, r1, r2, r3}
 	ldm	ip, {r0, r1}
 	stm	lr, {r0, r1}
-	ldr	r4, .L566+216
+	ldr	r4, .L544+216
 	sub	r3, fp, #68
-	ldr	r1, .L566+220
+	ldr	r1, .L544+220
 	mov	r0, r3
 	bl	LoadSound
 	mov	lr, r4
@@ -10086,9 +9871,9 @@ LoadGlobalAssets:
 	stmia	lr!, {r0, r1, r2, r3}
 	ldm	ip, {r0, r1}
 	stm	lr, {r0, r1}
-	ldr	r4, .L566+224
+	ldr	r4, .L544+224
 	sub	r3, fp, #68
-	ldr	r1, .L566+228
+	ldr	r1, .L544+228
 	mov	r0, r3
 	bl	LoadSound
 	mov	lr, r4
@@ -10097,9 +9882,9 @@ LoadGlobalAssets:
 	stmia	lr!, {r0, r1, r2, r3}
 	ldm	ip, {r0, r1}
 	stm	lr, {r0, r1}
-	ldr	r4, .L566+232
+	ldr	r4, .L544+232
 	sub	r3, fp, #68
-	ldr	r1, .L566+236
+	ldr	r1, .L544+236
 	mov	r0, r3
 	bl	LoadSound
 	mov	lr, r4
@@ -10108,9 +9893,9 @@ LoadGlobalAssets:
 	stmia	lr!, {r0, r1, r2, r3}
 	ldm	ip, {r0, r1}
 	stm	lr, {r0, r1}
-	ldr	r4, .L566+240
+	ldr	r4, .L544+240
 	sub	r3, fp, #68
-	ldr	r1, .L566+244
+	ldr	r1, .L544+244
 	mov	r0, r3
 	bl	LoadSound
 	mov	lr, r4
@@ -10119,9 +9904,9 @@ LoadGlobalAssets:
 	stmia	lr!, {r0, r1, r2, r3}
 	ldm	ip, {r0, r1}
 	stm	lr, {r0, r1}
-	ldr	r4, .L566+248
+	ldr	r4, .L544+248
 	sub	r3, fp, #68
-	ldr	r1, .L566+252
+	ldr	r1, .L544+252
 	mov	r0, r3
 	bl	LoadSound
 	mov	lr, r4
@@ -10130,9 +9915,9 @@ LoadGlobalAssets:
 	stmia	lr!, {r0, r1, r2, r3}
 	ldm	ip, {r0, r1}
 	stm	lr, {r0, r1}
-	ldr	r4, .L566+256
+	ldr	r4, .L544+256
 	sub	r3, fp, #68
-	ldr	r1, .L566+260
+	ldr	r1, .L544+260
 	mov	r0, r3
 	bl	LoadSound
 	mov	lr, r4
@@ -10141,9 +9926,9 @@ LoadGlobalAssets:
 	stmia	lr!, {r0, r1, r2, r3}
 	ldm	ip, {r0, r1}
 	stm	lr, {r0, r1}
-	ldr	r4, .L566+264
+	ldr	r4, .L544+264
 	sub	r3, fp, #68
-	ldr	r1, .L566+268
+	ldr	r1, .L544+268
 	mov	r0, r3
 	bl	LoadSound
 	mov	lr, r4
@@ -10152,9 +9937,9 @@ LoadGlobalAssets:
 	stmia	lr!, {r0, r1, r2, r3}
 	ldm	ip, {r0, r1}
 	stm	lr, {r0, r1}
-	ldr	r4, .L566+272
+	ldr	r4, .L544+272
 	sub	r3, fp, #68
-	ldr	r1, .L566+276
+	ldr	r1, .L544+276
 	mov	r0, r3
 	bl	LoadSound
 	mov	lr, r4
@@ -10163,9 +9948,9 @@ LoadGlobalAssets:
 	stmia	lr!, {r0, r1, r2, r3}
 	ldm	ip, {r0, r1}
 	stm	lr, {r0, r1}
-	ldr	r4, .L566+280
+	ldr	r4, .L544+280
 	sub	r3, fp, #68
-	ldr	r1, .L566+284
+	ldr	r1, .L544+284
 	mov	r0, r3
 	bl	LoadSound
 	mov	lr, r4
@@ -10174,9 +9959,9 @@ LoadGlobalAssets:
 	stmia	lr!, {r0, r1, r2, r3}
 	ldm	ip, {r0, r1}
 	stm	lr, {r0, r1}
-	ldr	r4, .L566+288
+	ldr	r4, .L544+288
 	sub	r3, fp, #68
-	ldr	r1, .L566+292
+	ldr	r1, .L544+292
 	mov	r0, r3
 	bl	LoadSound
 	mov	lr, r4
@@ -10185,9 +9970,9 @@ LoadGlobalAssets:
 	stmia	lr!, {r0, r1, r2, r3}
 	ldm	ip, {r0, r1}
 	stm	lr, {r0, r1}
-	ldr	r4, .L566+296
+	ldr	r4, .L544+296
 	sub	r3, fp, #68
-	ldr	r1, .L566+300
+	ldr	r1, .L544+300
 	mov	r0, r3
 	bl	LoadSound
 	mov	lr, r4
@@ -10196,9 +9981,9 @@ LoadGlobalAssets:
 	stmia	lr!, {r0, r1, r2, r3}
 	ldm	ip, {r0, r1}
 	stm	lr, {r0, r1}
-	ldr	r4, .L566+304
+	ldr	r4, .L544+304
 	sub	r3, fp, #68
-	ldr	r1, .L566+308
+	ldr	r1, .L544+308
 	mov	r0, r3
 	bl	LoadSound
 	mov	lr, r4
@@ -10207,9 +9992,9 @@ LoadGlobalAssets:
 	stmia	lr!, {r0, r1, r2, r3}
 	ldm	ip, {r0, r1}
 	stm	lr, {r0, r1}
-	ldr	r4, .L566+312
+	ldr	r4, .L544+312
 	sub	r3, fp, #68
-	ldr	r1, .L566+316
+	ldr	r1, .L544+316
 	mov	r0, r3
 	bl	LoadSound
 	mov	lr, r4
@@ -10218,9 +10003,9 @@ LoadGlobalAssets:
 	stmia	lr!, {r0, r1, r2, r3}
 	ldm	ip, {r0, r1}
 	stm	lr, {r0, r1}
-	ldr	r4, .L566+320
+	ldr	r4, .L544+320
 	sub	r3, fp, #68
-	ldr	r1, .L566+324
+	ldr	r1, .L544+324
 	mov	r0, r3
 	bl	LoadSound
 	mov	lr, r4
@@ -10229,9 +10014,9 @@ LoadGlobalAssets:
 	stmia	lr!, {r0, r1, r2, r3}
 	ldm	ip, {r0, r1}
 	stm	lr, {r0, r1}
-	ldr	r4, .L566+328
+	ldr	r4, .L544+328
 	sub	r3, fp, #68
-	ldr	r1, .L566+332
+	ldr	r1, .L544+332
 	mov	r0, r3
 	bl	LoadSound
 	mov	lr, r4
@@ -10240,9 +10025,9 @@ LoadGlobalAssets:
 	stmia	lr!, {r0, r1, r2, r3}
 	ldm	ip, {r0, r1}
 	stm	lr, {r0, r1}
-	ldr	r4, .L566+336
+	ldr	r4, .L544+336
 	sub	r3, fp, #68
-	ldr	r1, .L566+340
+	ldr	r1, .L544+340
 	mov	r0, r3
 	bl	LoadSound
 	mov	lr, r4
@@ -10251,9 +10036,9 @@ LoadGlobalAssets:
 	stmia	lr!, {r0, r1, r2, r3}
 	ldm	ip, {r0, r1}
 	stm	lr, {r0, r1}
-	ldr	r4, .L566+344
+	ldr	r4, .L544+344
 	sub	r3, fp, #68
-	ldr	r1, .L566+348
+	ldr	r1, .L544+348
 	mov	r0, r3
 	bl	LoadSound
 	mov	lr, r4
@@ -10262,9 +10047,9 @@ LoadGlobalAssets:
 	stmia	lr!, {r0, r1, r2, r3}
 	ldm	ip, {r0, r1}
 	stm	lr, {r0, r1}
-	ldr	r4, .L566+352
+	ldr	r4, .L544+352
 	sub	r3, fp, #68
-	ldr	r1, .L566+356
+	ldr	r1, .L544+356
 	mov	r0, r3
 	bl	LoadSound
 	mov	lr, r4
@@ -10273,9 +10058,9 @@ LoadGlobalAssets:
 	stmia	lr!, {r0, r1, r2, r3}
 	ldm	ip, {r0, r1}
 	stm	lr, {r0, r1}
-	ldr	r4, .L566+360
+	ldr	r4, .L544+360
 	sub	r3, fp, #68
-	ldr	r1, .L566+364
+	ldr	r1, .L544+364
 	mov	r0, r3
 	bl	LoadSound
 	mov	lr, r4
@@ -10284,9 +10069,9 @@ LoadGlobalAssets:
 	stmia	lr!, {r0, r1, r2, r3}
 	ldm	ip, {r0, r1}
 	stm	lr, {r0, r1}
-	ldr	r4, .L566+368
+	ldr	r4, .L544+368
 	sub	r3, fp, #68
-	ldr	r1, .L566+372
+	ldr	r1, .L544+372
 	mov	r0, r3
 	bl	LoadTexture
 	mov	lr, r4
@@ -10295,9 +10080,9 @@ LoadGlobalAssets:
 	stmia	lr!, {r0, r1, r2, r3}
 	ldr	r3, [ip]
 	str	r3, [lr]
-	ldr	r4, .L566+368
+	ldr	r4, .L544+368
 	sub	r3, fp, #68
-	ldr	r1, .L566+376
+	ldr	r1, .L544+376
 	mov	r0, r3
 	bl	LoadTexture
 	add	ip, r4, #20
@@ -10306,9 +10091,9 @@ LoadGlobalAssets:
 	stmia	ip!, {r0, r1, r2, r3}
 	ldr	r3, [lr]
 	str	r3, [ip]
-	ldr	r4, .L566+368
+	ldr	r4, .L544+368
 	sub	r3, fp, #68
-	ldr	r1, .L566+380
+	ldr	r1, .L544+380
 	mov	r0, r3
 	bl	LoadTexture
 	add	ip, r4, #40
@@ -10317,9 +10102,9 @@ LoadGlobalAssets:
 	stmia	ip!, {r0, r1, r2, r3}
 	ldr	r3, [lr]
 	str	r3, [ip]
-	ldr	r4, .L566+368
+	ldr	r4, .L544+368
 	sub	r3, fp, #68
-	ldr	r1, .L566+384
+	ldr	r1, .L544+384
 	mov	r0, r3
 	bl	LoadTexture
 	add	ip, r4, #60
@@ -10328,9 +10113,9 @@ LoadGlobalAssets:
 	stmia	ip!, {r0, r1, r2, r3}
 	ldr	r3, [lr]
 	str	r3, [ip]
-	ldr	r4, .L566+368
+	ldr	r4, .L544+368
 	sub	r3, fp, #68
-	ldr	r1, .L566+388
+	ldr	r1, .L544+388
 	mov	r0, r3
 	bl	LoadTexture
 	add	ip, r4, #80
@@ -10339,9 +10124,9 @@ LoadGlobalAssets:
 	stmia	ip!, {r0, r1, r2, r3}
 	ldr	r3, [lr]
 	str	r3, [ip]
-	ldr	r4, .L566+368
+	ldr	r4, .L544+368
 	sub	r3, fp, #68
-	ldr	r1, .L566+392
+	ldr	r1, .L544+392
 	mov	r0, r3
 	bl	LoadTexture
 	add	ip, r4, #100
@@ -10350,9 +10135,9 @@ LoadGlobalAssets:
 	stmia	ip!, {r0, r1, r2, r3}
 	ldr	r3, [lr]
 	str	r3, [ip]
-	ldr	r4, .L566+368
+	ldr	r4, .L544+368
 	sub	r3, fp, #68
-	ldr	r1, .L566+396
+	ldr	r1, .L544+396
 	mov	r0, r3
 	bl	LoadTexture
 	add	ip, r4, #120
@@ -10361,9 +10146,9 @@ LoadGlobalAssets:
 	stmia	ip!, {r0, r1, r2, r3}
 	ldr	r3, [lr]
 	str	r3, [ip]
-	ldr	r4, .L566+368
+	ldr	r4, .L544+368
 	sub	r3, fp, #68
-	ldr	r1, .L566+400
+	ldr	r1, .L544+400
 	mov	r0, r3
 	bl	LoadTexture
 	add	ip, r4, #140
@@ -10372,9 +10157,9 @@ LoadGlobalAssets:
 	stmia	ip!, {r0, r1, r2, r3}
 	ldr	r3, [lr]
 	str	r3, [ip]
-	ldr	r4, .L566+404
+	ldr	r4, .L544+404
 	sub	r3, fp, #68
-	ldr	r1, .L566+408
+	ldr	r1, .L544+408
 	mov	r0, r3
 	bl	LoadTexture
 	mov	lr, r4
@@ -10383,9 +10168,9 @@ LoadGlobalAssets:
 	stmia	lr!, {r0, r1, r2, r3}
 	ldr	r3, [ip]
 	str	r3, [lr]
-	ldr	r4, .L566+412
+	ldr	r4, .L544+412
 	sub	r3, fp, #68
-	ldr	r1, .L566+416
+	ldr	r1, .L544+416
 	mov	r0, r3
 	bl	LoadTexture
 	mov	lr, r4
@@ -10394,9 +10179,9 @@ LoadGlobalAssets:
 	stmia	lr!, {r0, r1, r2, r3}
 	ldr	r3, [ip]
 	str	r3, [lr]
-	ldr	r4, .L566+420
+	ldr	r4, .L544+420
 	sub	r3, fp, #68
-	ldr	r1, .L566+424
+	ldr	r1, .L544+424
 	mov	r0, r3
 	bl	LoadTexture
 	mov	lr, r4
@@ -10405,9 +10190,9 @@ LoadGlobalAssets:
 	stmia	lr!, {r0, r1, r2, r3}
 	ldr	r3, [ip]
 	str	r3, [lr]
-	ldr	r4, .L566+428
+	ldr	r4, .L544+428
 	sub	r3, fp, #68
-	ldr	r1, .L566+432
+	ldr	r1, .L544+432
 	mov	r0, r3
 	bl	LoadTexture
 	mov	lr, r4
@@ -10416,9 +10201,9 @@ LoadGlobalAssets:
 	stmia	lr!, {r0, r1, r2, r3}
 	ldr	r3, [ip]
 	str	r3, [lr]
-	ldr	r4, .L566+436
+	ldr	r4, .L544+436
 	sub	r3, fp, #68
-	ldr	r1, .L566+440
+	ldr	r1, .L544+440
 	mov	r0, r3
 	bl	LoadTexture
 	mov	lr, r4
@@ -10427,9 +10212,9 @@ LoadGlobalAssets:
 	stmia	lr!, {r0, r1, r2, r3}
 	ldr	r3, [ip]
 	str	r3, [lr]
-	ldr	r4, .L566+444
+	ldr	r4, .L544+444
 	sub	r3, fp, #68
-	ldr	r1, .L566+448
+	ldr	r1, .L544+448
 	mov	r0, r3
 	bl	LoadTexture
 	mov	lr, r4
@@ -10438,9 +10223,9 @@ LoadGlobalAssets:
 	stmia	lr!, {r0, r1, r2, r3}
 	ldr	r3, [ip]
 	str	r3, [lr]
-	ldr	r4, .L566+452
+	ldr	r4, .L544+452
 	sub	r3, fp, #68
-	ldr	r1, .L566+456
+	ldr	r1, .L544+456
 	mov	r0, r3
 	bl	LoadTexture
 	mov	lr, r4
@@ -10449,9 +10234,9 @@ LoadGlobalAssets:
 	stmia	lr!, {r0, r1, r2, r3}
 	ldr	r3, [ip]
 	str	r3, [lr]
-	ldr	r4, .L566+460
+	ldr	r4, .L544+460
 	sub	r3, fp, #68
-	ldr	r1, .L566+464
+	ldr	r1, .L544+464
 	mov	r0, r3
 	bl	LoadTexture
 	mov	lr, r4
@@ -10460,9 +10245,9 @@ LoadGlobalAssets:
 	stmia	lr!, {r0, r1, r2, r3}
 	ldr	r3, [ip]
 	str	r3, [lr]
-	ldr	r4, .L566+468
+	ldr	r4, .L544+468
 	sub	r3, fp, #68
-	ldr	r1, .L566+472
+	ldr	r1, .L544+472
 	mov	r0, r3
 	bl	LoadTexture
 	mov	lr, r4
@@ -10471,9 +10256,9 @@ LoadGlobalAssets:
 	stmia	lr!, {r0, r1, r2, r3}
 	ldr	r3, [ip]
 	str	r3, [lr]
-	ldr	r4, .L566+476
+	ldr	r4, .L544+476
 	sub	r3, fp, #68
-	ldr	r1, .L566+480
+	ldr	r1, .L544+480
 	mov	r0, r3
 	bl	LoadTexture
 	mov	lr, r4
@@ -10482,9 +10267,9 @@ LoadGlobalAssets:
 	stmia	lr!, {r0, r1, r2, r3}
 	ldr	r3, [ip]
 	str	r3, [lr]
-	ldr	r4, .L566+484
+	ldr	r4, .L544+484
 	sub	r3, fp, #68
-	ldr	r1, .L566+488
+	ldr	r1, .L544+488
 	mov	r0, r3
 	bl	LoadTexture
 	mov	lr, r4
@@ -10493,9 +10278,9 @@ LoadGlobalAssets:
 	stmia	lr!, {r0, r1, r2, r3}
 	ldr	r3, [ip]
 	str	r3, [lr]
-	ldr	r4, .L566+492
+	ldr	r4, .L544+492
 	sub	r3, fp, #68
-	ldr	r1, .L566+496
+	ldr	r1, .L544+496
 	mov	r0, r3
 	bl	LoadTexture
 	mov	lr, r4
@@ -10506,15 +10291,15 @@ LoadGlobalAssets:
 	str	r3, [lr]
 	mov	r3, #0
 	str	r3, [fp, #-16]
-	b	.L564
-.L565:
+	b	.L542
+.L543:
 	ldr	r3, [fp, #-16]
 	add	r3, r3, #1
 	mov	r1, r3
-	ldr	r0, .L566+500
+	ldr	r0, .L544+500
 	bl	TextFormat
 	mov	r1, r0
-	ldr	r0, .L566+504
+	ldr	r0, .L544+504
 	ldr	r2, [fp, #-16]
 	mov	r3, r2
 	lsl	r3, r3, #4
@@ -10533,10 +10318,10 @@ LoadGlobalAssets:
 	ldr	r3, [fp, #-16]
 	add	r3, r3, #1
 	mov	r1, r3
-	ldr	r0, .L566+508
+	ldr	r0, .L544+508
 	bl	TextFormat
 	mov	r1, r0
-	ldr	r0, .L566+504
+	ldr	r0, .L544+504
 	ldr	r2, [fp, #-16]
 	mov	r3, r2
 	lsl	r3, r3, #4
@@ -10556,10 +10341,10 @@ LoadGlobalAssets:
 	ldr	r3, [fp, #-16]
 	add	r3, r3, #1
 	mov	r1, r3
-	ldr	r0, .L566+512
+	ldr	r0, .L544+512
 	bl	TextFormat
 	mov	r1, r0
-	ldr	r0, .L566+504
+	ldr	r0, .L544+504
 	ldr	r2, [fp, #-16]
 	mov	r3, r2
 	lsl	r3, r3, #4
@@ -10579,10 +10364,10 @@ LoadGlobalAssets:
 	ldr	r3, [fp, #-16]
 	add	r3, r3, #1
 	mov	r1, r3
-	ldr	r0, .L566+516
+	ldr	r0, .L544+516
 	bl	TextFormat
 	mov	r1, r0
-	ldr	r0, .L566+504
+	ldr	r0, .L544+504
 	ldr	r2, [fp, #-16]
 	mov	r3, r2
 	lsl	r3, r3, #4
@@ -10602,10 +10387,10 @@ LoadGlobalAssets:
 	ldr	r3, [fp, #-16]
 	add	r3, r3, #1
 	mov	r1, r3
-	ldr	r0, .L566+520
+	ldr	r0, .L544+520
 	bl	TextFormat
 	mov	r1, r0
-	ldr	r0, .L566+504
+	ldr	r0, .L544+504
 	ldr	r2, [fp, #-16]
 	mov	r3, r2
 	lsl	r3, r3, #4
@@ -10625,10 +10410,10 @@ LoadGlobalAssets:
 	ldr	r3, [fp, #-16]
 	add	r3, r3, #1
 	mov	r1, r3
-	ldr	r0, .L566+524
+	ldr	r0, .L544+524
 	bl	TextFormat
 	mov	r1, r0
-	ldr	r0, .L566+504
+	ldr	r0, .L544+504
 	ldr	r2, [fp, #-16]
 	mov	r3, r2
 	lsl	r3, r3, #4
@@ -10648,13 +10433,13 @@ LoadGlobalAssets:
 	ldr	r3, [fp, #-16]
 	add	r3, r3, #1
 	str	r3, [fp, #-16]
-.L564:
+.L542:
 	ldr	r3, [fp, #-16]
 	cmp	r3, #3
-	ble	.L565
-	ldr	r4, .L566+528
+	ble	.L543
+	ldr	r4, .L544+528
 	sub	r3, fp, #68
-	ldr	r1, .L566+532
+	ldr	r1, .L544+532
 	mov	r0, r3
 	bl	LoadTexture
 	mov	lr, r4
@@ -10663,9 +10448,9 @@ LoadGlobalAssets:
 	stmia	lr!, {r0, r1, r2, r3}
 	ldr	r3, [ip]
 	str	r3, [lr]
-	ldr	r4, .L566+536
+	ldr	r4, .L544+536
 	sub	r3, fp, #68
-	ldr	r1, .L566+540
+	ldr	r1, .L544+540
 	mov	r0, r3
 	bl	LoadTexture
 	mov	lr, r4
@@ -10674,9 +10459,9 @@ LoadGlobalAssets:
 	stmia	lr!, {r0, r1, r2, r3}
 	ldr	r3, [ip]
 	str	r3, [lr]
-	ldr	r4, .L566+544
+	ldr	r4, .L544+544
 	sub	r3, fp, #68
-	ldr	r1, .L566+548
+	ldr	r1, .L544+548
 	mov	r0, r3
 	bl	LoadTexture
 	mov	lr, r4
@@ -10685,9 +10470,9 @@ LoadGlobalAssets:
 	stmia	lr!, {r0, r1, r2, r3}
 	ldr	r3, [ip]
 	str	r3, [lr]
-	ldr	r4, .L566+552
+	ldr	r4, .L544+552
 	sub	r3, fp, #68
-	ldr	r1, .L566+556
+	ldr	r1, .L544+556
 	mov	r0, r3
 	bl	LoadTexture
 	mov	lr, r4
@@ -10696,9 +10481,9 @@ LoadGlobalAssets:
 	stmia	lr!, {r0, r1, r2, r3}
 	ldr	r3, [ip]
 	str	r3, [lr]
-	ldr	r4, .L566+560
+	ldr	r4, .L544+560
 	sub	r3, fp, #68
-	ldr	r1, .L566+564
+	ldr	r1, .L544+564
 	mov	r0, r3
 	bl	LoadTexture
 	mov	lr, r4
@@ -10707,9 +10492,9 @@ LoadGlobalAssets:
 	stmia	lr!, {r0, r1, r2, r3}
 	ldr	r3, [ip]
 	str	r3, [lr]
-	ldr	r4, .L566+568
+	ldr	r4, .L544+568
 	sub	r3, fp, #68
-	ldr	r1, .L566+572
+	ldr	r1, .L544+572
 	mov	r0, r3
 	bl	LoadTexture
 	mov	lr, r4
@@ -10718,9 +10503,9 @@ LoadGlobalAssets:
 	stmia	lr!, {r0, r1, r2, r3}
 	ldr	r3, [ip]
 	str	r3, [lr]
-	ldr	r4, .L566+576
+	ldr	r4, .L544+576
 	sub	r3, fp, #108
-	ldr	r1, .L566+580
+	ldr	r1, .L544+580
 	mov	r0, r3
 	bl	LoadMusicStream
 	mov	lr, r4
@@ -10731,26 +10516,26 @@ LoadGlobalAssets:
 	stmia	lr!, {r0, r1, r2, r3}
 	ldr	r3, [ip]
 	str	r3, [lr]
-	vldr.32	s14, .L566+112
-	vldr.32	s15, .L566+116
+	vldr.32	s14, .L544+112
+	vldr.32	s15, .L544+116
 	vadd.f32	s15, s14, s15
 	vstr.32	s15, [fp, #-36]
-	vldr.32	s14, .L566+120
-	vldr.32	s15, .L566+128
+	vldr.32	s14, .L544+120
+	vldr.32	s15, .L544+128
 	vadd.f32	s15, s14, s15
 	vstr.32	s15, [fp, #-32]
-	ldr	r4, .L566+584
+	ldr	r4, .L544+584
 	sub	r0, fp, #204
 	vldr.32	s14, [fp, #-36]
 	vldr.32	s15, [fp, #-32]
-	vldr.64	d4, .L566
+	vldr.64	d4, .L544
 	mov	r3, #1
 	vmov.f32	s6, s14
 	vmov.f32	s7, s15
 	mov	r2, #1
-	vldr.64	d2, .L566+8
-	vldr.64	d1, .L566+16
-	vldr.64	d0, .L566+24
+	vldr.64	d2, .L544+8
+	vldr.64	d1, .L544+16
+	vldr.64	d0, .L544+24
 	mov	r1, #0
 	bl	CreateCustomer
 	mov	r0, r4
@@ -10758,26 +10543,26 @@ LoadGlobalAssets:
 	mov	r2, #96
 	mov	r1, r3
 	bl	memcpy
-	vldr.32	s14, .L566+112
-	vldr.32	s15, .L566+148
+	vldr.32	s14, .L544+112
+	vldr.32	s15, .L544+148
 	vadd.f32	s15, s14, s15
 	vstr.32	s15, [fp, #-44]
-	vldr.32	s14, .L566+120
-	vldr.32	s15, .L566+156
+	vldr.32	s14, .L544+120
+	vldr.32	s15, .L544+156
 	vadd.f32	s15, s14, s15
 	vstr.32	s15, [fp, #-40]
-	ldr	r4, .L566+588
+	ldr	r4, .L544+588
 	sub	r0, fp, #204
 	vldr.32	s14, [fp, #-44]
 	vldr.32	s15, [fp, #-40]
-	vldr.64	d4, .L566
+	vldr.64	d4, .L544
 	mov	r3, #2
 	vmov.f32	s6, s14
 	vmov.f32	s7, s15
 	mov	r2, #1
-	vldr.64	d2, .L566+32
-	vldr.64	d1, .L566+40
-	vldr.64	d0, .L566+48
+	vldr.64	d2, .L544+32
+	vldr.64	d1, .L544+40
+	vldr.64	d0, .L544+48
 	mov	r1, #0
 	bl	CreateCustomer
 	mov	r0, r4
@@ -10785,32 +10570,32 @@ LoadGlobalAssets:
 	mov	r2, #96
 	mov	r1, r3
 	bl	memcpy
-	ldr	r0, .L566+584
+	ldr	r0, .L544+584
 	bl	RandomCustomerBlinkTime
-	ldr	r0, .L566+588
+	ldr	r0, .L544+588
 	bl	RandomCustomerBlinkTime
-	ldr	r3, .L566+584
+	ldr	r3, .L544+584
 	mov	r2, #1
 	strb	r2, [r3, #80]
-	ldr	r3, .L566+588
+	ldr	r3, .L544+588
 	mov	r2, #1
 	strb	r2, [r3, #80]
 	bl	GetTime
 	vmov.f64	d6, d0
 	vldr.64	d7, [fp, #-28]
 	vsub.f64	d7, d6, d7
-	ldr	r3, .L566+592
+	ldr	r3, .L544+592
 	vstr.64	d7, [r3]
-	ldr	r3, .L566+596
+	ldr	r3, .L544+596
 	mov	r2, #1
 	strb	r2, [r3]
 	nop
 	sub	sp, fp, #8
 	@ sp needed
 	pop	{r4, fp, pc}
-.L567:
+.L545:
 	.align	3
-.L566:
+.L544:
 	.word	0
 	.word	0
 	.word	0
@@ -10971,30 +10756,30 @@ LoadGlobalAssets:
 UnloadGlobalAssets:
 	@ args = 0, pretend = 0, frame = 8
 	@ frame_needed = 1, uses_anonymous_args = 0
-	PUSH	{r4, fp, lr}
+	push	{r4, fp, lr}
 	add	fp, sp, #8
 	sub	sp, sp, #36
-	ldr	r3, .L573
+	ldr	r3, .L551
 	ldr	r2, [r3, #16]
 	str	r2, [sp]
 	ldm	r3, {r0, r1, r2, r3}
 	bl	UnloadTexture
-	ldr	r3, .L573+4
+	ldr	r3, .L551+4
 	ldr	r2, [r3, #16]
 	str	r2, [sp]
 	ldm	r3, {r0, r1, r2, r3}
 	bl	UnloadTexture
-	ldr	r3, .L573+8
+	ldr	r3, .L551+8
 	ldr	r2, [r3, #16]
 	str	r2, [sp]
 	ldm	r3, {r0, r1, r2, r3}
 	bl	UnloadTexture
-	ldr	r3, .L573+12
+	ldr	r3, .L551+12
 	ldr	r2, [r3, #16]
 	str	r2, [sp]
 	ldm	r3, {r0, r1, r2, r3}
 	bl	UnloadTexture
-	ldr	r4, .L573+16
+	ldr	r4, .L551+16
 	mov	lr, sp
 	add	ip, r4, #16
 	ldmia	ip!, {r0, r1, r2, r3}
@@ -11003,34 +10788,34 @@ UnloadGlobalAssets:
 	stm	lr, {r0, r1}
 	ldm	r4, {r0, r1, r2, r3}
 	bl	UnloadFont
-	ldr	r3, .L573+20
+	ldr	r3, .L551+20
 	ldr	r2, [r3, #16]
 	str	r2, [sp]
 	ldm	r3, {r0, r1, r2, r3}
 	bl	UnloadTexture
-	ldr	r3, .L573+24
+	ldr	r3, .L551+24
 	ldr	r2, [r3, #16]
 	str	r2, [sp]
 	ldm	r3, {r0, r1, r2, r3}
 	bl	UnloadTexture
-	ldr	r3, .L573+28
+	ldr	r3, .L551+28
 	ldr	r2, [r3, #16]
 	str	r2, [sp]
 	ldm	r3, {r0, r1, r2, r3}
 	bl	UnloadTexture
-	ldr	r3, .L573+32
+	ldr	r3, .L551+32
 	ldr	r2, [r3, #16]
 	str	r2, [sp]
 	ldm	r3, {r0, r1, r2, r3}
 	bl	UnloadTexture
-	ldr	r3, .L573+36
+	ldr	r3, .L551+36
 	mov	ip, sp
 	add	r2, r3, #16
 	ldm	r2, {r0, r1}
 	stm	ip, {r0, r1}
 	ldm	r3, {r0, r1, r2, r3}
 	bl	UnloadSound
-	ldr	r3, .L573+40
+	ldr	r3, .L551+40
 	mov	ip, sp
 	add	r2, r3, #16
 	ldm	r2, {r0, r1}
@@ -11039,9 +10824,9 @@ UnloadGlobalAssets:
 	bl	UnloadSound
 	mov	r3, #0
 	str	r3, [fp, #-16]
-	b	.L569
-.L570:
-	ldr	r1, .L573+44
+	b	.L547
+.L548:
+	ldr	r1, .L551+44
 	ldr	r2, [fp, #-16]
 	mov	r3, r2
 	lsl	r3, r3, #2
@@ -11055,30 +10840,30 @@ UnloadGlobalAssets:
 	ldr	r3, [fp, #-16]
 	add	r3, r3, #1
 	str	r3, [fp, #-16]
-.L569:
+.L547:
 	ldr	r3, [fp, #-16]
 	cmp	r3, #7
-	ble	.L570
-	ldr	r3, .L573+48
+	ble	.L548
+	ldr	r3, .L551+48
 	ldr	r2, [r3, #16]
 	str	r2, [sp]
 	ldm	r3, {r0, r1, r2, r3}
 	bl	UnloadTexture
-	ldr	r3, .L573+52
+	ldr	r3, .L551+52
 	ldr	r2, [r3, #16]
 	str	r2, [sp]
 	ldm	r3, {r0, r1, r2, r3}
 	bl	UnloadTexture
-	ldr	r3, .L573+56
+	ldr	r3, .L551+56
 	ldr	r2, [r3, #16]
 	str	r2, [sp]
 	ldm	r3, {r0, r1, r2, r3}
 	bl	UnloadTexture
 	mov	r3, #0
 	str	r3, [fp, #-20]
-	b	.L571
-.L572:
-	ldr	r1, .L573+60
+	b	.L549
+.L550:
+	ldr	r1, .L551+60
 	ldr	r2, [fp, #-20]
 	mov	r3, r2
 	lsl	r3, r3, #4
@@ -11089,7 +10874,7 @@ UnloadGlobalAssets:
 	str	r2, [sp]
 	ldm	r3, {r0, r1, r2, r3}
 	bl	UnloadTexture
-	ldr	r1, .L573+60
+	ldr	r1, .L551+60
 	ldr	r2, [fp, #-20]
 	mov	r3, r2
 	lsl	r3, r3, #4
@@ -11102,7 +10887,7 @@ UnloadGlobalAssets:
 	add	r3, r3, #4
 	ldm	r3, {r0, r1, r2, r3}
 	bl	UnloadTexture
-	ldr	r1, .L573+60
+	ldr	r1, .L551+60
 	ldr	r2, [fp, #-20]
 	mov	r3, r2
 	lsl	r3, r3, #4
@@ -11114,7 +10899,7 @@ UnloadGlobalAssets:
 	str	r2, [sp]
 	ldm	r3, {r0, r1, r2, r3}
 	bl	UnloadTexture
-	ldr	r1, .L573+60
+	ldr	r1, .L551+60
 	ldr	r2, [fp, #-20]
 	mov	r3, r2
 	lsl	r3, r3, #4
@@ -11127,7 +10912,7 @@ UnloadGlobalAssets:
 	add	r3, r3, #4
 	ldm	r3, {r0, r1, r2, r3}
 	bl	UnloadTexture
-	ldr	r1, .L573+60
+	ldr	r1, .L551+60
 	ldr	r2, [fp, #-20]
 	mov	r3, r2
 	lsl	r3, r3, #4
@@ -11139,7 +10924,7 @@ UnloadGlobalAssets:
 	str	r2, [sp]
 	ldm	r3, {r0, r1, r2, r3}
 	bl	UnloadTexture
-	ldr	r1, .L573+60
+	ldr	r1, .L551+60
 	ldr	r2, [fp, #-20]
 	mov	r3, r2
 	lsl	r3, r3, #4
@@ -11155,11 +10940,11 @@ UnloadGlobalAssets:
 	ldr	r3, [fp, #-20]
 	add	r3, r3, #1
 	str	r3, [fp, #-20]
-.L571:
+.L549:
 	ldr	r3, [fp, #-20]
 	cmp	r3, #3
-	ble	.L572
-	ldr	r4, .L573+64
+	ble	.L550
+	ldr	r4, .L551+64
 	mov	lr, sp
 	add	ip, r4, #16
 	ldmia	ip!, {r0, r1, r2, r3}
@@ -11172,9 +10957,9 @@ UnloadGlobalAssets:
 	sub	sp, fp, #8
 	@ sp needed
 	pop	{r4, fp, pc}
-.L574:
+.L552:
 	.align	2
-.L573:
+.L551:
 	.word	backgroundTexture
 	.word	backgroundOverlayTexture
 	.word	backgroundOverlaySidebarTexture
@@ -11194,257 +10979,6 @@ UnloadGlobalAssets:
 	.word	menuBgm
 	.size	UnloadGlobalAssets, .-UnloadGlobalAssets
 	.align	2
-	.global	PlayBgm
-	.syntax unified
-	.arm
-	.fpu vfp
-	.type	PlayBgm, %function
-PlayBgm:
-	@ args = 0, pretend = 0, frame = 8
-	@ frame_needed = 1, uses_anonymous_args = 0
-	PUSH	{r4, fp, lr}
-	add	fp, sp, #8
-	sub	sp, sp, #36
-	str	r0, [fp, #-16]
-	ldr	r3, .L580+4
-	ldr	r3, [r3]
-	ldr	r2, [fp, #-16]
-	cmp	r2, r3
-	bne	.L576
-	ldr	r3, .L580+8
-	ldrb	r3, [r3]	@ zero_extendqisi2
-	cmp	r3, #0
-	beq	.L579
-	ldr	r3, .L580+12
-	ldr	r3, [r3]
-	ldrb	r3, [r3, #22]	@ zero_extendqisi2
-	cmp	r3, #0
-	beq	.L579
-	ldr	r4, [fp, #-16]
-	mov	lr, sp
-	add	ip, r4, #16
-	ldmia	ip!, {r0, r1, r2, r3}
-	stmia	lr!, {r0, r1, r2, r3}
-	ldr	r3, [ip]
-	str	r3, [lr]
-	ldm	r4, {r0, r1, r2, r3}
-	bl	PlayMusicStream
-	ldr	r3, [fp, #-16]
-	mov	r2, #1
-	strb	r2, [r3, #24]
-	ldr	r3, .L580+8
-	mov	r2, #0
-	strb	r2, [r3]
-	b	.L579
-.L576:
-	ldr	r2, .L580+4
-	ldr	r3, [fp, #-16]
-	str	r3, [r2]
-	ldr	r3, .L580+4
-	ldr	r4, [r3]
-	mov	lr, sp
-	add	ip, r4, #16
-	ldmia	ip!, {r0, r1, r2, r3}
-	stmia	lr!, {r0, r1, r2, r3}
-	ldr	r3, [ip]
-	str	r3, [lr]
-	ldm	r4, {r0, r1, r2, r3}
-	bl	StopMusicStream
-	ldr	r3, .L580+4
-	ldr	r4, [r3]
-	mov	lr, sp
-	add	ip, r4, #16
-	ldmia	ip!, {r0, r1, r2, r3}
-	stmia	lr!, {r0, r1, r2, r3}
-	ldr	r3, [ip]
-	str	r3, [lr]
-	ldm	r4, {r0, r1, r2, r3}
-	bl	PlayMusicStream
-	ldr	r3, .L580+4
-	ldr	r4, [r3]
-	vldr.32	s15, .L580
-	mov	lr, sp
-	add	ip, r4, #16
-	ldmia	ip!, {r0, r1, r2, r3}
-	stmia	lr!, {r0, r1, r2, r3}
-	ldr	r3, [ip]
-	str	r3, [lr]
-	ldm	r4, {r0, r1, r2, r3}
-	vmov.f32	s0, s15
-	bl	SetMusicVolume
-	ldr	r3, [fp, #-16]
-	mov	r2, #1
-	strb	r2, [r3, #24]
-	ldr	r3, .L580+8
-	mov	r2, #0
-	strb	r2, [r3]
-	b	.L575
-.L579:
-	nop
-.L575:
-	sub	sp, fp, #8
-	@ sp needed
-	pop	{r4, fp, pc}
-.L581:
-	.align	2
-.L580:
-	.word	1048576000
-	.word	currentBgm
-	.word	isCurrentBgmPaused
-	.word	options
-	.size	PlayBgm, .-PlayBgm
-	.align	2
-	.global	PlayBgmIfStopped
-	.syntax unified
-	.arm
-	.fpu vfp
-	.type	PlayBgmIfStopped, %function
-PlayBgmIfStopped:
-	@ args = 0, pretend = 0, frame = 8
-	@ frame_needed = 1, uses_anonymous_args = 0
-	PUSH	{r4, fp, lr}
-	add	fp, sp, #8
-	sub	sp, sp, #36
-	str	r0, [fp, #-16]
-	ldr	r3, .L587+4
-	ldr	r3, [r3]
-	ldr	r2, [fp, #-16]
-	cmp	r2, r3
-	bne	.L583
-	ldr	r3, .L587+8
-	ldrb	r3, [r3]	@ zero_extendqisi2
-	cmp	r3, #0
-	beq	.L586
-	ldr	r3, .L587+12
-	ldr	r3, [r3]
-	ldrb	r3, [r3, #22]	@ zero_extendqisi2
-	cmp	r3, #0
-	beq	.L586
-	ldr	r4, [fp, #-16]
-	mov	lr, sp
-	add	ip, r4, #16
-	ldmia	ip!, {r0, r1, r2, r3}
-	stmia	lr!, {r0, r1, r2, r3}
-	ldr	r3, [ip]
-	str	r3, [lr]
-	ldm	r4, {r0, r1, r2, r3}
-	bl	PlayMusicStream
-	vldr.32	s15, .L587
-	ldr	r4, [fp, #-16]
-	mov	lr, sp
-	add	ip, r4, #16
-	ldmia	ip!, {r0, r1, r2, r3}
-	stmia	lr!, {r0, r1, r2, r3}
-	ldr	r3, [ip]
-	str	r3, [lr]
-	ldm	r4, {r0, r1, r2, r3}
-	vmov.f32	s0, s15
-	bl	SetMusicVolume
-	ldr	r3, [fp, #-16]
-	mov	r2, #1
-	strb	r2, [r3, #24]
-	ldr	r3, .L587+8
-	mov	r2, #0
-	strb	r2, [r3]
-	b	.L586
-.L583:
-	ldr	r2, .L587+4
-	ldr	r3, [fp, #-16]
-	str	r3, [r2]
-	ldr	r3, .L587+4
-	ldr	r4, [r3]
-	mov	lr, sp
-	add	ip, r4, #16
-	ldmia	ip!, {r0, r1, r2, r3}
-	stmia	lr!, {r0, r1, r2, r3}
-	ldr	r3, [ip]
-	str	r3, [lr]
-	ldm	r4, {r0, r1, r2, r3}
-	bl	PlayMusicStream
-	ldr	r3, .L587+4
-	ldr	r4, [r3]
-	vldr.32	s15, .L587
-	mov	lr, sp
-	add	ip, r4, #16
-	ldmia	ip!, {r0, r1, r2, r3}
-	stmia	lr!, {r0, r1, r2, r3}
-	ldr	r3, [ip]
-	str	r3, [lr]
-	ldm	r4, {r0, r1, r2, r3}
-	vmov.f32	s0, s15
-	bl	SetMusicVolume
-	ldr	r3, [fp, #-16]
-	mov	r2, #1
-	strb	r2, [r3, #24]
-	ldr	r3, .L587+8
-	mov	r2, #0
-	strb	r2, [r3]
-	b	.L582
-.L586:
-	nop
-.L582:
-	sub	sp, fp, #8
-	@ sp needed
-	pop	{r4, fp, pc}
-.L588:
-	.align	2
-.L587:
-	.word	1048576000
-	.word	currentBgm
-	.word	isCurrentBgmPaused
-	.word	options
-	.size	PlayBgmIfStopped, .-PlayBgmIfStopped
-	.align	2
-	.global	PauseBgm
-	.syntax unified
-	.arm
-	.fpu vfp
-	.type	PauseBgm, %function
-PauseBgm:
-	@ args = 0, pretend = 0, frame = 8
-	@ frame_needed = 1, uses_anonymous_args = 0
-	PUSH	{r4, fp, lr}
-	add	fp, sp, #8
-	sub	sp, sp, #36
-	str	r0, [fp, #-16]
-	ldr	r3, .L595
-	ldr	r3, [r3]
-	ldr	r2, [fp, #-16]
-	cmp	r2, r3
-	bne	.L593
-	ldr	r3, .L595+4
-	ldrb	r3, [r3]	@ zero_extendqisi2
-	cmp	r3, #0
-	bne	.L594
-	ldr	r4, [fp, #-16]
-	mov	lr, sp
-	add	ip, r4, #16
-	ldmia	ip!, {r0, r1, r2, r3}
-	stmia	lr!, {r0, r1, r2, r3}
-	ldr	r3, [ip]
-	str	r3, [lr]
-	ldm	r4, {r0, r1, r2, r3}
-	bl	PauseMusicStream
-	ldr	r3, .L595+4
-	mov	r2, #1
-	strb	r2, [r3]
-	b	.L589
-.L593:
-	nop
-	b	.L589
-.L594:
-	nop
-.L589:
-	sub	sp, fp, #8
-	@ sp needed
-	pop	{r4, fp, pc}
-.L596:
-	.align	2
-.L595:
-	.word	currentBgm
-	.word	isCurrentBgmPaused
-	.size	PauseBgm, .-PauseBgm
-	.align	2
 	.global	StopBgm
 	.syntax unified
 	.arm
@@ -11453,7 +10987,7 @@ PauseBgm:
 StopBgm:
 	@ args = 0, pretend = 0, frame = 8
 	@ frame_needed = 1, uses_anonymous_args = 0
-	PUSH	{r4, fp, lr}
+	push	{r4, fp, lr}
 	add	fp, sp, #8
 	sub	sp, sp, #36
 	str	r0, [fp, #-16]
@@ -11466,19 +11000,19 @@ StopBgm:
 	str	r3, [lr]
 	ldm	r4, {r0, r1, r2, r3}
 	bl	StopMusicStream
-	ldr	r3, .L598
+	ldr	r3, .L554
 	mov	r2, #0
 	strb	r2, [r3]
-	ldr	r3, .L598+4
+	ldr	r3, .L554+4
 	mov	r2, #0
 	str	r2, [r3]
 	nop
 	sub	sp, fp, #8
 	@ sp needed
 	pop	{r4, fp, pc}
-.L599:
+.L555:
 	.align	2
-.L598:
+.L554:
 	.word	isCurrentBgmPaused
 	.word	currentBgm
 	.size	StopBgm, .-StopBgm
@@ -11501,7 +11035,7 @@ ColorAlphaOverride:
 	ldrb	r1, [fp, #-15]	@ zero_extendqisi2
 	ldrb	r2, [fp, #-14]	@ zero_extendqisi2
 	vldr.32	s15, [fp, #-20]
-	vldr.32	s14, .L602
+	vldr.32	s14, .L558
 	vmul.f32	s15, s15, s14
 	vcvt.u32.f32	s15, s15
 	vstr.32	s15, [fp, #-24]	@ int
@@ -11536,9 +11070,9 @@ ColorAlphaOverride:
 	@ sp needed
 	ldr	fp, [sp], #4
 	bx	lr
-.L603:
+.L559:
 	.align	2
-.L602:
+.L558:
 	.word	1132396544
 	.size	ColorAlphaOverride, .-ColorAlphaOverride
 	.align	2
@@ -11550,7 +11084,7 @@ ColorAlphaOverride:
 ColorLerp:
 	@ args = 0, pretend = 0, frame = 24
 	@ frame_needed = 1, uses_anonymous_args = 0
-	PUSH	{fp, lr}
+	push	{fp, lr}
 	add	fp, sp, #4
 	sub	sp, sp, #24
 	str	r0, [fp, #-16]
@@ -11558,11 +11092,11 @@ ColorLerp:
 	vstr.32	s0, [fp, #-24]
 	vldr.32	s15, [fp, #-24]
 	vcvt.f64.f32	d7, s15
-	vldr.64	d1, .L606
+	vldr.64	d1, .L562
 	vmov.f64	d0, d7
 	bl	fmax
 	vmov.f64	d7, d0
-	vldr.64	d1, .L606+8
+	vldr.64	d1, .L562+8
 	vmov.f64	d0, d7
 	bl	fmin
 	vmov.f64	d7, d0
@@ -11707,9 +11241,9 @@ ColorLerp:
 	sub	sp, fp, #4
 	@ sp needed
 	pop	{fp, pc}
-.L607:
+.L563:
 	.align	3
-.L606:
+.L562:
 	.word	0
 	.word	0
 	.word	0
@@ -11729,8 +11263,8 @@ ColorLerp:
 DrawDayNightCycle:
 	@ args = 0, pretend = 0, frame = 88
 	@ frame_needed = 1, uses_anonymous_args = 0
-	PUSH	{r4, fp, lr}
-	vPUSH.64	{d8}
+	push	{r4, fp, lr}
+	vpush.64	{d8}
 	add	fp, sp, #16
 	sub	sp, sp, #124
 	vstr.64	d0, [fp, #-108]
@@ -11766,23 +11300,23 @@ DrawDayNightCycle:
 	strb	r3, [fp, #-42]
 	mvn	r3, #0
 	strb	r3, [fp, #-41]
-	ldr	r3, .L616+48
+	ldr	r3, .L572+48
 	vldr.32	s14, [r3]
-	vldr.32	s13, .L616+8
+	vldr.32	s13, .L572+8
 	vdiv.f32	s15, s13, s14
 	vstr.32	s15, [fp, #-24]
-	ldr	r3, .L616+52
+	ldr	r3, .L572+52
 	ldr	r3, [r3]
 	str	r3, [fp, #-28]
-	ldr	r3, .L616+52
+	ldr	r3, .L572+52
 	ldr	r3, [r3]
 	add	r3, r3, #1
 	and	r3, r3, #3
 	str	r3, [fp, #-32]
-	ldr	r3, .L616+56
+	ldr	r3, .L572+56
 	vldr.32	s15, [r3]
 	vcvt.f64.f32	d7, s15
-	vldr.64	d1, .L616
+	vldr.64	d1, .L572
 	vmov.f64	d0, d7
 	bl	fmin
 	vmov.f64	d7, d0
@@ -11806,40 +11340,40 @@ DrawDayNightCycle:
 	bl	ColorLerp
 	mov	r3, r0
 	str	r3, [fp, #-84]
-	vldr.32	s15, .L616+12
+	vldr.32	s15, .L572+12
 	vcvt.s32.f32	s14, s15
-	vldr.32	s15, .L616+16
+	vldr.32	s15, .L572+16
 	vcvt.s32.f32	s15, s15
 	ldr	r3, [fp, #-84]
 	str	r3, [sp]
-	ldr	r3, .L616+60
+	ldr	r3, .L572+60
 	mov	r2, #1920
 	vmov	r1, s15	@ int
 	vmov	r0, s14	@ int
 	bl	DrawRectangle
 	vldr.64	d0, [fp, #-108]
 	bl	DrawMovingCloudAndStar
-	ldr	r3, .L616+64
+	ldr	r3, .L572+64
 	ldr	r3, [r3]
 	ldrb	r3, [r3, #20]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L609
-	ldr	r3, .L616+68
+	beq	.L565
+	ldr	r3, .L572+68
 	ldrb	r3, [r3, #3]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L609
-	vldr.32	s14, .L616+12
-	vldr.32	s15, .L616+20
+	beq	.L565
+	vldr.32	s14, .L572+12
+	vldr.32	s15, .L572+20
 	vadd.f32	s15, s14, s15
 	vcvt.s32.f32	s16, s15
-	vldr.32	s14, .L616+16
-	vldr.32	s15, .L616+24
+	vldr.32	s14, .L572+16
+	vldr.32	s15, .L572+24
 	vadd.f32	s15, s14, s15
 	vcvt.s32.f32	s17, s15
-	ldr	r3, .L616+72
+	ldr	r3, .L572+72
 	ldr	r3, [r3]
 	str	r3, [fp, #-88]
-	vldr.32	s0, .L616+28
+	vldr.32	s0, .L572+28
 	ldr	r0, [fp, #-88]
 	bl	Fade
 	mov	r3, r0
@@ -11851,16 +11385,16 @@ DrawDayNightCycle:
 	vmov	r1, s17	@ int
 	vmov	r0, s16	@ int
 	bl	DrawRectangle
-	ldr	r3, .L616+56
+	ldr	r3, .L572+56
 	vldr.32	s14, [r3]
-	ldr	r3, .L616+48
+	ldr	r3, .L572+48
 	vldr.32	s15, [r3]
 	vmul.f32	s15, s14, s15
 	vcvt.f64.f32	d6, s15
-	ldr	r3, .L616+48
+	ldr	r3, .L572+48
 	vldr.32	s15, [r3]
 	vcvt.f64.f32	d7, s15
-	ldr	r3, .L616+52
+	ldr	r3, .L572+52
 	ldr	r3, [r3]
 	add	r3, r3, #1
 	mov	r2, #4
@@ -11868,25 +11402,25 @@ DrawDayNightCycle:
 	str	r3, [sp, #8]
 	vstr.64	d7, [sp]
 	vmov	r2, r3, d6
-	ldr	r0, .L616+76
+	ldr	r0, .L572+76
 	bl	TextFormat
 	mov	r2, r0
-	vldr.32	s14, .L616+12
-	vldr.32	s15, .L616+32
+	vldr.32	s14, .L572+12
+	vldr.32	s15, .L572+32
 	vadd.f32	s15, s14, s15
-	vldr.32	s14, .L616+20
+	vldr.32	s14, .L572+20
 	vsub.f32	s15, s15, s14
 	vstr.32	s15, [fp, #-96]
-	vldr.32	s14, .L616+16
-	vldr.32	s15, .L616+24
+	vldr.32	s14, .L572+16
+	vldr.32	s15, .L572+24
 	vadd.f32	s15, s14, s15
 	vstr.32	s15, [fp, #-92]
-	ldr	r3, .L616+80
+	ldr	r3, .L572+80
 	ldr	r3, [r3]
 	str	r3, [fp, #-100]
 	vldr.32	s14, [fp, #-96]
 	vldr.32	s15, [fp, #-92]
-	ldr	r4, .L616+84
+	ldr	r4, .L572+84
 	ldr	r3, [fp, #-100]
 	str	r3, [sp, #28]
 	str	r2, [sp, #24]
@@ -11897,44 +11431,44 @@ DrawDayNightCycle:
 	ldm	ip, {r0, r1}
 	stm	lr, {r0, r1}
 	ldm	r4, {r0, r1, r2, r3}
-	vldr.32	s3, .L616+36
-	vldr.32	s2, .L616+40
+	vldr.32	s3, .L572+36
+	vldr.32	s2, .L572+40
 	vmov.f32	s0, s14
 	vmov.f32	s1, s15
 	bl	DrawTextEx
-.L609:
-	ldr	r3, .L616+56
+.L565:
+	ldr	r3, .L572+56
 	vldr.32	s15, [r3]
-	vldr.32	s14, .L616+44
+	vldr.32	s14, .L572+44
 	vcmpe.f32	s15, s14
 	vmrs	APSR_nzcv, FPSCR
-	blt	.L614
-	ldr	r2, .L616+52
+	blt	.L570
+	ldr	r2, .L572+52
 	ldr	r3, [fp, #-32]
 	str	r3, [r2]
-	ldr	r3, .L616+56
+	ldr	r3, .L572+56
 	mov	r2, #0
 	str	r2, [r3]	@ float
-	b	.L615
-.L614:
+	b	.L571
+.L570:
 	bl	GetFrameTime
 	vmov.f32	s14, s0
 	vldr.32	s15, [fp, #-24]
 	vmul.f32	s14, s14, s15
-	ldr	r3, .L616+56
+	ldr	r3, .L572+56
 	vldr.32	s15, [r3]
 	vadd.f32	s15, s14, s15
-	ldr	r3, .L616+56
+	ldr	r3, .L572+56
 	vstr.32	s15, [r3]
-.L615:
+.L571:
 	nop
 	sub	sp, fp, #16
 	@ sp needed
 	vldm	sp!, {d8}
 	pop	{r4, fp, pc}
-.L617:
+.L573:
 	.align	3
-.L616:
+.L572:
 	.word	0
 	.word	1072693248
 	.word	1082130432
@@ -11999,159 +11533,159 @@ DrawDayNightCycle:
 OptionsUpdate:
 	@ args = 0, pretend = 0, frame = 784
 	@ frame_needed = 1, uses_anonymous_args = 0
-	PUSH	{r4, r5, fp, lr}
+	push	{r4, r5, fp, lr}
 	add	fp, sp, #12
 	sub	sp, sp, #816
 	str	r0, [fp, #-792]
-	vldr.32	s14, .L742
-	vldr.32	s15, .L742+4
+	vldr.32	s14, .L698
+	vldr.32	s15, .L698+4
 	vadd.f32	s15, s14, s15
 	vstr.32	s15, [fp, #-292]
-	vldr.32	s14, .L742+8
-	vldr.32	s15, .L742+12
+	vldr.32	s14, .L698+8
+	vldr.32	s15, .L698+12
 	vadd.f32	s15, s14, s15
 	vstr.32	s15, [fp, #-288]
-	ldr	r3, .L742+40
+	ldr	r3, .L698+40
 	str	r3, [fp, #-284]	@ float
-	ldr	r3, .L742+44
+	ldr	r3, .L698+44
 	str	r3, [fp, #-280]	@ float
 	ldr	r3, [fp, #-292]	@ float
 	str	r3, [fp, #-308]	@ float
 	ldr	r3, [fp, #-288]	@ float
 	str	r3, [fp, #-304]	@ float
-	ldr	r3, .L742+48
+	ldr	r3, .L698+48
 	str	r3, [fp, #-300]	@ float
-	ldr	r3, .L742+44
+	ldr	r3, .L698+44
 	str	r3, [fp, #-296]	@ float
 	vldr.32	s15, [fp, #-292]
-	vldr.32	s14, .L742+16
+	vldr.32	s14, .L698+16
 	vadd.f32	s15, s15, s14
 	vstr.32	s15, [fp, #-324]
 	ldr	r3, [fp, #-288]	@ float
 	str	r3, [fp, #-320]	@ float
-	ldr	r3, .L742+48
+	ldr	r3, .L698+48
 	str	r3, [fp, #-316]	@ float
-	ldr	r3, .L742+44
+	ldr	r3, .L698+44
 	str	r3, [fp, #-312]	@ float
-	vldr.32	s14, .L742
-	vldr.32	s15, .L742+4
+	vldr.32	s14, .L698
+	vldr.32	s15, .L698+4
 	vadd.f32	s15, s14, s15
 	vstr.32	s15, [fp, #-340]
-	vldr.32	s14, .L742+8
-	vldr.32	s15, .L742+20
+	vldr.32	s14, .L698+8
+	vldr.32	s15, .L698+20
 	vadd.f32	s15, s14, s15
 	vstr.32	s15, [fp, #-336]
-	ldr	r3, .L742+40
+	ldr	r3, .L698+40
 	str	r3, [fp, #-332]	@ float
-	ldr	r3, .L742+44
+	ldr	r3, .L698+44
 	str	r3, [fp, #-328]	@ float
 	ldr	r3, [fp, #-340]	@ float
 	str	r3, [fp, #-356]	@ float
 	ldr	r3, [fp, #-336]	@ float
 	str	r3, [fp, #-352]	@ float
-	ldr	r3, .L742+48
+	ldr	r3, .L698+48
 	str	r3, [fp, #-348]	@ float
-	ldr	r3, .L742+44
+	ldr	r3, .L698+44
 	str	r3, [fp, #-344]	@ float
 	vldr.32	s15, [fp, #-340]
-	vldr.32	s14, .L742+16
+	vldr.32	s14, .L698+16
 	vadd.f32	s15, s15, s14
 	vstr.32	s15, [fp, #-372]
 	ldr	r3, [fp, #-336]	@ float
 	str	r3, [fp, #-368]	@ float
-	ldr	r3, .L742+48
+	ldr	r3, .L698+48
 	str	r3, [fp, #-364]	@ float
-	ldr	r3, .L742+44
+	ldr	r3, .L698+44
 	str	r3, [fp, #-360]	@ float
-	vldr.32	s14, .L742
-	vldr.32	s15, .L742+24
+	vldr.32	s14, .L698
+	vldr.32	s15, .L698+24
 	vadd.f32	s15, s14, s15
 	vstr.32	s15, [fp, #-388]
-	vldr.32	s14, .L742+8
-	vldr.32	s15, .L742+12
+	vldr.32	s14, .L698+8
+	vldr.32	s15, .L698+12
 	vadd.f32	s15, s14, s15
 	vstr.32	s15, [fp, #-384]
-	ldr	r3, .L742+40
+	ldr	r3, .L698+40
 	str	r3, [fp, #-380]	@ float
-	ldr	r3, .L742+44
+	ldr	r3, .L698+44
 	str	r3, [fp, #-376]	@ float
 	ldr	r3, [fp, #-388]	@ float
 	str	r3, [fp, #-404]	@ float
 	ldr	r3, [fp, #-384]	@ float
 	str	r3, [fp, #-400]	@ float
-	ldr	r3, .L742+48
+	ldr	r3, .L698+48
 	str	r3, [fp, #-396]	@ float
-	ldr	r3, .L742+44
+	ldr	r3, .L698+44
 	str	r3, [fp, #-392]	@ float
 	vldr.32	s15, [fp, #-388]
-	vldr.32	s14, .L742+16
+	vldr.32	s14, .L698+16
 	vadd.f32	s15, s15, s14
 	vstr.32	s15, [fp, #-420]
 	ldr	r3, [fp, #-384]	@ float
 	str	r3, [fp, #-416]	@ float
-	ldr	r3, .L742+48
+	ldr	r3, .L698+48
 	str	r3, [fp, #-412]	@ float
-	ldr	r3, .L742+44
+	ldr	r3, .L698+44
 	str	r3, [fp, #-408]	@ float
-	vldr.32	s14, .L742
-	vldr.32	s15, .L742+28
+	vldr.32	s14, .L698
+	vldr.32	s15, .L698+28
 	vadd.f32	s15, s14, s15
 	vstr.32	s15, [fp, #-436]
-	vldr.32	s14, .L742+8
-	vldr.32	s15, .L742+12
+	vldr.32	s14, .L698+8
+	vldr.32	s15, .L698+12
 	vadd.f32	s15, s14, s15
 	vstr.32	s15, [fp, #-432]
-	ldr	r3, .L742+52
+	ldr	r3, .L698+52
 	str	r3, [fp, #-428]	@ float
-	ldr	r3, .L742+44
+	ldr	r3, .L698+44
 	str	r3, [fp, #-424]	@ float
-	vldr.32	s14, .L742
-	vldr.32	s15, .L742+28
+	vldr.32	s14, .L698
+	vldr.32	s15, .L698+28
 	vadd.f32	s15, s14, s15
 	vstr.32	s15, [fp, #-452]
-	vldr.32	s14, .L742+8
-	vldr.32	s15, .L742+20
+	vldr.32	s14, .L698+8
+	vldr.32	s15, .L698+20
 	vadd.f32	s15, s14, s15
 	vstr.32	s15, [fp, #-448]
-	ldr	r3, .L742+56
+	ldr	r3, .L698+56
 	str	r3, [fp, #-444]	@ float
-	ldr	r3, .L742+44
+	ldr	r3, .L698+44
 	str	r3, [fp, #-440]	@ float
-	vldr.32	s14, .L742
-	vldr.32	s15, .L742+32
+	vldr.32	s14, .L698
+	vldr.32	s15, .L698+32
 	vadd.f32	s15, s14, s15
 	vstr.32	s15, [fp, #-468]
-	vldr.32	s14, .L742+8
-	vldr.32	s15, .L742+12
+	vldr.32	s14, .L698+8
+	vldr.32	s15, .L698+12
 	vadd.f32	s15, s14, s15
 	vstr.32	s15, [fp, #-464]
-	ldr	r3, .L742+60
+	ldr	r3, .L698+60
 	str	r3, [fp, #-460]	@ float
-	ldr	r3, .L742+44
+	ldr	r3, .L698+44
 	str	r3, [fp, #-456]	@ float
-	vldr.32	s14, .L742
-	vldr.32	s15, .L742+32
+	vldr.32	s14, .L698
+	vldr.32	s15, .L698+32
 	vadd.f32	s15, s14, s15
 	vstr.32	s15, [fp, #-484]
-	vldr.32	s14, .L742+8
-	vldr.32	s15, .L742+20
+	vldr.32	s14, .L698+8
+	vldr.32	s15, .L698+20
 	vadd.f32	s15, s14, s15
 	vstr.32	s15, [fp, #-480]
-	ldr	r3, .L742+52
+	ldr	r3, .L698+52
 	str	r3, [fp, #-476]	@ float
-	ldr	r3, .L742+44
+	ldr	r3, .L698+44
 	str	r3, [fp, #-472]	@ float
-	vldr.32	s14, .L742
-	vldr.32	s15, .L742+28
+	vldr.32	s14, .L698
+	vldr.32	s15, .L698+28
 	vadd.f32	s15, s14, s15
 	vstr.32	s15, [fp, #-500]
-	vldr.32	s14, .L742+8
-	vldr.32	s15, .L742+36
+	vldr.32	s14, .L698+8
+	vldr.32	s15, .L698+36
 	vadd.f32	s15, s14, s15
 	vstr.32	s15, [fp, #-496]
-	ldr	r3, .L742+52
+	ldr	r3, .L698+52
 	str	r3, [fp, #-492]	@ float
-	ldr	r3, .L742+44
+	ldr	r3, .L698+44
 	str	r3, [fp, #-488]	@ float
 	mov	r3, #1
 	strb	r3, [fp, #-13]
@@ -12163,22 +11697,22 @@ OptionsUpdate:
 	str	r3, [fp, #-36]
 	mov	r3, #0
 	str	r3, [fp, #-40]	@ float
-	ldr	r2, .L742+64
-	ldr	r3, .L742+68
+	ldr	r2, .L698+64
+	ldr	r3, .L698+68
 	strd	r2, [fp, #-68]
-	ldr	r2, .L742+64
-	ldr	r3, .L742+68
+	ldr	r2, .L698+64
+	ldr	r3, .L698+68
 	strd	r2, [fp, #-76]
 	mov	r3, #1
 	strb	r3, [fp, #-41]
 	mov	r3, #0
 	strb	r3, [fp, #-42]
-	ldr	r0, .L742+76
+	ldr	r0, .L698+76
 	bl	PlayBgmIfStopped
-	b	.L619
-.L743:
+	b	.L575
+.L699:
 	.align	2
-.L742:
+.L698:
 	.word	-999292928
 	.word	1145241600
 	.word	-1006174208
@@ -12202,7 +11736,7 @@ OptionsUpdate:
 	.word	options
 	.word	1065353216
 	.word	backgroundTexture
-.L739:
+.L695:
 	bl	GetTime
 	vmov.f64	d6, d0
 	vldr.64	d7, [fp, #-28]
@@ -12214,7 +11748,7 @@ OptionsUpdate:
 	bl	WindowUpdate
 	ldrb	r3, [fp, #-41]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L620
+	beq	.L576
 	vldr.32	s15, [fp, #-40]
 	vcvt.f64.f32	d6, s15
 	vldr.64	d4, [fp, #-84]
@@ -12224,18 +11758,18 @@ OptionsUpdate:
 	vcvt.f32.f64	s15, d7
 	vstr.32	s15, [fp, #-40]
 	vldr.32	s15, [fp, #-40]
-	vldr.32	s14, .L742+84
+	vldr.32	s14, .L698+84
 	vcmpe.f32	s15, s14
 	vmrs	APSR_nzcv, FPSCR
-	blt	.L620
+	blt	.L576
 	mov	r3, #1065353216
 	str	r3, [fp, #-40]	@ float
 	mov	r3, #0
 	strb	r3, [fp, #-41]
-.L620:
+.L576:
 	ldrb	r3, [fp, #-42]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L622
+	beq	.L578
 	vldr.32	s15, [fp, #-40]
 	vcvt.f64.f32	d6, s15
 	vldr.64	d4, [fp, #-84]
@@ -12247,7 +11781,7 @@ OptionsUpdate:
 	vldr.32	s15, [fp, #-40]
 	vcmpe.f32	s15, #0
 	vmrs	APSR_nzcv, FPSCR
-	bhi	.L622
+	bhi	.L578
 	mov	r3, #0
 	str	r3, [fp, #-40]	@ float
 	mov	r3, #0
@@ -12255,7 +11789,7 @@ OptionsUpdate:
 	mov	r1, #0
 	ldr	r0, [fp, #-792]
 	bl	MainMenuUpdate
-.L622:
+.L578:
 	bl	GetMousePosition
 	vmov.f32	s14, s0
 	vmov.f32	s15, s1
@@ -12445,186 +11979,186 @@ OptionsUpdate:
 	eor	r3, r3, #1
 	uxtb	r3, r3
 	cmp	r3, #0
-	beq	.L624
+	beq	.L580
 	mov	r0, #0
 	bl	IsMouseButtonPressed
 	mov	r3, r0
 	cmp	r3, #0
-	beq	.L624
+	beq	.L580
 	ldrb	r3, [fp, #-41]
 	eor	r3, r3, #1
 	uxtb	r3, r3
 	cmp	r3, #0
-	beq	.L624
+	beq	.L580
 	ldrb	r3, [fp, #-42]
 	eor	r3, r3, #1
 	uxtb	r3, r3
 	cmp	r3, #0
-	beq	.L624
+	beq	.L580
 	ldrb	r3, [fp, #-43]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L625
-	ldr	r3, .L742+80
+	beq	.L581
+	ldr	r3, .L698+80
 	ldr	r3, [r3]
 	ldr	r3, [r3, #16]
 	cmp	r3, #0
-	bne	.L626
-	ldr	r3, .L742+80
+	bne	.L582
+	ldr	r3, .L698+80
 	ldr	r3, [r3]
 	mov	r2, #3
 	str	r2, [r3, #16]
-	b	.L627
-.L626:
-	ldr	r3, .L742+80
+	b	.L583
+.L582:
+	ldr	r3, .L698+80
 	ldr	r3, [r3]
 	ldr	r3, [r3, #16]
 	cmp	r3, #3
-	bne	.L628
-	ldr	r3, .L742+80
+	bne	.L584
+	ldr	r3, .L698+80
 	ldr	r3, [r3]
 	mov	r2, #1
 	str	r2, [r3, #16]
-	b	.L627
-.L628:
-	ldr	r3, .L742+80
+	b	.L583
+.L584:
+	ldr	r3, .L698+80
 	ldr	r3, [r3]
 	ldr	r3, [r3, #16]
 	cmp	r3, #1
-	bne	.L629
-	ldr	r3, .L742+80
+	bne	.L585
+	ldr	r3, .L698+80
 	ldr	r3, [r3]
 	mov	r2, #4
 	str	r2, [r3, #16]
-	b	.L627
-.L629:
-	ldr	r3, .L742+80
+	b	.L583
+.L585:
+	ldr	r3, .L698+80
 	ldr	r3, [r3]
 	ldr	r3, [r3, #16]
 	cmp	r3, #4
-	bne	.L630
-	ldr	r3, .L742+80
+	bne	.L586
+	ldr	r3, .L698+80
 	ldr	r3, [r3]
 	mov	r2, #2
 	str	r2, [r3, #16]
-	b	.L627
-.L630:
-	ldr	r3, .L742+80
+	b	.L583
+.L586:
+	ldr	r3, .L698+80
 	ldr	r3, [r3]
 	ldr	r3, [r3, #16]
 	cmp	r3, #2
-	bne	.L627
-	ldr	r3, .L742+80
+	bne	.L583
+	ldr	r3, .L698+80
 	ldr	r3, [r3]
 	mov	r2, #5
 	str	r2, [r3, #16]
-.L627:
+.L583:
 	mov	r0, #1
 	bl	PlaySoundFx
-	b	.L624
-.L625:
+	b	.L580
+.L581:
 	ldrb	r3, [fp, #-44]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L631
-	ldr	r3, .L742+80
+	beq	.L587
+	ldr	r3, .L698+80
 	ldr	r3, [r3]
 	ldr	r3, [r3, #16]
 	cmp	r3, #5
-	bne	.L632
-	ldr	r3, .L742+80
+	bne	.L588
+	ldr	r3, .L698+80
 	ldr	r3, [r3]
 	mov	r2, #2
 	str	r2, [r3, #16]
-	b	.L633
-.L632:
-	ldr	r3, .L742+80
+	b	.L589
+.L588:
+	ldr	r3, .L698+80
 	ldr	r3, [r3]
 	ldr	r3, [r3, #16]
 	cmp	r3, #2
-	bne	.L634
-	ldr	r3, .L742+80
+	bne	.L590
+	ldr	r3, .L698+80
 	ldr	r3, [r3]
 	mov	r2, #4
 	str	r2, [r3, #16]
-	b	.L633
-.L634:
-	ldr	r3, .L742+80
+	b	.L589
+.L590:
+	ldr	r3, .L698+80
 	ldr	r3, [r3]
 	ldr	r3, [r3, #16]
 	cmp	r3, #4
-	bne	.L635
-	ldr	r3, .L742+80
+	bne	.L591
+	ldr	r3, .L698+80
 	ldr	r3, [r3]
 	mov	r2, #1
 	str	r2, [r3, #16]
-	b	.L633
-.L635:
-	ldr	r3, .L742+80
+	b	.L589
+.L591:
+	ldr	r3, .L698+80
 	ldr	r3, [r3]
 	ldr	r3, [r3, #16]
 	cmp	r3, #1
-	bne	.L636
-	ldr	r3, .L742+80
+	bne	.L592
+	ldr	r3, .L698+80
 	ldr	r3, [r3]
 	mov	r2, #3
 	str	r2, [r3, #16]
-	b	.L633
-.L636:
-	ldr	r3, .L742+80
+	b	.L589
+.L592:
+	ldr	r3, .L698+80
 	ldr	r3, [r3]
 	ldr	r3, [r3, #16]
 	cmp	r3, #3
-	bne	.L633
-	ldr	r3, .L742+80
+	bne	.L589
+	ldr	r3, .L698+80
 	ldr	r3, [r3]
 	mov	r2, #0
 	str	r2, [r3, #16]
-.L633:
+.L589:
 	mov	r0, #1
 	bl	PlaySoundFx
-	b	.L624
-.L631:
+	b	.L580
+.L587:
 	ldrb	r3, [fp, #-45]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L637
-	ldr	r3, .L742+80
+	beq	.L593
+	ldr	r3, .L698+80
 	ldr	r3, [r3]
 	ldr	r3, [r3]
 	cmp	r3, #1280
-	bne	.L638
-	ldr	r3, .L742+80
+	bne	.L594
+	ldr	r3, .L698+80
 	ldr	r3, [r3]
 	mov	r2, #1920
 	str	r2, [r3]
-	ldr	r3, .L742+80
+	ldr	r3, .L698+80
 	ldr	r3, [r3]
-	ldr	r2, .L742+72
+	ldr	r2, .L698+72
 	str	r2, [r3, #4]
-	b	.L639
-.L638:
-	ldr	r3, .L742+80
+	b	.L595
+.L594:
+	ldr	r3, .L698+80
 	ldr	r3, [r3]
 	ldr	r3, [r3]
 	cmp	r3, #1280
-	blt	.L640
-	ldr	r3, .L742+80
+	blt	.L596
+	ldr	r3, .L698+80
 	ldr	r3, [r3]
 	ldr	r3, [r3, #4]
 	cmp	r3, #720
-	bge	.L639
-.L640:
-	ldr	r3, .L742+80
+	bge	.L595
+.L596:
+	ldr	r3, .L698+80
 	ldr	r3, [r3]
 	mov	r2, #1280
 	str	r2, [r3]
-	ldr	r3, .L742+80
+	ldr	r3, .L698+80
 	ldr	r3, [r3]
 	mov	r2, #720
 	str	r2, [r3, #4]
-.L639:
-	ldr	r3, .L742+80
+.L595:
+	ldr	r3, .L698+80
 	ldr	r3, [r3]
 	ldr	r1, [r3]
-	ldr	r3, .L742+80
+	ldr	r3, .L698+80
 	ldr	r3, [r3]
 	ldr	r3, [r3, #4]
 	mov	r2, r3
@@ -12632,51 +12166,51 @@ OptionsUpdate:
 	bl	SetRuntimeResolution
 	mov	r0, #1
 	bl	PlaySoundFx
-	b	.L624
-.L637:
+	b	.L580
+.L593:
 	ldrb	r3, [fp, #-46]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L641
-	ldr	r3, .L742+80
+	beq	.L597
+	ldr	r3, .L698+80
 	ldr	r3, [r3]
 	ldr	r3, [r3]
 	cmp	r3, #1920
-	bne	.L642
-	ldr	r3, .L742+80
+	bne	.L598
+	ldr	r3, .L698+80
 	ldr	r3, [r3]
 	mov	r2, #1280
 	str	r2, [r3]
-	ldr	r3, .L742+80
+	ldr	r3, .L698+80
 	ldr	r3, [r3]
 	mov	r2, #720
 	str	r2, [r3, #4]
-	b	.L643
-.L642:
-	ldr	r3, .L742+80
+	b	.L599
+.L598:
+	ldr	r3, .L698+80
 	ldr	r3, [r3]
 	ldr	r3, [r3]
 	cmp	r3, #1920
-	bgt	.L644
-	ldr	r3, .L742+80
+	bgt	.L600
+	ldr	r3, .L698+80
 	ldr	r3, [r3]
 	ldr	r3, [r3, #4]
-	ldr	r2, .L742+72
+	ldr	r2, .L698+72
 	cmp	r3, r2
-	ble	.L643
-.L644:
-	ldr	r3, .L742+80
+	ble	.L599
+.L600:
+	ldr	r3, .L698+80
 	ldr	r3, [r3]
 	mov	r2, #1920
 	str	r2, [r3]
-	ldr	r3, .L742+80
+	ldr	r3, .L698+80
 	ldr	r3, [r3]
-	ldr	r2, .L742+72
+	ldr	r2, .L698+72
 	str	r2, [r3, #4]
-.L643:
-	ldr	r3, .L742+80
+.L599:
+	ldr	r3, .L698+80
 	ldr	r3, [r3]
 	ldr	r1, [r3]
-	ldr	r3, .L742+80
+	ldr	r3, .L698+80
 	ldr	r3, [r3]
 	ldr	r3, [r3, #4]
 	mov	r2, r3
@@ -12684,144 +12218,144 @@ OptionsUpdate:
 	bl	SetRuntimeResolution
 	mov	r0, #1
 	bl	PlaySoundFx
-	b	.L624
-.L641:
+	b	.L580
+.L597:
 	ldrb	r3, [fp, #-47]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L645
-	ldr	r3, .L742+80
+	beq	.L601
+	ldr	r3, .L698+80
 	ldr	r3, [r3]
 	ldr	r3, [r3, #8]
 	cmp	r3, #30
-	bne	.L646
-	ldr	r3, .L742+80
+	bne	.L602
+	ldr	r3, .L698+80
 	ldr	r3, [r3]
 	mov	r2, #60
 	str	r2, [r3, #8]
-	b	.L647
-.L646:
-	ldr	r3, .L742+80
+	b	.L603
+.L602:
+	ldr	r3, .L698+80
 	ldr	r3, [r3]
 	ldr	r3, [r3, #8]
 	cmp	r3, #60
-	bne	.L648
-	ldr	r3, .L742+80
+	bne	.L604
+	ldr	r3, .L698+80
 	ldr	r3, [r3]
 	mov	r2, #120
 	str	r2, [r3, #8]
-	b	.L647
-.L648:
-	ldr	r3, .L742+80
+	b	.L603
+.L604:
+	ldr	r3, .L698+80
 	ldr	r3, [r3]
 	ldr	r3, [r3, #8]
 	cmp	r3, #120
-	bne	.L649
-	ldr	r3, .L742+80
+	bne	.L605
+	ldr	r3, .L698+80
 	ldr	r3, [r3]
 	mov	r2, #144
 	str	r2, [r3, #8]
-	b	.L647
-.L649:
-	ldr	r3, .L742+80
+	b	.L603
+.L605:
+	ldr	r3, .L698+80
 	ldr	r3, [r3]
 	ldr	r3, [r3, #8]
 	cmp	r3, #144
-	bne	.L650
-	ldr	r3, .L742+80
+	bne	.L606
+	ldr	r3, .L698+80
 	ldr	r3, [r3]
 	mov	r2, #240
 	str	r2, [r3, #8]
-	b	.L647
-.L650:
-	ldr	r3, .L742+80
+	b	.L603
+.L606:
+	ldr	r3, .L698+80
 	ldr	r3, [r3]
 	ldr	r3, [r3, #8]
 	cmp	r3, #240
-	bne	.L647
-	ldr	r3, .L742+80
+	bne	.L603
+	ldr	r3, .L698+80
 	ldr	r3, [r3]
 	mov	r2, #1000
 	str	r2, [r3, #8]
-.L647:
-	ldr	r3, .L742+80
+.L603:
+	ldr	r3, .L698+80
 	ldr	r3, [r3]
 	ldr	r3, [r3, #8]
 	mov	r0, r3
 	bl	SetTargetFPS
 	mov	r0, #1
 	bl	PlaySoundFx
-	b	.L624
-.L645:
+	b	.L580
+.L601:
 	ldrb	r3, [fp, #-48]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L651
-	ldr	r3, .L742+80
+	beq	.L607
+	ldr	r3, .L698+80
 	ldr	r3, [r3]
 	ldr	r3, [r3, #8]
 	cmp	r3, #60
-	bne	.L652
-	ldr	r3, .L742+80
+	bne	.L608
+	ldr	r3, .L698+80
 	ldr	r3, [r3]
 	mov	r2, #30
 	str	r2, [r3, #8]
-	b	.L653
-.L652:
-	ldr	r3, .L742+80
+	b	.L609
+.L608:
+	ldr	r3, .L698+80
 	ldr	r3, [r3]
 	ldr	r3, [r3, #8]
 	cmp	r3, #120
-	bne	.L654
-	ldr	r3, .L742+80
+	bne	.L610
+	ldr	r3, .L698+80
 	ldr	r3, [r3]
 	mov	r2, #60
 	str	r2, [r3, #8]
-	b	.L653
-.L654:
-	ldr	r3, .L742+80
+	b	.L609
+.L610:
+	ldr	r3, .L698+80
 	ldr	r3, [r3]
 	ldr	r3, [r3, #8]
 	cmp	r3, #144
-	bne	.L655
-	ldr	r3, .L742+80
+	bne	.L611
+	ldr	r3, .L698+80
 	ldr	r3, [r3]
 	mov	r2, #120
 	str	r2, [r3, #8]
-	b	.L653
-.L655:
-	ldr	r3, .L742+80
+	b	.L609
+.L611:
+	ldr	r3, .L698+80
 	ldr	r3, [r3]
 	ldr	r3, [r3, #8]
 	cmp	r3, #240
-	bne	.L656
-	ldr	r3, .L742+80
+	bne	.L612
+	ldr	r3, .L698+80
 	ldr	r3, [r3]
 	mov	r2, #144
 	str	r2, [r3, #8]
-	b	.L653
-.L656:
-	ldr	r3, .L742+80
+	b	.L609
+.L612:
+	ldr	r3, .L698+80
 	ldr	r3, [r3]
 	ldr	r3, [r3, #8]
 	cmp	r3, #1000
-	bne	.L653
-	ldr	r3, .L742+80
+	bne	.L609
+	ldr	r3, .L698+80
 	ldr	r3, [r3]
 	mov	r2, #240
 	str	r2, [r3, #8]
-.L653:
-	ldr	r3, .L742+80
+.L609:
+	ldr	r3, .L698+80
 	ldr	r3, [r3]
 	ldr	r3, [r3, #8]
 	mov	r0, r3
 	bl	SetTargetFPS
 	mov	r0, #1
 	bl	PlaySoundFx
-	b	.L624
-.L651:
+	b	.L580
+.L607:
 	ldrb	r3, [fp, #-51]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L657
-	ldr	r3, .L742+80
+	beq	.L613
+	ldr	r3, .L698+80
 	ldr	r3, [r3]
 	ldrb	r3, [r3, #12]	@ zero_extendqisi2
 	cmp	r3, #0
@@ -12831,15 +12365,15 @@ OptionsUpdate:
 	eor	r3, r3, #1
 	uxtb	r3, r3
 	mov	r2, r3
-	ldr	r3, .L742+80
+	ldr	r3, .L698+80
 	ldr	r3, [r3]
 	and	r2, r2, #1
 	uxtb	r2, r2
 	strb	r2, [r3, #12]
-	ldr	r3, .L742+80
+	ldr	r3, .L698+80
 	ldr	r3, [r3]
 	ldr	r1, [r3]
-	ldr	r3, .L742+80
+	ldr	r3, .L698+80
 	ldr	r3, [r3]
 	ldr	r3, [r3, #4]
 	mov	r2, r3
@@ -12848,12 +12382,12 @@ OptionsUpdate:
 	bl	ToggleFullscreen
 	mov	r0, #1
 	bl	PlaySoundFx
-	b	.L624
-.L657:
+	b	.L580
+.L613:
 	ldrb	r3, [fp, #-52]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L658
-	ldr	r3, .L742+80
+	beq	.L614
+	ldr	r3, .L698+80
 	ldr	r3, [r3]
 	ldrb	r3, [r3, #20]	@ zero_extendqisi2
 	cmp	r3, #0
@@ -12863,28 +12397,28 @@ OptionsUpdate:
 	eor	r3, r3, #1
 	uxtb	r3, r3
 	mov	r2, r3
-	ldr	r3, .L742+80
+	ldr	r3, .L698+80
 	ldr	r3, [r3]
 	and	r2, r2, #1
 	uxtb	r2, r2
 	strb	r2, [r3, #20]
 	mov	r0, #1
 	bl	PlaySoundFx
-	b	.L624
-.L658:
+	b	.L580
+.L614:
 	ldrb	r3, [fp, #-53]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L659
+	beq	.L615
 	mov	r3, #1
 	strb	r3, [fp, #-42]
 	mov	r0, #1
 	bl	PlaySoundFx
-	b	.L624
-.L659:
+	b	.L580
+.L615:
 	ldrb	r3, [fp, #-49]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L660
-	ldr	r3, .L742+80
+	beq	.L616
+	ldr	r3, .L698+80
 	ldr	r3, [r3]
 	ldrb	r3, [r3, #22]	@ zero_extendqisi2
 	cmp	r3, #0
@@ -12894,30 +12428,30 @@ OptionsUpdate:
 	eor	r3, r3, #1
 	uxtb	r3, r3
 	mov	r2, r3
-	ldr	r3, .L742+80
+	ldr	r3, .L698+80
 	ldr	r3, [r3]
 	and	r2, r2, #1
 	uxtb	r2, r2
 	strb	r2, [r3, #22]
 	mov	r0, #1
 	bl	PlaySoundFx
-	ldr	r3, .L742+80
+	ldr	r3, .L698+80
 	ldr	r3, [r3]
 	ldrb	r3, [r3, #22]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L661
-	ldr	r0, .L742+76
+	beq	.L617
+	ldr	r0, .L698+76
 	bl	PlayBgm
-	b	.L624
-.L661:
-	ldr	r0, .L742+76
+	b	.L580
+.L617:
+	ldr	r0, .L698+76
 	bl	PauseBgm
-	b	.L624
-.L660:
+	b	.L580
+.L616:
 	ldrb	r3, [fp, #-50]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L624
-	ldr	r3, .L742+80
+	beq	.L580
+	ldr	r3, .L698+80
 	ldr	r3, [r3]
 	ldrb	r3, [r3, #21]	@ zero_extendqisi2
 	cmp	r3, #0
@@ -12927,261 +12461,261 @@ OptionsUpdate:
 	eor	r3, r3, #1
 	uxtb	r3, r3
 	mov	r2, r3
-	ldr	r3, .L742+80
+	ldr	r3, .L698+80
 	ldr	r3, [r3]
 	and	r2, r2, #1
 	uxtb	r2, r2
 	strb	r2, [r3, #21]
 	mov	r0, #1
 	bl	PlaySoundFx
-.L624:
+.L580:
 	ldrb	r3, [fp, #-41]
 	eor	r3, r3, #1
 	uxtb	r3, r3
 	cmp	r3, #0
-	beq	.L662
+	beq	.L618
 	ldrb	r3, [fp, #-42]
 	eor	r3, r3, #1
 	uxtb	r3, r3
 	cmp	r3, #0
-	beq	.L662
+	beq	.L618
 	ldrb	r3, [fp, #-43]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L663
+	beq	.L619
 	ldrb	r3, [fp, #-29]
 	eor	r3, r3, #1
 	uxtb	r3, r3
 	cmp	r3, #0
-	bne	.L664
+	bne	.L620
 	ldr	r3, [fp, #-36]
 	cmp	r3, #0
-	beq	.L665
-.L664:
+	beq	.L621
+.L620:
 	mov	r0, #0
 	bl	PlaySoundFx
 	mov	r3, #1
 	strb	r3, [fp, #-29]
-.L665:
+.L621:
 	mov	r3, #0
 	str	r3, [fp, #-36]
-	b	.L697
-.L663:
+	b	.L653
+.L619:
 	ldrb	r3, [fp, #-44]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L667
+	beq	.L623
 	ldrb	r3, [fp, #-29]
 	eor	r3, r3, #1
 	uxtb	r3, r3
 	cmp	r3, #0
-	bne	.L668
+	bne	.L624
 	ldr	r3, [fp, #-36]
 	cmp	r3, #1
-	beq	.L669
-.L668:
+	beq	.L625
+.L624:
 	mov	r0, #0
 	bl	PlaySoundFx
 	mov	r3, #1
 	strb	r3, [fp, #-29]
-.L669:
+.L625:
 	mov	r3, #1
 	str	r3, [fp, #-36]
-	b	.L697
-.L667:
+	b	.L653
+.L623:
 	ldrb	r3, [fp, #-45]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L670
+	beq	.L626
 	ldrb	r3, [fp, #-29]
 	eor	r3, r3, #1
 	uxtb	r3, r3
 	cmp	r3, #0
-	bne	.L671
+	bne	.L627
 	ldr	r3, [fp, #-36]
 	cmp	r3, #2
-	beq	.L672
-.L671:
+	beq	.L628
+.L627:
 	mov	r0, #0
 	bl	PlaySoundFx
 	mov	r3, #1
 	strb	r3, [fp, #-29]
-.L672:
+.L628:
 	mov	r3, #2
 	str	r3, [fp, #-36]
-	b	.L697
-.L670:
+	b	.L653
+.L626:
 	ldrb	r3, [fp, #-46]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L673
+	beq	.L629
 	ldrb	r3, [fp, #-29]
 	eor	r3, r3, #1
 	uxtb	r3, r3
 	cmp	r3, #0
-	bne	.L674
+	bne	.L630
 	ldr	r3, [fp, #-36]
 	cmp	r3, #3
-	beq	.L675
-.L674:
+	beq	.L631
+.L630:
 	mov	r0, #0
 	bl	PlaySoundFx
 	mov	r3, #1
 	strb	r3, [fp, #-29]
-.L675:
+.L631:
 	mov	r3, #3
 	str	r3, [fp, #-36]
-	b	.L697
-.L673:
+	b	.L653
+.L629:
 	ldrb	r3, [fp, #-47]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L676
+	beq	.L632
 	ldrb	r3, [fp, #-29]
 	eor	r3, r3, #1
 	uxtb	r3, r3
 	cmp	r3, #0
-	bne	.L677
+	bne	.L633
 	ldr	r3, [fp, #-36]
 	cmp	r3, #4
-	beq	.L678
-.L677:
+	beq	.L634
+.L633:
 	mov	r0, #0
 	bl	PlaySoundFx
 	mov	r3, #1
 	strb	r3, [fp, #-29]
-.L678:
+.L634:
 	mov	r3, #4
 	str	r3, [fp, #-36]
-	b	.L697
-.L676:
+	b	.L653
+.L632:
 	ldrb	r3, [fp, #-48]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L679
+	beq	.L635
 	ldrb	r3, [fp, #-29]
 	eor	r3, r3, #1
 	uxtb	r3, r3
 	cmp	r3, #0
-	bne	.L680
+	bne	.L636
 	ldr	r3, [fp, #-36]
 	cmp	r3, #5
-	beq	.L681
-.L680:
+	beq	.L637
+.L636:
 	mov	r0, #0
 	bl	PlaySoundFx
 	mov	r3, #1
 	strb	r3, [fp, #-29]
-.L681:
+.L637:
 	mov	r3, #5
 	str	r3, [fp, #-36]
-	b	.L697
-.L679:
+	b	.L653
+.L635:
 	ldrb	r3, [fp, #-51]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L682
+	beq	.L638
 	ldrb	r3, [fp, #-29]
 	eor	r3, r3, #1
 	uxtb	r3, r3
 	cmp	r3, #0
-	bne	.L683
+	bne	.L639
 	ldr	r3, [fp, #-36]
 	cmp	r3, #6
-	beq	.L684
-.L683:
+	beq	.L640
+.L639:
 	mov	r0, #0
 	bl	PlaySoundFx
 	mov	r3, #1
 	strb	r3, [fp, #-29]
-.L684:
+.L640:
 	mov	r3, #6
 	str	r3, [fp, #-36]
-	b	.L697
-.L682:
+	b	.L653
+.L638:
 	ldrb	r3, [fp, #-52]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L685
+	beq	.L641
 	ldrb	r3, [fp, #-29]
 	eor	r3, r3, #1
 	uxtb	r3, r3
 	cmp	r3, #0
-	bne	.L686
+	bne	.L642
 	ldr	r3, [fp, #-36]
 	cmp	r3, #7
-	beq	.L687
-.L686:
+	beq	.L643
+.L642:
 	mov	r0, #0
 	bl	PlaySoundFx
 	mov	r3, #1
 	strb	r3, [fp, #-29]
-.L687:
+.L643:
 	mov	r3, #7
 	str	r3, [fp, #-36]
-	b	.L697
-.L685:
+	b	.L653
+.L641:
 	ldrb	r3, [fp, #-53]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L688
+	beq	.L644
 	ldrb	r3, [fp, #-29]
 	eor	r3, r3, #1
 	uxtb	r3, r3
 	cmp	r3, #0
-	bne	.L689
+	bne	.L645
 	ldr	r3, [fp, #-36]
 	cmp	r3, #8
-	beq	.L690
-.L689:
+	beq	.L646
+.L645:
 	mov	r0, #0
 	bl	PlaySoundFx
 	mov	r3, #1
 	strb	r3, [fp, #-29]
-.L690:
+.L646:
 	mov	r3, #8
 	str	r3, [fp, #-36]
-	b	.L697
-.L688:
+	b	.L653
+.L644:
 	ldrb	r3, [fp, #-49]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L691
+	beq	.L647
 	ldrb	r3, [fp, #-29]
 	eor	r3, r3, #1
 	uxtb	r3, r3
 	cmp	r3, #0
-	bne	.L692
+	bne	.L648
 	ldr	r3, [fp, #-36]
 	cmp	r3, #9
-	beq	.L693
-.L692:
+	beq	.L649
+.L648:
 	mov	r0, #0
 	bl	PlaySoundFx
 	mov	r3, #1
 	strb	r3, [fp, #-29]
-.L693:
+.L649:
 	mov	r3, #9
 	str	r3, [fp, #-36]
-	b	.L697
-.L691:
+	b	.L653
+.L647:
 	ldrb	r3, [fp, #-50]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L694
+	beq	.L650
 	ldrb	r3, [fp, #-29]
 	eor	r3, r3, #1
 	uxtb	r3, r3
 	cmp	r3, #0
-	bne	.L695
+	bne	.L651
 	ldr	r3, [fp, #-36]
 	cmp	r3, #10
-	beq	.L696
-.L695:
+	beq	.L652
+.L651:
 	mov	r0, #0
 	bl	PlaySoundFx
 	mov	r3, #1
 	strb	r3, [fp, #-29]
-.L696:
+.L652:
 	mov	r3, #10
 	str	r3, [fp, #-36]
-	b	.L697
-.L694:
+	b	.L653
+.L650:
 	mov	r3, #0
 	str	r3, [fp, #-36]
 	mov	r3, #0
 	strb	r3, [fp, #-29]
-	b	.L697
-.L662:
+	b	.L653
+.L618:
 	mov	r3, #0
 	strb	r3, [fp, #-43]
 	mov	r3, #0
@@ -13204,13 +12738,13 @@ OptionsUpdate:
 	strb	r3, [fp, #-52]
 	mov	r3, #0
 	strb	r3, [fp, #-53]
-.L697:
+.L653:
 	ldrb	r3, [fp, #-13]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L698
+	beq	.L654
 	mov	r3, #0
 	strb	r3, [fp, #-13]
-.L698:
+.L654:
 	bl	BeginDrawing
 	mov	r3, #0
 	strb	r3, [fp, #-512]
@@ -13229,22 +12763,22 @@ OptionsUpdate:
 	stm	ip, {r0, r1}
 	ldm	r3, {r0, r1, r2, r3}
 	bl	BeginMode2D
-	ldr	r3, .L742+88
+	ldr	r3, .L698+88
 	ldr	r3, [r3, #4]
 	str	r3, [fp, #-88]
-	ldr	r3, .L742+88
+	ldr	r3, .L698+88
 	ldr	r3, [r3, #8]
 	str	r3, [fp, #-92]
 	ldr	r3, [fp, #-88]
 	vmov	s15, r3	@ int
 	vcvt.f32.s32	s14, s15
-	vldr.32	s13, .L744
+	vldr.32	s13, .L700
 	vdiv.f32	s15, s13, s14
 	vstr.32	s15, [fp, #-96]
 	ldr	r3, [fp, #-92]
 	vmov	s15, r3	@ int
 	vcvt.f32.s32	s14, s15
-	vldr.32	s13, .L744+4
+	vldr.32	s13, .L700+4
 	vdiv.f32	s15, s13, s14
 	vstr.32	s15, [fp, #-100]
 	vldr.64	d0, [fp, #-84]
@@ -13254,9 +12788,9 @@ OptionsUpdate:
 	bl	DrawMenuFallingItems
 	vldr.64	d0, [fp, #-84]
 	bl	DrawCustomerInMenu
-	ldr	r3, .L744+8
+	ldr	r3, .L700+8
 	str	r3, [fp, #-520]	@ float
-	ldr	r3, .L744+12
+	ldr	r3, .L700+12
 	str	r3, [fp, #-516]	@ float
 	vldr.32	s15, [fp, #-96]
 	vcvt.f64.f32	d7, s15
@@ -13267,66 +12801,66 @@ OptionsUpdate:
 	bl	fmax
 	vmov.f64	d7, d0
 	vcvt.f32.f64	s13, d7
-	ldr	r3, .L744+52
+	ldr	r3, .L700+52
 	ldr	r3, [r3]
 	str	r3, [fp, #-524]
 	vldr.32	s14, [fp, #-520]
 	vldr.32	s15, [fp, #-516]
-	ldr	r3, .L744+16
+	ldr	r3, .L700+16
 	ldr	r2, [fp, #-524]
 	str	r2, [sp, #4]
 	ldr	r2, [r3, #16]
 	str	r2, [sp]
 	ldm	r3, {r0, r1, r2, r3}
 	vmov.f32	s3, s13
-	vldr.32	s2, .L744+96
+	vldr.32	s2, .L700+96
 	vmov.f32	s0, s14
 	vmov.f32	s1, s15
 	bl	DrawTextureEx
 	mov	r0, #0
 	vldr.64	d0, [fp, #-84]
 	bl	DrawMenuFallingItems
-	ldr	r3, .L744+32
+	ldr	r3, .L700+32
 	ldr	r3, [r3]
 	ldrb	r3, [r3, #22]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L699
-	ldr	r3, .L744+36
+	beq	.L655
+	ldr	r3, .L700+36
 	sub	ip, fp, #268
 	mov	lr, r3
 	ldmia	lr!, {r0, r1, r2, r3}
 	stmia	ip!, {r0, r1, r2, r3}
 	ldr	r3, [lr]
 	str	r3, [ip]
-	b	.L700
-.L699:
-	ldr	r3, .L744+40
+	b	.L656
+.L655:
+	ldr	r3, .L700+40
 	sub	ip, fp, #268
 	mov	lr, r3
 	ldmia	lr!, {r0, r1, r2, r3}
 	stmia	ip!, {r0, r1, r2, r3}
 	ldr	r3, [lr]
 	str	r3, [ip]
-.L700:
+.L656:
 	vldr.32	s15, [fp, #-436]
-	vldr.32	s14, .L744+104
+	vldr.32	s14, .L700+104
 	vadd.f32	s15, s15, s14
 	vstr.32	s15, [fp, #-532]
 	vldr.32	s15, [fp, #-432]
-	vldr.32	s14, .L744+104
+	vldr.32	s14, .L700+104
 	vadd.f32	s15, s15, s14
 	vstr.32	s15, [fp, #-528]
-	ldr	r3, .L744+52
+	ldr	r3, .L700+52
 	ldr	r3, [r3]
 	str	r3, [fp, #-536]
 	ldrb	r3, [fp, #-49]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L701
-	vldr.32	s15, .L744+88
-	b	.L702
-.L701:
+	beq	.L657
+	vldr.32	s15, .L700+88
+	b	.L658
+.L657:
 	vldr.32	s15, [fp, #-40]
-.L702:
+.L658:
 	vmov.f32	s0, s15
 	ldr	r0, [fp, #-536]
 	bl	ColorAlphaOverride
@@ -13340,28 +12874,28 @@ OptionsUpdate:
 	str	r3, [sp]
 	sub	r3, fp, #268
 	ldm	r3, {r0, r1, r2, r3}
-	vldr.32	s3, .L744+72
-	vldr.32	s2, .L744+96
+	vldr.32	s3, .L700+72
+	vldr.32	s2, .L700+96
 	vmov.f32	s0, s14
 	vmov.f32	s1, s15
 	bl	DrawTextureEx
 	vldr.32	s15, [fp, #-436]
-	vldr.32	s14, .L744+100
+	vldr.32	s14, .L700+100
 	vadd.f32	s15, s15, s14
 	vstr.32	s15, [fp, #-544]
 	vldr.32	s15, [fp, #-432]
-	vldr.32	s14, .L744+76
+	vldr.32	s14, .L700+76
 	vadd.f32	s15, s15, s14
 	vstr.32	s15, [fp, #-540]
 	ldrb	r3, [fp, #-49]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L703
-	vldr.32	s15, .L744+88
-	b	.L704
-.L703:
+	beq	.L659
+	vldr.32	s15, .L700+88
+	b	.L660
+.L659:
 	vldr.32	s15, [fp, #-40]
-.L704:
-	ldr	r3, .L744+60
+.L660:
+	ldr	r3, .L700+60
 	vmov.f32	s0, s15
 	ldr	r0, [r3]
 	bl	ColorAlphaOverride
@@ -13369,10 +12903,10 @@ OptionsUpdate:
 	str	r3, [fp, #-244]
 	vldr.32	s14, [fp, #-544]
 	vldr.32	s15, [fp, #-540]
-	ldr	r4, .L744+64
+	ldr	r4, .L700+64
 	ldr	r3, [fp, #-244]
 	str	r3, [sp, #28]
-	ldr	r3, .L744+20
+	ldr	r3, .L700+20
 	str	r3, [sp, #24]
 	mov	lr, sp
 	add	ip, r4, #16
@@ -13381,52 +12915,52 @@ OptionsUpdate:
 	ldm	ip, {r0, r1}
 	stm	lr, {r0, r1}
 	ldm	r4, {r0, r1, r2, r3}
-	vldr.32	s3, .L744+80
-	vldr.32	s2, .L744+84
+	vldr.32	s3, .L700+80
+	vldr.32	s2, .L700+84
 	vmov.f32	s0, s14
 	vmov.f32	s1, s15
 	bl	DrawTextEx
-	ldr	r3, .L744+32
+	ldr	r3, .L700+32
 	ldr	r3, [r3]
 	ldrb	r3, [r3, #21]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L705
-	ldr	r3, .L744+36
+	beq	.L661
+	ldr	r3, .L700+36
 	sub	ip, fp, #240
 	mov	lr, r3
 	ldmia	lr!, {r0, r1, r2, r3}
 	stmia	ip!, {r0, r1, r2, r3}
 	ldr	r3, [lr]
 	str	r3, [ip]
-	b	.L706
-.L705:
-	ldr	r3, .L744+40
+	b	.L662
+.L661:
+	ldr	r3, .L700+40
 	sub	ip, fp, #240
 	mov	lr, r3
 	ldmia	lr!, {r0, r1, r2, r3}
 	stmia	ip!, {r0, r1, r2, r3}
 	ldr	r3, [lr]
 	str	r3, [ip]
-.L706:
+.L662:
 	vldr.32	s15, [fp, #-452]
-	vldr.32	s14, .L744+104
+	vldr.32	s14, .L700+104
 	vadd.f32	s15, s15, s14
 	vstr.32	s15, [fp, #-552]
 	vldr.32	s15, [fp, #-448]
-	vldr.32	s14, .L744+104
+	vldr.32	s14, .L700+104
 	vadd.f32	s15, s15, s14
 	vstr.32	s15, [fp, #-548]
-	ldr	r3, .L744+52
+	ldr	r3, .L700+52
 	ldr	r3, [r3]
 	str	r3, [fp, #-556]
 	ldrb	r3, [fp, #-50]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L707
-	vldr.32	s15, .L744+88
-	b	.L708
-.L707:
+	beq	.L663
+	vldr.32	s15, .L700+88
+	b	.L664
+.L663:
 	vldr.32	s15, [fp, #-40]
-.L708:
+.L664:
 	vmov.f32	s0, s15
 	ldr	r0, [fp, #-556]
 	bl	ColorAlphaOverride
@@ -13440,28 +12974,28 @@ OptionsUpdate:
 	str	r3, [sp]
 	sub	r3, fp, #240
 	ldm	r3, {r0, r1, r2, r3}
-	vldr.32	s3, .L744+72
-	vldr.32	s2, .L744+96
+	vldr.32	s3, .L700+72
+	vldr.32	s2, .L700+96
 	vmov.f32	s0, s14
 	vmov.f32	s1, s15
 	bl	DrawTextureEx
 	vldr.32	s15, [fp, #-452]
-	vldr.32	s14, .L744+100
+	vldr.32	s14, .L700+100
 	vadd.f32	s15, s15, s14
 	vstr.32	s15, [fp, #-564]
 	vldr.32	s15, [fp, #-448]
-	vldr.32	s14, .L744+76
+	vldr.32	s14, .L700+76
 	vadd.f32	s15, s15, s14
 	vstr.32	s15, [fp, #-560]
 	ldrb	r3, [fp, #-50]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L709
-	vldr.32	s15, .L744+88
-	b	.L710
-.L709:
+	beq	.L665
+	vldr.32	s15, .L700+88
+	b	.L666
+.L665:
 	vldr.32	s15, [fp, #-40]
-.L710:
-	ldr	r3, .L744+60
+.L666:
+	ldr	r3, .L700+60
 	vmov.f32	s0, s15
 	ldr	r0, [r3]
 	bl	ColorAlphaOverride
@@ -13469,10 +13003,10 @@ OptionsUpdate:
 	str	r3, [fp, #-216]
 	vldr.32	s14, [fp, #-564]
 	vldr.32	s15, [fp, #-560]
-	ldr	r4, .L744+64
+	ldr	r4, .L700+64
 	ldr	r3, [fp, #-216]
 	str	r3, [sp, #28]
-	ldr	r3, .L744+24
+	ldr	r3, .L700+24
 	str	r3, [sp, #24]
 	mov	lr, sp
 	add	ip, r4, #16
@@ -13481,27 +13015,27 @@ OptionsUpdate:
 	ldm	ip, {r0, r1}
 	stm	lr, {r0, r1}
 	ldm	r4, {r0, r1, r2, r3}
-	vldr.32	s3, .L744+80
-	vldr.32	s2, .L744+84
+	vldr.32	s3, .L700+80
+	vldr.32	s2, .L700+84
 	vmov.f32	s0, s14
 	vmov.f32	s1, s15
 	bl	DrawTextEx
-	ldr	r3, .L744+32
+	ldr	r3, .L700+32
 	ldr	r3, [r3]
 	ldrb	r3, [r3, #12]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L711
-	ldr	r3, .L744+36
+	beq	.L667
+	ldr	r3, .L700+36
 	sub	ip, fp, #212
 	mov	lr, r3
 	ldmia	lr!, {r0, r1, r2, r3}
 	stmia	ip!, {r0, r1, r2, r3}
 	ldr	r3, [lr]
 	str	r3, [ip]
-	b	.L712
-.L745:
+	b	.L668
+.L701:
 	.align	2
-.L744:
+.L700:
 	.word	1156579328
 	.word	1149698048
 	.word	-999292928
@@ -13529,34 +13063,34 @@ OptionsUpdate:
 	.word	0
 	.word	1117782016
 	.word	1092616192
-.L711:
-	ldr	r3, .L744+40
+.L667:
+	ldr	r3, .L700+40
 	sub	ip, fp, #212
 	mov	lr, r3
 	ldmia	lr!, {r0, r1, r2, r3}
 	stmia	ip!, {r0, r1, r2, r3}
 	ldr	r3, [lr]
 	str	r3, [ip]
-.L712:
+.L668:
 	vldr.32	s15, [fp, #-468]
-	vldr.32	s14, .L744+104
+	vldr.32	s14, .L700+104
 	vadd.f32	s15, s15, s14
 	vstr.32	s15, [fp, #-572]
 	vldr.32	s15, [fp, #-464]
-	vldr.32	s14, .L744+104
+	vldr.32	s14, .L700+104
 	vadd.f32	s15, s15, s14
 	vstr.32	s15, [fp, #-568]
-	ldr	r3, .L744+52
+	ldr	r3, .L700+52
 	ldr	r3, [r3]
 	str	r3, [fp, #-576]
 	ldrb	r3, [fp, #-51]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L713
-	vldr.32	s15, .L744+88
-	b	.L714
-.L713:
+	beq	.L669
+	vldr.32	s15, .L700+88
+	b	.L670
+.L669:
 	vldr.32	s15, [fp, #-40]
-.L714:
+.L670:
 	vmov.f32	s0, s15
 	ldr	r0, [fp, #-576]
 	bl	ColorAlphaOverride
@@ -13570,28 +13104,28 @@ OptionsUpdate:
 	str	r3, [sp]
 	sub	r3, fp, #212
 	ldm	r3, {r0, r1, r2, r3}
-	vldr.32	s3, .L744+72
-	vldr.32	s2, .L744+96
+	vldr.32	s3, .L700+72
+	vldr.32	s2, .L700+96
 	vmov.f32	s0, s14
 	vmov.f32	s1, s15
 	bl	DrawTextureEx
 	vldr.32	s15, [fp, #-468]
-	vldr.32	s14, .L744+100
+	vldr.32	s14, .L700+100
 	vadd.f32	s15, s15, s14
 	vstr.32	s15, [fp, #-584]
 	vldr.32	s15, [fp, #-464]
-	vldr.32	s14, .L744+76
+	vldr.32	s14, .L700+76
 	vadd.f32	s15, s15, s14
 	vstr.32	s15, [fp, #-580]
 	ldrb	r3, [fp, #-51]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L715
-	vldr.32	s15, .L744+88
-	b	.L716
-.L715:
+	beq	.L671
+	vldr.32	s15, .L700+88
+	b	.L672
+.L671:
 	vldr.32	s15, [fp, #-40]
-.L716:
-	ldr	r3, .L744+60
+.L672:
+	ldr	r3, .L700+60
 	vmov.f32	s0, s15
 	ldr	r0, [r3]
 	bl	ColorAlphaOverride
@@ -13599,10 +13133,10 @@ OptionsUpdate:
 	str	r3, [fp, #-188]
 	vldr.32	s14, [fp, #-584]
 	vldr.32	s15, [fp, #-580]
-	ldr	r4, .L744+64
+	ldr	r4, .L700+64
 	ldr	r3, [fp, #-188]
 	str	r3, [sp, #28]
-	ldr	r3, .L744+28
+	ldr	r3, .L700+28
 	str	r3, [sp, #24]
 	mov	lr, sp
 	add	ip, r4, #16
@@ -13611,52 +13145,52 @@ OptionsUpdate:
 	ldm	ip, {r0, r1}
 	stm	lr, {r0, r1}
 	ldm	r4, {r0, r1, r2, r3}
-	vldr.32	s3, .L744+80
-	vldr.32	s2, .L744+84
+	vldr.32	s3, .L700+80
+	vldr.32	s2, .L700+84
 	vmov.f32	s0, s14
 	vmov.f32	s1, s15
 	bl	DrawTextEx
-	ldr	r3, .L744+32
+	ldr	r3, .L700+32
 	ldr	r3, [r3]
 	ldrb	r3, [r3, #20]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L717
-	ldr	r3, .L744+36
+	beq	.L673
+	ldr	r3, .L700+36
 	sub	ip, fp, #184
 	mov	lr, r3
 	ldmia	lr!, {r0, r1, r2, r3}
 	stmia	ip!, {r0, r1, r2, r3}
 	ldr	r3, [lr]
 	str	r3, [ip]
-	b	.L718
-.L717:
-	ldr	r3, .L744+40
+	b	.L674
+.L673:
+	ldr	r3, .L700+40
 	sub	ip, fp, #184
 	mov	lr, r3
 	ldmia	lr!, {r0, r1, r2, r3}
 	stmia	ip!, {r0, r1, r2, r3}
 	ldr	r3, [lr]
 	str	r3, [ip]
-.L718:
+.L674:
 	vldr.32	s15, [fp, #-484]
-	vldr.32	s14, .L744+104
+	vldr.32	s14, .L700+104
 	vadd.f32	s15, s15, s14
 	vstr.32	s15, [fp, #-592]
 	vldr.32	s15, [fp, #-480]
-	vldr.32	s14, .L744+104
+	vldr.32	s14, .L700+104
 	vadd.f32	s15, s15, s14
 	vstr.32	s15, [fp, #-588]
-	ldr	r3, .L744+52
+	ldr	r3, .L700+52
 	ldr	r3, [r3]
 	str	r3, [fp, #-596]
 	ldrb	r3, [fp, #-52]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L719
-	vldr.32	s15, .L744+88
-	b	.L720
-.L719:
+	beq	.L675
+	vldr.32	s15, .L700+88
+	b	.L676
+.L675:
 	vldr.32	s15, [fp, #-40]
-.L720:
+.L676:
 	vmov.f32	s0, s15
 	ldr	r0, [fp, #-596]
 	bl	ColorAlphaOverride
@@ -13670,28 +13204,28 @@ OptionsUpdate:
 	str	r3, [sp]
 	sub	r3, fp, #184
 	ldm	r3, {r0, r1, r2, r3}
-	vldr.32	s3, .L744+72
-	vldr.32	s2, .L744+96
+	vldr.32	s3, .L700+72
+	vldr.32	s2, .L700+96
 	vmov.f32	s0, s14
 	vmov.f32	s1, s15
 	bl	DrawTextureEx
 	vldr.32	s15, [fp, #-484]
-	vldr.32	s14, .L744+100
+	vldr.32	s14, .L700+100
 	vadd.f32	s15, s15, s14
 	vstr.32	s15, [fp, #-604]
 	vldr.32	s15, [fp, #-480]
-	vldr.32	s14, .L744+76
+	vldr.32	s14, .L700+76
 	vadd.f32	s15, s15, s14
 	vstr.32	s15, [fp, #-600]
 	ldrb	r3, [fp, #-52]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L721
-	vldr.32	s15, .L744+88
-	b	.L722
-.L721:
+	beq	.L677
+	vldr.32	s15, .L700+88
+	b	.L678
+.L677:
 	vldr.32	s15, [fp, #-40]
-.L722:
-	ldr	r3, .L744+60
+.L678:
+	ldr	r3, .L700+60
 	vmov.f32	s0, s15
 	ldr	r0, [r3]
 	bl	ColorAlphaOverride
@@ -13699,10 +13233,10 @@ OptionsUpdate:
 	str	r3, [fp, #-160]
 	vldr.32	s14, [fp, #-604]
 	vldr.32	s15, [fp, #-600]
-	ldr	r4, .L744+64
+	ldr	r4, .L700+64
 	ldr	r3, [fp, #-160]
 	str	r3, [sp, #28]
-	ldr	r3, .L744+44
+	ldr	r3, .L700+44
 	str	r3, [sp, #24]
 	mov	lr, sp
 	add	ip, r4, #16
@@ -13711,8 +13245,8 @@ OptionsUpdate:
 	ldm	ip, {r0, r1}
 	stm	lr, {r0, r1}
 	ldm	r4, {r0, r1, r2, r3}
-	vldr.32	s3, .L744+80
-	vldr.32	s2, .L744+84
+	vldr.32	s3, .L700+80
+	vldr.32	s2, .L700+84
 	vmov.f32	s0, s14
 	vmov.f32	s1, s15
 	bl	DrawTextEx
@@ -13720,17 +13254,17 @@ OptionsUpdate:
 	str	r3, [fp, #-612]	@ float
 	ldr	r3, [fp, #-304]	@ float
 	str	r3, [fp, #-608]	@ float
-	ldr	r3, .L744+52
+	ldr	r3, .L700+52
 	ldr	r3, [r3]
 	str	r3, [fp, #-616]
 	ldrb	r3, [fp, #-44]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L723
-	vldr.32	s15, .L744+88
-	b	.L724
-.L723:
+	beq	.L679
+	vldr.32	s15, .L700+88
+	b	.L680
+.L679:
 	vldr.32	s15, [fp, #-40]
-.L724:
+.L680:
 	vmov.f32	s0, s15
 	ldr	r0, [fp, #-616]
 	bl	ColorAlphaOverride
@@ -13738,14 +13272,14 @@ OptionsUpdate:
 	str	r3, [fp, #-156]
 	vldr.32	s14, [fp, #-612]
 	vldr.32	s15, [fp, #-608]
-	ldr	r3, .L744+48
+	ldr	r3, .L700+48
 	ldr	r2, [fp, #-156]
 	str	r2, [sp, #4]
 	ldr	r2, [r3, #16]
 	str	r2, [sp]
 	ldm	r3, {r0, r1, r2, r3}
-	vldr.32	s3, .L744+92
-	vldr.32	s2, .L744+96
+	vldr.32	s3, .L700+92
+	vldr.32	s2, .L700+96
 	vmov.f32	s0, s14
 	vmov.f32	s1, s15
 	bl	DrawTextureEx
@@ -13753,17 +13287,17 @@ OptionsUpdate:
 	str	r3, [fp, #-624]	@ float
 	ldr	r3, [fp, #-320]	@ float
 	str	r3, [fp, #-620]	@ float
-	ldr	r3, .L744+52
+	ldr	r3, .L700+52
 	ldr	r3, [r3]
 	str	r3, [fp, #-628]
 	ldrb	r3, [fp, #-43]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L725
-	vldr.32	s15, .L744+88
-	b	.L726
-.L725:
+	beq	.L681
+	vldr.32	s15, .L700+88
+	b	.L682
+.L681:
 	vldr.32	s15, [fp, #-40]
-.L726:
+.L682:
 	vmov.f32	s0, s15
 	ldr	r0, [fp, #-628]
 	bl	ColorAlphaOverride
@@ -13771,26 +13305,26 @@ OptionsUpdate:
 	str	r3, [fp, #-152]
 	vldr.32	s14, [fp, #-624]
 	vldr.32	s15, [fp, #-620]
-	ldr	r3, .L744+56
+	ldr	r3, .L700+56
 	ldr	r2, [fp, #-152]
 	str	r2, [sp, #4]
 	ldr	r2, [r3, #16]
 	str	r2, [sp]
 	ldm	r3, {r0, r1, r2, r3}
-	vldr.32	s3, .L744+92
-	vldr.32	s2, .L744+96
+	vldr.32	s3, .L700+92
+	vldr.32	s2, .L700+96
 	vmov.f32	s0, s14
 	vmov.f32	s1, s15
 	bl	DrawTextureEx
 	vldr.32	s15, [fp, #-292]
-	vldr.32	s14, .L744+100
+	vldr.32	s14, .L700+100
 	vadd.f32	s15, s15, s14
 	vstr.32	s15, [fp, #-636]
 	vldr.32	s15, [fp, #-288]
-	vldr.32	s14, .L744+104
+	vldr.32	s14, .L700+104
 	vadd.f32	s15, s15, s14
 	vstr.32	s15, [fp, #-632]
-	ldr	r3, .L744+60
+	ldr	r3, .L700+60
 	vldr.32	s0, [fp, #-40]
 	ldr	r0, [r3]
 	bl	ColorAlphaOverride
@@ -13798,10 +13332,10 @@ OptionsUpdate:
 	str	r3, [fp, #-148]
 	vldr.32	s14, [fp, #-636]
 	vldr.32	s15, [fp, #-632]
-	ldr	r4, .L744+64
+	ldr	r4, .L700+64
 	ldr	r3, [fp, #-148]
 	str	r3, [sp, #28]
-	ldr	r3, .L744+68
+	ldr	r3, .L700+68
 	str	r3, [sp, #24]
 	mov	lr, sp
 	add	ip, r4, #16
@@ -13810,26 +13344,26 @@ OptionsUpdate:
 	ldm	ip, {r0, r1}
 	stm	lr, {r0, r1}
 	ldm	r4, {r0, r1, r2, r3}
-	vldr.32	s3, .L746+88
-	vldr.32	s2, .L746+92
+	vldr.32	s3, .L702+88
+	vldr.32	s2, .L702+92
 	vmov.f32	s0, s14
 	vmov.f32	s1, s15
 	bl	DrawTextEx
-	ldr	r3, .L746+48
+	ldr	r3, .L702+48
 	ldr	r3, [r3]
 	ldr	r3, [r3, #16]
 	mov	r0, r3
 	bl	StringFromDifficultyEnum
 	mov	r5, r0
 	vldr.32	s15, [fp, #-292]
-	vldr.32	s14, .L746+72
+	vldr.32	s14, .L702+72
 	vadd.f32	s15, s15, s14
 	vstr.32	s15, [fp, #-644]
 	vldr.32	s15, [fp, #-288]
-	vldr.32	s14, .L746+76
+	vldr.32	s14, .L702+76
 	vadd.f32	s15, s15, s14
 	vstr.32	s15, [fp, #-640]
-	ldr	r3, .L746+32
+	ldr	r3, .L702+32
 	vldr.32	s0, [fp, #-40]
 	ldr	r0, [r3]
 	bl	ColorAlphaOverride
@@ -13837,7 +13371,7 @@ OptionsUpdate:
 	str	r3, [fp, #-144]
 	vldr.32	s14, [fp, #-644]
 	vldr.32	s15, [fp, #-640]
-	ldr	r4, .L746+40
+	ldr	r4, .L702+40
 	ldr	r3, [fp, #-144]
 	str	r3, [sp, #28]
 	str	r5, [sp, #24]
@@ -13848,8 +13382,8 @@ OptionsUpdate:
 	ldm	ip, {r0, r1}
 	stm	lr, {r0, r1}
 	ldm	r4, {r0, r1, r2, r3}
-	vldr.32	s3, .L746+88
-	vldr.32	s2, .L746+92
+	vldr.32	s3, .L702+88
+	vldr.32	s2, .L702+92
 	vmov.f32	s0, s14
 	vmov.f32	s1, s15
 	bl	DrawTextEx
@@ -13857,17 +13391,17 @@ OptionsUpdate:
 	str	r3, [fp, #-652]	@ float
 	ldr	r3, [fp, #-352]	@ float
 	str	r3, [fp, #-648]	@ float
-	ldr	r3, .L746+36
+	ldr	r3, .L702+36
 	ldr	r3, [r3]
 	str	r3, [fp, #-656]
 	ldrb	r3, [fp, #-46]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L727
-	vldr.32	s15, .L746
-	b	.L728
-.L727:
+	beq	.L683
+	vldr.32	s15, .L702
+	b	.L684
+.L683:
 	vldr.32	s15, [fp, #-40]
-.L728:
+.L684:
 	vmov.f32	s0, s15
 	ldr	r0, [fp, #-656]
 	bl	ColorAlphaOverride
@@ -13875,14 +13409,14 @@ OptionsUpdate:
 	str	r3, [fp, #-140]
 	vldr.32	s14, [fp, #-652]
 	vldr.32	s15, [fp, #-648]
-	ldr	r3, .L746+4
+	ldr	r3, .L702+4
 	ldr	r2, [fp, #-140]
 	str	r2, [sp, #4]
 	ldr	r2, [r3, #16]
 	str	r2, [sp]
 	ldm	r3, {r0, r1, r2, r3}
-	vldr.32	s3, .L746+60
-	vldr.32	s2, .L746+64
+	vldr.32	s3, .L702+60
+	vldr.32	s2, .L702+64
 	vmov.f32	s0, s14
 	vmov.f32	s1, s15
 	bl	DrawTextureEx
@@ -13890,17 +13424,17 @@ OptionsUpdate:
 	str	r3, [fp, #-664]	@ float
 	ldr	r3, [fp, #-352]	@ float
 	str	r3, [fp, #-660]	@ float
-	ldr	r3, .L746+36
+	ldr	r3, .L702+36
 	ldr	r3, [r3]
 	str	r3, [fp, #-668]
 	ldrb	r3, [fp, #-45]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L729
-	vldr.32	s15, .L746
-	b	.L730
-.L729:
+	beq	.L685
+	vldr.32	s15, .L702
+	b	.L686
+.L685:
 	vldr.32	s15, [fp, #-40]
-.L730:
+.L686:
 	vmov.f32	s0, s15
 	ldr	r0, [fp, #-668]
 	bl	ColorAlphaOverride
@@ -13908,26 +13442,26 @@ OptionsUpdate:
 	str	r3, [fp, #-136]
 	vldr.32	s14, [fp, #-664]
 	vldr.32	s15, [fp, #-660]
-	ldr	r3, .L746+16
+	ldr	r3, .L702+16
 	ldr	r2, [fp, #-136]
 	str	r2, [sp, #4]
 	ldr	r2, [r3, #16]
 	str	r2, [sp]
 	ldm	r3, {r0, r1, r2, r3}
-	vldr.32	s3, .L746+60
-	vldr.32	s2, .L746+64
+	vldr.32	s3, .L702+60
+	vldr.32	s2, .L702+64
 	vmov.f32	s0, s14
 	vmov.f32	s1, s15
 	bl	DrawTextureEx
 	vldr.32	s15, [fp, #-340]
-	vldr.32	s14, .L746+72
+	vldr.32	s14, .L702+72
 	vadd.f32	s15, s15, s14
 	vstr.32	s15, [fp, #-676]
 	vldr.32	s15, [fp, #-336]
-	vldr.32	s14, .L746+68
+	vldr.32	s14, .L702+68
 	vadd.f32	s15, s15, s14
 	vstr.32	s15, [fp, #-672]
-	ldr	r3, .L746+32
+	ldr	r3, .L702+32
 	vldr.32	s0, [fp, #-40]
 	ldr	r0, [r3]
 	bl	ColorAlphaOverride
@@ -13935,10 +13469,10 @@ OptionsUpdate:
 	str	r3, [fp, #-132]
 	vldr.32	s14, [fp, #-676]
 	vldr.32	s15, [fp, #-672]
-	ldr	r4, .L746+40
+	ldr	r4, .L702+40
 	ldr	r3, [fp, #-132]
 	str	r3, [sp, #28]
-	ldr	r3, .L746+8
+	ldr	r3, .L702+8
 	str	r3, [sp, #24]
 	mov	lr, sp
 	add	ip, r4, #16
@@ -13947,30 +13481,30 @@ OptionsUpdate:
 	ldm	ip, {r0, r1}
 	stm	lr, {r0, r1}
 	ldm	r4, {r0, r1, r2, r3}
-	vldr.32	s3, .L746+88
-	vldr.32	s2, .L746+92
+	vldr.32	s3, .L702+88
+	vldr.32	s2, .L702+92
 	vmov.f32	s0, s14
 	vmov.f32	s1, s15
 	bl	DrawTextEx
-	ldr	r3, .L746+48
+	ldr	r3, .L702+48
 	ldr	r3, [r3]
 	ldr	r1, [r3]
-	ldr	r3, .L746+48
+	ldr	r3, .L702+48
 	ldr	r3, [r3]
 	ldr	r3, [r3, #4]
 	mov	r2, r3
-	ldr	r0, .L746+12
+	ldr	r0, .L702+12
 	bl	TextFormat
 	mov	r5, r0
 	vldr.32	s15, [fp, #-340]
-	vldr.32	s14, .L746+72
+	vldr.32	s14, .L702+72
 	vadd.f32	s15, s15, s14
 	vstr.32	s15, [fp, #-684]
 	vldr.32	s15, [fp, #-336]
-	vldr.32	s14, .L746+76
+	vldr.32	s14, .L702+76
 	vadd.f32	s15, s15, s14
 	vstr.32	s15, [fp, #-680]
-	ldr	r3, .L746+32
+	ldr	r3, .L702+32
 	vldr.32	s0, [fp, #-40]
 	ldr	r0, [r3]
 	bl	ColorAlphaOverride
@@ -13978,7 +13512,7 @@ OptionsUpdate:
 	str	r3, [fp, #-128]
 	vldr.32	s14, [fp, #-684]
 	vldr.32	s15, [fp, #-680]
-	ldr	r4, .L746+40
+	ldr	r4, .L702+40
 	ldr	r3, [fp, #-128]
 	str	r3, [sp, #28]
 	str	r5, [sp, #24]
@@ -13989,8 +13523,8 @@ OptionsUpdate:
 	ldm	ip, {r0, r1}
 	stm	lr, {r0, r1}
 	ldm	r4, {r0, r1, r2, r3}
-	vldr.32	s3, .L746+88
-	vldr.32	s2, .L746+92
+	vldr.32	s3, .L702+88
+	vldr.32	s2, .L702+92
 	vmov.f32	s0, s14
 	vmov.f32	s1, s15
 	bl	DrawTextEx
@@ -13998,17 +13532,17 @@ OptionsUpdate:
 	str	r3, [fp, #-692]	@ float
 	ldr	r3, [fp, #-400]	@ float
 	str	r3, [fp, #-688]	@ float
-	ldr	r3, .L746+36
+	ldr	r3, .L702+36
 	ldr	r3, [r3]
 	str	r3, [fp, #-696]
 	ldrb	r3, [fp, #-48]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L731
-	vldr.32	s15, .L746
-	b	.L732
-.L731:
+	beq	.L687
+	vldr.32	s15, .L702
+	b	.L688
+.L687:
 	vldr.32	s15, [fp, #-40]
-.L732:
+.L688:
 	vmov.f32	s0, s15
 	ldr	r0, [fp, #-696]
 	bl	ColorAlphaOverride
@@ -14016,14 +13550,14 @@ OptionsUpdate:
 	str	r3, [fp, #-124]
 	vldr.32	s14, [fp, #-692]
 	vldr.32	s15, [fp, #-688]
-	ldr	r3, .L746+4
+	ldr	r3, .L702+4
 	ldr	r2, [fp, #-124]
 	str	r2, [sp, #4]
 	ldr	r2, [r3, #16]
 	str	r2, [sp]
 	ldm	r3, {r0, r1, r2, r3}
-	vldr.32	s3, .L746+60
-	vldr.32	s2, .L746+64
+	vldr.32	s3, .L702+60
+	vldr.32	s2, .L702+64
 	vmov.f32	s0, s14
 	vmov.f32	s1, s15
 	bl	DrawTextureEx
@@ -14031,17 +13565,17 @@ OptionsUpdate:
 	str	r3, [fp, #-704]	@ float
 	ldr	r3, [fp, #-400]	@ float
 	str	r3, [fp, #-700]	@ float
-	ldr	r3, .L746+36
+	ldr	r3, .L702+36
 	ldr	r3, [r3]
 	str	r3, [fp, #-708]
 	ldrb	r3, [fp, #-47]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L733
-	vldr.32	s15, .L746
-	b	.L734
-.L747:
+	beq	.L689
+	vldr.32	s15, .L702
+	b	.L690
+.L703:
 	.align	2
-.L746:
+.L702:
 	.word	1061158912
 	.word	left_arrow
 	.word	.LC146
@@ -14067,9 +13601,9 @@ OptionsUpdate:
 	.word	1073741824
 	.word	1107296256
 	.word	1065353216
-.L733:
+.L689:
 	vldr.32	s15, [fp, #-40]
-.L734:
+.L690:
 	vmov.f32	s0, s15
 	ldr	r0, [fp, #-708]
 	bl	ColorAlphaOverride
@@ -14077,26 +13611,26 @@ OptionsUpdate:
 	str	r3, [fp, #-120]
 	vldr.32	s14, [fp, #-704]
 	vldr.32	s15, [fp, #-700]
-	ldr	r3, .L746+16
+	ldr	r3, .L702+16
 	ldr	r2, [fp, #-120]
 	str	r2, [sp, #4]
 	ldr	r2, [r3, #16]
 	str	r2, [sp]
 	ldm	r3, {r0, r1, r2, r3}
-	vldr.32	s3, .L746+60
-	vldr.32	s2, .L746+64
+	vldr.32	s3, .L702+60
+	vldr.32	s2, .L702+64
 	vmov.f32	s0, s14
 	vmov.f32	s1, s15
 	bl	DrawTextureEx
 	vldr.32	s15, [fp, #-388]
-	vldr.32	s14, .L746+72
+	vldr.32	s14, .L702+72
 	vadd.f32	s15, s15, s14
 	vstr.32	s15, [fp, #-716]
 	vldr.32	s15, [fp, #-384]
-	vldr.32	s14, .L746+68
+	vldr.32	s14, .L702+68
 	vadd.f32	s15, s15, s14
 	vstr.32	s15, [fp, #-712]
-	ldr	r3, .L746+32
+	ldr	r3, .L702+32
 	vldr.32	s0, [fp, #-40]
 	ldr	r0, [r3]
 	bl	ColorAlphaOverride
@@ -14104,10 +13638,10 @@ OptionsUpdate:
 	str	r3, [fp, #-116]
 	vldr.32	s14, [fp, #-716]
 	vldr.32	s15, [fp, #-712]
-	ldr	r4, .L746+40
+	ldr	r4, .L702+40
 	ldr	r3, [fp, #-116]
 	str	r3, [sp, #28]
-	ldr	r3, .L746+20
+	ldr	r3, .L702+20
 	str	r3, [sp, #24]
 	mov	lr, sp
 	add	ip, r4, #16
@@ -14116,27 +13650,27 @@ OptionsUpdate:
 	ldm	ip, {r0, r1}
 	stm	lr, {r0, r1}
 	ldm	r4, {r0, r1, r2, r3}
-	vldr.32	s3, .L746+88
-	vldr.32	s2, .L746+92
+	vldr.32	s3, .L702+88
+	vldr.32	s2, .L702+92
 	vmov.f32	s0, s14
 	vmov.f32	s1, s15
 	bl	DrawTextEx
-	ldr	r3, .L746+48
+	ldr	r3, .L702+48
 	ldr	r3, [r3]
 	ldr	r3, [r3, #8]
 	mov	r1, r3
-	ldr	r0, .L746+24
+	ldr	r0, .L702+24
 	bl	TextFormat
 	mov	r5, r0
 	vldr.32	s15, [fp, #-388]
-	vldr.32	s14, .L746+72
+	vldr.32	s14, .L702+72
 	vadd.f32	s15, s15, s14
 	vstr.32	s15, [fp, #-724]
 	vldr.32	s15, [fp, #-384]
-	vldr.32	s14, .L746+76
+	vldr.32	s14, .L702+76
 	vadd.f32	s15, s15, s14
 	vstr.32	s15, [fp, #-720]
-	ldr	r3, .L746+32
+	ldr	r3, .L702+32
 	vldr.32	s0, [fp, #-40]
 	ldr	r0, [r3]
 	bl	ColorAlphaOverride
@@ -14144,7 +13678,7 @@ OptionsUpdate:
 	str	r3, [fp, #-112]
 	vldr.32	s14, [fp, #-724]
 	vldr.32	s15, [fp, #-720]
-	ldr	r4, .L746+40
+	ldr	r4, .L702+40
 	ldr	r3, [fp, #-112]
 	str	r3, [sp, #28]
 	str	r5, [sp, #24]
@@ -14155,29 +13689,29 @@ OptionsUpdate:
 	ldm	ip, {r0, r1}
 	stm	lr, {r0, r1}
 	ldm	r4, {r0, r1, r2, r3}
-	vldr.32	s3, .L746+88
-	vldr.32	s2, .L746+92
+	vldr.32	s3, .L702+88
+	vldr.32	s2, .L702+92
 	vmov.f32	s0, s14
 	vmov.f32	s1, s15
 	bl	DrawTextEx
 	ldrb	r3, [fp, #-53]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L735
-	ldr	r3, .L746+28
+	beq	.L691
+	ldr	r3, .L702+28
 	vldr.32	s0, [fp, #-40]
 	ldr	r0, [r3]
 	bl	ColorAlphaOverride
 	mov	r3, r0
 	str	r3, [fp, #-108]
-	b	.L736
-.L735:
-	ldr	r3, .L746+32
+	b	.L692
+.L691:
+	ldr	r3, .L702+32
 	vldr.32	s0, [fp, #-40]
 	ldr	r0, [r3]
 	bl	ColorAlphaOverride
 	mov	r3, r0
 	str	r3, [fp, #-108]
-.L736:
+.L692:
 	vldr.32	s12, [fp, #-500]
 	vldr.32	s13, [fp, #-496]
 	vldr.32	s14, [fp, #-492]
@@ -14189,14 +13723,14 @@ OptionsUpdate:
 	vmov.f32	s3, s15
 	bl	DrawRectangleRec
 	vldr.32	s15, [fp, #-500]
-	vldr.32	s14, .L746+80
+	vldr.32	s14, .L702+80
 	vadd.f32	s15, s15, s14
 	vstr.32	s15, [fp, #-732]
 	vldr.32	s15, [fp, #-496]
-	vldr.32	s14, .L746+84
+	vldr.32	s14, .L702+84
 	vadd.f32	s15, s15, s14
 	vstr.32	s15, [fp, #-728]
-	ldr	r3, .L746+36
+	ldr	r3, .L702+36
 	ldr	r3, [r3]
 	str	r3, [fp, #-736]
 	vldr.32	s0, [fp, #-40]
@@ -14206,10 +13740,10 @@ OptionsUpdate:
 	str	r3, [fp, #-104]
 	vldr.32	s14, [fp, #-732]
 	vldr.32	s15, [fp, #-728]
-	ldr	r4, .L746+40
+	ldr	r4, .L702+40
 	ldr	r3, [fp, #-104]
 	str	r3, [sp, #28]
-	ldr	r3, .L746+44
+	ldr	r3, .L702+44
 	str	r3, [sp, #24]
 	mov	lr, sp
 	add	ip, r4, #16
@@ -14218,21 +13752,21 @@ OptionsUpdate:
 	ldm	ip, {r0, r1}
 	stm	lr, {r0, r1}
 	ldm	r4, {r0, r1, r2, r3}
-	vldr.32	s3, .L746+88
-	vldr.32	s2, .L746+92
+	vldr.32	s3, .L702+88
+	vldr.32	s2, .L702+92
 	vmov.f32	s0, s14
 	vmov.f32	s1, s15
 	bl	DrawTextEx
-	ldr	r3, .L746+48
+	ldr	r3, .L702+48
 	ldr	r3, [r3]
 	ldrb	r3, [r3, #20]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L737
-	ldr	r3, .L746+52
+	beq	.L693
+	ldr	r3, .L702+52
 	ldrb	r3, [r3, #3]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L737
-	ldr	r3, .L746+56
+	beq	.L693
+	ldr	r3, .L702+56
 	ldr	r3, [r3]
 	str	r3, [fp, #-740]
 	vldr.32	s12, [fp, #-292]
@@ -14240,13 +13774,13 @@ OptionsUpdate:
 	vldr.32	s14, [fp, #-284]
 	vldr.32	s15, [fp, #-280]
 	ldr	r0, [fp, #-740]
-	vldr.32	s4, .L746+96
+	vldr.32	s4, .L702+96
 	vmov.f32	s0, s12
 	vmov.f32	s1, s13
 	vmov.f32	s2, s14
 	vmov.f32	s3, s15
 	bl	DrawRectangleLinesEx
-	ldr	r3, .L746+56
+	ldr	r3, .L702+56
 	ldr	r3, [r3]
 	str	r3, [fp, #-744]
 	vldr.32	s12, [fp, #-308]
@@ -14254,13 +13788,13 @@ OptionsUpdate:
 	vldr.32	s14, [fp, #-300]
 	vldr.32	s15, [fp, #-296]
 	ldr	r0, [fp, #-744]
-	vldr.32	s4, .L746+96
+	vldr.32	s4, .L702+96
 	vmov.f32	s0, s12
 	vmov.f32	s1, s13
 	vmov.f32	s2, s14
 	vmov.f32	s3, s15
 	bl	DrawRectangleLinesEx
-	ldr	r3, .L746+56
+	ldr	r3, .L702+56
 	ldr	r3, [r3]
 	str	r3, [fp, #-748]
 	vldr.32	s12, [fp, #-324]
@@ -14268,13 +13802,13 @@ OptionsUpdate:
 	vldr.32	s14, [fp, #-316]
 	vldr.32	s15, [fp, #-312]
 	ldr	r0, [fp, #-748]
-	vldr.32	s4, .L746+96
+	vldr.32	s4, .L702+96
 	vmov.f32	s0, s12
 	vmov.f32	s1, s13
 	vmov.f32	s2, s14
 	vmov.f32	s3, s15
 	bl	DrawRectangleLinesEx
-	ldr	r3, .L746+56
+	ldr	r3, .L702+56
 	ldr	r3, [r3]
 	str	r3, [fp, #-752]
 	vldr.32	s12, [fp, #-340]
@@ -14282,13 +13816,13 @@ OptionsUpdate:
 	vldr.32	s14, [fp, #-332]
 	vldr.32	s15, [fp, #-328]
 	ldr	r0, [fp, #-752]
-	vldr.32	s4, .L746+96
+	vldr.32	s4, .L702+96
 	vmov.f32	s0, s12
 	vmov.f32	s1, s13
 	vmov.f32	s2, s14
 	vmov.f32	s3, s15
 	bl	DrawRectangleLinesEx
-	ldr	r3, .L746+56
+	ldr	r3, .L702+56
 	ldr	r3, [r3]
 	str	r3, [fp, #-756]
 	vldr.32	s12, [fp, #-356]
@@ -14296,13 +13830,13 @@ OptionsUpdate:
 	vldr.32	s14, [fp, #-348]
 	vldr.32	s15, [fp, #-344]
 	ldr	r0, [fp, #-756]
-	vldr.32	s4, .L746+96
+	vldr.32	s4, .L702+96
 	vmov.f32	s0, s12
 	vmov.f32	s1, s13
 	vmov.f32	s2, s14
 	vmov.f32	s3, s15
 	bl	DrawRectangleLinesEx
-	ldr	r3, .L746+56
+	ldr	r3, .L702+56
 	ldr	r3, [r3]
 	str	r3, [fp, #-760]
 	vldr.32	s12, [fp, #-372]
@@ -14310,13 +13844,13 @@ OptionsUpdate:
 	vldr.32	s14, [fp, #-364]
 	vldr.32	s15, [fp, #-360]
 	ldr	r0, [fp, #-760]
-	vldr.32	s4, .L746+96
+	vldr.32	s4, .L702+96
 	vmov.f32	s0, s12
 	vmov.f32	s1, s13
 	vmov.f32	s2, s14
 	vmov.f32	s3, s15
 	bl	DrawRectangleLinesEx
-	ldr	r3, .L746+56
+	ldr	r3, .L702+56
 	ldr	r3, [r3]
 	str	r3, [fp, #-764]
 	vldr.32	s12, [fp, #-388]
@@ -14324,13 +13858,13 @@ OptionsUpdate:
 	vldr.32	s14, [fp, #-380]
 	vldr.32	s15, [fp, #-376]
 	ldr	r0, [fp, #-764]
-	vldr.32	s4, .L748
+	vldr.32	s4, .L704
 	vmov.f32	s0, s12
 	vmov.f32	s1, s13
 	vmov.f32	s2, s14
 	vmov.f32	s3, s15
 	bl	DrawRectangleLinesEx
-	ldr	r3, .L748+4
+	ldr	r3, .L704+4
 	ldr	r3, [r3]
 	str	r3, [fp, #-768]
 	vldr.32	s12, [fp, #-404]
@@ -14338,13 +13872,13 @@ OptionsUpdate:
 	vldr.32	s14, [fp, #-396]
 	vldr.32	s15, [fp, #-392]
 	ldr	r0, [fp, #-768]
-	vldr.32	s4, .L748
+	vldr.32	s4, .L704
 	vmov.f32	s0, s12
 	vmov.f32	s1, s13
 	vmov.f32	s2, s14
 	vmov.f32	s3, s15
 	bl	DrawRectangleLinesEx
-	ldr	r3, .L748+4
+	ldr	r3, .L704+4
 	ldr	r3, [r3]
 	str	r3, [fp, #-772]
 	vldr.32	s12, [fp, #-420]
@@ -14352,13 +13886,13 @@ OptionsUpdate:
 	vldr.32	s14, [fp, #-412]
 	vldr.32	s15, [fp, #-408]
 	ldr	r0, [fp, #-772]
-	vldr.32	s4, .L748
+	vldr.32	s4, .L704
 	vmov.f32	s0, s12
 	vmov.f32	s1, s13
 	vmov.f32	s2, s14
 	vmov.f32	s3, s15
 	bl	DrawRectangleLinesEx
-	ldr	r3, .L748+4
+	ldr	r3, .L704+4
 	ldr	r3, [r3]
 	str	r3, [fp, #-776]
 	vldr.32	s12, [fp, #-436]
@@ -14366,13 +13900,13 @@ OptionsUpdate:
 	vldr.32	s14, [fp, #-428]
 	vldr.32	s15, [fp, #-424]
 	ldr	r0, [fp, #-776]
-	vldr.32	s4, .L748
+	vldr.32	s4, .L704
 	vmov.f32	s0, s12
 	vmov.f32	s1, s13
 	vmov.f32	s2, s14
 	vmov.f32	s3, s15
 	bl	DrawRectangleLinesEx
-	ldr	r3, .L748+4
+	ldr	r3, .L704+4
 	ldr	r3, [r3]
 	str	r3, [fp, #-780]
 	vldr.32	s12, [fp, #-452]
@@ -14380,13 +13914,13 @@ OptionsUpdate:
 	vldr.32	s14, [fp, #-444]
 	vldr.32	s15, [fp, #-440]
 	ldr	r0, [fp, #-780]
-	vldr.32	s4, .L748
+	vldr.32	s4, .L704
 	vmov.f32	s0, s12
 	vmov.f32	s1, s13
 	vmov.f32	s2, s14
 	vmov.f32	s3, s15
 	bl	DrawRectangleLinesEx
-	ldr	r3, .L748+4
+	ldr	r3, .L704+4
 	ldr	r3, [r3]
 	str	r3, [fp, #-784]
 	vldr.32	s12, [fp, #-468]
@@ -14394,13 +13928,13 @@ OptionsUpdate:
 	vldr.32	s14, [fp, #-460]
 	vldr.32	s15, [fp, #-456]
 	ldr	r0, [fp, #-784]
-	vldr.32	s4, .L748
+	vldr.32	s4, .L704
 	vmov.f32	s0, s12
 	vmov.f32	s1, s13
 	vmov.f32	s2, s14
 	vmov.f32	s3, s15
 	bl	DrawRectangleLinesEx
-	ldr	r3, .L748+4
+	ldr	r3, .L704+4
 	ldr	r3, [r3]
 	str	r3, [fp, #-788]
 	vldr.32	s12, [fp, #-484]
@@ -14408,43 +13942,48 @@ OptionsUpdate:
 	vldr.32	s14, [fp, #-476]
 	vldr.32	s15, [fp, #-472]
 	ldr	r0, [fp, #-788]
-	vldr.32	s4, .L748
+	vldr.32	s4, .L704
 	vmov.f32	s0, s12
 	vmov.f32	s1, s13
 	vmov.f32	s2, s14
 	vmov.f32	s3, s15
 	bl	DrawRectangleLinesEx
-.L737:
+.L693:
 	bl	DrawOuterWorld
-	ldr	r3, .L748+8
+	ldr	r3, .L704+8
 	ldr	r3, [r3]
 	ldrb	r3, [r3, #20]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L738
+	beq	.L694
 	ldr	r0, [fp, #-792]
 	bl	DrawDebugOverlay
-.L738:
+.L694:
 	bl	EndMode2D
 	bl	EndDrawing
-.L619:
+.L575:
 	bl	WindowShouldClose
 	mov	r3, r0
 	eor	r3, r3, #1
 	uxtb	r3, r3
 	cmp	r3, #0
-	bne	.L739
+	bne	.L695
 	bl	ExitApplication
 	nop
 	sub	sp, fp, #12
 	@ sp needed
 	pop	{r4, r5, fp, pc}
-.L749:
+.L705:
 	.align	2
-.L748:
+.L704:
 	.word	1065353216
 	.word	.LC3
 	.word	options
 	.size	OptionsUpdate, .-OptionsUpdate
+	.section	.rodata
+	.align	2
+.LC151:
+	.ascii	"New random customer texture: %d\000"
+	.text
 	.align	2
 	.global	RandomCustomerTexture
 	.syntax unified
@@ -14454,59 +13993,61 @@ OptionsUpdate:
 RandomCustomerTexture:
 	@ args = 0, pretend = 0, frame = 8
 	@ frame_needed = 1, uses_anonymous_args = 0
-	PUSH	{fp, lr}
+	push	{fp, lr}
 	add	fp, sp, #4
 	sub	sp, sp, #8
+	mov	r1, #3
 	mov	r0, #0
-	bl	time
-	mov	r3, r0
-	mov	r0, r3
-	bl	srand
-	bl	rand
-	mov	r3, r0
-	and	r3, r3, #3
-	str	r3, [fp, #-8]
+	bl	GetRandomIntValue
+	str	r0, [fp, #-8]
+	ldr	r1, [fp, #-8]
+	ldr	r0, .L708
+	bl	LogDebug
 	ldr	r3, [fp, #-8]
 	mov	r0, r3
 	sub	sp, fp, #4
 	@ sp needed
 	pop	{fp, pc}
+.L709:
+	.align	2
+.L708:
+	.word	.LC151
 	.size	RandomCustomerTexture, .-RandomCustomerTexture
 	.section	.rodata
 	.align	2
-.LC151:
-	.ascii	"/home/pi/SuperMeowMeow/assets//spritesheets/MAT.png"
-	.ascii	"\000"
-	.align	2
 .LC152:
-	.ascii	"/home/pi/SuperMeowMeow/assets//spritesheets/CUPS.pn"
-	.ascii	"g\000"
+	.ascii	"/home/yuzu/Desktop/SuperMeowMeow/assets//spriteshee"
+	.ascii	"ts/MAT.png\000"
 	.align	2
 .LC153:
-	.ascii	"Powder type: %d, Water: %d, Creamer: %d\000"
+	.ascii	"/home/yuzu/Desktop/SuperMeowMeow/assets//spriteshee"
+	.ascii	"ts/CUPS.png\000"
 	.align	2
 .LC154:
-	.ascii	"Topping: %d, Sauce: %d\000"
+	.ascii	"Powder type: %d, Water: %d, Creamer: %d\000"
 	.align	2
 .LC155:
-	.ascii	"Cup\000"
+	.ascii	"Topping: %d, Sauce: %d\000"
 	.align	2
 .LC156:
-	.ascii	"%s | XY %.2f,%.2f | Active %s\000"
+	.ascii	"Cup\000"
 	.align	2
 .LC157:
-	.ascii	"Cups\000"
+	.ascii	"%s | XY %.2f,%.2f | Active %s\000"
 	.align	2
 .LC158:
-	.ascii	"%s | XY %.2f,%.2f | Grabbable %s\000"
+	.ascii	"Cups\000"
 	.align	2
 .LC159:
-	.ascii	"Plate\000"
+	.ascii	"%s | XY %.2f,%.2f | Grabbable %s\000"
 	.align	2
 .LC160:
-	.ascii	"Score: %d\000"
+	.ascii	"Plate\000"
 	.align	2
 .LC161:
+	.ascii	"Score: %d\000"
+	.align	2
+.LC162:
 	.ascii	"End\000"
 	.align	2
 .LC8:
@@ -14524,8 +14065,8 @@ RandomCustomerTexture:
 GameUpdate:
 	@ args = 0, pretend = 0, frame = 1976
 	@ frame_needed = 1, uses_anonymous_args = 0
-	PUSH	{r4, r5, fp, lr}
-	vPUSH.64	{d8}
+	push	{r4, r5, fp, lr}
+	vpush.64	{d8}
 	add	fp, sp, #20
 	sub	sp, sp, #2128
 	str	r0, [fp, #-1992]
@@ -14539,16 +14080,16 @@ GameUpdate:
 	strb	r3, [fp, #-30]
 	mov	r3, #0
 	strb	r3, [fp, #-31]
-	ldr	r3, .L832+8
+	ldr	r3, .L790+8
 	mov	r2, #3
 	str	r2, [r3]
-	vldr.32	s14, .L832
-	vldr.32	s15, .L832+4
+	vldr.32	s14, .L790
+	vldr.32	s15, .L790+4
 	vmul.f32	s15, s14, s15
-	ldr	r3, .L832+12
+	ldr	r3, .L790+12
 	vstr.32	s15, [r3]
-	ldr	r3, .L832+16
-	ldr	r2, .L832+20
+	ldr	r3, .L790+16
+	ldr	r2, .L790+20
 	str	r2, [r3]	@ float
 	mov	r3, #0
 	strb	r3, [fp, #-32]
@@ -14558,68 +14099,68 @@ GameUpdate:
 	mov	r0, r3
 	bl	memset
 	sub	r3, fp, #288
-	ldr	r1, .L832+24
+	ldr	r1, .L790+24
 	mov	r0, r3
 	bl	LoadTexture
 	sub	r3, fp, #132
-	ldr	r1, .L832+28
+	ldr	r1, .L790+28
 	mov	r0, r3
 	bl	LoadTexture
-	ldr	r3, .L832+32
+	ldr	r3, .L790+32
 	mov	lr, r3
 	sub	ip, fp, #132
 	ldmia	ip!, {r0, r1, r2, r3}
 	stmia	lr!, {r0, r1, r2, r3}
 	ldr	r3, [ip]
 	str	r3, [lr]
-	ldr	r3, .L832+32
-	ldr	r2, .L832+36
+	ldr	r3, .L790+32
+	ldr	r2, .L790+36
 	add	r3, r3, #20
 	ldm	r2, {r0, r1}
 	stm	r3, {r0, r1}
 	sub	r3, fp, #344
-	ldr	r1, .L832+40
+	ldr	r1, .L790+40
 	mov	r0, r3
 	bl	LoadTexture
-	ldr	r3, .L832+44
+	ldr	r3, .L790+44
 	mov	r0, r3
 	mov	r3, #64
 	mov	r2, r3
 	mov	r1, #0
 	bl	memset
-	ldr	r2, .L832+44
-	ldr	r3, .L832+48
+	ldr	r2, .L790+44
+	ldr	r3, .L790+48
 	mov	ip, r2
 	mov	lr, r3
 	ldmia	lr!, {r0, r1, r2, r3}
 	stmia	ip!, {r0, r1, r2, r3}
 	ldr	r3, [lr]
 	str	r3, [ip]
-	ldr	r3, .L832+44
+	ldr	r3, .L790+44
 	mov	r2, #1
 	strb	r2, [r3, #20]
-	ldr	r3, .L832+44
-	ldr	r2, .L832+52
+	ldr	r3, .L790+44
+	ldr	r2, .L790+52
 	add	r3, r3, #24
 	ldm	r2, {r0, r1}
 	stm	r3, {r0, r1}
-	ldr	r3, .L832+44
-	ldr	r2, .L832+52
+	ldr	r3, .L790+44
+	ldr	r2, .L790+52
 	add	r3, r3, #32
 	ldm	r2, {r0, r1}
 	stm	r3, {r0, r1}
-	ldr	r3, .L832+44
+	ldr	r3, .L790+44
 	mov	r2, #3
 	str	r2, [r3, #56]
-	ldr	r3, .L832+44
+	ldr	r3, .L790+44
 	mov	r2, #1
 	str	r2, [r3, #60]
-	ldr	r3, .L832+44
+	ldr	r3, .L790+44
 	ldr	r3, [r3, #56]
-	ldr	r2, .L832+44
+	ldr	r2, .L790+44
 	ldr	r2, [r2, #60]
-	ldr	r4, .L832+44
-	ldr	r5, .L832+44
+	ldr	r4, .L790+44
+	ldr	r5, .L790+44
 	str	r2, [sp, #52]
 	str	r3, [sp, #48]
 	mov	lr, sp
@@ -14640,45 +14181,45 @@ GameUpdate:
 	vstr.32	s13, [r4, #44]
 	vstr.32	s14, [r4, #48]
 	vstr.32	s15, [r4, #52]
-	ldr	r3, .L832+56
+	ldr	r3, .L790+56
 	mov	r0, r3
 	mov	r3, #64
 	mov	r2, r3
 	mov	r1, #0
 	bl	memset
-	ldr	r2, .L832+56
-	ldr	r3, .L832+60
+	ldr	r2, .L790+56
+	ldr	r3, .L790+60
 	mov	ip, r2
 	mov	lr, r3
 	ldmia	lr!, {r0, r1, r2, r3}
 	stmia	ip!, {r0, r1, r2, r3}
 	ldr	r3, [lr]
 	str	r3, [ip]
-	ldr	r3, .L832+56
+	ldr	r3, .L790+56
 	mov	r2, #1
 	strb	r2, [r3, #20]
-	ldr	r3, .L832+56
-	ldr	r2, .L832+64
+	ldr	r3, .L790+56
+	ldr	r2, .L790+64
 	add	r3, r3, #24
 	ldm	r2, {r0, r1}
 	stm	r3, {r0, r1}
-	ldr	r3, .L832+56
-	ldr	r2, .L832+64
+	ldr	r3, .L790+56
+	ldr	r2, .L790+64
 	add	r3, r3, #32
 	ldm	r2, {r0, r1}
 	stm	r3, {r0, r1}
-	ldr	r3, .L832+56
+	ldr	r3, .L790+56
 	mov	r2, #3
 	str	r2, [r3, #56]
-	ldr	r3, .L832+56
+	ldr	r3, .L790+56
 	mov	r2, #1
 	str	r2, [r3, #60]
-	ldr	r3, .L832+56
+	ldr	r3, .L790+56
 	ldr	r3, [r3, #56]
-	ldr	r2, .L832+56
+	ldr	r2, .L790+56
 	ldr	r2, [r2, #60]
-	ldr	r4, .L832+56
-	ldr	r5, .L832+56
+	ldr	r4, .L790+56
+	ldr	r5, .L790+56
 	str	r2, [sp, #52]
 	str	r3, [sp, #48]
 	mov	lr, sp
@@ -14699,45 +14240,45 @@ GameUpdate:
 	vstr.32	s13, [r4, #44]
 	vstr.32	s14, [r4, #48]
 	vstr.32	s15, [r4, #52]
-	ldr	r3, .L832+68
+	ldr	r3, .L790+68
 	mov	r0, r3
 	mov	r3, #64
 	mov	r2, r3
 	mov	r1, #0
 	bl	memset
-	ldr	r2, .L832+68
-	ldr	r3, .L832+72
+	ldr	r2, .L790+68
+	ldr	r3, .L790+72
 	mov	ip, r2
 	mov	lr, r3
 	ldmia	lr!, {r0, r1, r2, r3}
 	stmia	ip!, {r0, r1, r2, r3}
 	ldr	r3, [lr]
 	str	r3, [ip]
-	ldr	r3, .L832+68
+	ldr	r3, .L790+68
 	mov	r2, #1
 	strb	r2, [r3, #20]
-	ldr	r3, .L832+68
-	ldr	r2, .L832+76
+	ldr	r3, .L790+68
+	ldr	r2, .L790+76
 	add	r3, r3, #24
 	ldm	r2, {r0, r1}
 	stm	r3, {r0, r1}
-	ldr	r3, .L832+68
-	ldr	r2, .L832+76
+	ldr	r3, .L790+68
+	ldr	r2, .L790+76
 	add	r3, r3, #32
 	ldm	r2, {r0, r1}
 	stm	r3, {r0, r1}
-	ldr	r3, .L832+68
+	ldr	r3, .L790+68
 	mov	r2, #3
 	str	r2, [r3, #56]
-	ldr	r3, .L832+68
+	ldr	r3, .L790+68
 	mov	r2, #1
 	str	r2, [r3, #60]
-	ldr	r3, .L832+68
+	ldr	r3, .L790+68
 	ldr	r3, [r3, #56]
-	ldr	r2, .L832+68
+	ldr	r2, .L790+68
 	ldr	r2, [r2, #60]
-	ldr	r4, .L832+68
-	ldr	r5, .L832+68
+	ldr	r4, .L790+68
+	ldr	r5, .L790+68
 	str	r2, [sp, #52]
 	str	r3, [sp, #48]
 	mov	lr, sp
@@ -14758,47 +14299,47 @@ GameUpdate:
 	vstr.32	s13, [r4, #44]
 	vstr.32	s14, [r4, #48]
 	vstr.32	s15, [r4, #52]
-	ldr	r3, .L832+88
+	ldr	r3, .L790+88
 	mov	r0, r3
 	mov	r3, #64
 	mov	r2, r3
 	mov	r1, #0
 	bl	memset
-	ldr	r2, .L832+88
-	ldr	r3, .L832+80
+	ldr	r2, .L790+88
+	ldr	r3, .L790+80
 	mov	ip, r2
 	mov	lr, r3
 	ldmia	lr!, {r0, r1, r2, r3}
 	stmia	ip!, {r0, r1, r2, r3}
 	ldr	r3, [lr]
 	str	r3, [ip]
-	ldr	r3, .L832+88
+	ldr	r3, .L790+88
 	mov	r2, #1
 	strb	r2, [r3, #20]
-	ldr	r3, .L832+88
-	ldr	r2, .L832+84
+	ldr	r3, .L790+88
+	ldr	r2, .L790+84
 	add	r3, r3, #24
 	ldm	r2, {r0, r1}
 	stm	r3, {r0, r1}
-	ldr	r3, .L832+88
-	ldr	r2, .L832+84
+	ldr	r3, .L790+88
+	ldr	r2, .L790+84
 	add	r3, r3, #32
 	ldm	r2, {r0, r1}
 	stm	r3, {r0, r1}
-	ldr	r3, .L832+88
+	ldr	r3, .L790+88
 	mov	r2, #3
 	str	r2, [r3, #56]
-	ldr	r3, .L832+88
+	ldr	r3, .L790+88
 	mov	r2, #1
 	str	r2, [r3, #60]
-	ldr	r3, .L832+88
+	ldr	r3, .L790+88
 	ldr	r3, [r3, #56]
-	ldr	r2, .L832+88
+	ldr	r2, .L790+88
 	ldr	r2, [r2, #60]
-	b	.L833
-.L834:
+	b	.L791
+.L792:
 	.align	2
-.L832:
+.L790:
 	.word	1123024896
 	.word	1077936128
 	.word	currentColorIndex
@@ -14806,10 +14347,10 @@ GameUpdate:
 	.word	colorTransitionTime
 	.word	1045220557
 	.word	.LC17
-	.word	.LC151
+	.word	.LC152
 	.word	plate
 	.word	oriplatePosition
-	.word	.LC152
+	.word	.LC153
 	.word	teaPowder
 	.word	teaPowderTexture
 	.word	oriteapowderPosition
@@ -14845,9 +14386,9 @@ GameUpdate:
 	.word	trashCanTexture
 	.word	trashCanPosition
 	.word	trashCan
-.L833:
-	ldr	r4, .L832+88
-	ldr	r5, .L832+88
+.L791:
+	ldr	r4, .L790+88
+	ldr	r5, .L790+88
 	str	r2, [sp, #52]
 	str	r3, [sp, #48]
 	mov	lr, sp
@@ -14868,45 +14409,45 @@ GameUpdate:
 	vstr.32	s13, [r4, #44]
 	vstr.32	s14, [r4, #48]
 	vstr.32	s15, [r4, #52]
-	ldr	r3, .L832+100
+	ldr	r3, .L790+100
 	mov	r0, r3
 	mov	r3, #64
 	mov	r2, r3
 	mov	r1, #0
 	bl	memset
-	ldr	r2, .L832+100
-	ldr	r3, .L832+92
+	ldr	r2, .L790+100
+	ldr	r3, .L790+92
 	mov	ip, r2
 	mov	lr, r3
 	ldmia	lr!, {r0, r1, r2, r3}
 	stmia	ip!, {r0, r1, r2, r3}
 	ldr	r3, [lr]
 	str	r3, [ip]
-	ldr	r3, .L832+100
+	ldr	r3, .L790+100
 	mov	r2, #1
 	strb	r2, [r3, #20]
-	ldr	r3, .L832+100
-	ldr	r2, .L832+96
+	ldr	r3, .L790+100
+	ldr	r2, .L790+96
 	add	r3, r3, #24
 	ldm	r2, {r0, r1}
 	stm	r3, {r0, r1}
-	ldr	r3, .L832+100
-	ldr	r2, .L832+96
+	ldr	r3, .L790+100
+	ldr	r2, .L790+96
 	add	r3, r3, #32
 	ldm	r2, {r0, r1}
 	stm	r3, {r0, r1}
-	ldr	r3, .L832+100
+	ldr	r3, .L790+100
 	mov	r2, #2
 	str	r2, [r3, #56]
-	ldr	r3, .L832+100
+	ldr	r3, .L790+100
 	mov	r2, #1
 	str	r2, [r3, #60]
-	ldr	r3, .L832+100
+	ldr	r3, .L790+100
 	ldr	r3, [r3, #56]
-	ldr	r2, .L832+100
+	ldr	r2, .L790+100
 	ldr	r2, [r2, #60]
-	ldr	r4, .L832+100
-	ldr	r5, .L832+100
+	ldr	r4, .L790+100
+	ldr	r5, .L790+100
 	str	r2, [sp, #52]
 	str	r3, [sp, #48]
 	mov	lr, sp
@@ -14927,45 +14468,45 @@ GameUpdate:
 	vstr.32	s13, [r4, #44]
 	vstr.32	s14, [r4, #48]
 	vstr.32	s15, [r4, #52]
-	ldr	r3, .L832+112
+	ldr	r3, .L790+112
 	mov	r0, r3
 	mov	r3, #64
 	mov	r2, r3
 	mov	r1, #0
 	bl	memset
-	ldr	r2, .L832+112
-	ldr	r3, .L832+104
+	ldr	r2, .L790+112
+	ldr	r3, .L790+104
 	mov	ip, r2
 	mov	lr, r3
 	ldmia	lr!, {r0, r1, r2, r3}
 	stmia	ip!, {r0, r1, r2, r3}
 	ldr	r3, [lr]
 	str	r3, [ip]
-	ldr	r3, .L832+112
+	ldr	r3, .L790+112
 	mov	r2, #1
 	strb	r2, [r3, #20]
-	ldr	r3, .L832+112
-	ldr	r2, .L832+108
+	ldr	r3, .L790+112
+	ldr	r2, .L790+108
 	add	r3, r3, #24
 	ldm	r2, {r0, r1}
 	stm	r3, {r0, r1}
-	ldr	r3, .L832+112
-	ldr	r2, .L832+108
+	ldr	r3, .L790+112
+	ldr	r2, .L790+108
 	add	r3, r3, #32
 	ldm	r2, {r0, r1}
 	stm	r3, {r0, r1}
-	ldr	r3, .L832+112
+	ldr	r3, .L790+112
 	mov	r2, #2
 	str	r2, [r3, #56]
-	ldr	r3, .L832+112
+	ldr	r3, .L790+112
 	mov	r2, #1
 	str	r2, [r3, #60]
-	ldr	r3, .L832+112
+	ldr	r3, .L790+112
 	ldr	r3, [r3, #56]
-	ldr	r2, .L832+112
+	ldr	r2, .L790+112
 	ldr	r2, [r2, #60]
-	ldr	r4, .L832+112
-	ldr	r5, .L832+112
+	ldr	r4, .L790+112
+	ldr	r5, .L790+112
 	str	r2, [sp, #52]
 	str	r3, [sp, #48]
 	mov	lr, sp
@@ -14986,45 +14527,45 @@ GameUpdate:
 	vstr.32	s13, [r4, #44]
 	vstr.32	s14, [r4, #48]
 	vstr.32	s15, [r4, #52]
-	ldr	r3, .L832+124
+	ldr	r3, .L790+124
 	mov	r0, r3
 	mov	r3, #64
 	mov	r2, r3
 	mov	r1, #0
 	bl	memset
-	ldr	r2, .L832+124
-	ldr	r3, .L832+116
+	ldr	r2, .L790+124
+	ldr	r3, .L790+116
 	mov	ip, r2
 	mov	lr, r3
 	ldmia	lr!, {r0, r1, r2, r3}
 	stmia	ip!, {r0, r1, r2, r3}
 	ldr	r3, [lr]
 	str	r3, [ip]
-	ldr	r3, .L832+124
+	ldr	r3, .L790+124
 	mov	r2, #1
 	strb	r2, [r3, #20]
-	ldr	r3, .L832+124
-	ldr	r2, .L832+120
+	ldr	r3, .L790+124
+	ldr	r2, .L790+120
 	add	r3, r3, #24
 	ldm	r2, {r0, r1}
 	stm	r3, {r0, r1}
-	ldr	r3, .L832+124
-	ldr	r2, .L832+120
+	ldr	r3, .L790+124
+	ldr	r2, .L790+120
 	add	r3, r3, #32
 	ldm	r2, {r0, r1}
 	stm	r3, {r0, r1}
-	ldr	r3, .L832+124
+	ldr	r3, .L790+124
 	mov	r2, #2
 	str	r2, [r3, #56]
-	ldr	r3, .L832+124
+	ldr	r3, .L790+124
 	mov	r2, #1
 	str	r2, [r3, #60]
-	ldr	r3, .L832+124
+	ldr	r3, .L790+124
 	ldr	r3, [r3, #56]
-	ldr	r2, .L832+124
+	ldr	r2, .L790+124
 	ldr	r2, [r2, #60]
-	ldr	r4, .L832+124
-	ldr	r5, .L832+124
+	ldr	r4, .L790+124
+	ldr	r5, .L790+124
 	str	r2, [sp, #52]
 	str	r3, [sp, #48]
 	mov	lr, sp
@@ -15045,45 +14586,45 @@ GameUpdate:
 	vstr.32	s13, [r4, #44]
 	vstr.32	s14, [r4, #48]
 	vstr.32	s15, [r4, #52]
-	ldr	r3, .L832+136
+	ldr	r3, .L790+136
 	mov	r0, r3
 	mov	r3, #64
 	mov	r2, r3
 	mov	r1, #0
 	bl	memset
-	ldr	r2, .L832+136
-	ldr	r3, .L832+128
+	ldr	r2, .L790+136
+	ldr	r3, .L790+128
 	mov	ip, r2
 	mov	lr, r3
 	ldmia	lr!, {r0, r1, r2, r3}
 	stmia	ip!, {r0, r1, r2, r3}
 	ldr	r3, [lr]
 	str	r3, [ip]
-	ldr	r3, .L832+136
+	ldr	r3, .L790+136
 	mov	r2, #1
 	strb	r2, [r3, #20]
-	ldr	r3, .L832+136
-	ldr	r2, .L832+132
+	ldr	r3, .L790+136
+	ldr	r2, .L790+132
 	add	r3, r3, #24
 	ldm	r2, {r0, r1}
 	stm	r3, {r0, r1}
-	ldr	r3, .L832+136
-	ldr	r2, .L832+132
+	ldr	r3, .L790+136
+	ldr	r2, .L790+132
 	add	r3, r3, #32
 	ldm	r2, {r0, r1}
 	stm	r3, {r0, r1}
-	ldr	r3, .L832+136
+	ldr	r3, .L790+136
 	mov	r2, #2
 	str	r2, [r3, #56]
-	ldr	r3, .L832+136
+	ldr	r3, .L790+136
 	mov	r2, #1
 	str	r2, [r3, #60]
-	ldr	r3, .L832+136
+	ldr	r3, .L790+136
 	ldr	r3, [r3, #56]
-	ldr	r2, .L832+136
+	ldr	r2, .L790+136
 	ldr	r2, [r2, #60]
-	ldr	r4, .L832+136
-	ldr	r5, .L832+136
+	ldr	r4, .L790+136
+	ldr	r5, .L790+136
 	str	r2, [sp, #52]
 	str	r3, [sp, #48]
 	mov	lr, sp
@@ -15104,45 +14645,45 @@ GameUpdate:
 	vstr.32	s13, [r4, #44]
 	vstr.32	s14, [r4, #48]
 	vstr.32	s15, [r4, #52]
-	ldr	r3, .L832+148
+	ldr	r3, .L790+148
 	mov	r0, r3
 	mov	r3, #64
 	mov	r2, r3
 	mov	r1, #0
 	bl	memset
-	ldr	r2, .L832+148
-	ldr	r3, .L832+140
+	ldr	r2, .L790+148
+	ldr	r3, .L790+140
 	mov	ip, r2
 	mov	lr, r3
 	ldmia	lr!, {r0, r1, r2, r3}
 	stmia	ip!, {r0, r1, r2, r3}
 	ldr	r3, [lr]
 	str	r3, [ip]
-	ldr	r3, .L832+148
+	ldr	r3, .L790+148
 	mov	r2, #1
 	strb	r2, [r3, #20]
-	ldr	r3, .L832+148
-	ldr	r2, .L832+144
+	ldr	r3, .L790+148
+	ldr	r2, .L790+144
 	add	r3, r3, #24
 	ldm	r2, {r0, r1}
 	stm	r3, {r0, r1}
-	ldr	r3, .L832+148
-	ldr	r2, .L832+144
+	ldr	r3, .L790+148
+	ldr	r2, .L790+144
 	add	r3, r3, #32
 	ldm	r2, {r0, r1}
 	stm	r3, {r0, r1}
-	ldr	r3, .L832+148
+	ldr	r3, .L790+148
 	mov	r2, #17
 	str	r2, [r3, #56]
-	ldr	r3, .L832+148
+	ldr	r3, .L790+148
 	mov	r2, #1
 	str	r2, [r3, #60]
-	ldr	r3, .L832+148
+	ldr	r3, .L790+148
 	ldr	r3, [r3, #56]
-	ldr	r2, .L832+148
+	ldr	r2, .L790+148
 	ldr	r2, [r2, #60]
-	ldr	r4, .L832+148
-	ldr	r5, .L832+148
+	ldr	r4, .L790+148
+	ldr	r5, .L790+148
 	str	r2, [sp, #52]
 	str	r3, [sp, #48]
 	mov	lr, sp
@@ -15163,45 +14704,45 @@ GameUpdate:
 	vstr.32	s13, [r4, #44]
 	vstr.32	s14, [r4, #48]
 	vstr.32	s15, [r4, #52]
-	ldr	r3, .L832+148
+	ldr	r3, .L790+148
 	mov	r2, #0
 	strb	r2, [r3, #20]
-	ldr	r3, .L832+156
+	ldr	r3, .L790+156
 	mov	r0, r3
 	mov	r3, #64
 	mov	r2, r3
 	mov	r1, #0
 	bl	memset
-	ldr	r2, .L832+156
-	ldr	r3, .L832+152
+	ldr	r2, .L790+156
+	ldr	r3, .L790+152
 	mov	ip, r2
 	mov	lr, r3
 	ldmia	lr!, {r0, r1, r2, r3}
 	stmia	ip!, {r0, r1, r2, r3}
 	ldr	r3, [lr]
 	str	r3, [ip]
-	ldr	r3, .L832+156
-	ldr	r2, .L832+164
+	ldr	r3, .L790+156
+	ldr	r2, .L790+164
 	add	r3, r3, #24
 	ldm	r2, {r0, r1}
 	stm	r3, {r0, r1}
-	ldr	r3, .L832+156
-	ldr	r2, .L832+164
+	ldr	r3, .L790+156
+	ldr	r2, .L790+164
 	add	r3, r3, #32
 	ldm	r2, {r0, r1}
 	stm	r3, {r0, r1}
-	ldr	r3, .L832+156
+	ldr	r3, .L790+156
 	mov	r2, #1
 	str	r2, [r3, #56]
-	ldr	r3, .L832+156
+	ldr	r3, .L790+156
 	mov	r2, #1
 	str	r2, [r3, #60]
-	ldr	r3, .L832+156
+	ldr	r3, .L790+156
 	ldr	r3, [r3, #56]
-	ldr	r2, .L832+156
+	ldr	r2, .L790+156
 	ldr	r2, [r2, #60]
-	ldr	r4, .L832+156
-	ldr	r5, .L832+156
+	ldr	r4, .L790+156
+	ldr	r5, .L790+156
 	str	r2, [sp, #52]
 	str	r3, [sp, #48]
 	mov	lr, sp
@@ -15222,42 +14763,42 @@ GameUpdate:
 	vstr.32	s13, [r4, #44]
 	vstr.32	s14, [r4, #48]
 	vstr.32	s15, [r4, #52]
-	ldr	r3, .L832+168
+	ldr	r3, .L790+168
 	mov	r0, r3
 	mov	r3, #64
 	mov	r2, r3
 	mov	r1, #0
 	bl	memset
-	ldr	r2, .L832+168
-	ldr	r3, .L832+160
+	ldr	r2, .L790+168
+	ldr	r3, .L790+160
 	mov	ip, r2
 	mov	lr, r3
 	ldmia	lr!, {r0, r1, r2, r3}
 	stmia	ip!, {r0, r1, r2, r3}
 	ldr	r3, [lr]
 	str	r3, [ip]
-	ldr	r3, .L832+168
-	ldr	r2, .L832+164
+	ldr	r3, .L790+168
+	ldr	r2, .L790+164
 	add	r3, r3, #24
 	ldm	r2, {r0, r1}
 	stm	r3, {r0, r1}
-	ldr	r3, .L832+168
-	ldr	r2, .L832+164
+	ldr	r3, .L790+168
+	ldr	r2, .L790+164
 	add	r3, r3, #32
 	ldm	r2, {r0, r1}
 	stm	r3, {r0, r1}
-	ldr	r3, .L832+168
+	ldr	r3, .L790+168
 	mov	r2, #1
 	str	r2, [r3, #56]
-	ldr	r3, .L832+168
+	ldr	r3, .L790+168
 	mov	r2, #1
 	str	r2, [r3, #60]
-	ldr	r3, .L832+168
+	ldr	r3, .L790+168
 	ldr	r3, [r3, #56]
-	ldr	r2, .L832+168
+	ldr	r2, .L790+168
 	ldr	r2, [r2, #60]
-	ldr	r4, .L832+168
-	ldr	r5, .L832+168
+	ldr	r4, .L790+168
+	ldr	r5, .L790+168
 	str	r2, [sp, #52]
 	str	r3, [sp, #48]
 	mov	lr, sp
@@ -15278,42 +14819,42 @@ GameUpdate:
 	vstr.32	s13, [r4, #44]
 	vstr.32	s14, [r4, #48]
 	vstr.32	s15, [r4, #52]
-	ldr	r3, .L832+180
+	ldr	r3, .L790+180
 	mov	r0, r3
 	mov	r3, #64
 	mov	r2, r3
 	mov	r1, #0
 	bl	memset
-	ldr	r2, .L832+180
-	ldr	r3, .L832+172
+	ldr	r2, .L790+180
+	ldr	r3, .L790+172
 	mov	ip, r2
 	mov	lr, r3
 	ldmia	lr!, {r0, r1, r2, r3}
 	stmia	ip!, {r0, r1, r2, r3}
 	ldr	r3, [lr]
 	str	r3, [ip]
-	ldr	r3, .L832+180
-	ldr	r2, .L832+176
+	ldr	r3, .L790+180
+	ldr	r2, .L790+176
 	add	r3, r3, #24
 	ldm	r2, {r0, r1}
 	stm	r3, {r0, r1}
-	ldr	r3, .L832+180
-	ldr	r2, .L832+176
+	ldr	r3, .L790+180
+	ldr	r2, .L790+176
 	add	r3, r3, #32
 	ldm	r2, {r0, r1}
 	stm	r3, {r0, r1}
-	ldr	r3, .L832+180
+	ldr	r3, .L790+180
 	mov	r2, #1
 	str	r2, [r3, #60]
-	ldr	r3, .L832+180
+	ldr	r3, .L790+180
 	mov	r2, #2
 	str	r2, [r3, #56]
-	ldr	r3, .L832+180
+	ldr	r3, .L790+180
 	ldr	r3, [r3, #56]
-	ldr	r2, .L832+180
+	ldr	r2, .L790+180
 	ldr	r2, [r2, #60]
-	ldr	r4, .L832+180
-	ldr	r5, .L832+180
+	ldr	r4, .L790+180
+	ldr	r5, .L790+180
 	str	r2, [sp, #52]
 	str	r3, [sp, #48]
 	mov	lr, sp
@@ -15336,45 +14877,45 @@ GameUpdate:
 	vstr.32	s15, [r4, #52]
 	mov	r3, #0
 	str	r3, [fp, #-36]
-	vldr.32	s14, .L835+8
-	vldr.32	s15, .L835+12
+	vldr.32	s14, .L793+8
+	vldr.32	s15, .L793+12
 	vadd.f32	s15, s14, s15
 	sub	r3, fp, #20
 	sub	r3, r3, #1680
 	vstr.32	s15, [r3]
-	vldr.32	s14, .L835+16
-	vldr.32	s15, .L835+20
+	vldr.32	s14, .L793+16
+	vldr.32	s15, .L793+20
 	vadd.f32	s15, s14, s15
 	sub	r3, fp, #20
 	sub	r3, r3, #1680
 	vstr.32	s15, [r3, #4]
-	vldr.32	s14, .L835+8
-	vldr.32	s15, .L835+24
+	vldr.32	s14, .L793+8
+	vldr.32	s15, .L793+24
 	vadd.f32	s15, s14, s15
 	sub	r3, fp, #20
 	sub	r3, r3, #1680
 	sub	r3, r3, #8
 	vstr.32	s15, [r3]
-	vldr.32	s14, .L835+16
-	vldr.32	s15, .L835+20
+	vldr.32	s14, .L793+16
+	vldr.32	s15, .L793+20
 	vadd.f32	s15, s14, s15
 	sub	r3, fp, #20
 	sub	r3, r3, #1680
 	sub	r3, r3, #8
 	vstr.32	s15, [r3, #4]
-	vldr.32	s14, .L835+8
-	vldr.32	s15, .L835+28
+	vldr.32	s14, .L793+8
+	vldr.32	s15, .L793+28
 	vadd.f32	s15, s14, s15
 	sub	r3, fp, #20
 	sub	r3, r3, #1696
 	vstr.32	s15, [r3]
-	vldr.32	s14, .L835+16
-	vldr.32	s15, .L835+20
+	vldr.32	s14, .L793+16
+	vldr.32	s15, .L793+20
 	vadd.f32	s15, s14, s15
 	sub	r3, fp, #20
 	sub	r3, r3, #1696
 	vstr.32	s15, [r3, #4]
-	ldr	r3, .L835+32
+	ldr	r3, .L793+32
 	sub	ip, fp, #1728
 	sub	ip, ip, #4
 	ldm	r3, {r0, r1, r2, r3}
@@ -15407,7 +14948,7 @@ GameUpdate:
 	vmov.f32	s2, s12
 	vmov.f32	s3, s13
 	vmov	r2, s16	@ int
-	vldr.64	d0, .L835
+	vldr.64	d0, .L793
 	mov	r1, #1
 	bl	CreateCustomerWithOrder
 	bl	RandomCustomerTimeoutBasedOnDifficulty
@@ -15434,7 +14975,7 @@ GameUpdate:
 	vmov.f32	s2, s12
 	vmov.f32	s3, s13
 	vmov	r2, s16	@ int
-	vldr.64	d0, .L835
+	vldr.64	d0, .L793
 	mov	r1, #1
 	bl	CreateCustomerWithOrder
 	bl	RandomCustomerTimeoutBasedOnDifficulty
@@ -15460,7 +15001,7 @@ GameUpdate:
 	vmov.f32	s2, s12
 	vmov.f32	s3, s13
 	vmov	r2, s16	@ int
-	vldr.64	d0, .L835
+	vldr.64	d0, .L793
 	mov	r1, #1
 	bl	CreateCustomerWithOrder
 	mov	r3, #0
@@ -15496,10 +15037,10 @@ GameUpdate:
 	mov	r2, #96
 	mov	r0, r3
 	bl	memcpy
-	b	.L753
-.L836:
+	b	.L711
+.L794:
 	.align	3
-.L835:
+.L793:
 	.word	0
 	.word	0
 	.word	-999292928
@@ -15526,7 +15067,7 @@ GameUpdate:
 	.word	options
 	.word	hotWater
 	.word	backgroundTexture
-.L831:
+.L789:
 	bl	GetTime
 	vmov.f64	d6, d0
 	vldr.64	d7, [fp, #-28]
@@ -15544,492 +15085,492 @@ GameUpdate:
 	eor	r3, r3, #1
 	uxtb	r3, r3
 	cmp	r3, #0
-	beq	.L754
-	ldr	r3, .L835+48
+	beq	.L712
+	ldr	r3, .L793+48
 	mov	r2, #0
 	strb	r2, [r3]
-.L754:
-	ldr	r3, .L835+48
+.L712:
+	ldr	r3, .L793+48
 	ldrb	r3, [r3]	@ zero_extendqisi2
 	eor	r3, r3, #1
 	uxtb	r3, r3
 	cmp	r3, #0
-	beq	.L755
+	beq	.L713
 	ldr	r3, [fp, #-36]
 	cmp	r3, #0
-	beq	.L756
+	beq	.L714
 	ldr	r3, [fp, #-36]
-	ldr	r2, .L835+52
+	ldr	r2, .L793+52
 	cmp	r3, r2
-	bne	.L757
-.L756:
+	bne	.L715
+.L714:
 	sub	r2, fp, #288
 	ldr	r3, [fp, #-1992]
-	ldr	r1, .L835+36
-	ldr	r0, .L835+52
+	ldr	r1, .L793+36
+	ldr	r0, .L793+52
 	bl	DragAndDropIngredientPop
 	str	r0, [fp, #-36]
 	ldr	r3, [fp, #-36]
 	cmp	r3, #0
-	beq	.L757
+	beq	.L715
 	mov	r3, #1
 	strb	r3, [fp, #-37]
-.L757:
+.L715:
 	ldr	r3, [fp, #-36]
 	cmp	r3, #0
-	beq	.L758
+	beq	.L716
 	ldr	r3, [fp, #-36]
-	ldr	r2, .L835+56
+	ldr	r2, .L793+56
 	cmp	r3, r2
-	bne	.L759
-.L758:
+	bne	.L717
+.L716:
 	sub	r2, fp, #288
 	ldr	r3, [fp, #-1992]
-	ldr	r1, .L835+40
-	ldr	r0, .L835+56
+	ldr	r1, .L793+40
+	ldr	r0, .L793+56
 	bl	DragAndDropIngredientPop
 	str	r0, [fp, #-36]
 	ldr	r3, [fp, #-36]
 	cmp	r3, #0
-	beq	.L759
+	beq	.L717
 	mov	r3, #1
 	strb	r3, [fp, #-37]
-.L759:
+.L717:
 	ldr	r3, [fp, #-36]
 	cmp	r3, #0
-	beq	.L760
+	beq	.L718
 	ldr	r3, [fp, #-36]
-	ldr	r2, .L835+60
+	ldr	r2, .L793+60
 	cmp	r3, r2
-	bne	.L761
-.L760:
+	bne	.L719
+.L718:
 	sub	r3, fp, #288
 	ldr	r2, [fp, #-1992]
 	mov	r1, r3
-	ldr	r0, .L835+60
+	ldr	r0, .L793+60
 	bl	DragAndDropIngredient
 	str	r0, [fp, #-36]
 	ldr	r3, [fp, #-36]
 	cmp	r3, #0
-	beq	.L761
+	beq	.L719
 	mov	r3, #1
 	strb	r3, [fp, #-37]
-.L761:
+.L719:
 	ldr	r3, [fp, #-36]
 	cmp	r3, #0
-	beq	.L762
+	beq	.L720
 	ldr	r3, [fp, #-36]
-	ldr	r2, .L835+64
+	ldr	r2, .L793+64
 	cmp	r3, r2
-	bne	.L763
-.L762:
+	bne	.L721
+.L720:
 	sub	r3, fp, #288
 	ldr	r2, [fp, #-1992]
 	mov	r1, r3
-	ldr	r0, .L835+64
+	ldr	r0, .L793+64
 	bl	DragAndDropIngredient
 	str	r0, [fp, #-36]
 	ldr	r3, [fp, #-36]
 	cmp	r3, #0
-	beq	.L763
+	beq	.L721
 	mov	r3, #1
 	strb	r3, [fp, #-37]
-.L763:
+.L721:
 	ldr	r3, [fp, #-36]
 	cmp	r3, #0
-	beq	.L764
+	beq	.L722
 	ldr	r3, [fp, #-36]
-	ldr	r2, .L835+68
+	ldr	r2, .L793+68
 	cmp	r3, r2
-	bne	.L765
-.L764:
+	bne	.L723
+.L722:
 	sub	r3, fp, #288
 	ldr	r2, [fp, #-1992]
 	mov	r1, r3
-	ldr	r0, .L835+68
+	ldr	r0, .L793+68
 	bl	DragAndDropIngredient
 	str	r0, [fp, #-36]
 	ldr	r3, [fp, #-36]
 	cmp	r3, #0
-	beq	.L765
+	beq	.L723
 	mov	r3, #1
 	strb	r3, [fp, #-37]
-.L765:
+.L723:
 	ldr	r3, [fp, #-36]
 	cmp	r3, #0
-	beq	.L766
+	beq	.L724
 	ldr	r3, [fp, #-36]
-	ldr	r2, .L835+72
+	ldr	r2, .L793+72
 	cmp	r3, r2
-	bne	.L767
-.L766:
+	bne	.L725
+.L724:
 	sub	r3, fp, #288
 	ldr	r2, [fp, #-1992]
 	mov	r1, r3
-	ldr	r0, .L835+72
+	ldr	r0, .L793+72
 	bl	DragAndDropIngredient
 	str	r0, [fp, #-36]
 	ldr	r3, [fp, #-36]
 	cmp	r3, #0
-	beq	.L767
+	beq	.L725
 	mov	r3, #1
 	strb	r3, [fp, #-37]
-.L767:
+.L725:
 	ldr	r3, [fp, #-36]
 	cmp	r3, #0
-	beq	.L768
+	beq	.L726
 	ldr	r3, [fp, #-36]
-	ldr	r2, .L835+76
+	ldr	r2, .L793+76
 	cmp	r3, r2
-	bne	.L769
-.L768:
+	bne	.L727
+.L726:
 	sub	r3, fp, #288
 	ldr	r2, [fp, #-1992]
 	mov	r1, r3
-	ldr	r0, .L835+76
+	ldr	r0, .L793+76
 	bl	DragAndDropIngredient
 	str	r0, [fp, #-36]
 	ldr	r3, [fp, #-36]
 	cmp	r3, #0
-	beq	.L769
+	beq	.L727
 	mov	r3, #1
 	strb	r3, [fp, #-37]
-.L769:
+.L727:
 	ldr	r3, [fp, #-36]
 	cmp	r3, #0
-	beq	.L770
+	beq	.L728
 	ldr	r3, [fp, #-36]
-	ldr	r2, .L835+80
+	ldr	r2, .L793+80
 	cmp	r3, r2
-	bne	.L771
-.L770:
+	bne	.L729
+.L728:
 	sub	r3, fp, #288
 	ldr	r2, [fp, #-1992]
 	mov	r1, r3
-	ldr	r0, .L835+80
+	ldr	r0, .L793+80
 	bl	DragAndDropIngredient
 	str	r0, [fp, #-36]
 	ldr	r3, [fp, #-36]
 	cmp	r3, #0
-	beq	.L771
+	beq	.L729
 	mov	r3, #1
 	strb	r3, [fp, #-37]
-.L771:
+.L729:
 	ldr	r3, [fp, #-36]
 	cmp	r3, #0
-	beq	.L772
+	beq	.L730
 	ldr	r3, [fp, #-36]
-	ldr	r2, .L835+96
+	ldr	r2, .L793+96
 	cmp	r3, r2
-	bne	.L773
-.L772:
+	bne	.L731
+.L730:
 	sub	r3, fp, #288
 	ldr	r2, [fp, #-1992]
 	mov	r1, r3
-	ldr	r0, .L835+96
+	ldr	r0, .L793+96
 	bl	DragAndDropIngredient
 	str	r0, [fp, #-36]
 	ldr	r3, [fp, #-36]
 	cmp	r3, #0
-	beq	.L773
+	beq	.L731
 	mov	r3, #1
 	strb	r3, [fp, #-37]
-.L773:
+.L731:
 	ldr	r3, [fp, #-36]
 	cmp	r3, #0
-	beq	.L774
+	beq	.L732
 	sub	r3, fp, #288
 	ldr	r2, [fp, #-36]
 	cmp	r2, r3
-	bne	.L755
-.L774:
+	bne	.L713
+.L732:
 	sub	r3, fp, #1680
 	sub	r3, r3, #4
 	sub	r3, r3, #8
 	sub	r0, fp, #288
-	ldr	r2, .L835+84
+	ldr	r2, .L793+84
 	str	r2, [sp]
 	ldr	r2, [fp, #-1992]
-	ldr	r1, .L835+44
+	ldr	r1, .L793+44
 	bl	DragAndDropCup
 	str	r0, [fp, #-36]
 	ldr	r3, [fp, #-36]
 	cmp	r3, #0
-	beq	.L755
+	beq	.L713
 	mov	r3, #1
 	strb	r3, [fp, #-37]
-.L755:
-	ldr	r3, .L835+48
+.L713:
+	ldr	r3, .L793+48
 	ldrb	r3, [r3]	@ zero_extendqisi2
 	eor	r3, r3, #1
 	uxtb	r3, r3
 	cmp	r3, #0
-	beq	.L775
+	beq	.L733
 	ldrb	r3, [fp, #-37]
 	eor	r3, r3, #1
 	uxtb	r3, r3
 	cmp	r3, #0
-	beq	.L775
+	beq	.L733
 	mov	r0, #0
 	bl	IsMouseButtonDown
 	mov	r3, r0
 	cmp	r3, #0
-	beq	.L775
-	ldr	r3, .L835+48
+	beq	.L733
+	ldr	r3, .L793+48
 	mov	r2, #1
 	strb	r2, [r3]
-.L775:
+.L733:
 	ldrb	r3, [fp, #-38]
 	strb	r3, [fp, #-53]
 	ldr	r3, [fp, #-36]
 	cmp	r3, #0
-	beq	.L776
+	beq	.L734
 	ldrb	r3, [fp, #-29]
 	eor	r3, r3, #1
 	uxtb	r3, r3
 	cmp	r3, #0
-	beq	.L776
+	beq	.L734
 	mov	r0, #7
 	bl	PlaySoundFx
 	mov	r3, #1
 	strb	r3, [fp, #-29]
-	b	.L777
-.L776:
+	b	.L735
+.L734:
 	ldr	r3, [fp, #-36]
 	cmp	r3, #0
-	bne	.L777
+	bne	.L735
 	ldrb	r2, [fp, #-53]	@ zero_extendqisi2
 	ldrb	r3, [fp, #-29]	@ zero_extendqisi2
 	cmp	r2, r3
-	beq	.L778
+	beq	.L736
 	mov	r0, #6
 	bl	PlaySoundFx
-.L778:
+.L736:
 	mov	r3, #0
 	strb	r3, [fp, #-29]
-.L777:
+.L735:
 	mov	r3, #0
 	strb	r3, [fp, #-30]
 	mov	r0, #0
 	bl	IsMouseButtonUp
 	mov	r3, r0
 	cmp	r3, #0
-	beq	.L779
+	beq	.L737
 	ldr	r1, [fp, #-1992]
-	ldr	r0, .L835+52
+	ldr	r0, .L793+52
 	bl	highlightItem
 	mov	r3, r0
 	cmp	r3, #0
-	bne	.L780
+	bne	.L738
 	ldrb	r3, [fp, #-30]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L781
-.L780:
+	beq	.L739
+.L738:
 	mov	r3, #1
-	b	.L782
-.L781:
+	b	.L740
+.L739:
 	mov	r3, #0
-.L782:
+.L740:
 	strb	r3, [fp, #-30]
 	ldrb	r3, [fp, #-30]
 	and	r3, r3, #1
 	strb	r3, [fp, #-30]
 	ldr	r1, [fp, #-1992]
-	ldr	r0, .L835+56
+	ldr	r0, .L793+56
 	bl	highlightItem
 	mov	r3, r0
 	cmp	r3, #0
-	bne	.L783
+	bne	.L741
 	ldrb	r3, [fp, #-30]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L784
-.L783:
+	beq	.L742
+.L741:
 	mov	r3, #1
-	b	.L785
-.L784:
+	b	.L743
+.L742:
 	mov	r3, #0
-.L785:
+.L743:
 	strb	r3, [fp, #-30]
 	ldrb	r3, [fp, #-30]
 	and	r3, r3, #1
 	strb	r3, [fp, #-30]
 	ldr	r1, [fp, #-1992]
-	ldr	r0, .L835+60
+	ldr	r0, .L793+60
 	bl	highlightItem
 	mov	r3, r0
 	cmp	r3, #0
-	bne	.L786
+	bne	.L744
 	ldrb	r3, [fp, #-30]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L787
-.L786:
+	beq	.L745
+.L744:
 	mov	r3, #1
-	b	.L788
-.L787:
+	b	.L746
+.L745:
 	mov	r3, #0
-.L788:
+.L746:
 	strb	r3, [fp, #-30]
 	ldrb	r3, [fp, #-30]
 	and	r3, r3, #1
 	strb	r3, [fp, #-30]
 	ldr	r1, [fp, #-1992]
-	ldr	r0, .L835+64
+	ldr	r0, .L793+64
 	bl	highlightItem
 	mov	r3, r0
 	cmp	r3, #0
-	bne	.L789
+	bne	.L747
 	ldrb	r3, [fp, #-30]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L790
-.L789:
+	beq	.L748
+.L747:
 	mov	r3, #1
-	b	.L791
-.L790:
+	b	.L749
+.L748:
 	mov	r3, #0
-.L791:
+.L749:
 	strb	r3, [fp, #-30]
 	ldrb	r3, [fp, #-30]
 	and	r3, r3, #1
 	strb	r3, [fp, #-30]
 	ldr	r1, [fp, #-1992]
-	ldr	r0, .L835+68
+	ldr	r0, .L793+68
 	bl	highlightItem
 	mov	r3, r0
 	cmp	r3, #0
-	bne	.L792
+	bne	.L750
 	ldrb	r3, [fp, #-30]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L793
-.L792:
+	beq	.L751
+.L750:
 	mov	r3, #1
-	b	.L794
-.L793:
+	b	.L752
+.L751:
 	mov	r3, #0
-.L794:
+.L752:
 	strb	r3, [fp, #-30]
 	ldrb	r3, [fp, #-30]
 	and	r3, r3, #1
 	strb	r3, [fp, #-30]
 	ldr	r1, [fp, #-1992]
-	ldr	r0, .L835+72
+	ldr	r0, .L793+72
 	bl	highlightItem
 	mov	r3, r0
 	cmp	r3, #0
-	bne	.L795
+	bne	.L753
 	ldrb	r3, [fp, #-30]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L796
-.L795:
+	beq	.L754
+.L753:
 	mov	r3, #1
-	b	.L797
-.L796:
+	b	.L755
+.L754:
 	mov	r3, #0
-.L797:
+.L755:
 	strb	r3, [fp, #-30]
 	ldrb	r3, [fp, #-30]
 	and	r3, r3, #1
 	strb	r3, [fp, #-30]
 	ldr	r1, [fp, #-1992]
-	ldr	r0, .L835+76
+	ldr	r0, .L793+76
 	bl	highlightItem
 	mov	r3, r0
 	cmp	r3, #0
-	bne	.L798
+	bne	.L756
 	ldrb	r3, [fp, #-30]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L799
-.L798:
+	beq	.L757
+.L756:
 	mov	r3, #1
-	b	.L800
-.L799:
+	b	.L758
+.L757:
 	mov	r3, #0
-.L800:
+.L758:
 	strb	r3, [fp, #-30]
 	ldrb	r3, [fp, #-30]
 	and	r3, r3, #1
 	strb	r3, [fp, #-30]
 	ldr	r1, [fp, #-1992]
-	ldr	r0, .L835+80
+	ldr	r0, .L793+80
 	bl	highlightItem
 	mov	r3, r0
 	cmp	r3, #0
-	bne	.L801
+	bne	.L759
 	ldrb	r3, [fp, #-30]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L802
-.L801:
+	beq	.L760
+.L759:
 	mov	r3, #1
-	b	.L803
-.L802:
+	b	.L761
+.L760:
 	mov	r3, #0
-.L803:
+.L761:
 	strb	r3, [fp, #-30]
 	ldrb	r3, [fp, #-30]
 	and	r3, r3, #1
 	strb	r3, [fp, #-30]
 	ldr	r1, [fp, #-1992]
-	ldr	r0, .L835+96
+	ldr	r0, .L793+96
 	bl	highlightItem
 	mov	r3, r0
 	cmp	r3, #0
-	bne	.L804
+	bne	.L762
 	ldrb	r3, [fp, #-30]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L805
-.L804:
+	beq	.L763
+.L762:
 	mov	r3, #1
-	b	.L806
-.L805:
+	b	.L764
+.L763:
 	mov	r3, #0
-.L806:
+.L764:
 	strb	r3, [fp, #-30]
 	ldrb	r3, [fp, #-30]
 	and	r3, r3, #1
 	strb	r3, [fp, #-30]
 	ldr	r1, [fp, #-1992]
-	ldr	r0, .L835+84
+	ldr	r0, .L793+84
 	bl	highlightItem
 	mov	r3, r0
 	cmp	r3, #0
-	bne	.L807
+	bne	.L765
 	ldrb	r3, [fp, #-30]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L808
-.L807:
+	beq	.L766
+.L765:
 	mov	r3, #1
-	b	.L809
-.L808:
+	b	.L767
+.L766:
 	mov	r3, #0
-.L809:
+.L767:
 	strb	r3, [fp, #-30]
 	ldrb	r3, [fp, #-30]
 	and	r3, r3, #1
 	strb	r3, [fp, #-30]
-	b	.L810
-.L779:
+	b	.L768
+.L737:
 	mov	r3, #0
 	strb	r3, [fp, #-30]
-.L810:
+.L768:
 	ldrb	r3, [fp, #-30]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L811
+	beq	.L769
 	ldrb	r3, [fp, #-31]
 	eor	r3, r3, #1
 	uxtb	r3, r3
 	cmp	r3, #0
-	beq	.L811
+	beq	.L769
 	mov	r3, #1
 	strb	r3, [fp, #-31]
-	b	.L812
-.L811:
+	b	.L770
+.L769:
 	ldrb	r3, [fp, #-30]
 	eor	r3, r3, #1
 	uxtb	r3, r3
 	cmp	r3, #0
-	beq	.L812
+	beq	.L770
 	mov	r3, #0
 	strb	r3, [fp, #-31]
-.L812:
+.L770:
 	bl	GetMousePosition
 	vmov.f32	s14, s0
 	vmov.f32	s15, s1
@@ -16106,7 +15647,7 @@ GameUpdate:
 	bl	CheckCollisionPointRec
 	mov	r3, r0
 	cmp	r3, #0
-	beq	.L813
+	beq	.L771
 	mov	r3, #2
 	str	r3, [sp, #144]
 	mov	r3, #2
@@ -16127,8 +15668,8 @@ GameUpdate:
 	vstr.32	s13, [fp, #-248]
 	vstr.32	s14, [fp, #-244]
 	vstr.32	s15, [fp, #-240]
-	b	.L814
-.L813:
+	b	.L772
+.L771:
 	mov	r3, #1
 	str	r3, [sp, #144]
 	mov	r3, #2
@@ -16149,7 +15690,7 @@ GameUpdate:
 	vstr.32	s13, [fp, #-248]
 	vstr.32	s14, [fp, #-244]
 	vstr.32	s15, [fp, #-240]
-.L814:
+.L772:
 	bl	GetMousePosition
 	vmov.f32	s14, s0
 	vmov.f32	s15, s1
@@ -16214,39 +15755,39 @@ GameUpdate:
 	eor	r3, r3, #1
 	uxtb	r3, r3
 	cmp	r3, #0
-	beq	.L815
-	ldr	r3, .L835+88
+	beq	.L773
+	ldr	r3, .L793+88
 	ldr	r3, [r3]
 	cmp	r3, #0
-	bne	.L815
+	bne	.L773
 	mov	r3, #1
 	strb	r3, [fp, #-32]
-.L815:
+.L773:
 	ldrb	r3, [fp, #-32]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L816
-	ldr	r3, .L835+88
+	beq	.L774
+	ldr	r3, .L793+88
 	ldr	r3, [r3]
 	cmp	r3, #1
-	ble	.L816
-	ldr	r3, .L835+92
+	ble	.L774
+	ldr	r3, .L793+92
 	ldr	r3, [r3]
 	ldr	r3, [r3, #16]
 	cmp	r3, #3
-	beq	.L816
-	ldr	r3, .L835+92
+	beq	.L774
+	ldr	r3, .L793+92
 	ldr	r3, [r3]
 	ldr	r3, [r3, #16]
 	cmp	r3, #4
-	beq	.L816
-	ldr	r3, .L835+92
+	beq	.L774
+	ldr	r3, .L793+92
 	ldr	r3, [r3]
 	ldr	r3, [r3, #16]
 	cmp	r3, #5
-	beq	.L816
+	beq	.L774
 	ldr	r0, [fp, #-1992]
 	bl	endgameUpdate
-.L816:
+.L774:
 	vldr.64	d7, [fp, #-52]
 	vcvt.f32.f64	s15, d7
 	sub	r3, fp, #1680
@@ -16255,7 +15796,7 @@ GameUpdate:
 	vmov.f32	s0, s15
 	mov	r0, r3
 	bl	Tick
-	ldr	r0, .L835+96
+	ldr	r0, .L793+96
 	bl	tickBoil
 	bl	BeginDrawing
 	mov	r3, #0
@@ -16275,22 +15816,22 @@ GameUpdate:
 	stm	ip, {r0, r1}
 	ldm	r3, {r0, r1, r2, r3}
 	bl	BeginMode2D
-	ldr	r3, .L835+100
+	ldr	r3, .L793+100
 	ldr	r3, [r3, #4]
 	str	r3, [fp, #-64]
-	ldr	r3, .L835+100
+	ldr	r3, .L793+100
 	ldr	r3, [r3, #8]
 	str	r3, [fp, #-68]
 	ldr	r3, [fp, #-64]
 	vmov	s15, r3	@ int
 	vcvt.f32.s32	s14, s15
-	vldr.32	s13, .L837
+	vldr.32	s13, .L795
 	vdiv.f32	s15, s13, s14
 	vstr.32	s15, [fp, #-72]
 	ldr	r3, [fp, #-68]
 	vmov	s15, r3	@ int
 	vcvt.f32.s32	s14, s15
-	vldr.32	s13, .L837+4
+	vldr.32	s13, .L795+4
 	vdiv.f32	s15, s13, s14
 	vstr.32	s15, [fp, #-76]
 	vldr.64	d0, [fp, #-52]
@@ -16300,12 +15841,12 @@ GameUpdate:
 	sub	r3, r3, #8
 	mov	r0, r3
 	bl	render_customers
-	ldr	r2, .L837+28
+	ldr	r2, .L795+28
 	sub	r3, fp, #20
 	sub	r3, r3, #1760
 	sub	r3, r3, #4
 	str	r2, [r3]	@ float
-	ldr	r2, .L837+32
+	ldr	r2, .L795+32
 	sub	r3, fp, #20
 	sub	r3, r3, #1760
 	sub	r3, r3, #4
@@ -16319,7 +15860,7 @@ GameUpdate:
 	bl	fmax
 	vmov.f64	d7, d0
 	vcvt.f32.f64	s13, d7
-	ldr	r3, .L837+128
+	ldr	r3, .L795+128
 	ldr	r3, [r3]
 	str	r3, [fp, #-1788]
 	sub	r3, fp, #20
@@ -16329,27 +15870,27 @@ GameUpdate:
 	sub	r3, fp, #20
 	sub	r3, r3, #1760
 	vldr.32	s15, [r3]
-	ldr	r3, .L837+36
+	ldr	r3, .L795+36
 	ldr	r2, [fp, #-1788]
 	str	r2, [sp, #4]
 	ldr	r2, [r3, #16]
 	str	r2, [sp]
 	ldm	r3, {r0, r1, r2, r3}
 	vmov.f32	s3, s13
-	vldr.32	s2, .L837+8
+	vldr.32	s2, .L795+8
 	vmov.f32	s0, s14
 	vmov.f32	s1, s15
 	bl	DrawTextureEx
-	vldr.32	s15, .L837+12
+	vldr.32	s15, .L795+12
 	vcvt.s32.f32	s15, s15
 	vmov	r1, s15	@ int
-	vldr.32	s15, .L837+16
+	vldr.32	s15, .L795+16
 	vcvt.s32.f32	s15, s15
 	vmov	r0, s15	@ int
-	ldr	r3, .L837+128
+	ldr	r3, .L795+128
 	ldr	r3, [r3]
 	str	r3, [fp, #-1792]
-	ldr	r3, .L837+40
+	ldr	r3, .L795+40
 	ldr	r2, [fp, #-1792]
 	str	r2, [sp, #12]
 	str	r0, [sp, #8]
@@ -16358,7 +15899,7 @@ GameUpdate:
 	str	r2, [sp]
 	ldm	r3, {r0, r1, r2, r3}
 	bl	DrawTexture
-	ldr	r4, .L837+44
+	ldr	r4, .L795+44
 	mov	lr, sp
 	add	ip, r4, #16
 	ldmia	ip!, {r0, r1, r2, r3}
@@ -16369,7 +15910,7 @@ GameUpdate:
 	stm	lr, {r0, r1, r2, r3}
 	ldm	r4, {r0, r1, r2, r3}
 	bl	DrawDragableItemFrame
-	ldr	r4, .L837+48
+	ldr	r4, .L795+48
 	mov	lr, sp
 	add	ip, r4, #16
 	ldmia	ip!, {r0, r1, r2, r3}
@@ -16380,7 +15921,7 @@ GameUpdate:
 	stm	lr, {r0, r1, r2, r3}
 	ldm	r4, {r0, r1, r2, r3}
 	bl	DrawDragableItemFrame
-	ldr	r4, .L837+52
+	ldr	r4, .L795+52
 	mov	lr, sp
 	add	ip, r4, #16
 	ldmia	ip!, {r0, r1, r2, r3}
@@ -16391,7 +15932,7 @@ GameUpdate:
 	stm	lr, {r0, r1, r2, r3}
 	ldm	r4, {r0, r1, r2, r3}
 	bl	DrawDragableItemFrame
-	ldr	r4, .L837+56
+	ldr	r4, .L795+56
 	mov	lr, sp
 	add	ip, r4, #16
 	ldmia	ip!, {r0, r1, r2, r3}
@@ -16402,13 +15943,13 @@ GameUpdate:
 	stm	lr, {r0, r1, r2, r3}
 	ldm	r4, {r0, r1, r2, r3}
 	bl	DrawDragableItemFrame
-	vldr.32	s15, .L837+20
+	vldr.32	s15, .L795+20
 	vcvt.s32.f32	s15, s15
 	vmov	r2, s15	@ int
-	vldr.32	s15, .L837+24
+	vldr.32	s15, .L795+24
 	vcvt.s32.f32	s15, s15
 	vmov	r1, s15	@ int
-	ldr	r3, .L837+128
+	ldr	r3, .L795+128
 	ldr	r3, [r3]
 	str	r3, [fp, #-1796]
 	ldr	r3, [fp, #-1796]
@@ -16420,7 +15961,7 @@ GameUpdate:
 	sub	r3, fp, #344
 	ldm	r3, {r0, r1, r2, r3}
 	bl	DrawTexture
-	ldr	r4, .L837+60
+	ldr	r4, .L795+60
 	mov	lr, sp
 	add	ip, r4, #16
 	ldmia	ip!, {r0, r1, r2, r3}
@@ -16431,7 +15972,7 @@ GameUpdate:
 	stm	lr, {r0, r1, r2, r3}
 	ldm	r4, {r0, r1, r2, r3}
 	bl	DrawDragableItemFrame
-	ldr	r4, .L837+64
+	ldr	r4, .L795+64
 	mov	lr, sp
 	add	ip, r4, #16
 	ldmia	ip!, {r0, r1, r2, r3}
@@ -16442,7 +15983,7 @@ GameUpdate:
 	stm	lr, {r0, r1, r2, r3}
 	ldm	r4, {r0, r1, r2, r3}
 	bl	DrawDragableItemFrame
-	ldr	r4, .L837+68
+	ldr	r4, .L795+68
 	mov	lr, sp
 	add	ip, r4, #16
 	ldmia	ip!, {r0, r1, r2, r3}
@@ -16453,7 +15994,7 @@ GameUpdate:
 	stm	lr, {r0, r1, r2, r3}
 	ldm	r4, {r0, r1, r2, r3}
 	bl	DrawDragableItemFrame
-	ldr	r4, .L837+72
+	ldr	r4, .L795+72
 	mov	lr, sp
 	add	ip, r4, #16
 	ldmia	ip!, {r0, r1, r2, r3}
@@ -16464,7 +16005,7 @@ GameUpdate:
 	stm	lr, {r0, r1, r2, r3}
 	ldm	r4, {r0, r1, r2, r3}
 	bl	DrawDragableItemFrame
-	ldr	r4, .L837+76
+	ldr	r4, .L795+76
 	mov	lr, sp
 	add	ip, r4, #16
 	ldmia	ip!, {r0, r1, r2, r3}
@@ -16475,7 +16016,7 @@ GameUpdate:
 	stm	lr, {r0, r1, r2, r3}
 	ldm	r4, {r0, r1, r2, r3}
 	bl	DrawDragableItemFrame
-	ldr	r4, .L837+80
+	ldr	r4, .L795+80
 	mov	lr, sp
 	add	ip, r4, #16
 	ldmia	ip!, {r0, r1, r2, r3}
@@ -16486,18 +16027,18 @@ GameUpdate:
 	stm	lr, {r0, r1, r2, r3}
 	ldm	r4, {r0, r1, r2, r3}
 	bl	DrawDragableItemFrame
-	ldr	r3, .L837+84
+	ldr	r3, .L795+84
 	vldr.32	s15, [r3, #24]
 	vcvt.s32.f32	s15, s15
 	vmov	r1, s15	@ int
-	ldr	r3, .L837+84
+	ldr	r3, .L795+84
 	vldr.32	s15, [r3, #28]
 	vcvt.s32.f32	s15, s15
 	vmov	r0, s15	@ int
-	ldr	r3, .L837+128
+	ldr	r3, .L795+128
 	ldr	r3, [r3]
 	str	r3, [fp, #-1800]
-	ldr	r3, .L837+84
+	ldr	r3, .L795+84
 	ldr	r2, [fp, #-1800]
 	str	r2, [sp, #12]
 	str	r0, [sp, #8]
@@ -16506,18 +16047,18 @@ GameUpdate:
 	str	r2, [sp]
 	ldm	r3, {r0, r1, r2, r3}
 	bl	DrawTexture
-	ldr	r3, .L837+88
+	ldr	r3, .L795+88
 	vldr.32	s15, [r3, #24]
 	vcvt.s32.f32	s15, s15
 	vmov	r1, s15	@ int
-	ldr	r3, .L837+88
+	ldr	r3, .L795+88
 	vldr.32	s15, [r3, #28]
 	vcvt.s32.f32	s15, s15
 	vmov	r0, s15	@ int
-	ldr	r3, .L837+128
+	ldr	r3, .L795+128
 	ldr	r3, [r3]
 	str	r3, [fp, #-1804]
-	ldr	r3, .L837+88
+	ldr	r3, .L795+88
 	ldr	r2, [fp, #-1804]
 	str	r2, [sp, #12]
 	str	r0, [sp, #8]
@@ -16528,8 +16069,8 @@ GameUpdate:
 	bl	DrawTexture
 	ldrb	r3, [fp, #-216]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L817
-	ldr	r3, .L837+128
+	beq	.L775
+	ldr	r3, .L795+128
 	ldr	r3, [r3]
 	str	r3, [fp, #-1836]
 	vldr.32	s10, [fp, #-268]
@@ -16537,10 +16078,10 @@ GameUpdate:
 	vldr.32	s12, [fp, #-252]
 	vldr.32	s13, [fp, #-248]
 	vldr.32	s14, [fp, #-244]
-	b	.L838
-.L839:
+	b	.L796
+.L797:
 	.align	2
-.L837:
+.L795:
 	.word	1156579328
 	.word	1149698048
 	.word	0
@@ -16567,12 +16108,12 @@ GameUpdate:
 	.word	options
 	.word	debugToolToggles
 	.word	.LC6
-	.word	.LC153
 	.word	.LC154
-	.word	.LC43
-	.word	.LC44
 	.word	.LC155
+	.word	.LC44
+	.word	.LC45
 	.word	.LC156
+	.word	.LC157
 	.word	.LC1
 	.word	meowFont
 	.word	1136852992
@@ -16583,7 +16124,7 @@ GameUpdate:
 	.word	1114636288
 	.word	1065353216
 	.word	1101004800
-.L838:
+.L796:
 	vldr.32	s15, [fp, #-240]
 	ldr	r3, [fp, #-1836]
 	str	r3, [sp, #4]
@@ -16598,16 +16139,16 @@ GameUpdate:
 	vmov.f32	s2, s14
 	vmov.f32	s3, s15
 	bl	DrawTextureRec
-.L817:
-	ldr	r3, .L837+92
+.L775:
+	ldr	r3, .L795+92
 	ldr	r3, [r3]
 	ldrb	r3, [r3, #20]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L818
-	ldr	r3, .L837+96
+	beq	.L776
+	ldr	r3, .L795+96
 	ldrb	r3, [r3, #3]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L818
+	beq	.L776
 	ldr	r2, [fp, #-268]	@ float
 	sub	r3, fp, #20
 	sub	r3, r3, #1824
@@ -16628,7 +16169,7 @@ GameUpdate:
 	sub	r3, r3, #1824
 	sub	r3, r3, #8
 	str	r2, [r3, #12]	@ float
-	ldr	r3, .L837+144
+	ldr	r3, .L795+144
 	ldr	r3, [r3]
 	str	r3, [fp, #-1856]
 	sub	r3, fp, #20
@@ -16647,7 +16188,7 @@ GameUpdate:
 	sub	r3, r3, #12
 	vldr.32	s15, [r3]
 	ldr	r0, [fp, #-1856]
-	vldr.32	s4, .L837+160
+	vldr.32	s4, .L795+160
 	vmov.f32	s0, s12
 	vmov.f32	s1, s13
 	vmov.f32	s2, s14
@@ -16656,13 +16197,13 @@ GameUpdate:
 	vldr.32	s15, [fp, #-268]
 	vcvt.s32.f32	s16, s15
 	vldr.32	s15, [fp, #-264]
-	vldr.32	s14, .L837+156
+	vldr.32	s14, .L795+156
 	vsub.f32	s15, s15, s14
 	vcvt.s32.f32	s17, s15
-	ldr	r3, .L837+100
+	ldr	r3, .L795+100
 	ldr	r3, [r3]
 	str	r3, [fp, #-1860]
-	vldr.32	s0, .L837+148
+	vldr.32	s0, .L795+148
 	ldr	r0, [fp, #-1860]
 	bl	Fade
 	mov	r3, r0
@@ -16678,7 +16219,7 @@ GameUpdate:
 	ldrb	r3, [fp, #-232]	@ zero_extendqisi2
 	mov	r2, r3
 	ldr	r3, [fp, #-228]
-	ldr	r0, .L837+104
+	ldr	r0, .L795+104
 	bl	TextFormat
 	mov	r1, r0
 	ldr	r2, [fp, #-268]	@ float
@@ -16687,13 +16228,13 @@ GameUpdate:
 	sub	r3, r3, #8
 	str	r2, [r3]	@ float
 	vldr.32	s15, [fp, #-264]
-	vldr.32	s14, .L837+164
+	vldr.32	s14, .L795+164
 	vsub.f32	s15, s15, s14
 	sub	r3, fp, #20
 	sub	r3, r3, #1840
 	sub	r3, r3, #8
 	vstr.32	s15, [r3, #4]
-	ldr	r3, .L837+128
+	ldr	r3, .L795+128
 	ldr	r3, [r3]
 	str	r3, [fp, #-1872]
 	sub	r3, fp, #20
@@ -16704,7 +16245,7 @@ GameUpdate:
 	sub	r3, r3, #1840
 	sub	r3, r3, #4
 	vldr.32	s15, [r3]
-	ldr	r4, .L837+132
+	ldr	r4, .L795+132
 	ldr	r3, [fp, #-1872]
 	str	r3, [sp, #28]
 	str	r1, [sp, #24]
@@ -16715,15 +16256,15 @@ GameUpdate:
 	ldm	ip, {r0, r1}
 	stm	lr, {r0, r1}
 	ldm	r4, {r0, r1, r2, r3}
-	vldr.32	s3, .L837+160
-	vldr.32	s2, .L837+164
+	vldr.32	s3, .L795+160
+	vldr.32	s2, .L795+164
 	vmov.f32	s0, s14
 	vmov.f32	s1, s15
 	bl	DrawTextEx
 	ldr	r3, [fp, #-224]
 	ldr	r2, [fp, #-220]
 	mov	r1, r3
-	ldr	r0, .L837+108
+	ldr	r0, .L795+108
 	bl	TextFormat
 	mov	r1, r0
 	ldr	r2, [fp, #-268]	@ float
@@ -16732,13 +16273,13 @@ GameUpdate:
 	sub	r3, r3, #4
 	str	r2, [r3]	@ float
 	vldr.32	s15, [fp, #-264]
-	vldr.32	s14, .L837+152
+	vldr.32	s14, .L795+152
 	vsub.f32	s15, s15, s14
 	sub	r3, fp, #20
 	sub	r3, r3, #1856
 	sub	r3, r3, #4
 	vstr.32	s15, [r3, #4]
-	ldr	r3, .L837+128
+	ldr	r3, .L795+128
 	ldr	r3, [r3]
 	str	r3, [fp, #-1884]
 	sub	r3, fp, #20
@@ -16748,7 +16289,7 @@ GameUpdate:
 	sub	r3, fp, #20
 	sub	r3, r3, #1856
 	vldr.32	s15, [r3]
-	ldr	r4, .L837+132
+	ldr	r4, .L795+132
 	ldr	r3, [fp, #-1884]
 	str	r3, [sp, #28]
 	str	r1, [sp, #24]
@@ -16759,8 +16300,8 @@ GameUpdate:
 	ldm	ip, {r0, r1}
 	stm	lr, {r0, r1}
 	ldm	r4, {r0, r1, r2, r3}
-	vldr.32	s3, .L837+160
-	vldr.32	s2, .L837+164
+	vldr.32	s3, .L795+160
+	vldr.32	s2, .L795+164
 	vmov.f32	s0, s14
 	vmov.f32	s1, s15
 	bl	DrawTextEx
@@ -16770,17 +16311,17 @@ GameUpdate:
 	vcvt.f64.f32	d7, s15
 	ldrb	r3, [fp, #-216]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L819
-	ldr	r3, .L837+112
-	b	.L820
-.L819:
-	ldr	r3, .L837+116
-.L820:
+	beq	.L777
+	ldr	r3, .L795+112
+	b	.L778
+.L777:
+	ldr	r3, .L795+116
+.L778:
 	str	r3, [sp, #8]
 	vstr.64	d7, [sp]
 	vmov	r2, r3, d6
-	ldr	r1, .L837+120
-	ldr	r0, .L837+124
+	ldr	r1, .L795+120
+	ldr	r0, .L795+124
 	bl	TextFormat
 	mov	r1, r0
 	ldr	r2, [fp, #-268]	@ float
@@ -16788,12 +16329,12 @@ GameUpdate:
 	sub	r3, r3, #1872
 	str	r2, [r3]	@ float
 	vldr.32	s15, [fp, #-264]
-	vldr.32	s14, .L837+156
+	vldr.32	s14, .L795+156
 	vsub.f32	s15, s15, s14
 	sub	r3, fp, #20
 	sub	r3, r3, #1872
 	vstr.32	s15, [r3, #4]
-	ldr	r3, .L837+128
+	ldr	r3, .L795+128
 	ldr	r3, [r3]
 	str	r3, [fp, #-1896]
 	sub	r3, fp, #20
@@ -16803,7 +16344,7 @@ GameUpdate:
 	sub	r3, r3, #1856
 	sub	r3, r3, #12
 	vldr.32	s15, [r3]
-	ldr	r4, .L837+132
+	ldr	r4, .L795+132
 	ldr	r3, [fp, #-1896]
 	str	r3, [sp, #28]
 	str	r1, [sp, #24]
@@ -16814,17 +16355,17 @@ GameUpdate:
 	ldm	ip, {r0, r1}
 	stm	lr, {r0, r1}
 	ldm	r4, {r0, r1, r2, r3}
-	vldr.32	s3, .L837+160
-	vldr.32	s2, .L837+164
+	vldr.32	s3, .L795+160
+	vldr.32	s2, .L795+164
 	vmov.f32	s0, s14
 	vmov.f32	s1, s15
 	bl	DrawTextEx
-	ldr	r2, .L837+136
+	ldr	r2, .L795+136
 	sub	r3, fp, #20
 	sub	r3, r3, #1888
 	sub	r3, r3, #4
 	str	r2, [r3]	@ float
-	ldr	r2, .L837+140
+	ldr	r2, .L795+140
 	sub	r3, fp, #20
 	sub	r3, r3, #1888
 	sub	r3, r3, #4
@@ -16843,7 +16384,7 @@ GameUpdate:
 	sub	r3, r3, #1888
 	sub	r3, r3, #4
 	vstr.32	s15, [r3, #12]
-	ldr	r3, .L837+144
+	ldr	r3, .L795+144
 	ldr	r3, [r3]
 	str	r3, [fp, #-1916]
 	sub	r3, fp, #20
@@ -16862,22 +16403,22 @@ GameUpdate:
 	sub	r3, r3, #8
 	vldr.32	s15, [r3]
 	ldr	r0, [fp, #-1916]
-	vldr.32	s4, .L840+88
+	vldr.32	s4, .L798+88
 	vmov.f32	s0, s12
 	vmov.f32	s1, s13
 	vmov.f32	s2, s14
 	vmov.f32	s3, s15
 	bl	DrawRectangleLinesEx
-	vldr.32	s15, .L840
+	vldr.32	s15, .L798
 	vcvt.s32.f32	s16, s15
-	vldr.32	s14, .L840+72
-	vldr.32	s15, .L840+100
+	vldr.32	s14, .L798+72
+	vldr.32	s15, .L798+100
 	vsub.f32	s15, s14, s15
 	vcvt.s32.f32	s17, s15
-	ldr	r3, .L840+32
+	ldr	r3, .L798+32
 	ldr	r3, [r3]
 	str	r3, [fp, #-1920]
-	vldr.32	s0, .L840+76
+	vldr.32	s0, .L798+76
 	ldr	r0, [fp, #-1920]
 	bl	Fade
 	mov	r3, r0
@@ -16889,32 +16430,32 @@ GameUpdate:
 	vmov	r1, s17	@ int
 	vmov	r0, s16	@ int
 	bl	DrawRectangle
-	vldr.32	s15, .L840
+	vldr.32	s15, .L798
 	vcvt.f64.f32	d6, s15
-	vldr.32	s15, .L840+72
+	vldr.32	s15, .L798+72
 	vcvt.f64.f32	d7, s15
 	ldrb	r3, [fp, #-216]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L821
-	ldr	r3, .L840+4
-	b	.L822
-.L841:
+	beq	.L779
+	ldr	r3, .L798+4
+	b	.L780
+.L799:
 	.align	2
-.L840:
+.L798:
 	.word	1136852992
+	.word	.LC45
 	.word	.LC44
-	.word	.LC43
-	.word	.LC157
 	.word	.LC158
+	.word	.LC159
 	.word	1136852992
 	.word	1133903872
 	.word	plate
 	.word	.LC6
-	.word	.LC159
-	.word	.LC42
+	.word	.LC160
+	.word	.LC43
 	.word	-1020329984
 	.word	global_score
-	.word	.LC160
+	.word	.LC161
 	.word	.LC1
 	.word	meowFont
 	.word	options
@@ -16929,29 +16470,29 @@ GameUpdate:
 	.word	1101004800
 	.word	1073741824
 	.word	1104150528
-.L821:
-	ldr	r3, .L840+8
-.L822:
+.L779:
+	ldr	r3, .L798+8
+.L780:
 	str	r3, [sp, #8]
 	vstr.64	d7, [sp]
 	vmov	r2, r3, d6
-	ldr	r1, .L840+12
-	ldr	r0, .L840+16
+	ldr	r1, .L798+12
+	ldr	r0, .L798+16
 	bl	TextFormat
 	mov	r2, r0
-	ldr	r1, .L840+20
+	ldr	r1, .L798+20
 	sub	r3, fp, #20
 	sub	r3, r3, #1904
 	sub	r3, r3, #4
 	str	r1, [r3]	@ float
-	vldr.32	s14, .L840+72
-	vldr.32	s15, .L840+100
+	vldr.32	s14, .L798+72
+	vldr.32	s15, .L798+100
 	vsub.f32	s15, s14, s15
 	sub	r3, fp, #20
 	sub	r3, r3, #1904
 	sub	r3, r3, #4
 	vstr.32	s15, [r3, #4]
-	ldr	r3, .L840+56
+	ldr	r3, .L798+56
 	ldr	r3, [r3]
 	str	r3, [fp, #-1932]
 	sub	r3, fp, #20
@@ -16961,7 +16502,7 @@ GameUpdate:
 	sub	r3, fp, #20
 	sub	r3, r3, #1904
 	vldr.32	s15, [r3]
-	ldr	r4, .L840+60
+	ldr	r4, .L798+60
 	ldr	r3, [fp, #-1932]
 	str	r3, [sp, #28]
 	str	r2, [sp, #24]
@@ -16972,22 +16513,22 @@ GameUpdate:
 	ldm	ip, {r0, r1}
 	stm	lr, {r0, r1}
 	ldm	r4, {r0, r1, r2, r3}
-	vldr.32	s3, .L840+88
-	vldr.32	s2, .L840+100
+	vldr.32	s3, .L798+88
+	vldr.32	s2, .L798+100
 	vmov.f32	s0, s14
 	vmov.f32	s1, s15
 	bl	DrawTextEx
-	ldr	r2, .L840+44
+	ldr	r2, .L798+44
 	sub	r3, fp, #20
 	sub	r3, r3, #1920
 	sub	r3, r3, #8
 	str	r2, [r3]	@ float
-	ldr	r2, .L840+24
+	ldr	r2, .L798+24
 	sub	r3, fp, #20
 	sub	r3, r3, #1920
 	sub	r3, r3, #8
 	str	r2, [r3, #4]	@ float
-	ldr	r3, .L840+28
+	ldr	r3, .L798+28
 	ldr	r3, [r3, #4]
 	vmov	s15, r3	@ int
 	vcvt.f32.s32	s15, s15
@@ -16995,7 +16536,7 @@ GameUpdate:
 	sub	r3, r3, #1920
 	sub	r3, r3, #8
 	vstr.32	s15, [r3, #8]
-	ldr	r3, .L840+28
+	ldr	r3, .L798+28
 	ldr	r3, [r3, #8]
 	vmov	s15, r3	@ int
 	vcvt.f32.s32	s15, s15
@@ -17003,7 +16544,7 @@ GameUpdate:
 	sub	r3, r3, #1920
 	sub	r3, r3, #8
 	vstr.32	s15, [r3, #12]
-	ldr	r3, .L840+68
+	ldr	r3, .L798+68
 	ldr	r3, [r3]
 	str	r3, [fp, #-1952]
 	sub	r3, fp, #20
@@ -17022,22 +16563,22 @@ GameUpdate:
 	sub	r3, r3, #12
 	vldr.32	s15, [r3]
 	ldr	r0, [fp, #-1952]
-	vldr.32	s4, .L840+88
+	vldr.32	s4, .L798+88
 	vmov.f32	s0, s12
 	vmov.f32	s1, s13
 	vmov.f32	s2, s14
 	vmov.f32	s3, s15
 	bl	DrawRectangleLinesEx
-	vldr.32	s15, .L840+80
+	vldr.32	s15, .L798+80
 	vcvt.s32.f32	s16, s15
-	vldr.32	s14, .L840+84
-	vldr.32	s15, .L840+100
+	vldr.32	s14, .L798+84
+	vldr.32	s15, .L798+100
 	vsub.f32	s15, s14, s15
 	vcvt.s32.f32	s17, s15
-	ldr	r3, .L840+32
+	ldr	r3, .L798+32
 	ldr	r3, [r3]
 	str	r3, [fp, #-1956]
-	vldr.32	s0, .L840+76
+	vldr.32	s0, .L798+76
 	ldr	r0, [fp, #-1956]
 	bl	Fade
 	mov	r3, r0
@@ -17049,29 +16590,29 @@ GameUpdate:
 	vmov	r1, s17	@ int
 	vmov	r0, s16	@ int
 	bl	DrawRectangle
-	vldr.32	s15, .L840+80
+	vldr.32	s15, .L798+80
 	vcvt.f64.f32	d6, s15
-	vldr.32	s15, .L840+84
+	vldr.32	s15, .L798+84
 	vcvt.f64.f32	d7, s15
 	vstr.64	d7, [sp]
 	vmov	r2, r3, d6
-	ldr	r1, .L840+36
-	ldr	r0, .L840+40
+	ldr	r1, .L798+36
+	ldr	r0, .L798+40
 	bl	TextFormat
 	mov	r2, r0
-	ldr	r1, .L840+44
+	ldr	r1, .L798+44
 	sub	r3, fp, #20
 	sub	r3, r3, #1936
 	sub	r3, r3, #8
 	str	r1, [r3]	@ float
-	vldr.32	s14, .L840+84
-	vldr.32	s15, .L840+100
+	vldr.32	s14, .L798+84
+	vldr.32	s15, .L798+100
 	vsub.f32	s15, s14, s15
 	sub	r3, fp, #20
 	sub	r3, r3, #1936
 	sub	r3, r3, #8
 	vstr.32	s15, [r3, #4]
-	ldr	r3, .L840+56
+	ldr	r3, .L798+56
 	ldr	r3, [r3]
 	str	r3, [fp, #-1968]
 	sub	r3, fp, #20
@@ -17082,7 +16623,7 @@ GameUpdate:
 	sub	r3, r3, #1936
 	sub	r3, r3, #4
 	vldr.32	s15, [r3]
-	ldr	r4, .L840+60
+	ldr	r4, .L798+60
 	ldr	r3, [fp, #-1968]
 	str	r3, [sp, #28]
 	str	r2, [sp, #24]
@@ -17093,12 +16634,12 @@ GameUpdate:
 	ldm	ip, {r0, r1}
 	stm	lr, {r0, r1}
 	ldm	r4, {r0, r1, r2, r3}
-	vldr.32	s3, .L840+88
-	vldr.32	s2, .L840+100
+	vldr.32	s3, .L798+88
+	vldr.32	s2, .L798+100
 	vmov.f32	s0, s14
 	vmov.f32	s1, s15
 	bl	DrawTextEx
-.L818:
+.L776:
 	sub	r3, fp, #1680
 	sub	r3, r3, #4
 	sub	r3, r3, #8
@@ -17119,25 +16660,25 @@ GameUpdate:
 	vldr.64	d0, [fp, #-52]
 	mov	r0, r3
 	bl	UpdateMenuCustomerBlink
-	ldr	r3, .L840+48
+	ldr	r3, .L798+48
 	ldr	r3, [r3]
 	mov	r1, r3
-	ldr	r0, .L840+52
+	ldr	r0, .L798+52
 	bl	TextFormat
 	mov	r2, r0
-	vldr.32	s14, .L840+92
-	vldr.32	s15, .L840+100
+	vldr.32	s14, .L798+92
+	vldr.32	s15, .L798+100
 	vadd.f32	s15, s14, s15
 	sub	r3, fp, #20
 	sub	r3, r3, #1792
 	vstr.32	s15, [r3]
-	vldr.32	s14, .L840+96
-	vldr.32	s15, .L840+100
+	vldr.32	s14, .L798+96
+	vldr.32	s15, .L798+100
 	vadd.f32	s15, s14, s15
 	sub	r3, fp, #20
 	sub	r3, r3, #1792
 	vstr.32	s15, [r3, #4]
-	ldr	r3, .L840+56
+	ldr	r3, .L798+56
 	ldr	r3, [r3]
 	str	r3, [fp, #-1816]
 	sub	r3, fp, #20
@@ -17147,7 +16688,7 @@ GameUpdate:
 	sub	r3, r3, #1776
 	sub	r3, r3, #12
 	vldr.32	s15, [r3]
-	ldr	r4, .L840+60
+	ldr	r4, .L798+60
 	ldr	r3, [fp, #-1816]
 	str	r3, [sp, #28]
 	str	r2, [sp, #24]
@@ -17158,47 +16699,47 @@ GameUpdate:
 	ldm	ip, {r0, r1}
 	stm	lr, {r0, r1}
 	ldm	r4, {r0, r1, r2, r3}
-	vldr.32	s3, .L840+104
-	vldr.32	s2, .L840+108
+	vldr.32	s3, .L798+104
+	vldr.32	s2, .L798+108
 	vmov.f32	s0, s14
 	vmov.f32	s1, s15
 	bl	DrawTextEx
 	bl	DrawOuterWorld
-	ldr	r3, .L840+64
+	ldr	r3, .L798+64
 	ldr	r3, [r3]
 	ldrb	r3, [r3, #20]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L823
+	beq	.L781
 	ldr	r0, [fp, #-1992]
 	bl	DrawDebugOverlay
-.L823:
-	ldr	r3, .L840+64
+.L781:
+	ldr	r3, .L798+64
 	ldr	r3, [r3]
 	ldr	r3, [r3, #16]
 	cmp	r3, #3
-	beq	.L824
-	ldr	r3, .L840+64
+	beq	.L782
+	ldr	r3, .L798+64
 	ldr	r3, [r3]
 	ldr	r3, [r3, #16]
 	cmp	r3, #4
-	beq	.L824
-	ldr	r3, .L840+64
+	beq	.L782
+	ldr	r3, .L798+64
 	ldr	r3, [r3]
 	ldr	r3, [r3, #16]
 	cmp	r3, #5
-	bne	.L825
-.L824:
-	ldr	r3, .L840+68
+	bne	.L783
+.L782:
+	ldr	r3, .L798+68
 	ldr	r3, [r3]
 	str	r3, [fp, #-1972]
 	ldrb	r3, [fp, #-54]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L826
-	vldr.32	s15, .L842
-	b	.L827
-.L826:
-	vldr.32	s15, .L842+4
-.L827:
+	beq	.L784
+	vldr.32	s15, .L800
+	b	.L785
+.L784:
+	vldr.32	s15, .L800+4
+.L785:
 	vmov.f32	s0, s15
 	ldr	r0, [fp, #-1972]
 	bl	ColorAlphaOverride
@@ -17228,7 +16769,7 @@ GameUpdate:
 	sub	r3, fp, #20
 	sub	r3, r3, #1712
 	vldr.32	s15, [r3]
-	vldr.32	s14, .L842+8
+	vldr.32	s14, .L800+8
 	vadd.f32	s15, s15, s14
 	sub	r3, fp, #20
 	sub	r3, r3, #1952
@@ -17237,23 +16778,23 @@ GameUpdate:
 	sub	r3, fp, #20
 	sub	r3, r3, #1712
 	vldr.32	s15, [r3, #4]
-	vldr.32	s14, .L842+12
+	vldr.32	s14, .L800+12
 	vadd.f32	s15, s15, s14
 	sub	r3, fp, #20
 	sub	r3, r3, #1952
 	sub	r3, r3, #8
 	vstr.32	s15, [r3, #4]
-	ldr	r3, .L842+24
+	ldr	r3, .L800+24
 	ldr	r3, [r3]
 	str	r3, [fp, #-1984]
 	ldrb	r3, [fp, #-54]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L828
-	vldr.32	s15, .L842
-	b	.L829
-.L828:
-	vldr.32	s15, .L842+4
-.L829:
+	beq	.L786
+	vldr.32	s15, .L800
+	b	.L787
+.L786:
+	vldr.32	s15, .L800+4
+.L787:
 	vmov.f32	s0, s15
 	ldr	r0, [fp, #-1984]
 	bl	ColorAlphaOverride
@@ -17267,10 +16808,10 @@ GameUpdate:
 	sub	r3, r3, #1952
 	sub	r3, r3, #4
 	vldr.32	s15, [r3]
-	ldr	r4, .L842+28
+	ldr	r4, .L800+28
 	ldr	r3, [fp, #-80]
 	str	r3, [sp, #28]
-	ldr	r3, .L842+32
+	ldr	r3, .L800+32
 	str	r3, [sp, #24]
 	mov	lr, sp
 	add	ip, r4, #16
@@ -17279,8 +16820,8 @@ GameUpdate:
 	ldm	ip, {r0, r1}
 	stm	lr, {r0, r1}
 	ldm	r4, {r0, r1, r2, r3}
-	vldr.32	s3, .L842+16
-	vldr.32	s2, .L842+20
+	vldr.32	s3, .L800+16
+	vldr.32	s2, .L800+20
 	vmov.f32	s0, s14
 	vmov.f32	s1, s15
 	bl	DrawTextEx
@@ -17288,31 +16829,31 @@ GameUpdate:
 	bl	IsMouseButtonPressed
 	mov	r3, r0
 	cmp	r3, #0
-	beq	.L825
+	beq	.L783
 	ldrb	r3, [fp, #-54]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L825
+	beq	.L783
 	mov	r0, #0
 	bl	IsMouseButtonPressed
 	mov	r3, r0
 	cmp	r3, #0
-	beq	.L825
+	beq	.L783
 	ldrb	r3, [fp, #-54]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L825
+	beq	.L783
 	ldr	r0, [fp, #-1992]
 	bl	endgameUpdate
-.L825:
+.L783:
 	bl	EndMode2D
 	bl	EndDrawing
-.L753:
+.L711:
 	bl	WindowShouldClose
 	mov	r3, r0
 	eor	r3, r3, #1
 	uxtb	r3, r3
 	cmp	r3, #0
-	bne	.L831
-	ldr	r3, .L842+36
+	bne	.L789
+	ldr	r3, .L800+36
 	ldr	r2, [r3, #16]
 	str	r2, [sp]
 	ldm	r3, {r0, r1, r2, r3}
@@ -17323,9 +16864,9 @@ GameUpdate:
 	@ sp needed
 	vldm	sp!, {d8}
 	pop	{r4, r5, fp, pc}
-.L843:
+.L801:
 	.align	2
-.L842:
+.L800:
 	.word	1056964608
 	.word	1065353216
 	.word	1109917696
@@ -17334,7 +16875,7 @@ GameUpdate:
 	.word	1107296256
 	.word	.LC1
 	.word	meowFont
-	.word	.LC161
+	.word	.LC162
 	.word	backgroundTexture
 	.size	GameUpdate, .-GameUpdate
 	.align	2
@@ -17349,16 +16890,16 @@ ResetGameState:
 	@ link register save eliminated.
 	str	fp, [sp, #-4]!
 	add	fp, sp, #0
-	ldr	r3, .L845
+	ldr	r3, .L803
 	mov	r2, #0
 	str	r2, [r3]
-	ldr	r3, .L845+4
+	ldr	r3, .L803+4
 	mov	r2, #0
 	strb	r2, [r3]
-	ldr	r3, .L845+8
+	ldr	r3, .L803+8
 	mov	r2, #0
 	strb	r2, [r3, #20]
-	ldr	r3, .L845+8
+	ldr	r3, .L803+8
 	mov	r2, #1
 	str	r2, [r3, #60]
 	nop
@@ -17366,22 +16907,22 @@ ResetGameState:
 	@ sp needed
 	ldr	fp, [sp], #4
 	bx	lr
-.L846:
+.L804:
 	.align	2
-.L845:
+.L803:
 	.word	global_score
 	.word	triggerHotWater
 	.word	hotWater
 	.size	ResetGameState, .-ResetGameState
 	.section	.rodata
 	.align	2
-.LC162:
+.LC163:
 	.ascii	"Score\000"
 	.align	2
-.LC163:
+.LC164:
 	.ascii	"%d\000"
 	.align	2
-.LC164:
+.LC165:
 	.ascii	"Menu\000"
 	.align	2
 .LC9:
@@ -17409,58 +16950,58 @@ ResetGameState:
 endgameUpdate:
 	@ args = 0, pretend = 0, frame = 176
 	@ frame_needed = 1, uses_anonymous_args = 0
-	PUSH	{r4, fp, lr}
+	push	{r4, fp, lr}
 	add	fp, sp, #8
 	sub	sp, sp, #212
 	str	r0, [fp, #-184]
-	ldr	r3, .L856+40
+	ldr	r3, .L814+40
 	ldr	r3, [r3, #4]
 	str	r3, [fp, #-16]
-	ldr	r3, .L856+40
+	ldr	r3, .L814+40
 	ldr	r3, [r3, #8]
 	str	r3, [fp, #-20]
 	ldr	r3, [fp, #-16]
 	vmov	s15, r3	@ int
 	vcvt.f32.s32	s14, s15
-	vldr.32	s13, .L856
+	vldr.32	s13, .L814
 	vdiv.f32	s15, s13, s14
 	vstr.32	s15, [fp, #-24]
 	ldr	r3, [fp, #-20]
 	vmov	s15, r3	@ int
 	vcvt.f32.s32	s14, s15
-	vldr.32	s13, .L856+4
+	vldr.32	s13, .L814+4
 	vdiv.f32	s15, s13, s14
 	vstr.32	s15, [fp, #-28]
-	ldr	r3, .L856+44
+	ldr	r3, .L814+44
 	sub	ip, fp, #76
 	ldm	r3, {r0, r1, r2, r3}
 	stm	ip, {r0, r1, r2, r3}
 	vldr.32	s14, [fp, #-76]
 	vldr.32	s13, [fp, #-68]
-	vldr.32	s12, .L856+120
+	vldr.32	s12, .L814+120
 	vdiv.f32	s15, s13, s12
 	vadd.f32	s15, s14, s15
 	vstr.32	s15, [fp, #-32]
 	vldr.32	s14, [fp, #-72]
 	vldr.32	s13, [fp, #-64]
-	vldr.32	s12, .L856+120
+	vldr.32	s12, .L814+120
 	vdiv.f32	s15, s13, s12
 	vadd.f32	s15, s14, s15
 	vstr.32	s15, [fp, #-36]
 	vldr.32	s15, [fp, #-32]
-	vldr.32	s14, .L856+8
+	vldr.32	s14, .L814+8
 	vsub.f32	s15, s15, s14
 	vstr.32	s15, [fp, #-92]
 	vldr.32	s15, [fp, #-36]
-	vldr.32	s14, .L856+12
+	vldr.32	s14, .L814+12
 	vadd.f32	s15, s15, s14
 	vstr.32	s15, [fp, #-88]
-	ldr	r3, .L856+48
+	ldr	r3, .L814+48
 	str	r3, [fp, #-84]	@ float
-	ldr	r3, .L856+52
+	ldr	r3, .L814+52
 	str	r3, [fp, #-80]	@ float
-	b	.L848
-.L855:
+	b	.L806
+.L813:
 	ldr	r0, [fp, #-184]
 	bl	WindowUpdate
 	bl	GetMousePosition
@@ -17499,7 +17040,7 @@ endgameUpdate:
 	mov	r3, r0
 	strb	r3, [fp, #-37]
 	bl	BeginDrawing
-	ldr	r3, .L856+56
+	ldr	r3, .L814+56
 	ldr	r3, [r3]
 	str	r3, [fp, #-104]
 	ldr	r0, [fp, #-104]
@@ -17511,9 +17052,9 @@ endgameUpdate:
 	stm	ip, {r0, r1}
 	ldm	r3, {r0, r1, r2, r3}
 	bl	BeginMode2D
-	ldr	r3, .L856+60
+	ldr	r3, .L814+60
 	str	r3, [fp, #-112]	@ float
-	ldr	r3, .L856+64
+	ldr	r3, .L814+64
 	str	r3, [fp, #-108]	@ float
 	vldr.32	s15, [fp, #-24]
 	vcvt.f64.f32	d7, s15
@@ -17524,23 +17065,23 @@ endgameUpdate:
 	bl	fmax
 	vmov.f64	d7, d0
 	vcvt.f32.f64	s13, d7
-	ldr	r3, .L856+96
+	ldr	r3, .L814+96
 	ldr	r3, [r3]
 	str	r3, [fp, #-116]
 	vldr.32	s14, [fp, #-112]
 	vldr.32	s15, [fp, #-108]
-	ldr	r3, .L856+40
+	ldr	r3, .L814+40
 	ldr	r2, [fp, #-116]
 	str	r2, [sp, #4]
 	ldr	r2, [r3, #16]
 	str	r2, [sp]
 	ldm	r3, {r0, r1, r2, r3}
 	vmov.f32	s3, s13
-	vldr.32	s2, .L856+16
+	vldr.32	s2, .L814+16
 	vmov.f32	s0, s14
 	vmov.f32	s1, s15
 	bl	DrawTextureEx
-	ldr	r3, .L856+68
+	ldr	r3, .L814+68
 	vldr.32	s12, [fp, #-76]
 	vldr.32	s13, [fp, #-72]
 	vldr.32	s14, [fp, #-68]
@@ -17551,11 +17092,11 @@ endgameUpdate:
 	vmov.f32	s2, s14
 	vmov.f32	s3, s15
 	bl	DrawRectangleRec
-	ldr	r3, .L856+72
+	ldr	r3, .L814+72
 	sub	ip, fp, #132
 	ldm	r3, {r0, r1, r2, r3}
 	stm	ip, {r0, r1, r2, r3}
-	ldr	r3, .L856+96
+	ldr	r3, .L814+96
 	ldr	r3, [r3]
 	str	r3, [fp, #-136]
 	vldr.32	s12, [fp, #-132]
@@ -17563,14 +17104,14 @@ endgameUpdate:
 	vldr.32	s14, [fp, #-124]
 	vldr.32	s15, [fp, #-120]
 	ldr	r0, [fp, #-136]
-	vldr.32	s4, .L856+20
+	vldr.32	s4, .L814+20
 	vmov.f32	s0, s12
 	vmov.f32	s1, s13
 	vmov.f32	s2, s14
 	vmov.f32	s3, s15
 	bl	DrawRectangleLinesEx
 	mov	r1, #55
-	ldr	r0, .L856+76
+	ldr	r0, .L814+76
 	bl	MeasureText
 	mov	r3, r0
 	lsr	r2, r3, #31
@@ -17582,18 +17123,18 @@ endgameUpdate:
 	vsub.f32	s15, s14, s15
 	vstr.32	s15, [fp, #-144]
 	vldr.32	s15, [fp, #-36]
-	vldr.32	s14, .L856+24
+	vldr.32	s14, .L814+24
 	vsub.f32	s15, s15, s14
 	vstr.32	s15, [fp, #-140]
-	ldr	r3, .L856+96
+	ldr	r3, .L814+96
 	ldr	r3, [r3]
 	str	r3, [fp, #-148]
 	vldr.32	s14, [fp, #-144]
 	vldr.32	s15, [fp, #-140]
-	ldr	r4, .L856+100
+	ldr	r4, .L814+100
 	ldr	r3, [fp, #-148]
 	str	r3, [sp, #28]
-	ldr	r3, .L856+76
+	ldr	r3, .L814+76
 	str	r3, [sp, #24]
 	mov	lr, sp
 	add	ip, r4, #16
@@ -17602,15 +17143,15 @@ endgameUpdate:
 	ldm	ip, {r0, r1}
 	stm	lr, {r0, r1}
 	ldm	r4, {r0, r1, r2, r3}
-	vldr.32	s3, .L856+120
-	vldr.32	s2, .L856+28
+	vldr.32	s3, .L814+120
+	vldr.32	s2, .L814+28
 	vmov.f32	s0, s14
 	vmov.f32	s1, s15
 	bl	DrawTextEx
-	ldr	r3, .L856+80
+	ldr	r3, .L814+80
 	ldr	r3, [r3]
 	mov	r1, r3
-	ldr	r0, .L856+84
+	ldr	r0, .L814+84
 	bl	TextFormat
 	str	r0, [fp, #-44]
 	mov	r1, #100
@@ -17626,15 +17167,15 @@ endgameUpdate:
 	vsub.f32	s15, s14, s15
 	vstr.32	s15, [fp, #-156]
 	vldr.32	s15, [fp, #-36]
-	vldr.32	s14, .L856+32
+	vldr.32	s14, .L814+32
 	vsub.f32	s15, s15, s14
 	vstr.32	s15, [fp, #-152]
-	ldr	r3, .L856+96
+	ldr	r3, .L814+96
 	ldr	r3, [r3]
 	str	r3, [fp, #-160]
 	vldr.32	s14, [fp, #-156]
 	vldr.32	s15, [fp, #-152]
-	ldr	r4, .L856+100
+	ldr	r4, .L814+100
 	ldr	r3, [fp, #-160]
 	str	r3, [sp, #28]
 	ldr	r3, [fp, #-44]
@@ -17646,22 +17187,22 @@ endgameUpdate:
 	ldm	ip, {r0, r1}
 	stm	lr, {r0, r1}
 	ldm	r4, {r0, r1, r2, r3}
-	vldr.32	s3, .L856+120
-	vldr.32	s2, .L856+36
+	vldr.32	s3, .L814+120
+	vldr.32	s2, .L814+36
 	vmov.f32	s0, s14
 	vmov.f32	s1, s15
 	bl	DrawTextEx
-	ldr	r3, .L856+88
+	ldr	r3, .L814+88
 	ldr	r3, [r3]
 	str	r3, [fp, #-164]
 	ldrb	r3, [fp, #-37]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L849
-	vldr.32	s15, .L856+112
-	b	.L850
-.L857:
+	beq	.L807
+	vldr.32	s15, .L814+112
+	b	.L808
+.L815:
 	.align	2
-.L856:
+.L814:
 	.word	1156579328
 	.word	1149698048
 	.word	1119092736
@@ -17681,22 +17222,22 @@ endgameUpdate:
 	.word	-1006174208
 	.word	MAIN_BROWN
 	.word	.LC10
-	.word	.LC162
-	.word	global_score
 	.word	.LC163
+	.word	global_score
+	.word	.LC164
 	.word	.LC3
 	.word	.LC11
 	.word	.LC1
 	.word	meowFont
-	.word	.LC164
+	.word	.LC165
 	.word	options
 	.word	1056964608
 	.word	1065353216
 	.word	1073741824
 	.word	1107296256
-.L849:
-	vldr.32	s15, .L856+116
-.L850:
+.L807:
+	vldr.32	s15, .L814+116
+.L808:
 	vmov.f32	s0, s15
 	ldr	r0, [fp, #-164]
 	bl	ColorAlphaOverride
@@ -17712,21 +17253,21 @@ endgameUpdate:
 	vmov.f32	s2, s14
 	vmov.f32	s3, s15
 	bl	DrawRectangleRec
-	ldr	r2, .L856+92
+	ldr	r2, .L814+92
 	sub	r3, fp, #172
 	ldm	r2, {r0, r1}
 	stm	r3, {r0, r1}
-	ldr	r3, .L856+96
+	ldr	r3, .L814+96
 	ldr	r3, [r3]
 	str	r3, [fp, #-176]
 	ldrb	r3, [fp, #-37]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L851
-	vldr.32	s15, .L856+112
-	b	.L852
-.L851:
-	vldr.32	s15, .L856+116
-.L852:
+	beq	.L809
+	vldr.32	s15, .L814+112
+	b	.L810
+.L809:
+	vldr.32	s15, .L814+116
+.L810:
 	vmov.f32	s0, s15
 	ldr	r0, [fp, #-176]
 	bl	ColorAlphaOverride
@@ -17734,10 +17275,10 @@ endgameUpdate:
 	str	r3, [fp, #-48]
 	vldr.32	s14, [fp, #-172]
 	vldr.32	s15, [fp, #-168]
-	ldr	r4, .L856+100
+	ldr	r4, .L814+100
 	ldr	r3, [fp, #-48]
 	str	r3, [sp, #28]
-	ldr	r3, .L856+104
+	ldr	r3, .L814+104
 	str	r3, [sp, #24]
 	mov	lr, sp
 	add	ip, r4, #16
@@ -17746,8 +17287,8 @@ endgameUpdate:
 	ldm	ip, {r0, r1}
 	stm	lr, {r0, r1}
 	ldm	r4, {r0, r1, r2, r3}
-	vldr.32	s3, .L856+120
-	vldr.32	s2, .L856+124
+	vldr.32	s3, .L814+120
+	vldr.32	s2, .L814+124
 	vmov.f32	s0, s14
 	vmov.f32	s1, s15
 	bl	DrawTextEx
@@ -17755,32 +17296,32 @@ endgameUpdate:
 	bl	IsMouseButtonPressed
 	mov	r3, r0
 	cmp	r3, #0
-	beq	.L853
+	beq	.L811
 	ldrb	r3, [fp, #-37]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L853
+	beq	.L811
 	bl	ResetGameState
 	mov	r1, #0
 	ldr	r0, [fp, #-184]
 	bl	MainMenuUpdate
-.L853:
-	ldr	r3, .L856+108
+.L811:
+	ldr	r3, .L814+108
 	ldr	r3, [r3]
 	ldrb	r3, [r3, #20]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L854
+	beq	.L812
 	ldr	r0, [fp, #-184]
 	bl	DrawDebugOverlay
-.L854:
+.L812:
 	bl	EndMode2D
 	bl	EndDrawing
-.L848:
+.L806:
 	bl	WindowShouldClose
 	mov	r3, r0
 	eor	r3, r3, #1
 	uxtb	r3, r3
 	cmp	r3, #0
-	bne	.L855
+	bne	.L813
 	nop
 	nop
 	sub	sp, fp, #8
@@ -17789,13 +17330,13 @@ endgameUpdate:
 	.size	endgameUpdate, .-endgameUpdate
 	.section	.rodata
 	.align	2
-.LC165:
+.LC166:
 	.ascii	"Start Game\000"
 	.align	2
-.LC166:
+.LC167:
 	.ascii	"Settings\000"
 	.align	2
-.LC167:
+.LC168:
 	.ascii	"Exit\000"
 	.text
 	.align	2
@@ -17807,8 +17348,8 @@ endgameUpdate:
 MainMenuUpdate:
 	@ args = 0, pretend = 0, frame = 448
 	@ frame_needed = 1, uses_anonymous_args = 0
-	PUSH	{r4, fp, lr}
-	vPUSH.64	{d8, d9}
+	push	{r4, fp, lr}
+	vpush.64	{d8, d9}
 	add	fp, sp, #24
 	sub	sp, sp, #484
 	str	r0, [fp, #-464]
@@ -17821,22 +17362,22 @@ MainMenuUpdate:
 	strd	r2, [fp, #-36]
 	bl	GetTime
 	vstr.64	d0, [fp, #-44]
-	ldr	r3, .L901+24
+	ldr	r3, .L859+24
 	ldr	r3, [r3, #4]
 	str	r3, [fp, #-76]
-	ldr	r3, .L901+24
+	ldr	r3, .L859+24
 	ldr	r3, [r3, #8]
 	str	r3, [fp, #-80]
 	ldr	r3, [fp, #-76]
 	vmov	s15, r3	@ int
 	vcvt.f32.s32	s14, s15
-	vldr.32	s13, .L901+8
+	vldr.32	s13, .L859+8
 	vdiv.f32	s15, s13, s14
 	vstr.32	s15, [fp, #-84]
 	ldr	r3, [fp, #-80]
 	vmov	s15, r3	@ int
 	vcvt.f32.s32	s14, s15
-	vldr.32	s13, .L901+12
+	vldr.32	s13, .L859+12
 	vdiv.f32	s15, s13, s14
 	vstr.32	s15, [fp, #-88]
 	mov	r3, #0
@@ -17858,234 +17399,234 @@ MainMenuUpdate:
 	strb	r3, [fp, #-51]
 	ldrb	r3, [fp, #-50]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L859
-	ldr	r3, .L901+28
+	beq	.L817
+	ldr	r3, .L859+28
 	str	r3, [fp, #-48]	@ float
-.L859:
-	ldr	r2, .L901+32
-	vldr.32	s14, .L901+80
-	vldr.32	s15, .L901+12
+.L817:
+	ldr	r2, .L859+32
+	vldr.32	s14, .L859+80
+	vldr.32	s15, .L859+12
 	vadd.f32	s15, s14, s15
-	vldr.32	s14, .L901+16
+	vldr.32	s14, .L859+16
 	vsub.f32	s15, s15, s14
-	ldr	r3, .L901+36
+	ldr	r3, .L859+36
 	str	r2, [r3]	@ float
-	ldr	r3, .L901+36
+	ldr	r3, .L859+36
 	vstr.32	s15, [r3, #4]
-	ldr	r0, .L901+40
+	ldr	r0, .L859+40
 	bl	PlayBgmIfStopped
 	ldrb	r3, [fp, #-465]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L860
-	vldr.32	s14, .L901+20
-	vldr.32	s15, .L901+16
+	beq	.L818
+	vldr.32	s14, .L859+20
+	vldr.32	s15, .L859+16
 	vsub.f32	s15, s14, s15
 	vcvt.f64.f32	d7, s15
-	vldr.32	s13, .L901+20
+	vldr.32	s13, .L859+20
 	vcvt.f64.f32	d6, s13
 	vmov.f64	d1, d6
 	vmov.f64	d0, d7
 	bl	GetRandomDoubleValue
 	vmov.f64	d7, d0
 	vcvt.f32.f64	s16, d7
-	vldr.32	s15, .L901+80
+	vldr.32	s15, .L859+80
 	vcvt.f64.f32	d7, s15
-	vldr.64	d1, .L901
+	vldr.64	d1, .L859
 	vmov.f64	d0, d7
 	bl	GetRandomDoubleValue
 	vmov.f64	d7, d0
 	vcvt.f32.f64	s15, d7
-	ldr	r3, .L901+44
+	ldr	r3, .L859+44
 	vstr.32	s16, [r3]
-	ldr	r3, .L901+44
+	ldr	r3, .L859+44
 	vstr.32	s15, [r3, #4]
-	ldr	r3, .L901+44
-	ldr	r2, .L901+48
+	ldr	r3, .L859+44
+	ldr	r2, .L859+48
 	str	r2, [r3, #8]	@ float
-	ldr	r3, .L901+44
+	ldr	r3, .L859+44
 	mov	r2, #1065353216
 	str	r2, [r3, #12]	@ float
-	ldr	r3, .L901+44
-	ldr	r2, .L901+52
+	ldr	r3, .L859+44
+	ldr	r2, .L859+52
 	add	ip, r3, #16
 	mov	lr, r2
 	ldmia	lr!, {r0, r1, r2, r3}
 	stmia	ip!, {r0, r1, r2, r3}
 	ldr	r3, [lr]
 	str	r3, [ip]
-	ldr	r3, .L901+44
+	ldr	r3, .L859+44
 	mov	r2, #0
 	strb	r2, [r3, #36]
-	vldr.32	s14, .L901+20
-	vldr.32	s15, .L901+16
+	vldr.32	s14, .L859+20
+	vldr.32	s15, .L859+16
 	vsub.f32	s15, s14, s15
 	vcvt.f64.f32	d7, s15
-	vldr.32	s13, .L901+20
+	vldr.32	s13, .L859+20
 	vcvt.f64.f32	d6, s13
 	vmov.f64	d1, d6
 	vmov.f64	d0, d7
 	bl	GetRandomDoubleValue
 	vmov.f64	d7, d0
 	vcvt.f32.f64	s16, d7
-	vldr.32	s15, .L901+80
+	vldr.32	s15, .L859+80
 	vcvt.f64.f32	d7, s15
-	vldr.64	d1, .L901
+	vldr.64	d1, .L859
 	vmov.f64	d0, d7
 	bl	GetRandomDoubleValue
 	vmov.f64	d7, d0
 	vcvt.f32.f64	s15, d7
-	ldr	r3, .L901+44
+	ldr	r3, .L859+44
 	vstr.32	s16, [r3, #40]
-	ldr	r3, .L901+44
+	ldr	r3, .L859+44
 	vstr.32	s15, [r3, #44]
-	ldr	r3, .L901+44
-	ldr	r2, .L901+56
+	ldr	r3, .L859+44
+	ldr	r2, .L859+56
 	str	r2, [r3, #48]	@ float
-	ldr	r3, .L901+44
+	ldr	r3, .L859+44
 	mov	r2, #1065353216
 	str	r2, [r3, #52]	@ float
-	ldr	r3, .L901+44
-	ldr	r2, .L901+60
+	ldr	r3, .L859+44
+	ldr	r2, .L859+60
 	add	ip, r3, #56
 	mov	lr, r2
 	ldmia	lr!, {r0, r1, r2, r3}
 	stmia	ip!, {r0, r1, r2, r3}
 	ldr	r3, [lr]
 	str	r3, [ip]
-	ldr	r3, .L901+44
+	ldr	r3, .L859+44
 	mov	r2, #0
 	strb	r2, [r3, #76]
-	vldr.32	s14, .L901+20
-	vldr.32	s15, .L901+16
+	vldr.32	s14, .L859+20
+	vldr.32	s15, .L859+16
 	vsub.f32	s15, s14, s15
 	vcvt.f64.f32	d7, s15
-	vldr.32	s13, .L901+20
+	vldr.32	s13, .L859+20
 	vcvt.f64.f32	d6, s13
 	vmov.f64	d1, d6
 	vmov.f64	d0, d7
 	bl	GetRandomDoubleValue
 	vmov.f64	d7, d0
 	vcvt.f32.f64	s16, d7
-	vldr.32	s15, .L901+80
+	vldr.32	s15, .L859+80
 	vcvt.f64.f32	d7, s15
-	vldr.64	d1, .L901
+	vldr.64	d1, .L859
 	vmov.f64	d0, d7
 	bl	GetRandomDoubleValue
 	vmov.f64	d7, d0
 	vcvt.f32.f64	s15, d7
-	ldr	r3, .L901+44
+	ldr	r3, .L859+44
 	vstr.32	s16, [r3, #80]
-	ldr	r3, .L901+44
+	ldr	r3, .L859+44
 	vstr.32	s15, [r3, #84]
-	ldr	r3, .L901+44
-	ldr	r2, .L901+64
+	ldr	r3, .L859+44
+	ldr	r2, .L859+64
 	str	r2, [r3, #88]	@ float
-	ldr	r3, .L901+44
+	ldr	r3, .L859+44
 	mov	r2, #1073741824
 	str	r2, [r3, #92]	@ float
-	ldr	r3, .L901+44
-	ldr	r2, .L901+68
+	ldr	r3, .L859+44
+	ldr	r2, .L859+68
 	add	ip, r3, #96
 	mov	lr, r2
 	ldmia	lr!, {r0, r1, r2, r3}
 	stmia	ip!, {r0, r1, r2, r3}
 	ldr	r3, [lr]
 	str	r3, [ip]
-	ldr	r3, .L901+44
+	ldr	r3, .L859+44
 	mov	r2, #1
 	strb	r2, [r3, #116]
-	vldr.32	s14, .L901+20
-	vldr.32	s15, .L901+16
+	vldr.32	s14, .L859+20
+	vldr.32	s15, .L859+16
 	vsub.f32	s15, s14, s15
 	vcvt.f64.f32	d7, s15
-	vldr.32	s13, .L901+20
+	vldr.32	s13, .L859+20
 	vcvt.f64.f32	d6, s13
 	vmov.f64	d1, d6
 	vmov.f64	d0, d7
 	bl	GetRandomDoubleValue
 	vmov.f64	d7, d0
 	vcvt.f32.f64	s16, d7
-	vldr.32	s15, .L901+80
+	vldr.32	s15, .L859+80
 	vcvt.f64.f32	d7, s15
-	vldr.64	d1, .L901
+	vldr.64	d1, .L859
 	vmov.f64	d0, d7
 	bl	GetRandomDoubleValue
 	vmov.f64	d7, d0
 	vcvt.f32.f64	s15, d7
-	ldr	r3, .L901+44
+	ldr	r3, .L859+44
 	vstr.32	s16, [r3, #120]
-	ldr	r3, .L901+44
+	ldr	r3, .L859+44
 	vstr.32	s15, [r3, #124]
-	ldr	r3, .L901+44
-	ldr	r2, .L901+48
+	ldr	r3, .L859+44
+	ldr	r2, .L859+48
 	str	r2, [r3, #128]	@ float
-	ldr	r3, .L901+44
+	ldr	r3, .L859+44
 	mov	r2, #1065353216
 	str	r2, [r3, #132]	@ float
-	ldr	r3, .L901+44
-	ldr	r2, .L901+52
+	ldr	r3, .L859+44
+	ldr	r2, .L859+52
 	add	ip, r3, #136
 	mov	lr, r2
 	ldmia	lr!, {r0, r1, r2, r3}
 	stmia	ip!, {r0, r1, r2, r3}
 	ldr	r3, [lr]
 	str	r3, [ip]
-	ldr	r3, .L901+44
+	ldr	r3, .L859+44
 	mov	r2, #0
 	strb	r2, [r3, #156]
-	vldr.32	s14, .L901+20
-	vldr.32	s15, .L901+16
+	vldr.32	s14, .L859+20
+	vldr.32	s15, .L859+16
 	vsub.f32	s15, s14, s15
 	vcvt.f64.f32	d7, s15
-	vldr.32	s13, .L901+20
+	vldr.32	s13, .L859+20
 	vcvt.f64.f32	d6, s13
 	vmov.f64	d1, d6
 	vmov.f64	d0, d7
 	bl	GetRandomDoubleValue
 	vmov.f64	d7, d0
 	vcvt.f32.f64	s16, d7
-	vldr.32	s15, .L901+80
+	vldr.32	s15, .L859+80
 	vcvt.f64.f32	d7, s15
-	vldr.64	d1, .L901
+	vldr.64	d1, .L859
 	vmov.f64	d0, d7
 	bl	GetRandomDoubleValue
 	vmov.f64	d7, d0
 	vcvt.f32.f64	s15, d7
-	ldr	r3, .L901+44
+	ldr	r3, .L859+44
 	vstr.32	s16, [r3, #160]
-	ldr	r3, .L901+44
+	ldr	r3, .L859+44
 	vstr.32	s15, [r3, #164]
-	ldr	r3, .L901+44
-	ldr	r2, .L901+72
+	ldr	r3, .L859+44
+	ldr	r2, .L859+72
 	str	r2, [r3, #168]	@ float
-	ldr	r3, .L901+44
-	ldr	r2, .L901+76
+	ldr	r3, .L859+44
+	ldr	r2, .L859+76
 	str	r2, [r3, #172]	@ float
-	ldr	r3, .L901+44
-	ldr	r2, .L901+60
+	ldr	r3, .L859+44
+	ldr	r2, .L859+60
 	add	ip, r3, #176
 	mov	lr, r2
 	ldmia	lr!, {r0, r1, r2, r3}
 	stmia	ip!, {r0, r1, r2, r3}
 	ldr	r3, [lr]
 	str	r3, [ip]
-	ldr	r3, .L901+44
+	ldr	r3, .L859+44
 	mov	r2, #0
 	strb	r2, [r3, #196]
-	vldr.32	s14, .L901+20
-	vldr.32	s15, .L901+16
+	vldr.32	s14, .L859+20
+	vldr.32	s15, .L859+16
 	vsub.f32	s15, s14, s15
 	vcvt.f64.f32	d7, s15
-	vldr.32	s13, .L901+20
+	vldr.32	s13, .L859+20
 	vcvt.f64.f32	d6, s13
 	vmov.f64	d1, d6
 	vmov.f64	d0, d7
 	bl	GetRandomDoubleValue
 	vmov.f64	d7, d0
-	b	.L902
-.L903:
+	b	.L860
+.L861:
 	.align	3
-.L901:
+.L859:
 	.word	0
 	.word	0
 	.word	1156579328
@@ -18107,129 +17648,129 @@ MainMenuUpdate:
 	.word	1120403456
 	.word	1071225242
 	.word	-1006174208
-.L902:
+.L860:
 	vcvt.f32.f64	s16, d7
-	vldr.32	s15, .L901+80
+	vldr.32	s15, .L859+80
 	vcvt.f64.f32	d7, s15
-	vldr.64	d1, .L904
+	vldr.64	d1, .L862
 	vmov.f64	d0, d7
 	bl	GetRandomDoubleValue
 	vmov.f64	d7, d0
 	vcvt.f32.f64	s15, d7
-	ldr	r3, .L904+12
+	ldr	r3, .L862+12
 	vstr.32	s16, [r3, #200]
-	ldr	r3, .L904+12
+	ldr	r3, .L862+12
 	vstr.32	s15, [r3, #204]
-	ldr	r3, .L904+12
-	ldr	r2, .L904+16
+	ldr	r3, .L862+12
+	ldr	r2, .L862+16
 	str	r2, [r3, #208]	@ float
-	ldr	r3, .L904+12
+	ldr	r3, .L862+12
 	mov	r2, #1065353216
 	str	r2, [r3, #212]	@ float
-	ldr	r3, .L904+12
-	ldr	r2, .L904+20
+	ldr	r3, .L862+12
+	ldr	r2, .L862+20
 	add	ip, r3, #216
 	mov	lr, r2
 	ldmia	lr!, {r0, r1, r2, r3}
 	stmia	ip!, {r0, r1, r2, r3}
 	ldr	r3, [lr]
 	str	r3, [ip]
-	ldr	r3, .L904+12
+	ldr	r3, .L862+12
 	mov	r2, #1
 	strb	r2, [r3, #236]
-	vldr.32	s14, .L904+56
-	vldr.32	s15, .L904+8
+	vldr.32	s14, .L862+56
+	vldr.32	s15, .L862+8
 	vsub.f32	s15, s14, s15
 	vcvt.f64.f32	d7, s15
-	vldr.32	s13, .L904+56
+	vldr.32	s13, .L862+56
 	vcvt.f64.f32	d6, s13
 	vmov.f64	d1, d6
 	vmov.f64	d0, d7
 	bl	GetRandomDoubleValue
 	vmov.f64	d7, d0
 	vcvt.f32.f64	s16, d7
-	vldr.32	s15, .L904+68
+	vldr.32	s15, .L862+68
 	vcvt.f64.f32	d7, s15
-	vldr.64	d1, .L904
+	vldr.64	d1, .L862
 	vmov.f64	d0, d7
 	bl	GetRandomDoubleValue
 	vmov.f64	d7, d0
 	vcvt.f32.f64	s15, d7
-	ldr	r3, .L904+12
+	ldr	r3, .L862+12
 	vstr.32	s16, [r3, #240]
-	ldr	r3, .L904+12
+	ldr	r3, .L862+12
 	vstr.32	s15, [r3, #244]
-	ldr	r3, .L904+12
-	ldr	r2, .L904+24
+	ldr	r3, .L862+12
+	ldr	r2, .L862+24
 	str	r2, [r3, #248]	@ float
-	ldr	r3, .L904+12
+	ldr	r3, .L862+12
 	mov	r2, #1065353216
 	str	r2, [r3, #252]	@ float
-	ldr	r3, .L904+12
-	ldr	r2, .L904+20
+	ldr	r3, .L862+12
+	ldr	r2, .L862+20
 	add	ip, r3, #256
 	mov	lr, r2
 	ldmia	lr!, {r0, r1, r2, r3}
 	stmia	ip!, {r0, r1, r2, r3}
 	ldr	r3, [lr]
 	str	r3, [ip]
-	ldr	r3, .L904+12
+	ldr	r3, .L862+12
 	mov	r2, #1
 	strb	r2, [r3, #276]
-	vldr.32	s14, .L904+56
-	vldr.32	s15, .L904+8
+	vldr.32	s14, .L862+56
+	vldr.32	s15, .L862+8
 	vsub.f32	s15, s14, s15
 	vcvt.f64.f32	d7, s15
-	vldr.32	s13, .L904+56
+	vldr.32	s13, .L862+56
 	vcvt.f64.f32	d6, s13
 	vmov.f64	d1, d6
 	vmov.f64	d0, d7
 	bl	GetRandomDoubleValue
 	vmov.f64	d7, d0
 	vcvt.f32.f64	s15, d7
-	ldr	r2, .L904+28
-	ldr	r3, .L904+32
+	ldr	r2, .L862+28
+	ldr	r3, .L862+32
 	vstr.32	s15, [r3]
-	ldr	r3, .L904+32
+	ldr	r3, .L862+32
 	str	r2, [r3, #4]	@ float
-	ldr	r3, .L904+32
-	ldr	r2, .L904+36
+	ldr	r3, .L862+32
+	ldr	r2, .L862+36
 	str	r2, [r3, #8]	@ float
-	ldr	r3, .L904+32
-	ldr	r2, .L904+40
+	ldr	r3, .L862+32
+	ldr	r2, .L862+40
 	str	r2, [r3, #12]	@ float
-	ldr	r3, .L904+32
-	ldr	r2, .L904+44
+	ldr	r3, .L862+32
+	ldr	r2, .L862+44
 	add	ip, r3, #16
 	mov	lr, r2
 	ldmia	lr!, {r0, r1, r2, r3}
 	stmia	ip!, {r0, r1, r2, r3}
 	ldr	r3, [lr]
 	str	r3, [ip]
-	vldr.32	s14, .L904+56
-	vldr.32	s15, .L904+8
+	vldr.32	s14, .L862+56
+	vldr.32	s15, .L862+8
 	vsub.f32	s15, s14, s15
 	vcvt.f64.f32	d7, s15
-	vldr.32	s13, .L904+56
+	vldr.32	s13, .L862+56
 	vcvt.f64.f32	d6, s13
 	vmov.f64	d1, d6
 	vmov.f64	d0, d7
 	bl	GetRandomDoubleValue
 	vmov.f64	d7, d0
 	vcvt.f32.f64	s15, d7
-	ldr	r2, .L904+28
-	ldr	r3, .L904+32
+	ldr	r2, .L862+28
+	ldr	r3, .L862+32
 	vstr.32	s15, [r3, #36]
-	ldr	r3, .L904+32
+	ldr	r3, .L862+32
 	str	r2, [r3, #40]	@ float
-	ldr	r3, .L904+32
-	ldr	r2, .L904+48
+	ldr	r3, .L862+32
+	ldr	r2, .L862+48
 	str	r2, [r3, #44]	@ float
-	ldr	r3, .L904+32
+	ldr	r3, .L862+32
 	mov	r2, #1073741824
 	str	r2, [r3, #48]	@ float
-	ldr	r3, .L904+32
-	ldr	r2, .L904+52
+	ldr	r3, .L862+32
+	ldr	r2, .L862+52
 	add	ip, r3, #52
 	mov	lr, r2
 	ldmia	lr!, {r0, r1, r2, r3}
@@ -18238,10 +17779,10 @@ MainMenuUpdate:
 	str	r3, [ip]
 	mov	r3, #0
 	str	r3, [fp, #-56]
-	b	.L861
-.L905:
+	b	.L819
+.L863:
 	.align	3
-.L904:
+.L862:
 	.word	0
 	.word	0
 	.word	1128792064
@@ -18260,13 +17801,13 @@ MainMenuUpdate:
 	.word	1156579328
 	.word	1101004800
 	.word	-1006174208
-.L865:
-	vldr.32	s15, .L904+56
+.L823:
+	vldr.32	s15, .L862+56
 	vcvt.f64.f32	d7, s15
-	vldr.32	s12, .L904+56
-	vldr.32	s13, .L904+60
+	vldr.32	s12, .L862+56
+	vldr.32	s13, .L862+60
 	vadd.f32	s13, s12, s13
-	vldr.32	s12, .L904+64
+	vldr.32	s12, .L862+64
 	vsub.f32	s13, s13, s12
 	vcvt.f64.f32	d6, s13
 	vmov.f64	d1, d6
@@ -18274,15 +17815,15 @@ MainMenuUpdate:
 	bl	GetRandomDoubleValue
 	vmov.f64	d7, d0
 	vcvt.f32.f64	s18, d7
-	vldr.32	s15, .L904+68
+	vldr.32	s15, .L862+68
 	vcvt.f64.f32	d8, s15
-	vldr.64	d1, .L906
-	vldr.64	d0, .L906+8
+	vldr.64	d1, .L864
+	vldr.64	d0, .L864+8
 	bl	GetRandomDoubleValue
 	vmov.f64	d7, d0
 	vsub.f64	d7, d8, d7
 	vcvt.f32.f64	s15, d7
-	ldr	r1, .L906+52
+	ldr	r1, .L864+52
 	ldr	r2, [fp, #-56]
 	mov	r3, r2
 	lsl	r3, r3, #1
@@ -18290,7 +17831,7 @@ MainMenuUpdate:
 	lsl	r3, r3, #3
 	add	r3, r1, r3
 	vstr.32	s18, [r3]
-	ldr	r1, .L906+52
+	ldr	r1, .L864+52
 	ldr	r2, [fp, #-56]
 	mov	r3, r2
 	lsl	r3, r3, #1
@@ -18303,7 +17844,7 @@ MainMenuUpdate:
 	mov	r0, #0
 	bl	GetRandomValue
 	mov	r1, r0
-	ldr	r0, .L906+52
+	ldr	r0, .L864+52
 	ldr	r2, [fp, #-56]
 	mov	r3, r2
 	lsl	r3, r3, #1
@@ -18312,12 +17853,12 @@ MainMenuUpdate:
 	add	r3, r0, r3
 	add	r3, r3, #12
 	str	r1, [r3]
-	vldr.64	d1, .L906+16
-	vldr.64	d0, .L906+24
+	vldr.64	d1, .L864+16
+	vldr.64	d0, .L864+24
 	bl	GetRandomDoubleValue
 	vmov.f64	d7, d0
 	vcvt.f32.f64	s15, d7
-	ldr	r1, .L906+52
+	ldr	r1, .L864+52
 	ldr	r2, [fp, #-56]
 	mov	r3, r2
 	lsl	r3, r3, #1
@@ -18326,12 +17867,12 @@ MainMenuUpdate:
 	add	r3, r1, r3
 	add	r3, r3, #8
 	vstr.32	s15, [r3]
-	vldr.64	d1, .L906+32
-	vldr.64	d0, .L906+40
+	vldr.64	d1, .L864+32
+	vldr.64	d0, .L864+40
 	bl	GetRandomDoubleValue
 	vmov.f64	d7, d0
 	vcvt.f32.f64	s15, d7
-	ldr	r1, .L906+52
+	ldr	r1, .L864+52
 	ldr	r2, [fp, #-56]
 	mov	r3, r2
 	lsl	r3, r3, #1
@@ -18340,7 +17881,7 @@ MainMenuUpdate:
 	add	r3, r1, r3
 	add	r3, r3, #16
 	vstr.32	s15, [r3]
-	ldr	r1, .L906+52
+	ldr	r1, .L864+52
 	ldr	r2, [fp, #-56]
 	mov	r3, r2
 	lsl	r3, r3, #1
@@ -18349,9 +17890,9 @@ MainMenuUpdate:
 	add	r3, r1, r3
 	add	r3, r3, #16
 	vldr.32	s15, [r3]
-	vldr.32	s14, .L906+48
+	vldr.32	s14, .L864+48
 	vmul.f32	s15, s15, s14
-	ldr	r1, .L906+52
+	ldr	r1, .L864+52
 	ldr	r2, [fp, #-56]
 	mov	r3, r2
 	lsl	r3, r3, #1
@@ -18365,7 +17906,7 @@ MainMenuUpdate:
 	bl	GetRandomValue
 	vmov	s15, r0	@ int
 	vcvt.f32.s32	s15, s15
-	ldr	r1, .L906+52
+	ldr	r1, .L864+52
 	ldr	r2, [fp, #-56]
 	mov	r3, r2
 	lsl	r3, r3, #1
@@ -18374,7 +17915,7 @@ MainMenuUpdate:
 	add	r3, r1, r3
 	add	r3, r3, #20
 	vstr.32	s15, [r3]
-	ldr	r1, .L906+52
+	ldr	r1, .L864+52
 	ldr	r2, [fp, #-56]
 	mov	r3, r2
 	lsl	r3, r3, #1
@@ -18389,7 +17930,7 @@ MainMenuUpdate:
 	rsblt	r3, r3, #0
 	vmov	s15, r3	@ int
 	vcvt.f32.s32	s14, s15
-	ldr	r1, .L906+52
+	ldr	r1, .L864+52
 	ldr	r2, [fp, #-56]
 	mov	r3, r2
 	lsl	r3, r3, #1
@@ -18400,8 +17941,8 @@ MainMenuUpdate:
 	vldr.32	s15, [r3]
 	vcmpe.f32	s14, s15
 	vmrs	APSR_nzcv, FPSCR
-	ble	.L862
-	ldr	r1, .L906+52
+	ble	.L820
+	ldr	r1, .L864+52
 	ldr	r2, [fp, #-56]
 	mov	r3, r2
 	lsl	r3, r3, #1
@@ -18410,7 +17951,7 @@ MainMenuUpdate:
 	add	r3, r1, r3
 	add	r3, r3, #16
 	ldr	r1, [r3]	@ float
-	ldr	r0, .L906+52
+	ldr	r0, .L864+52
 	ldr	r2, [fp, #-56]
 	mov	r3, r2
 	lsl	r3, r3, #1
@@ -18419,8 +17960,8 @@ MainMenuUpdate:
 	add	r3, r0, r3
 	add	r3, r3, #20
 	str	r1, [r3]	@ float
-.L862:
-	ldr	r1, .L906+52
+.L820:
+	ldr	r1, .L864+52
 	ldr	r2, [fp, #-56]
 	mov	r3, r2
 	lsl	r3, r3, #1
@@ -18431,8 +17972,8 @@ MainMenuUpdate:
 	vldr.32	s15, [r3]
 	vcmp.f32	s15, #0
 	vmrs	APSR_nzcv, FPSCR
-	bne	.L864
-	ldr	r1, .L906+52
+	bne	.L822
+	ldr	r1, .L864+52
 	ldr	r2, [fp, #-56]
 	mov	r3, r2
 	lsl	r3, r3, #1
@@ -18442,8 +17983,8 @@ MainMenuUpdate:
 	add	r3, r3, #20
 	mov	r2, #1065353216
 	str	r2, [r3]	@ float
-.L864:
-	ldr	r1, .L906+52
+.L822:
+	ldr	r1, .L864+52
 	ldr	r2, [fp, #-56]
 	mov	r3, r2
 	lsl	r3, r3, #1
@@ -18452,9 +17993,9 @@ MainMenuUpdate:
 	add	r3, r1, r3
 	add	r3, r3, #20
 	vldr.32	s15, [r3]
-	vldr.32	s14, .L906+48
+	vldr.32	s14, .L864+48
 	vmul.f32	s15, s15, s14
-	ldr	r1, .L906+52
+	ldr	r1, .L864+52
 	ldr	r2, [fp, #-56]
 	mov	r3, r2
 	lsl	r3, r3, #1
@@ -18466,21 +18007,21 @@ MainMenuUpdate:
 	ldr	r3, [fp, #-56]
 	add	r3, r3, #1
 	str	r3, [fp, #-56]
-.L861:
+.L819:
 	ldr	r3, [fp, #-56]
 	cmp	r3, #19
-	ble	.L865
-.L860:
+	ble	.L823
+.L818:
 	mov	r3, #0
 	str	r3, [fp, #-60]
 	mov	r3, #0
 	str	r3, [fp, #-64]
 	mov	r3, #0
 	strb	r3, [fp, #-65]
-	b	.L866
-.L907:
+	b	.L824
+.L865:
 	.align	3
-.L906:
+.L864:
 	.word	0
 	.word	1083129856
 	.word	0
@@ -18508,7 +18049,7 @@ MainMenuUpdate:
 	.word	-1006174208
 	.word	1142292480
 	.word	1135542272
-.L897:
+.L855:
 	bl	GetTime
 	vmov.f64	d6, d0
 	vldr.64	d7, [fp, #-44]
@@ -18520,63 +18061,63 @@ MainMenuUpdate:
 	eor	r3, r3, #1
 	uxtb	r3, r3
 	cmp	r3, #0
-	beq	.L867
+	beq	.L825
 	bl	GetFrameTime
 	vmov.f32	s15, s0
 	vcvt.f64.f32	d7, s15
 	vldr.64	d6, [fp, #-36]
 	vadd.f64	d7, d6, d7
 	vstr.64	d7, [fp, #-36]
-.L867:
+.L825:
 	ldr	r0, [fp, #-464]
 	bl	WindowUpdate
-	vldr.32	s14, .L906+88
-	vldr.32	s15, .L906+92
+	vldr.32	s14, .L864+88
+	vldr.32	s15, .L864+92
 	vadd.f32	s14, s14, s15
 	vldr.32	s15, [fp, #-48]
 	vsub.f32	s15, s14, s15
 	vstr.32	s15, [fp, #-288]
-	vldr.32	s14, .L906+96
-	vldr.32	s15, .L906+100
+	vldr.32	s14, .L864+96
+	vldr.32	s15, .L864+100
 	vadd.f32	s15, s14, s15
-	vldr.32	s14, .L906+80
+	vldr.32	s14, .L864+80
 	vadd.f32	s15, s15, s14
 	vstr.32	s15, [fp, #-284]
-	ldr	r3, .L906+56
+	ldr	r3, .L864+56
 	str	r3, [fp, #-280]	@ float
-	ldr	r3, .L906+60
+	ldr	r3, .L864+60
 	str	r3, [fp, #-276]	@ float
-	vldr.32	s14, .L906+88
-	vldr.32	s15, .L906+92
+	vldr.32	s14, .L864+88
+	vldr.32	s15, .L864+92
 	vadd.f32	s14, s14, s15
 	vldr.32	s15, [fp, #-48]
 	vsub.f32	s15, s14, s15
 	vstr.32	s15, [fp, #-304]
-	vldr.32	s14, .L906+96
-	vldr.32	s15, .L906+100
+	vldr.32	s14, .L864+96
+	vldr.32	s15, .L864+100
 	vadd.f32	s15, s14, s15
-	vldr.32	s14, .L906+84
+	vldr.32	s14, .L864+84
 	vadd.f32	s15, s15, s14
 	vstr.32	s15, [fp, #-300]
-	ldr	r3, .L906+56
+	ldr	r3, .L864+56
 	str	r3, [fp, #-296]	@ float
-	ldr	r3, .L906+60
+	ldr	r3, .L864+60
 	str	r3, [fp, #-292]	@ float
-	vldr.32	s14, .L906+88
-	vldr.32	s15, .L906+92
+	vldr.32	s14, .L864+88
+	vldr.32	s15, .L864+92
 	vadd.f32	s14, s14, s15
 	vldr.32	s15, [fp, #-48]
 	vsub.f32	s15, s14, s15
 	vstr.32	s15, [fp, #-320]
-	vldr.32	s14, .L906+96
-	vldr.32	s15, .L906+100
+	vldr.32	s14, .L864+96
+	vldr.32	s15, .L864+100
 	vadd.f32	s15, s14, s15
-	vldr.32	s14, .L906+104
+	vldr.32	s14, .L864+104
 	vadd.f32	s15, s15, s14
 	vstr.32	s15, [fp, #-316]
-	ldr	r3, .L906+56
+	ldr	r3, .L864+56
 	str	r3, [fp, #-312]	@ float
-	ldr	r3, .L906+60
+	ldr	r3, .L864+60
 	str	r3, [fp, #-308]	@ float
 	bl	GetMousePosition
 	vmov.f32	s14, s0
@@ -18647,112 +18188,112 @@ MainMenuUpdate:
 	bl	IsMouseButtonPressed
 	mov	r3, r0
 	cmp	r3, #0
-	beq	.L868
+	beq	.L826
 	ldrb	r3, [fp, #-51]
 	eor	r3, r3, #1
 	uxtb	r3, r3
 	cmp	r3, #0
-	beq	.L868
+	beq	.L826
 	ldrb	r3, [fp, #-50]
 	eor	r3, r3, #1
 	uxtb	r3, r3
 	cmp	r3, #0
-	beq	.L868
+	beq	.L826
 	ldrb	r3, [fp, #-101]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L869
+	beq	.L827
 	mov	r0, #1
 	bl	PlaySoundFx
-	ldr	r3, .L906+64
+	ldr	r3, .L864+64
 	str	r3, [fp, #-64]
 	mov	r3, #1
 	strb	r3, [fp, #-51]
-	b	.L868
-.L869:
+	b	.L826
+.L827:
 	ldrb	r3, [fp, #-102]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L870
+	beq	.L828
 	mov	r0, #1
 	bl	PlaySoundFx
-	ldr	r3, .L906+68
+	ldr	r3, .L864+68
 	str	r3, [fp, #-64]
 	mov	r3, #1
 	strb	r3, [fp, #-51]
-	b	.L868
-.L870:
+	b	.L826
+.L828:
 	ldrb	r3, [fp, #-103]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L868
+	beq	.L826
 	bl	ExitApplication
-.L868:
+.L826:
 	ldrb	r3, [fp, #-101]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L871
+	beq	.L829
 	ldrb	r3, [fp, #-65]
 	eor	r3, r3, #1
 	uxtb	r3, r3
 	cmp	r3, #0
-	bne	.L872
+	bne	.L830
 	ldr	r3, [fp, #-60]
 	cmp	r3, #0
-	beq	.L873
-.L872:
+	beq	.L831
+.L830:
 	mov	r0, #0
 	bl	PlaySoundFx
 	mov	r3, #1
 	strb	r3, [fp, #-65]
-.L873:
+.L831:
 	mov	r3, #0
 	str	r3, [fp, #-60]
-	b	.L874
-.L871:
+	b	.L832
+.L829:
 	ldrb	r3, [fp, #-102]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L875
+	beq	.L833
 	ldrb	r3, [fp, #-65]
 	eor	r3, r3, #1
 	uxtb	r3, r3
 	cmp	r3, #0
-	bne	.L876
+	bne	.L834
 	ldr	r3, [fp, #-60]
 	cmp	r3, #1
-	beq	.L877
-.L876:
+	beq	.L835
+.L834:
 	mov	r0, #0
 	bl	PlaySoundFx
 	mov	r3, #1
 	strb	r3, [fp, #-65]
-.L877:
+.L835:
 	mov	r3, #1
 	str	r3, [fp, #-60]
-	b	.L874
-.L875:
+	b	.L832
+.L833:
 	ldrb	r3, [fp, #-103]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L878
+	beq	.L836
 	ldrb	r3, [fp, #-65]
 	eor	r3, r3, #1
 	uxtb	r3, r3
 	cmp	r3, #0
-	bne	.L879
+	bne	.L837
 	ldr	r3, [fp, #-60]
 	cmp	r3, #2
-	beq	.L880
-.L879:
+	beq	.L838
+.L837:
 	mov	r0, #0
 	bl	PlaySoundFx
 	mov	r3, #1
 	strb	r3, [fp, #-65]
-.L880:
+.L838:
 	mov	r3, #2
 	str	r3, [fp, #-60]
-	b	.L874
-.L878:
+	b	.L832
+.L836:
 	mov	r3, #0
 	str	r3, [fp, #-60]
 	mov	r3, #0
 	strb	r3, [fp, #-65]
-.L874:
+.L832:
 	bl	BeginDrawing
 	ldr	r3, [fp, #-464]
 	mov	ip, sp
@@ -18761,49 +18302,49 @@ MainMenuUpdate:
 	stm	ip, {r0, r1}
 	ldm	r3, {r0, r1, r2, r3}
 	bl	BeginMode2D
-	ldr	r3, .L906+72
+	ldr	r3, .L864+72
 	ldr	r3, [r3]
 	str	r3, [fp, #-332]
 	ldr	r0, [fp, #-332]
 	bl	ClearBackground
-	ldr	r3, .L906+76
+	ldr	r3, .L864+76
 	ldr	r3, [r3, #4]
 	str	r3, [fp, #-108]
-	ldr	r3, .L906+76
+	ldr	r3, .L864+76
 	ldr	r3, [r3, #8]
 	str	r3, [fp, #-112]
 	ldr	r3, [fp, #-108]
 	vmov	s15, r3	@ int
 	vcvt.f32.s32	s14, s15
-	vldr.32	s13, .L908
+	vldr.32	s13, .L866
 	vdiv.f32	s15, s13, s14
 	vstr.32	s15, [fp, #-116]
 	ldr	r3, [fp, #-112]
 	vmov	s15, r3	@ int
 	vcvt.f32.s32	s14, s15
-	vldr.32	s13, .L908+4
+	vldr.32	s13, .L866+4
 	vdiv.f32	s15, s13, s14
 	vstr.32	s15, [fp, #-120]
-	ldr	r3, .L908+32
+	ldr	r3, .L866+32
 	ldr	r3, [r3, #4]
 	str	r3, [fp, #-124]
-	ldr	r3, .L908+32
+	ldr	r3, .L866+32
 	ldr	r3, [r3, #8]
 	str	r3, [fp, #-128]
 	ldr	r3, [fp, #-124]
 	vmov	s15, r3	@ int
 	vcvt.f32.s32	s15, s15
-	vldr.32	s13, .L908
+	vldr.32	s13, .L866
 	vdiv.f32	s14, s13, s15
-	vldr.32	s13, .L908+8
+	vldr.32	s13, .L866+8
 	vdiv.f32	s15, s14, s13
 	vstr.32	s15, [fp, #-132]
 	ldr	r3, [fp, #-128]
 	vmov	s15, r3	@ int
 	vcvt.f32.s32	s15, s15
-	vldr.32	s13, .L908+4
+	vldr.32	s13, .L866+4
 	vdiv.f32	s14, s13, s15
-	vldr.32	s13, .L908+8
+	vldr.32	s13, .L866+8
 	vdiv.f32	s15, s14, s13
 	vstr.32	s15, [fp, #-136]
 	vldr.64	d0, [fp, #-100]
@@ -18813,9 +18354,9 @@ MainMenuUpdate:
 	bl	DrawMenuFallingItems
 	vldr.64	d0, [fp, #-100]
 	bl	DrawCustomerInMenu
-	ldr	r3, .L908+36
+	ldr	r3, .L866+36
 	str	r3, [fp, #-340]	@ float
-	ldr	r3, .L908+40
+	ldr	r3, .L866+40
 	str	r3, [fp, #-336]	@ float
 	vldr.32	s15, [fp, #-116]
 	vcvt.f64.f32	d7, s15
@@ -18826,19 +18367,19 @@ MainMenuUpdate:
 	bl	fmax
 	vmov.f64	d7, d0
 	vcvt.f32.f64	s13, d7
-	ldr	r3, .L908+44
+	ldr	r3, .L866+44
 	ldr	r3, [r3]
 	str	r3, [fp, #-344]
 	vldr.32	s14, [fp, #-340]
 	vldr.32	s15, [fp, #-336]
-	ldr	r3, .L908+48
+	ldr	r3, .L866+48
 	ldr	r2, [fp, #-344]
 	str	r2, [sp, #4]
 	ldr	r2, [r3, #16]
 	str	r2, [sp]
 	ldm	r3, {r0, r1, r2, r3}
 	vmov.f32	s3, s13
-	vldr.32	s2, .L908+12
+	vldr.32	s2, .L866+12
 	vmov.f32	s0, s14
 	vmov.f32	s1, s15
 	bl	DrawTextureEx
@@ -18847,10 +18388,10 @@ MainMenuUpdate:
 	bl	DrawMenuFallingItems
 	ldrb	r3, [fp, #-51]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L881
-	ldr	r3, .L908+52
+	beq	.L839
+	ldr	r3, .L866+52
 	str	r3, [fp, #-140]	@ float
-	ldr	r3, .L908+56
+	ldr	r3, .L866+56
 	str	r3, [fp, #-144]	@ float
 	vldr.32	s13, [fp, #-140]
 	vldr.32	s14, [fp, #-144]
@@ -18866,10 +18407,10 @@ MainMenuUpdate:
 	vcvt.f32.f64	s15, d7
 	vstr.32	s15, [fp, #-48]
 	vldr.32	s15, [fp, #-48]
-	vldr.32	s14, .L908+16
+	vldr.32	s14, .L866+16
 	vcmpe.f32	s15, s14
 	vmrs	APSR_nzcv, FPSCR
-	blt	.L881
+	blt	.L839
 	mov	r3, #0
 	str	r3, [fp, #-48]	@ float
 	mov	r3, #0
@@ -18877,14 +18418,14 @@ MainMenuUpdate:
 	ldr	r3, [fp, #-64]
 	ldr	r0, [fp, #-464]
 	blx	r3
-	b	.L896
-.L881:
+	b	.L854
+.L839:
 	ldrb	r3, [fp, #-50]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L884
-	ldr	r3, .L908+52
+	beq	.L842
+	ldr	r3, .L866+52
 	str	r3, [fp, #-152]	@ float
-	ldr	r3, .L908+56
+	ldr	r3, .L866+56
 	str	r3, [fp, #-156]	@ float
 	vldr.32	s13, [fp, #-152]
 	vldr.32	s14, [fp, #-156]
@@ -18902,17 +18443,17 @@ MainMenuUpdate:
 	vldr.32	s15, [fp, #-48]
 	vcmpe.f32	s15, #0
 	vmrs	APSR_nzcv, FPSCR
-	bhi	.L884
+	bhi	.L842
 	mov	r3, #0
 	str	r3, [fp, #-48]	@ float
 	mov	r3, #0
 	strb	r3, [fp, #-50]
-.L884:
-	vldr.32	s14, .L908+20
+.L842:
+	vldr.32	s14, .L866+20
 	vldr.32	s15, [fp, #-48]
 	vsub.f32	s15, s14, s15
 	vstr.32	s15, [fp, #-352]
-	ldr	r3, .L908+40
+	ldr	r3, .L866+40
 	str	r3, [fp, #-348]	@ float
 	vldr.32	s15, [fp, #-116]
 	vcvt.f64.f32	d7, s15
@@ -18923,28 +18464,28 @@ MainMenuUpdate:
 	bl	fmax
 	vmov.f64	d7, d0
 	vcvt.f32.f64	s13, d7
-	ldr	r3, .L908+44
+	ldr	r3, .L866+44
 	ldr	r3, [r3]
 	str	r3, [fp, #-356]
 	vldr.32	s14, [fp, #-352]
 	vldr.32	s15, [fp, #-348]
-	ldr	r3, .L908+60
+	ldr	r3, .L866+60
 	ldr	r2, [fp, #-356]
 	str	r2, [sp, #4]
 	ldr	r2, [r3, #16]
 	str	r2, [sp]
 	ldm	r3, {r0, r1, r2, r3}
 	vmov.f32	s3, s13
-	vldr.32	s2, .L908+12
+	vldr.32	s2, .L866+12
 	vmov.f32	s0, s14
 	vmov.f32	s1, s15
 	bl	DrawTextureEx
-	vldr.32	s14, .L908+20
+	vldr.32	s14, .L866+20
 	vldr.32	s15, [fp, #-48]
 	vsub.f32	s15, s14, s15
 	vstr.32	s15, [fp, #-364]
-	vldr.32	s14, .L908+24
-	vldr.32	s15, .L908+28
+	vldr.32	s14, .L866+24
+	vldr.32	s15, .L866+28
 	vsub.f32	s15, s14, s15
 	vstr.32	s15, [fp, #-360]
 	vldr.32	s15, [fp, #-132]
@@ -18956,44 +18497,44 @@ MainMenuUpdate:
 	bl	fmax
 	vmov.f64	d7, d0
 	vcvt.f32.f64	s13, d7
-	ldr	r3, .L908+44
+	ldr	r3, .L866+44
 	ldr	r3, [r3]
 	str	r3, [fp, #-368]
 	vldr.32	s14, [fp, #-364]
 	vldr.32	s15, [fp, #-360]
-	ldr	r3, .L908+32
+	ldr	r3, .L866+32
 	ldr	r2, [fp, #-368]
 	str	r2, [sp, #4]
 	ldr	r2, [r3, #16]
 	str	r2, [sp]
 	ldm	r3, {r0, r1, r2, r3}
 	vmov.f32	s3, s13
-	vldr.32	s2, .L908+12
+	vldr.32	s2, .L866+12
 	vmov.f32	s0, s14
 	vmov.f32	s1, s15
 	bl	DrawTextureEx
 	vldr.32	s15, [fp, #-288]
-	vldr.32	s14, .L908+100
+	vldr.32	s14, .L866+100
 	vadd.f32	s15, s15, s14
 	vcvt.s32.f32	s15, s15
 	vcvt.f32.s32	s15, s15
 	vstr.32	s15, [fp, #-376]
 	vldr.32	s15, [fp, #-284]
-	vldr.32	s14, .L908+104
+	vldr.32	s14, .L866+104
 	vadd.f32	s15, s15, s14
 	vcvt.s32.f32	s15, s15
 	vcvt.f32.s32	s15, s15
 	vstr.32	s15, [fp, #-372]
 	ldrb	r3, [fp, #-101]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L886
-	ldr	r3, .L908+72
+	beq	.L844
+	ldr	r3, .L866+72
 	ldr	r3, [r3]
 	str	r3, [fp, #-176]
-	b	.L887
-.L909:
+	b	.L845
+.L867:
 	.align	2
-.L908:
+.L866:
 	.word	1156579328
 	.word	1149698048
 	.word	1082130432
@@ -19010,12 +18551,12 @@ MainMenuUpdate:
 	.word	1147207680
 	.word	1058642330
 	.word	backgroundOverlaySidebarTexture
-	.word	.LC165
 	.word	.LC166
+	.word	.LC167
 	.word	MAIN_ORANGE
 	.word	MAIN_BROWN
 	.word	meowFont
-	.word	.LC167
+	.word	.LC168
 	.word	options
 	.word	debugToolToggles
 	.word	.LC3
@@ -19024,17 +18565,17 @@ MainMenuUpdate:
 	.word	1073741824
 	.word	1114636288
 	.word	1065353216
-.L886:
-	ldr	r3, .L908+76
+.L844:
+	ldr	r3, .L866+76
 	ldr	r3, [r3]
 	str	r3, [fp, #-176]
-.L887:
+.L845:
 	vldr.32	s14, [fp, #-376]
 	vldr.32	s15, [fp, #-372]
-	ldr	r4, .L908+80
+	ldr	r4, .L866+80
 	ldr	r3, [fp, #-176]
 	str	r3, [sp, #28]
-	ldr	r3, .L908+64
+	ldr	r3, .L866+64
 	str	r3, [sp, #24]
 	mov	lr, sp
 	add	ip, r4, #16
@@ -19043,41 +18584,41 @@ MainMenuUpdate:
 	ldm	ip, {r0, r1}
 	stm	lr, {r0, r1}
 	ldm	r4, {r0, r1, r2, r3}
-	vldr.32	s3, .L908+108
-	vldr.32	s2, .L908+112
+	vldr.32	s3, .L866+108
+	vldr.32	s2, .L866+112
 	vmov.f32	s0, s14
 	vmov.f32	s1, s15
 	bl	DrawTextEx
 	vldr.32	s15, [fp, #-304]
-	vldr.32	s14, .L908+100
+	vldr.32	s14, .L866+100
 	vadd.f32	s15, s15, s14
 	vcvt.s32.f32	s15, s15
 	vcvt.f32.s32	s15, s15
 	vstr.32	s15, [fp, #-384]
 	vldr.32	s15, [fp, #-300]
-	vldr.32	s14, .L908+104
+	vldr.32	s14, .L866+104
 	vadd.f32	s15, s15, s14
 	vcvt.s32.f32	s15, s15
 	vcvt.f32.s32	s15, s15
 	vstr.32	s15, [fp, #-380]
 	ldrb	r3, [fp, #-102]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L888
-	ldr	r3, .L908+72
+	beq	.L846
+	ldr	r3, .L866+72
 	ldr	r3, [r3]
 	str	r3, [fp, #-172]
-	b	.L889
-.L888:
-	ldr	r3, .L908+76
+	b	.L847
+.L846:
+	ldr	r3, .L866+76
 	ldr	r3, [r3]
 	str	r3, [fp, #-172]
-.L889:
+.L847:
 	vldr.32	s14, [fp, #-384]
 	vldr.32	s15, [fp, #-380]
-	ldr	r4, .L908+80
+	ldr	r4, .L866+80
 	ldr	r3, [fp, #-172]
 	str	r3, [sp, #28]
-	ldr	r3, .L908+68
+	ldr	r3, .L866+68
 	str	r3, [sp, #24]
 	mov	lr, sp
 	add	ip, r4, #16
@@ -19086,41 +18627,41 @@ MainMenuUpdate:
 	ldm	ip, {r0, r1}
 	stm	lr, {r0, r1}
 	ldm	r4, {r0, r1, r2, r3}
-	vldr.32	s3, .L908+108
-	vldr.32	s2, .L908+112
+	vldr.32	s3, .L866+108
+	vldr.32	s2, .L866+112
 	vmov.f32	s0, s14
 	vmov.f32	s1, s15
 	bl	DrawTextEx
 	vldr.32	s15, [fp, #-320]
-	vldr.32	s14, .L908+100
+	vldr.32	s14, .L866+100
 	vadd.f32	s15, s15, s14
 	vcvt.s32.f32	s15, s15
 	vcvt.f32.s32	s15, s15
 	vstr.32	s15, [fp, #-392]
 	vldr.32	s15, [fp, #-316]
-	vldr.32	s14, .L908+104
+	vldr.32	s14, .L866+104
 	vadd.f32	s15, s15, s14
 	vcvt.s32.f32	s15, s15
 	vcvt.f32.s32	s15, s15
 	vstr.32	s15, [fp, #-388]
 	ldrb	r3, [fp, #-103]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L890
-	ldr	r3, .L908+72
+	beq	.L848
+	ldr	r3, .L866+72
 	ldr	r3, [r3]
 	str	r3, [fp, #-168]
-	b	.L891
-.L890:
-	ldr	r3, .L908+76
+	b	.L849
+.L848:
+	ldr	r3, .L866+76
 	ldr	r3, [r3]
 	str	r3, [fp, #-168]
-.L891:
+.L849:
 	vldr.32	s14, [fp, #-392]
 	vldr.32	s15, [fp, #-388]
-	ldr	r4, .L908+80
+	ldr	r4, .L866+80
 	ldr	r3, [fp, #-168]
 	str	r3, [sp, #28]
-	ldr	r3, .L908+84
+	ldr	r3, .L866+84
 	str	r3, [sp, #24]
 	mov	lr, sp
 	add	ip, r4, #16
@@ -19129,21 +18670,21 @@ MainMenuUpdate:
 	ldm	ip, {r0, r1}
 	stm	lr, {r0, r1}
 	ldm	r4, {r0, r1, r2, r3}
-	vldr.32	s3, .L908+108
-	vldr.32	s2, .L908+112
+	vldr.32	s3, .L866+108
+	vldr.32	s2, .L866+112
 	vmov.f32	s0, s14
 	vmov.f32	s1, s15
 	bl	DrawTextEx
-	ldr	r3, .L908+88
+	ldr	r3, .L866+88
 	ldr	r3, [r3]
 	ldrb	r3, [r3, #20]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L892
-	ldr	r3, .L908+92
+	beq	.L850
+	ldr	r3, .L866+92
 	ldrb	r3, [r3, #3]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L892
-	ldr	r3, .L908+96
+	beq	.L850
+	ldr	r3, .L866+96
 	ldr	r3, [r3]
 	str	r3, [fp, #-396]
 	vldr.32	s12, [fp, #-288]
@@ -19151,13 +18692,13 @@ MainMenuUpdate:
 	vldr.32	s14, [fp, #-280]
 	vldr.32	s15, [fp, #-276]
 	ldr	r0, [fp, #-396]
-	vldr.32	s4, .L908+116
+	vldr.32	s4, .L866+116
 	vmov.f32	s0, s12
 	vmov.f32	s1, s13
 	vmov.f32	s2, s14
 	vmov.f32	s3, s15
 	bl	DrawRectangleLinesEx
-	ldr	r3, .L908+96
+	ldr	r3, .L866+96
 	ldr	r3, [r3]
 	str	r3, [fp, #-400]
 	vldr.32	s12, [fp, #-304]
@@ -19165,13 +18706,13 @@ MainMenuUpdate:
 	vldr.32	s14, [fp, #-296]
 	vldr.32	s15, [fp, #-292]
 	ldr	r0, [fp, #-400]
-	vldr.32	s4, .L908+116
+	vldr.32	s4, .L866+116
 	vmov.f32	s0, s12
 	vmov.f32	s1, s13
 	vmov.f32	s2, s14
 	vmov.f32	s3, s15
 	bl	DrawRectangleLinesEx
-	ldr	r3, .L908+96
+	ldr	r3, .L866+96
 	ldr	r3, [r3]
 	str	r3, [fp, #-404]
 	vldr.32	s12, [fp, #-320]
@@ -19179,28 +18720,28 @@ MainMenuUpdate:
 	vldr.32	s14, [fp, #-312]
 	vldr.32	s15, [fp, #-308]
 	ldr	r0, [fp, #-404]
-	vldr.32	s4, .L908+116
+	vldr.32	s4, .L866+116
 	vmov.f32	s0, s12
 	vmov.f32	s1, s13
 	vmov.f32	s2, s14
 	vmov.f32	s3, s15
 	bl	DrawRectangleLinesEx
-.L892:
+.L850:
 	bl	DrawOuterWorld
 	ldrb	r3, [fp, #-465]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L893
+	beq	.L851
 	vldr.32	s15, [fp, #-72]
 	vcvt.f64.f32	d7, s15
 	vldr.64	d6, [fp, #-36]
 	vdiv.f64	d5, d6, d7
-	vldr.64	d1, .L910
+	vldr.64	d1, .L868
 	vmov.f64	d0, d5
 	bl	fmin
 	vmov.f64	d7, d0
-	vldr.64	d6, .L910
+	vldr.64	d6, .L868
 	vsub.f64	d7, d6, d7
-	vldr.64	d6, .L910+8
+	vldr.64	d6, .L868+8
 	vmul.f64	d7, d7, d6
 	vcvt.f32.f64	s15, d7
 	vstr.32	s15, [fp, #-164]
@@ -19208,14 +18749,14 @@ MainMenuUpdate:
 	eor	r3, r3, #1
 	uxtb	r3, r3
 	cmp	r3, #0
-	beq	.L894
+	beq	.L852
 	vldr.32	s15, [fp, #-164]
 	vcmp.f32	s15, #0
 	vmrs	APSR_nzcv, FPSCR
-	beq	.L894
-	ldr	r3, .L910+20
+	beq	.L852
+	ldr	r3, .L868+20
 	str	r3, [fp, #-412]	@ float
-	ldr	r3, .L910+24
+	ldr	r3, .L868+24
 	str	r3, [fp, #-408]	@ float
 	vldr.32	s15, [fp, #-84]
 	vcvt.f64.f32	d7, s15
@@ -19240,41 +18781,41 @@ MainMenuUpdate:
 	strb	r3, [fp, #-413]
 	vldr.32	s14, [fp, #-412]
 	vldr.32	s15, [fp, #-408]
-	ldr	r3, .L910+28
+	ldr	r3, .L868+28
 	ldr	r2, [fp, #-416]
 	str	r2, [sp, #4]
 	ldr	r2, [r3, #16]
 	str	r2, [sp]
 	ldm	r3, {r0, r1, r2, r3}
 	vmov.f32	s3, s13
-	vldr.32	s2, .L910+16
+	vldr.32	s2, .L868+16
 	vmov.f32	s0, s14
 	vmov.f32	s1, s15
 	bl	DrawTextureEx
-	b	.L893
-.L894:
+	b	.L851
+.L852:
 	mov	r3, #1
 	strb	r3, [fp, #-49]
-.L893:
-	ldr	r3, .L910+32
+.L851:
+	ldr	r3, .L868+32
 	ldr	r3, [r3]
 	ldrb	r3, [r3, #20]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L895
+	beq	.L853
 	ldr	r0, [fp, #-464]
 	bl	DrawDebugOverlay
-.L895:
+.L853:
 	bl	EndMode2D
 	bl	EndDrawing
-.L866:
+.L824:
 	bl	WindowShouldClose
 	mov	r3, r0
 	eor	r3, r3, #1
 	uxtb	r3, r3
 	cmp	r3, #0
-	bne	.L897
-.L896:
-	ldr	r3, .L910+36
+	bne	.L855
+.L854:
+	ldr	r3, .L868+36
 	ldr	r2, [r3, #16]
 	str	r2, [sp]
 	ldm	r3, {r0, r1, r2, r3}
@@ -19285,9 +18826,9 @@ MainMenuUpdate:
 	@ sp needed
 	vldm	sp!, {d8-d9}
 	pop	{r4, fp, pc}
-.L911:
+.L869:
 	.align	3
-.L910:
+.L868:
 	.word	0
 	.word	1072693248
 	.word	0
@@ -19301,8 +18842,9 @@ MainMenuUpdate:
 	.size	MainMenuUpdate, .-MainMenuUpdate
 	.section	.rodata
 	.align	2
-.LC168:
-	.ascii	"/home/pi/SuperMeowMeow/assets/audio/Meow1.mp3\000"
+.LC169:
+	.ascii	"/home/yuzu/Desktop/SuperMeowMeow/assets/audio/Meow1"
+	.ascii	".mp3\000"
 	.text
 	.align	2
 	.global	SplashUpdate
@@ -19313,7 +18855,7 @@ MainMenuUpdate:
 SplashUpdate:
 	@ args = 0, pretend = 0, frame = 200
 	@ frame_needed = 1, uses_anonymous_args = 0
-	PUSH	{fp, lr}
+	push	{fp, lr}
 	add	fp, sp, #4
 	sub	sp, sp, #208
 	str	r0, [fp, #-200]
@@ -19344,22 +18886,22 @@ SplashUpdate:
 	mov	r2, #0
 	mov	r3, #0
 	strd	r2, [fp, #-20]
-	ldr	r3, .L934+36
+	ldr	r3, .L892+36
 	ldr	r3, [r3, #4]
 	str	r3, [fp, #-80]
-	ldr	r3, .L934+36
+	ldr	r3, .L892+36
 	ldr	r3, [r3, #8]
 	str	r3, [fp, #-84]
 	ldr	r3, [fp, #-80]
 	vmov	s15, r3	@ int
 	vcvt.f32.s32	s14, s15
-	vldr.32	s13, .L934+16
+	vldr.32	s13, .L892+16
 	vdiv.f32	s15, s13, s14
 	vstr.32	s15, [fp, #-88]
 	ldr	r3, [fp, #-84]
 	vmov	s15, r3	@ int
 	vcvt.f32.s32	s14, s15
-	vldr.32	s13, .L934+20
+	vldr.32	s13, .L892+20
 	vdiv.f32	s15, s13, s14
 	vstr.32	s15, [fp, #-92]
 	bl	BeginDrawing
@@ -19370,23 +18912,23 @@ SplashUpdate:
 	stm	ip, {r0, r1}
 	ldm	r3, {r0, r1, r2, r3}
 	bl	BeginMode2D
-	ldr	r3, .L934+40
+	ldr	r3, .L892+40
 	ldr	r3, [r3]
 	str	r3, [fp, #-100]
 	ldr	r0, [fp, #-100]
 	bl	ClearBackground
-	ldr	r3, .L934+44
+	ldr	r3, .L892+44
 	ldr	r3, [r3]
 	ldrb	r3, [r3, #20]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L913
+	beq	.L871
 	ldr	r0, [fp, #-200]
 	bl	DrawDebugOverlay
-.L913:
+.L871:
 	bl	EndMode2D
 	bl	EndDrawing
-	b	.L914
-.L916:
+	b	.L872
+.L874:
 	ldr	r0, [fp, #-200]
 	bl	WindowUpdate
 	bl	GetTime
@@ -19405,19 +18947,19 @@ SplashUpdate:
 	vldr.64	d6, [fp, #-20]
 	vldr.64	d7, [fp, #-36]
 	vdiv.f64	d5, d6, d7
-	vldr.64	d1, .L934
+	vldr.64	d1, .L892
 	vmov.f64	d0, d5
 	bl	fmin
 	vmov.f64	d7, d0
-	vldr.64	d6, .L934
+	vldr.64	d6, .L892
 	vsub.f64	d7, d6, d7
-	vldr.64	d6, .L934+8
+	vldr.64	d6, .L892+8
 	vmul.f64	d7, d7, d6
 	vcvt.f32.f64	s15, d7
 	vstr.32	s15, [fp, #-96]
-	ldr	r3, .L934+48
+	ldr	r3, .L892+48
 	str	r3, [fp, #-132]	@ float
-	ldr	r3, .L934+52
+	ldr	r3, .L892+52
 	str	r3, [fp, #-128]	@ float
 	vldr.32	s15, [fp, #-88]
 	vcvt.f64.f32	d7, s15
@@ -19428,25 +18970,25 @@ SplashUpdate:
 	bl	fmax
 	vmov.f64	d7, d0
 	vcvt.f32.f64	s13, d7
-	ldr	r3, .L934+56
+	ldr	r3, .L892+56
 	ldr	r3, [r3]
 	str	r3, [fp, #-136]
 	vldr.32	s14, [fp, #-132]
 	vldr.32	s15, [fp, #-128]
-	ldr	r3, .L934+36
+	ldr	r3, .L892+36
 	ldr	r2, [fp, #-136]
 	str	r2, [sp, #4]
 	ldr	r2, [r3, #16]
 	str	r2, [sp]
 	ldm	r3, {r0, r1, r2, r3}
 	vmov.f32	s3, s13
-	vldr.32	s2, .L934+24
+	vldr.32	s2, .L892+24
 	vmov.f32	s0, s14
 	vmov.f32	s1, s15
 	bl	DrawTextureEx
-	vldr.32	s15, .L934+28
+	vldr.32	s15, .L892+28
 	vcvt.s32.f32	s14, s15
-	vldr.32	s15, .L934+32
+	vldr.32	s15, .L892+32
 	vcvt.s32.f32	s13, s15
 	mvn	r3, #0
 	strb	r3, [fp, #-140]
@@ -19462,29 +19004,29 @@ SplashUpdate:
 	strb	r3, [fp, #-137]
 	ldr	r3, [fp, #-140]
 	str	r3, [sp]
-	ldr	r3, .L934+60
+	ldr	r3, .L892+60
 	mov	r2, #1920
 	vmov	r1, s13	@ int
 	vmov	r0, s14	@ int
 	bl	DrawRectangle
-	ldr	r3, .L934+44
+	ldr	r3, .L892+44
 	ldr	r3, [r3]
 	ldrb	r3, [r3, #20]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L915
+	beq	.L873
 	ldr	r0, [fp, #-200]
 	bl	DrawDebugOverlay
-.L915:
+.L873:
 	bl	EndMode2D
 	bl	EndDrawing
-.L914:
+.L872:
 	vldr.64	d6, [fp, #-20]
 	vldr.64	d7, [fp, #-36]
 	vcmpe.f64	d6, d7
 	vmrs	APSR_nzcv, FPSCR
-	bmi	.L916
+	bmi	.L874
 	sub	r3, fp, #124
-	ldr	r1, .L934+64
+	ldr	r1, .L892+64
 	mov	r0, r3
 	bl	LoadSound
 	mov	r2, sp
@@ -19498,8 +19040,8 @@ SplashUpdate:
 	strb	r3, [fp, #-21]
 	bl	GetTime
 	vstr.64	d0, [fp, #-76]
-	b	.L917
-.L926:
+	b	.L875
+.L884:
 	ldr	r0, [fp, #-200]
 	bl	WindowUpdate
 	bl	GetTime
@@ -19513,36 +19055,36 @@ SplashUpdate:
 	vldr.64	d7, [fp, #-44]
 	vcmpe.f64	d6, d7
 	vmrs	APSR_nzcv, FPSCR
-	bpl	.L932
+	bpl	.L890
 	vldr.64	d5, [fp, #-20]
 	vldr.64	d6, [fp, #-44]
 	vdiv.f64	d7, d5, d6
-	vldr.64	d6, .L934+8
+	vldr.64	d6, .L892+8
 	vmul.f64	d7, d7, d6
 	vcvt.s32.f64	s15, d7
 	vmov	r3, s15	@ int
 	str	r3, [fp, #-28]
-	b	.L920
-.L932:
+	b	.L878
+.L890:
 	vldr.64	d6, [fp, #-44]
 	vldr.64	d7, [fp, #-52]
 	vadd.f64	d7, d6, d7
 	vldr.64	d6, [fp, #-20]
 	vcmpe.f64	d6, d7
 	vmrs	APSR_nzcv, FPSCR
-	bpl	.L933
+	bpl	.L891
 	mov	r3, #255
 	str	r3, [fp, #-28]
 	ldrb	r3, [fp, #-21]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L920
+	beq	.L878
 	bl	LoadGlobalAssets
 	mov	r3, #0
 	strb	r3, [fp, #-21]
-	b	.L920
-.L935:
+	b	.L878
+.L893:
 	.align	3
-.L934:
+.L892:
 	.word	0
 	.word	1072693248
 	.word	0
@@ -19559,8 +19101,8 @@ SplashUpdate:
 	.word	-1006174208
 	.word	.LC1
 	.word	1080
-	.word	.LC168
-.L933:
+	.word	.LC169
+.L891:
 	vldr.64	d6, [fp, #-20]
 	vldr.64	d7, [fp, #-44]
 	vsub.f64	d6, d6, d7
@@ -19568,33 +19110,33 @@ SplashUpdate:
 	vsub.f64	d6, d6, d7
 	vldr.64	d7, [fp, #-60]
 	vdiv.f64	d5, d6, d7
-	vldr.64	d1, .L936
+	vldr.64	d1, .L894
 	vmov.f64	d0, d5
 	bl	fmin
 	vmov.f64	d7, d0
-	vldr.64	d6, .L936
+	vldr.64	d6, .L894
 	vsub.f64	d7, d6, d7
-	vldr.64	d6, .L936+8
+	vldr.64	d6, .L894+8
 	vmul.f64	d7, d7, d6
 	vcvt.s32.f64	s15, d7
 	vmov	r3, s15	@ int
 	str	r3, [fp, #-28]
-.L920:
+.L878:
 	vldr.64	d6, [fp, #-44]
 	vldr.64	d7, [fp, #-52]
 	vadd.f64	d7, d6, d7
 	vldr.64	d6, [fp, #-20]
 	vcmpe.f64	d6, d7
 	vmrs	APSR_nzcv, FPSCR
-	ble	.L923
+	ble	.L881
 	ldrb	r3, [fp, #-21]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L923
+	beq	.L881
 	vldr.64	d7, [fp, #-12]
-	vldr.64	d6, .L936+16
+	vldr.64	d6, .L894+16
 	vadd.f64	d7, d7, d6
 	vstr.64	d7, [fp, #-12]
-.L923:
+.L881:
 	bl	BeginDrawing
 	ldr	r3, [fp, #-200]
 	mov	ip, sp
@@ -19603,14 +19145,14 @@ SplashUpdate:
 	stm	ip, {r0, r1}
 	ldm	r3, {r0, r1, r2, r3}
 	bl	BeginMode2D
-	ldr	r3, .L936+28
+	ldr	r3, .L894+28
 	ldr	r3, [r3]
 	str	r3, [fp, #-144]
 	ldr	r0, [fp, #-144]
 	bl	ClearBackground
-	ldr	r3, .L936+32
+	ldr	r3, .L894+32
 	str	r3, [fp, #-152]	@ float
-	ldr	r3, .L936+36
+	ldr	r3, .L894+36
 	str	r3, [fp, #-148]	@ float
 	vldr.32	s15, [fp, #-88]
 	vcvt.f64.f32	d7, s15
@@ -19621,25 +19163,25 @@ SplashUpdate:
 	bl	fmax
 	vmov.f64	d7, d0
 	vcvt.f32.f64	s13, d7
-	ldr	r3, .L936+40
+	ldr	r3, .L894+40
 	ldr	r3, [r3]
 	str	r3, [fp, #-156]
 	vldr.32	s14, [fp, #-152]
 	vldr.32	s15, [fp, #-148]
-	ldr	r3, .L936+44
+	ldr	r3, .L894+44
 	ldr	r2, [fp, #-156]
 	str	r2, [sp, #4]
 	ldr	r2, [r3, #16]
 	str	r2, [sp]
 	ldm	r3, {r0, r1, r2, r3}
 	vmov.f32	s3, s13
-	vldr.32	s2, .L936+24
+	vldr.32	s2, .L894+24
 	vmov.f32	s0, s14
 	vmov.f32	s1, s15
 	bl	DrawTextureEx
-	ldr	r3, .L936+32
+	ldr	r3, .L894+32
 	str	r3, [fp, #-164]	@ float
-	ldr	r3, .L936+36
+	ldr	r3, .L894+36
 	str	r3, [fp, #-160]	@ float
 	vldr.32	s15, [fp, #-88]
 	vcvt.f64.f32	d7, s15
@@ -19661,37 +19203,37 @@ SplashUpdate:
 	strb	r3, [fp, #-165]
 	vldr.32	s14, [fp, #-164]
 	vldr.32	s15, [fp, #-160]
-	ldr	r3, .L936+48
+	ldr	r3, .L894+48
 	ldr	r2, [fp, #-168]
 	str	r2, [sp, #4]
 	ldr	r2, [r3, #16]
 	str	r2, [sp]
 	ldm	r3, {r0, r1, r2, r3}
 	vmov.f32	s3, s13
-	vldr.32	s2, .L936+24
+	vldr.32	s2, .L894+24
 	vmov.f32	s0, s14
 	vmov.f32	s1, s15
 	bl	DrawTextureEx
-	ldr	r3, .L936+52
+	ldr	r3, .L894+52
 	ldr	r3, [r3]
 	ldrb	r3, [r3, #20]	@ zero_extendqisi2
 	cmp	r3, #0
-	beq	.L925
+	beq	.L883
 	ldr	r0, [fp, #-200]
 	bl	DrawDebugOverlay
-.L925:
+.L883:
 	bl	EndMode2D
 	bl	EndDrawing
-.L917:
+.L875:
 	vldr.64	d6, [fp, #-20]
 	vldr.64	d7, [fp, #-12]
 	vcmpe.f64	d6, d7
 	vmrs	APSR_nzcv, FPSCR
-	bmi	.L926
+	bmi	.L884
 	bl	GetTime
 	vstr.64	d0, [fp, #-76]
-	b	.L927
-.L928:
+	b	.L885
+.L886:
 	ldr	r0, [fp, #-200]
 	bl	WindowUpdate
 	bl	GetTime
@@ -19707,14 +19249,14 @@ SplashUpdate:
 	stm	ip, {r0, r1}
 	ldm	r3, {r0, r1, r2, r3}
 	bl	BeginMode2D
-	ldr	r3, .L936+28
+	ldr	r3, .L894+28
 	ldr	r3, [r3]
 	str	r3, [fp, #-172]
 	ldr	r0, [fp, #-172]
 	bl	ClearBackground
-	ldr	r3, .L936+32
+	ldr	r3, .L894+32
 	str	r3, [fp, #-180]	@ float
-	ldr	r3, .L936+36
+	ldr	r3, .L894+36
 	str	r3, [fp, #-176]	@ float
 	vldr.32	s15, [fp, #-88]
 	vcvt.f64.f32	d7, s15
@@ -19725,25 +19267,25 @@ SplashUpdate:
 	bl	fmax
 	vmov.f64	d7, d0
 	vcvt.f32.f64	s13, d7
-	ldr	r3, .L936+40
+	ldr	r3, .L894+40
 	ldr	r3, [r3]
 	str	r3, [fp, #-184]
 	vldr.32	s14, [fp, #-180]
 	vldr.32	s15, [fp, #-176]
-	ldr	r3, .L936+44
+	ldr	r3, .L894+44
 	ldr	r2, [fp, #-184]
 	str	r2, [sp, #4]
 	ldr	r2, [r3, #16]
 	str	r2, [sp]
 	ldm	r3, {r0, r1, r2, r3}
 	vmov.f32	s3, s13
-	vldr.32	s2, .L936+24
+	vldr.32	s2, .L894+24
 	vmov.f32	s0, s14
 	vmov.f32	s1, s15
 	bl	DrawTextureEx
-	ldr	r3, .L936+32
+	ldr	r3, .L894+32
 	str	r3, [fp, #-192]	@ float
-	ldr	r3, .L936+36
+	ldr	r3, .L894+36
 	str	r3, [fp, #-188]	@ float
 	vldr.32	s15, [fp, #-88]
 	vcvt.f64.f32	d7, s15
@@ -19754,30 +19296,30 @@ SplashUpdate:
 	bl	fmax
 	vmov.f64	d7, d0
 	vcvt.f32.f64	s13, d7
-	ldr	r3, .L936+40
+	ldr	r3, .L894+40
 	ldr	r3, [r3]
 	str	r3, [fp, #-196]
 	vldr.32	s14, [fp, #-192]
 	vldr.32	s15, [fp, #-188]
-	ldr	r3, .L936+48
+	ldr	r3, .L894+48
 	ldr	r2, [fp, #-196]
 	str	r2, [sp, #4]
 	ldr	r2, [r3, #16]
 	str	r2, [sp]
 	ldm	r3, {r0, r1, r2, r3}
 	vmov.f32	s3, s13
-	vldr.32	s2, .L936+24
+	vldr.32	s2, .L894+24
 	vmov.f32	s0, s14
 	vmov.f32	s1, s15
 	bl	DrawTextureEx
 	bl	EndMode2D
 	bl	EndDrawing
-.L927:
+.L885:
 	vldr.64	d6, [fp, #-20]
 	vldr.64	d7, [fp, #-68]
 	vcmpe.f64	d6, d7
 	vmrs	APSR_nzcv, FPSCR
-	bmi	.L928
+	bmi	.L886
 	mov	r1, #1
 	ldr	r0, [fp, #-200]
 	bl	MainMenuUpdate
@@ -19785,9 +19327,9 @@ SplashUpdate:
 	sub	sp, fp, #4
 	@ sp needed
 	pop	{fp, pc}
-.L937:
+.L895:
 	.align	3
-.L936:
+.L894:
 	.word	0
 	.word	1072693248
 	.word	0
@@ -19805,24 +19347,27 @@ SplashUpdate:
 	.size	SplashUpdate, .-SplashUpdate
 	.section	.rodata
 	.align	2
-.LC169:
-	.ascii	"SuperMeowMeow\000"
-	.align	2
 .LC170:
-	.ascii	"/home/pi/SuperMeowMeow/assets/font/SantJoanDespi-Re"
-	.ascii	"gular.otf\000"
+	.ascii	"Min : %f, Max : %f, Value : %f\000"
 	.align	2
 .LC171:
-	.ascii	"/home/pi/SuperMeowMeow/assets/image/elements/studio"
-	.ascii	"_logo.png\000"
+	.ascii	"SuperMeowMeow\000"
 	.align	2
 .LC172:
-	.ascii	"/home/pi/SuperMeowMeow/assets/image/backgrounds/spl"
-	.ascii	"ash.png\000"
+	.ascii	"/home/yuzu/Desktop/SuperMeowMeow/assets/font/SantJo"
+	.ascii	"anDespi-Regular.otf\000"
 	.align	2
 .LC173:
-	.ascii	"/home/pi/SuperMeowMeow/assets/image/backgrounds/spl"
-	.ascii	"ash_overlay.png\000"
+	.ascii	"/home/yuzu/Desktop/SuperMeowMeow/assets/image/eleme"
+	.ascii	"nts/studio_logo.png\000"
+	.align	2
+.LC174:
+	.ascii	"/home/yuzu/Desktop/SuperMeowMeow/assets/image/backg"
+	.ascii	"rounds/splash.png\000"
+	.align	2
+.LC175:
+	.ascii	"/home/yuzu/Desktop/SuperMeowMeow/assets/image/backg"
+	.ascii	"rounds/splash_overlay.png\000"
 	.align	2
 .LC12:
 	.word	1148190720
@@ -19839,26 +19384,54 @@ SplashUpdate:
 	.fpu vfp
 	.type	main, %function
 main:
-	@ args = 0, pretend = 0, frame = 112
+	@ args = 0, pretend = 0, frame = 144
 	@ frame_needed = 1, uses_anonymous_args = 0
-	PUSH	{r4, fp, lr}
+	push	{r4, fp, lr}
 	add	fp, sp, #8
-	sub	sp, sp, #124
+	sub	sp, sp, #164
+	mov	r3, #0
+	str	r3, [fp, #-16]
+	b	.L897
+.L898:
+	mov	r2, #0
+	mov	r3, #0
+	strd	r2, [fp, #-28]
+	ldr	r2, .L900
+	ldr	r3, .L900+4
+	strd	r2, [fp, #-36]
+	vldr.64	d1, [fp, #-36]
+	vldr.64	d0, [fp, #-28]
+	bl	GetRandomDoubleValue
+	vstr.64	d0, [fp, #-44]
+	ldrd	r2, [fp, #-44]
+	strd	r2, [sp, #8]
+	ldrd	r2, [fp, #-36]
+	strd	r2, [sp]
+	ldrd	r2, [fp, #-28]
+	ldr	r0, .L900+8
+	bl	LogDebug
+	ldr	r3, [fp, #-16]
+	add	r3, r3, #1
+	str	r3, [fp, #-16]
+.L897:
+	ldr	r3, [fp, #-16]
+	cmp	r3, #9
+	ble	.L898
 	mov	r0, #4
 	bl	SetConfigFlags
 	mov	r0, #32
 	bl	SetConfigFlags
-	ldr	r0, .L940
+	ldr	r0, .L900+12
 	bl	SetTraceLogCallback
-	ldr	r2, .L940+4
-	ldr	r1, .L940+8
+	ldr	r2, .L900+16
+	ldr	r1, .L900+20
 	mov	r0, #1920
 	bl	InitWindow
 	bl	InitAudioDevice
 	mov	r1, #200
 	mov	r0, #200
 	bl	SetWindowPosition
-	sub	r3, fp, #36
+	sub	r3, fp, #68
 	mov	r2, #0
 	str	r2, [r3]
 	str	r2, [r3, #4]
@@ -19867,67 +19440,67 @@ main:
 	str	r2, [r3, #16]
 	str	r2, [r3, #20]
 	mov	r3, #0
-	str	r3, [fp, #-28]	@ float
+	str	r3, [fp, #-60]	@ float
 	mov	r3, #0
-	str	r3, [fp, #-24]	@ float
-	ldr	r2, .L940+12
-	sub	r3, fp, #36
+	str	r3, [fp, #-56]	@ float
+	ldr	r2, .L900+24
+	sub	r3, fp, #68
 	ldm	r2, {r0, r1}
 	stm	r3, {r0, r1}
 	mov	r3, #0
-	str	r3, [fp, #-20]	@ float
+	str	r3, [fp, #-52]	@ float
 	mov	r3, #1065353216
-	str	r3, [fp, #-16]	@ float
+	str	r3, [fp, #-48]	@ float
 	mov	r3, #0
-	str	r3, [fp, #-60]
-	ldr	r2, .L940+16
-	sub	r3, fp, #76
+	str	r3, [fp, #-92]
+	ldr	r2, .L900+28
+	sub	r3, fp, #108
 	ldm	r2, {r0, r1}
 	stm	r3, {r0, r1}
 	mov	r3, #120
-	str	r3, [fp, #-68]
+	str	r3, [fp, #-100]
 	mov	r3, #0
-	strb	r3, [fp, #-64]
+	strb	r3, [fp, #-96]
 	mov	r3, #1
-	strb	r3, [fp, #-56]
+	strb	r3, [fp, #-88]
 	mov	r3, #1
-	strb	r3, [fp, #-54]
+	strb	r3, [fp, #-86]
 	mov	r3, #1
-	strb	r3, [fp, #-55]
-	ldr	r2, .L940+20
-	sub	r3, fp, #76
+	strb	r3, [fp, #-87]
+	ldr	r2, .L900+32
+	sub	r3, fp, #108
 	str	r3, [r2]
-	ldr	r3, .L940+20
+	ldr	r3, .L900+32
 	ldr	r3, [r3]
 	ldr	r3, [r3, #8]
 	mov	r0, r3
 	bl	SetTargetFPS
-	ldr	r3, .L940+20
+	ldr	r3, .L900+32
 	ldr	r3, [r3]
 	ldr	r1, [r3]
-	ldr	r3, .L940+20
+	ldr	r3, .L900+32
 	ldr	r3, [r3]
 	ldr	r2, [r3, #4]
-	sub	r3, fp, #36
+	sub	r3, fp, #68
 	mov	r0, r3
 	bl	SetRuntimeResolution
-	ldr	r4, .L940+24
-	sub	r0, fp, #124
+	ldr	r4, .L900+36
+	sub	r0, fp, #156
 	mov	r3, #250
 	str	r3, [sp]
 	mov	r3, #0
 	mov	r2, #256
-	ldr	r1, .L940+28
+	ldr	r1, .L900+40
 	bl	LoadFontEx
 	mov	lr, r4
-	sub	ip, fp, #124
+	sub	ip, fp, #156
 	ldmia	ip!, {r0, r1, r2, r3}
 	stmia	lr!, {r0, r1, r2, r3}
 	ldmia	ip!, {r0, r1, r2, r3}
 	stmia	lr!, {r0, r1, r2, r3}
 	ldm	ip, {r0, r1}
 	stm	lr, {r0, r1}
-	ldr	r3, .L940+24
+	ldr	r3, .L900+36
 	mov	r2, #3
 	str	r2, [sp, #4]
 	ldr	r2, [r3, #28]
@@ -19935,42 +19508,42 @@ main:
 	add	r3, r3, #12
 	ldm	r3, {r0, r1, r2, r3}
 	bl	SetTextureFilter
-	ldr	r4, .L940+32
-	sub	r3, fp, #124
-	ldr	r1, .L940+36
+	ldr	r4, .L900+44
+	sub	r3, fp, #156
+	ldr	r1, .L900+48
 	mov	r0, r3
 	bl	LoadTexture
 	mov	lr, r4
-	sub	ip, fp, #124
+	sub	ip, fp, #156
 	ldmia	ip!, {r0, r1, r2, r3}
 	stmia	lr!, {r0, r1, r2, r3}
 	ldr	r3, [ip]
 	str	r3, [lr]
-	ldr	r4, .L940+40
-	sub	r3, fp, #124
-	ldr	r1, .L940+44
+	ldr	r4, .L900+52
+	sub	r3, fp, #156
+	ldr	r1, .L900+56
 	mov	r0, r3
 	bl	LoadTexture
 	mov	lr, r4
-	sub	ip, fp, #124
+	sub	ip, fp, #156
 	ldmia	ip!, {r0, r1, r2, r3}
 	stmia	lr!, {r0, r1, r2, r3}
 	ldr	r3, [ip]
 	str	r3, [lr]
-	ldr	r4, .L940+48
-	sub	r3, fp, #124
-	ldr	r1, .L940+52
+	ldr	r4, .L900+60
+	sub	r3, fp, #156
+	ldr	r1, .L900+64
 	mov	r0, r3
 	bl	LoadTexture
 	mov	lr, r4
-	sub	ip, fp, #124
+	sub	ip, fp, #156
 	ldmia	ip!, {r0, r1, r2, r3}
 	stmia	lr!, {r0, r1, r2, r3}
 	ldr	r3, [ip]
 	str	r3, [lr]
 	mov	r0, #0
 	bl	SetExitKey
-	sub	r3, fp, #36
+	sub	r3, fp, #68
 	mov	r0, r3
 	bl	SplashUpdate
 	bl	UnloadGlobalAssets
@@ -19979,23 +19552,26 @@ main:
 	sub	sp, fp, #8
 	@ sp needed
 	pop	{r4, fp, pc}
-.L941:
+.L901:
 	.align	2
-.L940:
+.L900:
+	.word	-171798692
+	.word	1079077928
+	.word	.LC170
 	.word	CustomLogger
-	.word	.LC169
+	.word	.LC171
 	.word	1080
 	.word	.LC12
 	.word	.LC13
 	.word	options
 	.word	meowFont
-	.word	.LC170
-	.word	logoTexture
-	.word	.LC171
-	.word	splashBackgroundTexture
 	.word	.LC172
-	.word	splashOverlayTexture
+	.word	logoTexture
 	.word	.LC173
+	.word	splashBackgroundTexture
+	.word	.LC174
+	.word	splashOverlayTexture
+	.word	.LC175
 	.size	main, .-main
 	.local	current_dragging.14
 	.comm	current_dragging.14,4,4
@@ -20025,51 +19601,51 @@ main:
 	.comm	isHovering.2,1,1
 	.section	.rodata
 	.align	2
-.LC174:
+.LC176:
 	.ascii	"Happy\000"
 	.align	2
-.LC175:
+.LC177:
 	.ascii	"Frustrated\000"
 	.align	2
-.LC176:
+.LC178:
 	.ascii	"Angry\000"
 	.data
 	.align	2
 	.type	strings.1, %object
 	.size	strings.1, 12
 strings.1:
-	.word	.LC174
-	.word	.LC175
 	.word	.LC176
+	.word	.LC177
+	.word	.LC178
 	.section	.rodata
 	.align	2
-.LC177:
+.LC179:
 	.ascii	"Easy\000"
 	.align	2
-.LC178:
+.LC180:
 	.ascii	"Medium\000"
 	.align	2
-.LC179:
+.LC181:
 	.ascii	"Hard\000"
 	.align	2
-.LC180:
+.LC182:
 	.ascii	"Freeplay (E)\000"
 	.align	2
-.LC181:
+.LC183:
 	.ascii	"Freeplay (M)\000"
 	.align	2
-.LC182:
+.LC184:
 	.ascii	"Freeplay (H)\000"
 	.data
 	.align	2
 	.type	strings.0, %object
 	.size	strings.0, 24
 strings.0:
-	.word	.LC177
-	.word	.LC178
 	.word	.LC179
 	.word	.LC180
 	.word	.LC181
 	.word	.LC182
+	.word	.LC183
+	.word	.LC184
 	.ident	"GCC: (Raspbian 10.2.1-6+rpi1) 10.2.1 20210110"
 	.section	.note.GNU-stack,"",%progbits

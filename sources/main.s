@@ -17,30 +17,58 @@
 .global GetRandomIntValue
 .global GetRandomDoubleValue
 
-.ADD:
-	ADD R0, R0, R1
-	BX LR
+; Add two integers
+ADD:
+    ADD R0, R0, R1   ; R0 = R0 + R1
+    BX LR            ; Return from the function
 
-.SUB:
-	SUB R0, R0, R1
-	BX LR
+; Subtract two integers
+SUB:
+    SUB R0, R0, R1   ; R0 = R0 - R1
+    BX LR            ; Return from the function
 
-.L14:
-	.word	0
-	.word	1071644672
-	.word	-1717986918
-	.word	1070176665
-	.word	0
-	.word	1075314688
-	.word	0
-	.word	1073741824
-	.size	RandomCustomerBlinkTime, .-RandomCustomerBlinkTime
-	.align	2
-	.global	CreateCustomer
-	.syntax unified
-	.arm
-	.fpu vfp
-	.type	CreateCustomer, %function
+GetRandomDoubleValue:
+    @ Function prologue
+    @ Save the frame pointer and link register
+    push    {fp, lr}
+    add     fp, sp, #4
+    sub     sp, sp, #40
+    
+    vstr.64 d0, [fp, #-36]  @ Store min in memory
+    vstr.64 d1, [fp, #-44]  @ Store max in memory
+    
+    vldr.64 d6, [fp, #-44]  @ Load max into d6
+    vldr.64 d7, [fp, #-36]  @ Load min into d7
+    
+    vsub.f64 d7, d6, d7     @ Calculate range and store in d7
+    vstr.64 d7, [fp, #-12]  @ Store range in memory
+    
+    vldr.64 d5, .RangeFactor @ Load the division factor into d5
+    vldr.64 d6, [fp, #-12]  @ Load range from memory into d6
+    
+    vdiv.f64 d7, d5, d6     @ Calculate division factor and store in d7
+    vstr.64 d7, [fp, #-20]  @ Store division factor in memory
+    
+    bl  rand               @ Call the random number generator function
+    vmov s15, r0           @ Move the result to s15
+    
+    vcvt.f64.s32 d5, s15   @ Convert the random integer to a double in d5
+    vldr.64 d6, [fp, #-20]  @ Load division factor from memory into d6
+    
+    vdiv.f64 d7, d5, d6     @ Calculate the random double in d7
+    
+    vldr.64 d6, [fp, #-36]  @ Load min from memory into d6
+    vadd.f64 d7, d6, d7     @ Add min to the random double and store in d7
+    
+    vstr.64 d7, [fp, #-28]  @ Store the result in memory
+    nop                    @ No operation
+    
+    vmov.f64 d0, d7         @ Move the result to d0
+    sub sp, fp, #4          @ Restore the stack pointer
+    pop {fp, pc}            @ Function epilogue
+
+.RangeFactor:
+    .word -4194304           @ Division factor constant
 
 .global RandomCustomerBlinkTime
 RandomCustomerBlinkTime:
@@ -66,6 +94,22 @@ RandomCustomerBlinkTime:
 	SUB	SP, FP, #4
 	@ SP needed
 	POP	{FP, PC}
+.L14:
+	.word	0
+	.word	1071644672
+	.word	-1717986918
+	.word	1070176665
+	.word	0
+	.word	1075314688
+	.word	0
+	.word	1073741824
+	.size	RandomCustomerBlinkTime, .-RandomCustomerBlinkTime
+	.align	2
+	.global	CreateCustomer
+	.syntax unified
+	.arm
+	.fpu vfp
+	.type	CreateCustomer, %function
 
 boilWater:
 	@ args = 0, pretend = 0, frame = 8
