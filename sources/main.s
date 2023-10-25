@@ -32,6 +32,97 @@
 	SUB R0, R0, R1
 	BX LR
 
+@tickBoil
++@tickBoil
+tickBoil:
+	push	{fp, lr}
+	vpush.64	{d8}
+	add	fp, sp, #12
+	sub	sp, sp, #24
+	str	r0, [fp, #-24]
+	ldr	r3, .tickBoilData+16
+	ldrb	r3, [r3]	@ zero_extendqisi2
+	cmp	r3, #0
+	beq	.tickBoilDataTick2
+	ldr	r3, .tickBoilData+20
+	vldr.64	d7, [r3]
+	vldr.64	d6, .tickBoilData
+	vadd.f64	d8, d7, d6
+	bl	GetTime
+	vmov.f64	d7, d0
+	vcmpe.f64	d8, d7
+	vmrs	APSR_nzcv, FPSCR
+	ble	.tickBoilDataTick1
+	ldr	r3, [fp, #-24]
+	ldr	r2, [r3, #56]
+	ldr	r3, [fp, #-24]
+	str	r2, [r3, #60]
+	b	.tickBoilDataTick2
+.tickBoilDataTick1:
+	ldr	r3, .tickBoilData+24
+	vldr.64	d7, [r3]
+	vldr.64	d6, .tickBoilData+8
+	vadd.f64	d8, d7, d6
+	bl	GetTime
+	vmov.f64	d7, d0
+	vcmpe.f64	d8, d7
+	vmrs	APSR_nzcv, FPSCR
+	bpl	.tickBoilDataTick2
+	ldr	r3, .tickBoilData+28
+	mov	ip, sp
+	add	r2, r3, #16
+	ldm	r2, {r0, r1}
+	stm	ip, {r0, r1}
+	ldm	r3, {r0, r1, r2, r3}
+	bl	StopSound
+	mov	r0, #10
+	bl	PlaySoundFx
+	ldr	r3, [fp, #-24]
+	mov	r2, #1
+	strb	r2, [r3, #20]
+	bl	GetTime
+	vmov.f64	d7, d0
+	ldr	r3, .tickBoilData+24
+	vstr.64	d7, [r3]
+	ldr	r3, [fp, #-24]
+	ldr	r3, [r3, #60]
+	add	r3, r3, #2
+	str	r3, [fp, #-16]
+	ldr	r3, [fp, #-24]
+	ldr	r3, [r3, #56]
+	ldr	r2, [fp, #-16]
+	cmp	r2, r3
+	ble	.tickBoilDataTick3
+	mov	r3, #1
+	str	r3, [fp, #-16]
+.tickBoilDataTick3:
+	ldr	r3, [fp, #-24]
+	ldr	r2, [fp, #-16]
+	str	r2, [r3, #60]
+.tickBoilDataTick2:
+	sub	sp, fp, #12
+	@ sp needed
+	vldm	sp!, {d8}
+	pop	{fp, pc}
+.tickBoilAlign:
+	.align	3
+.tickBoilData:
+	.word	0
+	.word	1074266112
+	.word	0
+	.word	1071644672
+	.word	triggerHotWater
+	.word	boilingTime
+	.word	lastBoongBoongBoongTime
+	.word	boongFx
+	.size	tickBoil, .-tickBoil
+	.align	2
+	.global	highlightItem
+	.syntax unified
+	.arm
+	.fpu vfp
+	.type	highlightItem, %function
+
 @ RandomCustomerResetBasedOnDifficulty
 RandomCustomerResetBasedOnDifficulty:
 	push	{fp, lr}
