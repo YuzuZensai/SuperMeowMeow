@@ -482,23 +482,23 @@ PauseBgm:
 	POP	{R4, FP, PC}
 
 square:
-        push    {R7}
-        sub     SP, SP, #12
+        PUSH    {R7}
+        SUB     SP, SP, #12
         ADD     R7, SP, #0
-        STR     r0, [R7, #4]
+        STR     R0, [R7, #4]
         LDR     R3, [R7, #4]
         mul     R3, R3, R3
-        MOV     r0, R3
+        MOV     R0, R3
         ADDS    R7, R7, #12
         MOV     SP, R7
         LDR     R7, [SP], #4
         BX      LR
 
 FTStrcmp:
-        push    {R7}
-        sub     SP, SP, #20
+        PUSH    {R7}
+        SUB     SP, SP, #20
         ADD     R7, SP, #0
-        STR     r0, [R7, #4]
+        STR     R0, [R7, #4]
         STR     R1, [R7]
         MOVS    R3, #0
         STR     R3, [R7, #12]
@@ -541,7 +541,7 @@ FTStrcmp:
         ADD     R3, R3, R2
         LDRB    R3, [R3]        
         subs    R3, R1, R3
-        MOV     r0, R3
+        MOV     R0, R3
         ADDS    R7, R7, #20
         MOV     SP, R7
         LDR     R7, [SP], #4
@@ -549,10 +549,10 @@ FTStrcmp:
 
 
 FTStrcat:
-        push    {R7}
-        sub     SP, SP, #20
+        PUSH    {R7}
+        SUB     SP, SP, #20
         ADD     R7, SP, #0
-        STR     r0, [R7, #4]
+        STR     R0, [R7, #4]
         STR     R1, [R7]
         MOVS    R3, #0
         STR     R3, [R7, #12]
@@ -602,8 +602,48 @@ FTStrcat:
         MOVS    R2, #0
         STRB    R2, [R3]
         LDR     R3, [R7, #4]
-        MOV     r0, R3
+        MOV     R0, R3
         ADDS    R7, R7, #20
         MOV     SP, R7
         LDR     R7, [SP], #4
         BX      LR		
+
+FTStrcpy:
+        PUSH    {R7}
+        SUB     SP, SP, #20
+        ADD     R7, SP, #0
+        STR     R0, [R7, #4]
+        STR     R1, [R7]
+        MOVS    R3, #0
+        STR     R3, [R7, #12]
+        B       .CpyStart
+.CpyLoop:
+        LDR     R3, [R7, #12]
+        LDR     R2, [R7]
+        ADD     R2, R2, R3
+        LDR     R3, [R7, #12]
+        LDR     R1, [R7, #4]
+        ADD     R3, R3, R1
+        LDRB    R2, [R2]
+        STRB    R2, [R3]
+        LDR     R3, [R7, #12]
+        ADDS    R3, R3, #1
+        STR     R3, [R7, #12]
+.CpyStart:
+        LDR     R3, [R7, #12]
+        LDR     R2, [R7]
+        ADD     R3, R3, R2
+        LDRB    R3, [R3]
+        CMP     R3, #0
+        BNE     .CpyLoop
+        LDR     R3, [R7, #12]
+        LDR     R2, [R7, #4]
+        ADD     R3, R3, R2
+        MOVS    R2, #0
+        STRB    R2, [R3]
+        LDR     R3, [R7, #4]
+        MOV     R0, R3
+        ADDS    R7, R7, #20
+        MOV     SP, R7
+        LDR     R7, [SP], #4
+        BX      LR
