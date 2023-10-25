@@ -249,6 +249,8 @@ LogOrder:
 	.arm
 	.fpu vfp
 	.type	RandomGenerateOrder, %function
+.FunctionConstantsAlign:
+	.align	2
 .FunctionConstants:
 	.word	.OrderCP
 	.word	.OrderGP
