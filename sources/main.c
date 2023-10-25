@@ -58,6 +58,8 @@ DebugToolToggles debugToolToggles = { false, true, false, false };
 void LogDebug(const char* text, ...);
 void Log(int msgType, const char* text, ...);
 
+extern int GetRandomIntValue(int min_num, int max_num);
+
 // Runtime resolution
 typedef struct Resolution {
     int x;
@@ -262,6 +264,7 @@ static inline char* StringFromCustomerEmotionEnum(CustomerEmotion emotion)
     return strings[emotion];
 }
 
+
 Customer CreateCustomer(CustomerEmotion emotion, double blinkTimer, double normalDuration, double blinkDuration, bool visible, Vector2 position, int textureType, double resetTimer) {
     Customer newCustomer;
 
@@ -374,11 +377,10 @@ double GetRandomDoubleValue(double min, double max)
     double range = (max - min);
     double div = RAND_MAX / range;
     double randomDouble = min + (rand() / div);
-    printf(TextFormat("Random value: %.2f", randomDouble));
 }
 
 
-extern int GetRandomIntValue(int min_num, int max_num);
+
 
 extern void RandomCustomerBlinkTime(Customer* customer);
 extern void boilWater(Ingredient* item);

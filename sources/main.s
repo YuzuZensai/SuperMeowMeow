@@ -14,6 +14,10 @@
 .global PauseBgm
 .global FTStrcmp
 .global FTStrcat
+.global GetRandomIntValue
+.global GetRandomDoubleValue
+
+.ADD:
 	ADD R0, R0, R1
 	BX LR
 
@@ -500,7 +504,7 @@ FTStrcmp:
         LDR     R2, [R7]
         ADD     R3, R3, R2
         LDRB    R3, [R3]        
-        subs    R3, R1, R3
+        SUBS    R3, R1, R3
         MOV     R0, R3
         ADDS    R7, R7, #20
         MOV     SP, R7
@@ -608,34 +612,48 @@ FTStrcpy:
         LDR     R7, [SP], #4
         BX      LR
 
-
-.global GetRandomIntValue
-.GetRandomIntValue:
-	CMP R0, R1
-	BGT .calculateRandomIntSwap
-	B .calculateRandomInt
-
+GetRandomIntValue:
+        PUSH    {R7, lr}
+        SUB     SP, SP, #24
+        add     R7, SP, #0
+        STR     R0, [R7, #4]
+        STR     R1, [R7]
+        MOVS    R3, #0
+        STR     R3, [R7, #12]
+        MOVS    R3, #0
+        STR     R3, [R7, #20]
+        MOVS    R3, #0
+        STR     R3, [R7, #16]
+        LDR     R2, [R7, #4]
+        LDR     R3, [R7]
+        CMP     R2, R3
+        bge     .calculateRandomIntSwap
+        LDR     R3, [R7, #4]
+        STR     R3, [R7, #20]
+        LDR     R3, [R7]
+        ADDS    R3, R3, #1
+        STR     R3, [R7, #16]
+        B       .calculateRandomInt
 .calculateRandomIntSwap:
-	MOV R2,R1
-	MOV R1,R0
-	MOV R0,R2
-	B .calculateRandomInt
-
+        LDR     R3, [R7]
+        ADDS    R3, R3, #1
+        STR     R3, [R7, #20]
+        LDR     R3, [R7, #4]
+        STR     R3, [R7, #16]
 .calculateRandomInt:
-	@R0 IS MIN NUM
-	ADD R1, R1, #1
-
-	MOV R3, R1
-	MOV R2, R0
-	BL rand
-	SUB R4, R3, R2
-	@UMOD r0, r0, R4
-	
-	MOV R1, R4
-	MOV R7, LR
-	BL __aeabi_idivmod
-	MOV LR, R7
-
-	ADD R0, R0, R2
-
-	BX LR
+        BL      rand
+        LDR     R2, [R7, #16]
+        LDR     R3, [R7, #20]
+        SUBS    R3, R2, R3
+        MOV     R1, R3
+        BL      __aeabi_idivmod
+        MOV     R3, R1
+        MOV     R2, R3
+        LDR     R3, [R7, #20]
+        add     R3, R3, R2
+        STR     R3, [R7, #12]
+        LDR     R3, [R7, #12]
+        MOV     R0, R3
+        ADDS    R7, R7, #24
+        MOV     SP, R7
+        POP     {R7, PC}

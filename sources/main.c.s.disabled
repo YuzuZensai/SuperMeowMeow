@@ -544,7 +544,7 @@ StringFromCustomerEmotionEnum:
 CreateCustomer:
 	@ args = 0, pretend = 0, frame = 152
 	@ frame_needed = 1, uses_anonymous_args = 0
-	push	{fp, lr}
+	PUSH	{fp, lr}
 	add	fp, sp, #4
 	sub	sp, sp, #152
 	str	r0, [fp, #-104]
@@ -822,7 +822,7 @@ dragAndDropLocked:
 ExitApplication:
 	@ args = 0, pretend = 0, frame = 0
 	@ frame_needed = 1, uses_anonymous_args = 0
-	push	{fp, lr}
+	PUSH	{fp, lr}
 	add	fp, sp, #4
 	bl	UnloadGlobalAssets
 	mov	r0, #0
@@ -864,7 +864,7 @@ ExitApplication:
 DragAndDropCup:
 	@ args = 4, pretend = 0, frame = 248
 	@ frame_needed = 1, uses_anonymous_args = 0
-	push	{r4, fp, lr}
+	PUSH	{r4, fp, lr}
 	add	fp, sp, #8
 	sub	sp, sp, #268
 	str	r0, [fp, #-224]
@@ -1627,7 +1627,7 @@ DragAndDropCup:
 UpdateCupImage:
 	@ args = 0, pretend = 0, frame = 1136
 	@ frame_needed = 1, uses_anonymous_args = 0
-	push	{r4, fp, lr}
+	PUSH	{r4, fp, lr}
 	add	fp, sp, #8
 	sub	sp, sp, #1136
 	sub	sp, sp, #12
@@ -1971,7 +1971,7 @@ UpdateCupImage:
 UpdateCup:
 	@ args = 0, pretend = 0, frame = 8
 	@ frame_needed = 1, uses_anonymous_args = 0
-	push	{fp, lr}
+	PUSH	{fp, lr}
 	add	fp, sp, #4
 	sub	sp, sp, #8
 	str	r0, [fp, #-8]
@@ -2164,7 +2164,7 @@ UpdateCup:
 DragAndDropIngredient:
 	@ args = 0, pretend = 0, frame = 88
 	@ frame_needed = 1, uses_anonymous_args = 0
-	push	{fp, lr}
+	PUSH	{fp, lr}
 	add	fp, sp, #4
 	sub	sp, sp, #96
 	str	r0, [fp, #-80]
@@ -2451,7 +2451,7 @@ DragAndDropIngredient:
 DragAndDropIngredientPop:
 	@ args = 0, pretend = 0, frame = 104
 	@ frame_needed = 1, uses_anonymous_args = 0
-	push	{fp, lr}
+	PUSH	{fp, lr}
 	add	fp, sp, #4
 	sub	sp, sp, #112
 	str	r0, [fp, #-96]
@@ -2731,7 +2731,7 @@ frameRect:
 	@ args = 72, pretend = 16, frame = 56
 	@ frame_needed = 1, uses_anonymous_args = 0
 	sub	sp, sp, #16
-	push	{fp, lr}
+	PUSH	{fp, lr}
 	add	fp, sp, #4
 	sub	sp, sp, #56
 	add	ip, fp, #4
@@ -2791,7 +2791,7 @@ frameRectCup:
 	@ args = 164, pretend = 16, frame = 56
 	@ frame_needed = 1, uses_anonymous_args = 0
 	sub	sp, sp, #16
-	push	{fp, lr}
+	PUSH	{fp, lr}
 	add	fp, sp, #4
 	sub	sp, sp, #56
 	add	ip, fp, #4
@@ -2850,8 +2850,8 @@ frameRectCup:
 tickBoil:
 	@ args = 0, pretend = 0, frame = 16
 	@ frame_needed = 1, uses_anonymous_args = 0
-	push	{fp, lr}
-	vpush.64	{d8}
+	PUSH	{fp, lr}
+	vPUSH.64	{d8}
 	add	fp, sp, #12
 	sub	sp, sp, #24
 	str	r0, [fp, #-24]
@@ -2940,7 +2940,7 @@ tickBoil:
 highlightItem:
 	@ args = 0, pretend = 0, frame = 40
 	@ frame_needed = 1, uses_anonymous_args = 0
-	push	{r4, r5, fp, lr}
+	PUSH	{r4, r5, fp, lr}
 	add	fp, sp, #12
 	sub	sp, sp, #96
 	str	r0, [fp, #-48]
@@ -3172,7 +3172,7 @@ colorTransitionTime:
 CustomLogger:
 	@ args = 0, pretend = 0, frame = 104
 	@ frame_needed = 1, uses_anonymous_args = 0
-	push	{fp, lr}
+	PUSH	{fp, lr}
 	add	fp, sp, #4
 	sub	sp, sp, #104
 	str	r0, [fp, #-96]
@@ -3329,8 +3329,8 @@ CustomLogger:
 LogDebug:
 	@ args = 4, pretend = 16, frame = 8
 	@ frame_needed = 1, uses_anonymous_args = 1
-	push	{r0, r1, r2, r3}
-	push	{fp, lr}
+	PUSH	{r0, r1, r2, r3}
+	PUSH	{fp, lr}
 	add	fp, sp, #4
 	sub	sp, sp, #8
 	add	r3, fp, #8
@@ -3355,8 +3355,8 @@ LogDebug:
 Log:
 	@ args = 4, pretend = 12, frame = 16
 	@ frame_needed = 1, uses_anonymous_args = 1
-	push	{r1, r2, r3}
-	push	{fp, lr}
+	PUSH	{r1, r2, r3}
+	PUSH	{fp, lr}
 	add	fp, sp, #4
 	sub	sp, sp, #20
 	str	r0, [fp, #-20]
@@ -3524,8 +3524,8 @@ DrawDragableItemFrame:
 	@ args = 64, pretend = 16, frame = 48
 	@ frame_needed = 1, uses_anonymous_args = 0
 	sub	sp, sp, #16
-	push	{r4, fp, lr}
-	vpush.64	{d8}
+	PUSH	{r4, fp, lr}
+	vPUSH.64	{d8}
 	add	fp, sp, #16
 	sub	sp, sp, #84
 	add	ip, fp, #4
@@ -3685,8 +3685,8 @@ DrawDragableItemFrame:
 DrawMenuFallingItems:
 	@ args = 0, pretend = 0, frame = 200
 	@ frame_needed = 1, uses_anonymous_args = 0
-	push	{r4, fp, lr}
-	vpush.64	{d8, d9}
+	PUSH	{r4, fp, lr}
+	vPUSH.64	{d8, d9}
 	add	fp, sp, #24
 	sub	sp, sp, #236
 	vstr.64	d0, [fp, #-220]
@@ -4360,8 +4360,8 @@ IsNight:
 DrawMovingCloudAndStar:
 	@ args = 0, pretend = 0, frame = 128
 	@ frame_needed = 1, uses_anonymous_args = 0
-	push	{r4, fp, lr}
-	vpush.64	{d8}
+	PUSH	{r4, fp, lr}
+	vPUSH.64	{d8}
 	add	fp, sp, #16
 	sub	sp, sp, #164
 	vstr.64	d0, [fp, #-148]
@@ -5044,7 +5044,7 @@ DrawMovingCloudAndStar:
 RandomCustomerTimeoutBasedOnDifficulty:
 	@ args = 0, pretend = 0, frame = 0
 	@ frame_needed = 1, uses_anonymous_args = 0
-	push	{fp, lr}
+	PUSH	{fp, lr}
 	add	fp, sp, #4
 	ldr	r3, .L264+40
 	ldr	r3, [r3]
@@ -5109,7 +5109,7 @@ RandomCustomerTimeoutBasedOnDifficulty:
 RandomCustomerInitialResetBasedOnDifficulty:
 	@ args = 0, pretend = 0, frame = 8
 	@ frame_needed = 1, uses_anonymous_args = 0
-	push	{r4, fp, lr}
+	PUSH	{r4, fp, lr}
 	add	fp, sp, #8
 	sub	sp, sp, #12
 	str	r0, [fp, #-16]
@@ -5253,7 +5253,7 @@ RandomCustomerInitialResetBasedOnDifficulty:
 RandomCustomerResetBasedOnDifficulty:
 	@ args = 0, pretend = 0, frame = 0
 	@ frame_needed = 1, uses_anonymous_args = 0
-	push	{fp, lr}
+	PUSH	{fp, lr}
 	add	fp, sp, #4
 	ldr	r3, .L282+40
 	ldr	r3, [r3]
@@ -5323,7 +5323,7 @@ RandomCustomerResetBasedOnDifficulty:
 RandomGenerateOrder:
 	@ args = 0, pretend = 0, frame = 16
 	@ frame_needed = 1, uses_anonymous_args = 0
-	push	{fp, lr}
+	PUSH	{fp, lr}
 	add	fp, sp, #4
 	sub	sp, sp, #16
 	str	r0, [fp, #-16]
@@ -5556,8 +5556,8 @@ RandomGenerateOrder:
 DrawCustomer:
 	@ args = 0, pretend = 0, frame = 280
 	@ frame_needed = 1, uses_anonymous_args = 0
-	push	{r4, r5, r6, fp, lr}
-	vpush.64	{d8}
+	PUSH	{r4, r5, r6, fp, lr}
+	vPUSH.64	{d8}
 	add	fp, sp, #24
 	sub	sp, sp, #316
 	str	r0, [fp, #-304]
@@ -6497,7 +6497,7 @@ UpdateMenuCustomerBlink:
 DrawCustomerInMenu:
 	@ args = 0, pretend = 0, frame = 8
 	@ frame_needed = 1, uses_anonymous_args = 0
-	push	{fp, lr}
+	PUSH	{fp, lr}
 	add	fp, sp, #4
 	sub	sp, sp, #8
 	vstr.64	d0, [fp, #-12]
@@ -6577,7 +6577,7 @@ DrawCustomerInMenu:
 DrawOuterWorld:
 	@ args = 0, pretend = 0, frame = 16
 	@ frame_needed = 1, uses_anonymous_args = 0
-	push	{fp, lr}
+	PUSH	{fp, lr}
 	add	fp, sp, #4
 	sub	sp, sp, #24
 	vldr.32	s15, .L354
@@ -6687,7 +6687,7 @@ DrawOuterWorld:
 SetRuntimeResolution:
 	@ args = 0, pretend = 0, frame = 24
 	@ frame_needed = 1, uses_anonymous_args = 0
-	push	{fp, lr}
+	PUSH	{fp, lr}
 	add	fp, sp, #4
 	sub	sp, sp, #24
 	str	r0, [fp, #-16]
@@ -6770,7 +6770,7 @@ SetRuntimeResolution:
 IsMousePositionInGameWindow:
 	@ args = 0, pretend = 0, frame = 24
 	@ frame_needed = 1, uses_anonymous_args = 0
-	push	{fp, lr}
+	PUSH	{fp, lr}
 	add	fp, sp, #4
 	sub	sp, sp, #32
 	str	r0, [fp, #-24]
@@ -6846,8 +6846,8 @@ IsMousePositionInGameWindow:
 DrawDebugLogs:
 	@ args = 0, pretend = 0, frame = 40
 	@ frame_needed = 1, uses_anonymous_args = 0
-	push	{r4, r5, fp, lr}
-	vpush.64	{d8}
+	PUSH	{r4, r5, fp, lr}
+	vPUSH.64	{d8}
 	add	fp, sp, #20
 	sub	sp, sp, #72
 	str	r0, [fp, #-56]
@@ -6996,7 +6996,7 @@ DrawDebugLogs:
 DrawFpsGraph:
 	@ args = 0, pretend = 0, frame = 120
 	@ frame_needed = 1, uses_anonymous_args = 0
-	push	{r4, fp, lr}
+	PUSH	{r4, fp, lr}
 	add	fp, sp, #8
 	sub	sp, sp, #156
 	str	r0, [fp, #-128]
@@ -7401,7 +7401,7 @@ DrawFpsGraph:
 DrawFrameTime:
 	@ args = 0, pretend = 0, frame = 128
 	@ frame_needed = 1, uses_anonymous_args = 0
-	push	{r4, fp, lr}
+	PUSH	{r4, fp, lr}
 	add	fp, sp, #8
 	sub	sp, sp, #164
 	str	r0, [fp, #-136]
@@ -7796,7 +7796,7 @@ DrawFrameTime:
 UpdateDebugFpsHistory:
 	@ args = 0, pretend = 0, frame = 0
 	@ frame_needed = 1, uses_anonymous_args = 0
-	push	{r4, r5, fp, lr}
+	PUSH	{r4, r5, fp, lr}
 	add	fp, sp, #12
 	ldr	r3, .L447
 	ldr	r4, [r3]
@@ -7839,7 +7839,7 @@ UpdateDebugFpsHistory:
 UpdateDebugFrameTimeHistory:
 	@ args = 0, pretend = 0, frame = 0
 	@ frame_needed = 1, uses_anonymous_args = 0
-	push	{fp, lr}
+	PUSH	{fp, lr}
 	add	fp, sp, #4
 	bl	GetFrameTime
 	vmov.f32	s15, s0
@@ -7900,8 +7900,8 @@ UpdateDebugFrameTimeHistory:
 DrawDebugStats:
 	@ args = 0, pretend = 0, frame = 88
 	@ frame_needed = 1, uses_anonymous_args = 0
-	push	{r4, fp, lr}
-	vpush.64	{d8}
+	PUSH	{r4, fp, lr}
+	vPUSH.64	{d8}
 	add	fp, sp, #16
 	sub	sp, sp, #148
 	str	r0, [fp, #-104]
@@ -8219,8 +8219,8 @@ DrawDebugStats:
 DrawDebugOverlay:
 	@ args = 0, pretend = 0, frame = 112
 	@ frame_needed = 1, uses_anonymous_args = 0
-	push	{r4, fp, lr}
-	vpush.64	{d8}
+	PUSH	{r4, fp, lr}
+	vPUSH.64	{d8}
 	add	fp, sp, #16
 	sub	sp, sp, #148
 	str	r0, [fp, #-128]
@@ -8692,7 +8692,7 @@ DrawDebugOverlay:
 CreateCustomerWithOrder:
 	@ args = 0, pretend = 0, frame = 136
 	@ frame_needed = 1, uses_anonymous_args = 0
-	push	{fp, lr}
+	PUSH	{fp, lr}
 	add	fp, sp, #4
 	sub	sp, sp, #136
 	str	r0, [fp, #-104]
@@ -8765,7 +8765,7 @@ CreateCustomerWithOrder:
 validiator:
 	@ args = 0, pretend = 0, frame = 8
 	@ frame_needed = 1, uses_anonymous_args = 0
-	push	{fp, lr}
+	PUSH	{fp, lr}
 	add	fp, sp, #4
 	sub	sp, sp, #8
 	str	r0, [fp, #-8]
@@ -8807,7 +8807,7 @@ validiator:
 render_customers:
 	@ args = 0, pretend = 0, frame = 8
 	@ frame_needed = 1, uses_anonymous_args = 0
-	push	{fp, lr}
+	PUSH	{fp, lr}
 	add	fp, sp, #4
 	sub	sp, sp, #8
 	str	r0, [fp, #-8]
@@ -8850,7 +8850,7 @@ render_customers:
 RemoveCustomer:
 	@ args = 0, pretend = 0, frame = 8
 	@ frame_needed = 1, uses_anonymous_args = 0
-	push	{fp, lr}
+	PUSH	{fp, lr}
 	add	fp, sp, #4
 	sub	sp, sp, #8
 	str	r0, [fp, #-8]
@@ -8882,7 +8882,7 @@ RemoveCustomer:
 UpdateCustomerState:
 	@ args = 0, pretend = 0, frame = 16
 	@ frame_needed = 1, uses_anonymous_args = 0
-	push	{fp, lr}
+	PUSH	{fp, lr}
 	add	fp, sp, #4
 	sub	sp, sp, #16
 	str	r0, [fp, #-16]
@@ -9006,7 +9006,7 @@ UpdateCustomerState:
 Tick:
 	@ args = 0, pretend = 0, frame = 8
 	@ frame_needed = 1, uses_anonymous_args = 0
-	push	{fp, lr}
+	PUSH	{fp, lr}
 	add	fp, sp, #4
 	sub	sp, sp, #8
 	str	r0, [fp, #-8]
@@ -9039,7 +9039,7 @@ Tick:
 PlaySoundFx:
 	@ args = 0, pretend = 0, frame = 112
 	@ frame_needed = 1, uses_anonymous_args = 0
-	push	{fp, lr}
+	PUSH	{fp, lr}
 	add	fp, sp, #4
 	sub	sp, sp, #120
 	str	r0, [fp, #-112]
@@ -9499,7 +9499,7 @@ PlaySoundFx:
 WindowUpdate:
 	@ args = 0, pretend = 0, frame = 24
 	@ frame_needed = 1, uses_anonymous_args = 0
-	push	{r4, fp, lr}
+	PUSH	{r4, fp, lr}
 	add	fp, sp, #8
 	sub	sp, sp, #52
 	str	r0, [fp, #-32]
@@ -9883,7 +9883,7 @@ WindowUpdate:
 LoadGlobalAssets:
 	@ args = 0, pretend = 0, frame = 192
 	@ frame_needed = 1, uses_anonymous_args = 0
-	push	{r4, fp, lr}
+	PUSH	{r4, fp, lr}
 	add	fp, sp, #8
 	sub	sp, sp, #196
 	bl	GetTime
@@ -10971,7 +10971,7 @@ LoadGlobalAssets:
 UnloadGlobalAssets:
 	@ args = 0, pretend = 0, frame = 8
 	@ frame_needed = 1, uses_anonymous_args = 0
-	push	{r4, fp, lr}
+	PUSH	{r4, fp, lr}
 	add	fp, sp, #8
 	sub	sp, sp, #36
 	ldr	r3, .L573
@@ -11202,7 +11202,7 @@ UnloadGlobalAssets:
 PlayBgm:
 	@ args = 0, pretend = 0, frame = 8
 	@ frame_needed = 1, uses_anonymous_args = 0
-	push	{r4, fp, lr}
+	PUSH	{r4, fp, lr}
 	add	fp, sp, #8
 	sub	sp, sp, #36
 	str	r0, [fp, #-16]
@@ -11302,7 +11302,7 @@ PlayBgm:
 PlayBgmIfStopped:
 	@ args = 0, pretend = 0, frame = 8
 	@ frame_needed = 1, uses_anonymous_args = 0
-	push	{r4, fp, lr}
+	PUSH	{r4, fp, lr}
 	add	fp, sp, #8
 	sub	sp, sp, #36
 	str	r0, [fp, #-16]
@@ -11403,7 +11403,7 @@ PlayBgmIfStopped:
 PauseBgm:
 	@ args = 0, pretend = 0, frame = 8
 	@ frame_needed = 1, uses_anonymous_args = 0
-	push	{r4, fp, lr}
+	PUSH	{r4, fp, lr}
 	add	fp, sp, #8
 	sub	sp, sp, #36
 	str	r0, [fp, #-16]
@@ -11453,7 +11453,7 @@ PauseBgm:
 StopBgm:
 	@ args = 0, pretend = 0, frame = 8
 	@ frame_needed = 1, uses_anonymous_args = 0
-	push	{r4, fp, lr}
+	PUSH	{r4, fp, lr}
 	add	fp, sp, #8
 	sub	sp, sp, #36
 	str	r0, [fp, #-16]
@@ -11550,7 +11550,7 @@ ColorAlphaOverride:
 ColorLerp:
 	@ args = 0, pretend = 0, frame = 24
 	@ frame_needed = 1, uses_anonymous_args = 0
-	push	{fp, lr}
+	PUSH	{fp, lr}
 	add	fp, sp, #4
 	sub	sp, sp, #24
 	str	r0, [fp, #-16]
@@ -11729,8 +11729,8 @@ ColorLerp:
 DrawDayNightCycle:
 	@ args = 0, pretend = 0, frame = 88
 	@ frame_needed = 1, uses_anonymous_args = 0
-	push	{r4, fp, lr}
-	vpush.64	{d8}
+	PUSH	{r4, fp, lr}
+	vPUSH.64	{d8}
 	add	fp, sp, #16
 	sub	sp, sp, #124
 	vstr.64	d0, [fp, #-108]
@@ -11999,7 +11999,7 @@ DrawDayNightCycle:
 OptionsUpdate:
 	@ args = 0, pretend = 0, frame = 784
 	@ frame_needed = 1, uses_anonymous_args = 0
-	push	{r4, r5, fp, lr}
+	PUSH	{r4, r5, fp, lr}
 	add	fp, sp, #12
 	sub	sp, sp, #816
 	str	r0, [fp, #-792]
@@ -14454,7 +14454,7 @@ OptionsUpdate:
 RandomCustomerTexture:
 	@ args = 0, pretend = 0, frame = 8
 	@ frame_needed = 1, uses_anonymous_args = 0
-	push	{fp, lr}
+	PUSH	{fp, lr}
 	add	fp, sp, #4
 	sub	sp, sp, #8
 	mov	r0, #0
@@ -14524,8 +14524,8 @@ RandomCustomerTexture:
 GameUpdate:
 	@ args = 0, pretend = 0, frame = 1976
 	@ frame_needed = 1, uses_anonymous_args = 0
-	push	{r4, r5, fp, lr}
-	vpush.64	{d8}
+	PUSH	{r4, r5, fp, lr}
+	vPUSH.64	{d8}
 	add	fp, sp, #20
 	sub	sp, sp, #2128
 	str	r0, [fp, #-1992]
@@ -17409,7 +17409,7 @@ ResetGameState:
 endgameUpdate:
 	@ args = 0, pretend = 0, frame = 176
 	@ frame_needed = 1, uses_anonymous_args = 0
-	push	{r4, fp, lr}
+	PUSH	{r4, fp, lr}
 	add	fp, sp, #8
 	sub	sp, sp, #212
 	str	r0, [fp, #-184]
@@ -17807,8 +17807,8 @@ endgameUpdate:
 MainMenuUpdate:
 	@ args = 0, pretend = 0, frame = 448
 	@ frame_needed = 1, uses_anonymous_args = 0
-	push	{r4, fp, lr}
-	vpush.64	{d8, d9}
+	PUSH	{r4, fp, lr}
+	vPUSH.64	{d8, d9}
 	add	fp, sp, #24
 	sub	sp, sp, #484
 	str	r0, [fp, #-464]
@@ -19313,7 +19313,7 @@ MainMenuUpdate:
 SplashUpdate:
 	@ args = 0, pretend = 0, frame = 200
 	@ frame_needed = 1, uses_anonymous_args = 0
-	push	{fp, lr}
+	PUSH	{fp, lr}
 	add	fp, sp, #4
 	sub	sp, sp, #208
 	str	r0, [fp, #-200]
@@ -19841,7 +19841,7 @@ SplashUpdate:
 main:
 	@ args = 0, pretend = 0, frame = 112
 	@ frame_needed = 1, uses_anonymous_args = 0
-	push	{r4, fp, lr}
+	PUSH	{r4, fp, lr}
 	add	fp, sp, #8
 	sub	sp, sp, #124
 	mov	r0, #4
