@@ -20,6 +20,8 @@
 .global RandomCustomerBlinkTime
 .global RandomCustomerResetBasedOnDifficulty
 .global RandomCustomerTimeoutBasedOnDifficulty
+.global tickBoil
+
 @ Adds two values
 .ADD:
 	ADD R0, R0, R1
