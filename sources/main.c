@@ -782,6 +782,7 @@ Texture2D* DragAndDropIngredient(Ingredient* object, Cup* cup, Camera2D* camera)
                 object->canChangeCupTexture = false;
                 PlaySoundFx(FX_FLICK);
                 boilWater(object);
+                return &object->texture;
             }
 
             else
@@ -2900,6 +2901,7 @@ void GameUpdate(Camera2D *camera)
             if (options->difficulty != FREEPLAY_EASY && options->difficulty != FREEPLAY_MEDIUM && options->difficulty != FREEPLAY_HARD)
 			{
                 endgameUpdate(camera);
+
 			}
         }
         
