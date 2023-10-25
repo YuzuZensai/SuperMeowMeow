@@ -667,7 +667,7 @@ void UpdateCupImage(Cup* cup, Ingredient* ingredient) {
         }
     }
     // if empty then set filename to EMPTY
-    if (strcmp(filename, "") == 0) {
+    if (FTStrcmp(filename, "") == 0) {
         strcat(filename, "EMPTY");
     }
 
