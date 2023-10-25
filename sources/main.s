@@ -15,6 +15,7 @@ max: .double 1.0
 .global validiator
 .global PauseBgm
 .global FTStrcmp
+.global FTStrcat
 
 .ADD:
 	ADD R0, R0, R1
@@ -492,6 +493,7 @@ square:
         MOV     SP, R7
         LDR     R7, [SP], #4
         BX      LR
+
 FTStrcmp:
         push    {R7}
         sub     SP, SP, #20
@@ -500,12 +502,12 @@ FTStrcmp:
         STR     R1, [R7]
         MOVS    R3, #0
         STR     R3, [R7, #12]
-        B       .L4
-.L6:
+        B       .CmpStart
+.CmpContinue:
         LDR     R3, [R7, #12]
         ADDS    R3, R3, #1
         STR     R3, [R7, #12]
-.L4:
+.CmpStart:
         LDR     R3, [R7, #12]
         LDR     R2, [R7, #4]
         ADD     R3, R3, R2
@@ -515,20 +517,20 @@ FTStrcmp:
         ADD     R3, R3, R1
         LDRB    R3, [R3]        
         CMP     R2, R3
-        BNE     .L5
+        BNE     .CmpEnd
         LDR     R3, [R7, #12]
         LDR     R2, [R7, #4]
         ADD     R3, R3, R2
         LDRB    R3, [R3]        
         CMP     R3, #0
-        BEQ     .L5
+        BEQ     .CmpEnd
         LDR     R3, [R7, #12]
         LDR     R2, [R7]
         ADD     R3, R3, R2
         LDRB    R3, [R3]        
         CMP     R3, #0
-        BNE     .L6
-.L5:
+        BNE     .CmpContinue
+.CmpEnd:
         LDR     R3, [R7, #12]
         LDR     R2, [R7, #4]
         ADD     R3, R3, R2
@@ -545,7 +547,8 @@ FTStrcmp:
         LDR     R7, [SP], #4
         BX      LR
 
-ft_strcat:
+
+FTStrcat:
         push    {R7}
         sub     SP, SP, #20
         ADD     R7, SP, #0
@@ -567,7 +570,7 @@ ft_strcat:
         BNE     .L3
         MOVS    R3, #0
         STR     R3, [R7, #8]
-        B       .L4
+        B       CmpStart
 .L5:
         LDR     R3, [R7, #8]
         LDR     R2, [R7]
@@ -583,7 +586,7 @@ ft_strcat:
         LDR     R3, [R7, #8]
         ADDS    R3, R3, #1
         STR     R3, [R7, #8]
-.L4:
+CmpStart:
         LDR     R3, [R7, #8]
         LDR     R2, [R7]
         ADD     R3, R3, R2
