@@ -596,7 +596,7 @@ void UpdateCupImage(Cup* cup, Ingredient* ingredient) {
     char filename[100];
 
     // Initialize filename to empty string
-    strcpy(filename, "");
+    FTStrcpy(filename, "");
 
     switch (cup->powderType)
     {
@@ -672,11 +672,11 @@ void UpdateCupImage(Cup* cup, Ingredient* ingredient) {
     }
 
     // Save filename to cup->order
-    strcpy(cup->order, filename);
+    FTStrcpy(cup->order, filename);
 
     FTStrcat(filename, ".png");
     char path[1000];
-    strcpy(path, ASSETS_PATH"combination/");
+    FTStrcpy(path, ASSETS_PATH"combination/");
     FTStrcat(path, filename);
     // set cup texture to the filename
     LogDebug("Powder type: %d, Water: %d, Creamer: %d, Topping: %d, Sauce: %d\n", cup->powderType, cup->hasWater, cup->creamerType, cup->toppingType, cup->sauceType);
@@ -1654,7 +1654,7 @@ Customer CreateCustomerWithOrder(int patience, double currentTime, int orderEnd,
 
     newCustomer.currentTime = currentTime;
     newCustomer.orderEnd = orderEnd * patience;
-	strcpy(newCustomer.order, "");
+	FTStrcpy(newCustomer.order, "");
 	RandomGenerateOrder(newCustomer.order);
     return newCustomer;
 }
@@ -1741,7 +1741,7 @@ void UpdateCustomerState(Customer* customer, float deltaTime) {
             customer->currentTime = 0;
             customer->orderEnd = RandomCustomerTimeoutBasedOnDifficulty();
             customer->visible = true;
-            strcpy(customer->order, "");
+            FTStrcpy(customer->order, "");
             RandomGenerateOrder(customer->order);
         }
     }
@@ -2010,6 +2010,8 @@ extern void PauseBgm(Music *bgm);
 extern int FTStrcmp(const char* str1, const char* str2);
 
 extern int FTStrcat(char* dst, const char* src);
+
+extern int FTStrcpy(char* dst, const char* src);
 
 void StopBgm(Music *bgm)
 {
