@@ -6,7 +6,7 @@ max: .double 1.0
 .text
 .align 2
 
-.global add
+.global ADD
 .global sub
 .global boilWater
 .global IsNight
@@ -15,8 +15,8 @@ max: .double 1.0
 .global validiator
 .global PauseBgm
 
-.add:
-	add r0, r0, r1
+.ADD:
+	ADD r0, r0, r1
 	BX LR
 
 .sub:
@@ -38,8 +38,8 @@ max: .double 1.0
 GetRandomDoubleValue:
 	@ args = 0, pretend = 0, frame = 16
 	@ frame_needed = 1, uses_anonymous_args = 0
-	push	{fp, lr}
-	add	fp, sp, #4
+	PUSH	{fp, lr}
+	ADD	fp, sp, #4
 	sub	sp, sp, #16
 	vstr.64	d0, [fp, #-12]
 	vstr.64	d1, [fp, #-20]
@@ -80,8 +80,8 @@ GetRandomDoubleValue:
 RandomCustomerBlinkTime:
 	@ args = 0, pretend = 0, frame = 8
 	@ frame_needed = 1, uses_anonymous_args = 0
-	push	{fp, lr}
-	add	fp, sp, #4
+	PUSH	{fp, lr}
+	ADD	fp, sp, #4
 	sub	sp, sp, #8
 	str	r0, [fp, #-8]
 	vldr.64	d1, .L14
@@ -104,8 +104,8 @@ RandomCustomerBlinkTime:
 boilWater:
 	@ args = 0, pretend = 0, frame = 8
 	@ frame_needed = 1, uses_anonymous_args = 0
-	push	{fp, lr}
-	add	fp, sp, #4
+	PUSH	{fp, lr}
+	ADD	fp, sp, #4
 	sub	sp, sp, #8
 	str	r0, [fp, #-8]
 	ldr	r3, [fp, #-8]
@@ -140,7 +140,7 @@ IsNight:
 	@ frame_needed = 1, uses_anonymous_args = 0
 	@ link register save eliminated.
 	str	fp, [sp, #-4]!
-	add	fp, sp, #0
+	ADD	fp, sp, #0
 	ldr	r3, .L207+8
 	ldr	r3, [r3]
 	cmp	r3, #3
@@ -170,7 +170,7 @@ IsNight:
 	and	r3, r3, #1
 	uxtb	r3, r3
 	mov	r0, r3
-	add	sp, fp, #0
+	ADD	sp, fp, #0
 	@ sp needed
 	ldr	fp, [sp], #4
 	bx	lr
@@ -178,8 +178,8 @@ IsNight:
 PlayBgm:
 	@ args = 0, pretend = 0, frame = 8
 	@ frame_needed = 1, uses_anonymous_args = 0
-	push	{r4, fp, lr}
-	add	fp, sp, #8
+	PUSH	{r4, fp, lr}
+	ADD	fp, sp, #8
 	sub	sp, sp, #36
 	str	r0, [fp, #-16]
 	ldr	r3, .L580+4
@@ -198,7 +198,7 @@ PlayBgm:
 	beq	.L579
 	ldr	r4, [fp, #-16]
 	mov	lr, sp
-	add	ip, r4, #16
+	ADD	ip, r4, #16
 	ldmia	ip!, {r0, r1, r2, r3}
 	stmia	lr!, {r0, r1, r2, r3}
 	ldr	r3, [ip]
@@ -233,7 +233,7 @@ PlayBgm:
 	ldr	r3, .L580+4
 	ldr	r4, [r3]
 	mov	lr, sp
-	add	ip, r4, #16
+	ADD	ip, r4, #16
 	ldmia	ip!, {r0, r1, r2, r3}
 	stmia	lr!, {r0, r1, r2, r3}
 	ldr	r3, [ip]
@@ -243,7 +243,7 @@ PlayBgm:
 	ldr	r3, .L580+4
 	ldr	r4, [r3]
 	mov	lr, sp
-	add	ip, r4, #16
+	ADD	ip, r4, #16
 	ldmia	ip!, {r0, r1, r2, r3}
 	stmia	lr!, {r0, r1, r2, r3}
 	ldr	r3, [ip]
@@ -254,7 +254,7 @@ PlayBgm:
 	ldr	r4, [r3]
 	vldr.32	s15, .L580
 	mov	lr, sp
-	add	ip, r4, #16
+	ADD	ip, r4, #16
 	ldmia	ip!, {r0, r1, r2, r3}
 	stmia	lr!, {r0, r1, r2, r3}
 	ldr	r3, [ip]
@@ -279,8 +279,8 @@ PlayBgm:
 PlayBgmIfStopped:
 	@ args = 0, pretend = 0, frame = 8
 	@ frame_needed = 1, uses_anonymous_args = 0
-	push	{r4, fp, lr}
-	add	fp, sp, #8
+	PUSH	{r4, fp, lr}
+	ADD	fp, sp, #8
 	sub	sp, sp, #36
 	str	r0, [fp, #-16]
 	ldr	r3, .L587+4
@@ -299,7 +299,7 @@ PlayBgmIfStopped:
 	beq	.L586
 	ldr	r4, [fp, #-16]
 	mov	lr, sp
-	add	ip, r4, #16
+	ADD	ip, r4, #16
 	ldmia	ip!, {r0, r1, r2, r3}
 	stmia	lr!, {r0, r1, r2, r3}
 	ldr	r3, [ip]
@@ -309,7 +309,7 @@ PlayBgmIfStopped:
 	vldr.32	s15, .L587
 	ldr	r4, [fp, #-16]
 	mov	lr, sp
-	add	ip, r4, #16
+	ADD	ip, r4, #16
 	ldmia	ip!, {r0, r1, r2, r3}
 	stmia	lr!, {r0, r1, r2, r3}
 	ldr	r3, [ip]
@@ -343,7 +343,7 @@ PlayBgmIfStopped:
 	ldr	r3, .L587+4
 	ldr	r4, [r3]
 	mov	lr, sp
-	add	ip, r4, #16
+	ADD	ip, r4, #16
 	ldmia	ip!, {r0, r1, r2, r3}
 	stmia	lr!, {r0, r1, r2, r3}
 	ldr	r3, [ip]
@@ -354,7 +354,7 @@ PlayBgmIfStopped:
 	ldr	r4, [r3]
 	vldr.32	s15, .L587
 	mov	lr, sp
-	add	ip, r4, #16
+	ADD	ip, r4, #16
 	ldmia	ip!, {r0, r1, r2, r3}
 	stmia	lr!, {r0, r1, r2, r3}
 	ldr	r3, [ip]
@@ -379,19 +379,19 @@ PlayBgmIfStopped:
 validiator:
 	@ args = 0, pretend = 0, frame = 8
 	@ frame_needed = 1, uses_anonymous_args = 0
-	push	{fp, lr}
-	add	fp, sp, #4
+	PUSH	{fp, lr}
+	ADD	fp, sp, #4
 	sub	sp, sp, #8
 	str	r0, [fp, #-8]
 	str	r1, [fp, #-12]
 	ldr	r3, [fp, #-8]
-	add	r3, r3, #34
+	ADD	r3, r3, #34
 	mov	r2, r3
 	ldr	r1, [fp, #-12]
 	ldr	r0, .L500
 	bl	LogDebug
 	ldr	r3, [fp, #-8]
-	add	r3, r3, #34
+	ADD	r3, r3, #34
 	ldr	r1, [fp, #-12]
 	mov	r0, r3
 	bl	strcmp
@@ -431,8 +431,8 @@ validiator:
 PauseBgm:
 	@ args = 0, pretend = 0, frame = 8
 	@ frame_needed = 1, uses_anonymous_args = 0
-	push	{r4, fp, lr}
-	add	fp, sp, #8
+	PUSH	{r4, fp, lr}
+	ADD	fp, sp, #8
 	sub	sp, sp, #36
 	str	r0, [fp, #-16]
 	ldr	r3, .L595
@@ -446,7 +446,7 @@ PauseBgm:
 	bne	.L594
 	ldr	r4, [fp, #-16]
 	mov	lr, sp
-	add	ip, r4, #16
+	ADD	ip, r4, #16
 	ldmia	ip!, {r0, r1, r2, r3}
 	stmia	lr!, {r0, r1, r2, r3}
 	ldr	r3, [ip]

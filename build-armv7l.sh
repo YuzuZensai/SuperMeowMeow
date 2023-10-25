@@ -4,6 +4,6 @@ export PLATFORM=PLATFORM_DESKTOP
 export GRAPHICS=GRAPHICS_API_OPENGL_21
 # sudo apt install xorg-dev -y
 
-cmake -S . -B build -B
+cmake -S . -B build
 cd build
 make
