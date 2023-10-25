@@ -28,7 +28,7 @@
 	SUB R0, R0, R1
 	BX LR
 
-
+@ RandomCustomerBlinkTime
 RandomCustomerBlinkTime:
 	PUSH	{FP, LR}
 	ADD	FP, SP, #4
@@ -66,6 +66,7 @@ RandomCustomerBlinkTime:
 	.fpu vfp
 	.type	CreateCustomer, %function
 
+@ IsNight
 IsNight:
 	STR	FP, [SP, #-4]!
 	ADD	FP, SP, #0
@@ -83,6 +84,7 @@ IsNight:
 	MOV	R3, #1
 	B	.returnIsNight
 
+@ colorTransitionData
 .colorTransitionData:
 	.word	-1717986918
 	.word	1071225241
@@ -92,8 +94,11 @@ IsNight:
 	.section	.rodata
 	.align	2
 
+@ checkIfNight
 .checkIfNight:
 	MOV	R3, #0
+
+@ returnIsNight
 .returnIsNight:
 	and	R3, R3, #1
 	UXTB	R3, R3
@@ -102,6 +107,7 @@ IsNight:
 	LDR	FP, [SP], #4
 	BX	LR
 
+@ Play Bgm
 PlayBgm:
 	PUSH	{R4, FP, LR}
 	ADD	FP, SP, #8
