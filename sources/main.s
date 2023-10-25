@@ -480,7 +480,7 @@ PauseBgm:
 	pop	{r4, fp, pc}
 
 .global l_strstr
-strstr:
+l_strstr:
     push {r4, r5, r6, lr}
     mov r5, r0
     mov r6, r1
@@ -499,7 +499,7 @@ not_found:
     pop {r4, r5, r6, pc}
 
 .global l_strcat
-strcat:
+l_strcat:
     push {r4-r7, lr}
     mov r4, r0
 loop2:
@@ -515,7 +515,7 @@ loop3:
     pop {r4-r7, pc}
 
 .global l_strcmp
-strcmp:
+l_strcmp:
     push {r4-r6, lr}
 loop4:
     ldrb r2, [r0], #1
