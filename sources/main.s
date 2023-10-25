@@ -1,7 +1,5 @@
 .data
 .align 3
-min: .double 0.0
-max: .double 1.0
 
 .text
 .align 2
@@ -16,50 +14,12 @@ max: .double 1.0
 .global PauseBgm
 .global FTStrcmp
 .global FTStrcat
-
-.ADD:
 	ADD R0, R0, R1
 	BX LR
 
 .SUB:
 	SUB R0, R0, R1
 	BX LR
-
-.DOUBLE_CONST:
-	.word	-4194304
-	.word	1105199103
-	.size	GetRandomDoubleValue, .-GetRandomDoubleValue
-	.align	2
-	.global	RandomCustomerBlinkTime
-	.syntax unified
-	.arm
-	.fpu vfp
-	.type	RandomCustomerBlinkTime, %function
-
-.global GetRandomDoubleValue
-GetRandomDoubleValue:
-	@ args = 0, pretend = 0, frame = 16
-	@ frame_needed = 1, uses_anonymous_args = 0
-	PUSH	{FP, LR}
-	ADD	FP, SP, #4
-	SUB	SP, SP, #16
-	VSTR.64	d0, [FP, #-12]
-	VSTR.64	d1, [FP, #-20]
-	BL	rand
-	VMOV	S15, R0	@ int
-	VCVT.f64.s32	d7, S15
-	VLDR.64	d5, .DOUBLE_CONST
-	VDIV.f64	d6, d7, d5
-	VLDR.64	d5, [FP, #-20]
-	VLDR.64	d7, [FP, #-12]
-	VSUB.f64	d7, d5, d7
-	VMUL.f64	d6, d6, d7
-	VLDR.64	d7, [FP, #-12]
-	VADD.f64	d7, d6, d7
-	VMOV.f64	d0, d7
-	SUB	SP, FP, #4
-	@ SP needed
-	POP	{FP, PC}
 
 .L14:
 	.word	0

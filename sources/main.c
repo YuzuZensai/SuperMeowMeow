@@ -7,6 +7,7 @@
 #include <stddef.h>
 #include <time.h> 
 #include <string.h>
+#include "submain.c"
 
 // Render resolution
 #define BASE_SCREEN_WIDTH 1920
@@ -368,6 +369,14 @@ typedef struct {
 
 DropArea plate;
 
+double GetRandomDoubleValue(double min, double max)
+{
+    double range = (max - min);
+    double div = RAND_MAX / range;
+    double randomDouble = min + (rand() / div);
+    printf(TextFormat("Random value: %.2f", randomDouble));
+}
+
 int GetRandomIntValue(int min_num, int max_num)
 {
     int result = 0, low_num = 0, hi_num = 0;
@@ -385,7 +394,6 @@ int GetRandomIntValue(int min_num, int max_num)
     return result;
 }
 
-extern double GetRandomDoubleValue(double min, double max);
 extern void RandomCustomerBlinkTime(Customer* customer);
 extern void boilWater(Ingredient* item);
 
@@ -3387,6 +3395,15 @@ void SplashUpdate(Camera2D* camera)
 
 int main()
 {
+    // Test double debug
+    for(int i = 0; i < 10; i++)
+    {
+        double min = 0;
+        double max = 69.69;
+        double randomVal = GetRandomDoubleValue(min, max);
+        LogDebug("Min : %f, Max : %f, Value : %f", min, max, randomVal);
+    }
+
     SetConfigFlags(FLAG_WINDOW_RESIZABLE);
     SetConfigFlags(FLAG_MSAA_4X_HINT);
 

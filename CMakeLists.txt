@@ -17,14 +17,16 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(raylib)
 
-# Adding our source files
+# Add the assembly and C source files to your project
 file(GLOB_RECURSE PROJECT_SOURCES_ASM CONFIGURE_DEPENDS "${CMAKE_CURRENT_LIST_DIR}/sources/*.s") 
-file(GLOB_RECURSE PROJECT_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_LIST_DIR}/sources/*.c") # Define PROJECT_SOURCES as a list of all source files
+file(GLOB_RECURSE PROJECT_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_LIST_DIR}/sources/*.c")
+
 set(PROJECT_INCLUDE "${CMAKE_CURRENT_LIST_DIR}/sources/") # Define PROJECT_INCLUDE to be the path to the include directory of the project
 
-# Declaring our executable
-add_executable(${PROJECT_NAME})
-target_sources(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCES_ASM} ${PROJECT_SOURCES})
+# Declare the assembly and C source files as sources for your executable
+add_executable(${PROJECT_NAME} ${PROJECT_SOURCES_ASM} ${PROJECT_SOURCES})
+
+target_sources(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCES} ${PROJECT_SOURCES_ASM})
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_INCLUDE})
 
 if ((${CMAKE_SYSTEM_PROCESSOR} STREQUAL "armv7l" OR ${CMAKE_SYSTEM_PROCESSOR} STREQUAL "aarch64") AND ${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
