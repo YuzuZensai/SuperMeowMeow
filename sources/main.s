@@ -556,22 +556,22 @@ FTStrcat:
         STR     R1, [R7]
         MOVS    R3, #0
         STR     R3, [R7, #12]
-        B       .L2
-.L3:
+        B       .CatDecide
+.CatContinue:
         LDR     R3, [R7, #12]
         ADDS    R3, R3, #1
         STR     R3, [R7, #12]
-.L2:
+.CatDecide:
         LDR     R3, [R7, #12]
         LDR     R2, [R7, #4]
         ADD     R3, R3, R2
         LDRB    R3, [R3]
         CMP     R3, #0
-        BNE     .L3
+        BNE     .CatContinue
         MOVS    R3, #0
         STR     R3, [R7, #8]
-        B       CmpStart
-.L5:
+        B       .CatStart
+.CatContinue2:
         LDR     R3, [R7, #8]
         LDR     R2, [R7]
         ADD     R2, R2, R3
@@ -586,13 +586,13 @@ FTStrcat:
         LDR     R3, [R7, #8]
         ADDS    R3, R3, #1
         STR     R3, [R7, #8]
-CmpStart:
+.CatStart:
         LDR     R3, [R7, #8]
         LDR     R2, [R7]
         ADD     R3, R3, R2
         LDRB    R3, [R3]
         CMP     R3, #0
-        BNE     .L5
+        BNE     .CatContinue2
         LDR     R2, [R7, #12]
         LDR     R3, [R7, #8]
         ADD     R3, R3, R2

@@ -602,11 +602,11 @@ void UpdateCupImage(Cup* cup, Ingredient* ingredient) {
     {
     case GREEN_TEA:
         // cup->texture = LoadTexture(ASSETS_PATH"/combination/milktea.png"); // Change to the tea cup texture
-        strcat(filename, "GP");
+        FTStrcat(filename, "GP");
         break;
     case COCOA:
         // cup->texture = LoadTexture(ASSETS_PATH"/combination/milkcocoa.png"); // Change to the cocoa cup texture
-        strcat(filename, "CP");
+        FTStrcat(filename, "CP");
         break;
     default:
         break;
@@ -616,10 +616,10 @@ void UpdateCupImage(Cup* cup, Ingredient* ingredient) {
         switch (cup->hasWater)
         {
         case true:
-            strcat(filename, "Y");
+            FTStrcat(filename, "Y");
             break;
         case false:
-            strcat(filename, "N");
+            FTStrcat(filename, "N");
             break;
         default:
             break;
@@ -629,10 +629,10 @@ void UpdateCupImage(Cup* cup, Ingredient* ingredient) {
         switch (cup->creamerType)
         {
         case CONDENSED_MILK:
-            strcat(filename, "CM");
+            FTStrcat(filename, "CM");
             break;
         case MILK:
-            strcat(filename, "MI");
+            FTStrcat(filename, "MI");
             break;
         default:
             break;
@@ -643,10 +643,10 @@ void UpdateCupImage(Cup* cup, Ingredient* ingredient) {
         switch (cup->toppingType)
         {
         case MARSHMELLOW:
-            strcat(filename, "MA");
+            FTStrcat(filename, "MA");
             break;
         case WHIPPED_CREAM:
-            strcat(filename, "WC");
+            FTStrcat(filename, "WC");
             break;
         default:
             break;
@@ -657,10 +657,10 @@ void UpdateCupImage(Cup* cup, Ingredient* ingredient) {
         switch (cup->sauceType)
         {
         case CARAMEL:
-            strcat(filename, "CA");
+            FTStrcat(filename, "CA");
             break;
         case CHOCOLATE:
-            strcat(filename, "CH");
+            FTStrcat(filename, "CH");
             break;
         default:
             break;
@@ -668,16 +668,16 @@ void UpdateCupImage(Cup* cup, Ingredient* ingredient) {
     }
     // if empty then set filename to EMPTY
     if (FTStrcmp(filename, "") == 0) {
-        strcat(filename, "EMPTY");
+        FTStrcat(filename, "EMPTY");
     }
 
     // Save filename to cup->order
     strcpy(cup->order, filename);
 
-    strcat(filename, ".png");
+    FTStrcat(filename, ".png");
     char path[1000];
     strcpy(path, ASSETS_PATH"combination/");
-    strcat(path, filename);
+    FTStrcat(path, filename);
     // set cup texture to the filename
     LogDebug("Powder type: %d, Water: %d, Creamer: %d, Topping: %d, Sauce: %d\n", cup->powderType, cup->hasWater, cup->creamerType, cup->toppingType, cup->sauceType);
     LogDebug("NEW CUP IMAGE IS %s\n", path);
@@ -1251,11 +1251,11 @@ void RandomGenerateOrder(char *order)
 
     //base case, either CP or GP
     if (GetRandomValue(0, 1))
-        strcat(order, "CP");
+        FTStrcat(order, "CP");
     else
-        strcat(order, "GP");
+        FTStrcat(order, "GP");
 
-    strcat(order, "Y");
+    FTStrcat(order, "Y");
 
     // Very very small chance just to order tea without any creamer lol
     if (GetRandomValue(0, 100) == 0)
@@ -1263,9 +1263,9 @@ void RandomGenerateOrder(char *order)
 
     // another base case, either CM or MI
     if (GetRandomValue(0, 1))
-        strcat(order, "CM");
+        FTStrcat(order, "CM");
     else
-        strcat(order, "MI");
+        FTStrcat(order, "MI");
 
     bool hasTopping = false;
     if (random >= 1)
@@ -1274,9 +1274,9 @@ void RandomGenerateOrder(char *order)
         {
             hasTopping = true;
             if (GetRandomValue(0, 1))
-                strcat(order, "MA");
+                FTStrcat(order, "MA");
             else
-                strcat(order, "WC");
+                FTStrcat(order, "WC");
         }
     }
     if (hasTopping && random >= 2)
@@ -1284,9 +1284,9 @@ void RandomGenerateOrder(char *order)
         if (GetRandomValue(0, 1))
         {
             if (GetRandomValue(0, 1))
-                strcat(order, "CA");
+                FTStrcat(order, "CA");
             else
-                strcat(order, "CH");
+                FTStrcat(order, "CH");
         }
     }
     // Log the order
@@ -2008,6 +2008,8 @@ extern void PlayBgmIfStopped(Music* bgm);
 extern void PauseBgm(Music *bgm);
 
 extern int FTStrcmp(const char* str1, const char* str2);
+
+extern int FTStrcat(char* dst, const char* src);
 
 void StopBgm(Music *bgm)
 {
