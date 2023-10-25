@@ -99,7 +99,6 @@ RandomCustomerBlinkTime:
 	VMOV.f64	d7, d0
 	LDR	R3, [FP, #-8]
 	VSTR.64	d7, [R3, #16]
-	NOP
 	SUB	SP, FP, #4
 	@ SP needed
 	POP	{FP, PC}
@@ -126,7 +125,6 @@ boilWater:
 	VSTR.64	d7, [R3]
 
 .L21:
-	NOP
 	SUB	SP, FP, #4
 	@ SP needed
 	POP	{FP, PC}
