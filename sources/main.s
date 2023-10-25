@@ -16,6 +16,7 @@
 .global FTStrcat
 .global GetRandomIntValue
 .global GetRandomDoubleValue
+.global RandomCustomerBlinkTime
 
 @ Adds two values
 .ADD:
@@ -27,20 +28,20 @@
 	SUB R0, R0, R1
 	BX LR
 
-.global RandomCustomerBlinkTime
+
 RandomCustomerBlinkTime:
 	PUSH	{FP, LR}
 	ADD	FP, SP, #4
 	SUB	SP, SP, #8
 	STR	R0, [FP, #-8]
-	VLDR.64	d1, .L14
-	VLDR.64	d0, .L14+8
+	VLDR.64	d1, .RandomCustomerBlinkTimeVars
+	VLDR.64	d0, .RandomCustomerBlinkTimeVars+8
 	BL	GetRandomDoubleValue
 	VMOV.f64	d7, d0
 	LDR	R3, [FP, #-8]
 	VSTR.64	d7, [R3, #24]
-	VLDR.64	d1, .L14+16
-	VLDR.64	d0, .L14+24
+	VLDR.64	d1, .RandomCustomerBlinkTimeVars+16
+	VLDR.64	d0, .RandomCustomerBlinkTimeVars+24
 	BL	GetRandomDoubleValue
 	VMOV.f64	d7, d0
 	LDR	R3, [FP, #-8]
@@ -48,7 +49,7 @@ RandomCustomerBlinkTime:
 	NOP
 	SUB	SP, FP, #4
 	POP	{FP, PC}
-.L14:
+.RandomCustomerBlinkTimeVars:
 	.word	0
 	.word	1071644672
 	.word	-1717986918
@@ -68,21 +69,21 @@ RandomCustomerBlinkTime:
 IsNight:
 	STR	FP, [SP, #-4]!
 	ADD	FP, SP, #0
-	LDR	R3, .L207+8
+	LDR	R3, .colorTransitionData+8
 	LDR	R3, [R3]
 	CMP	R3, #3
-	BNE	.L202
-	LDR	R3, .L207+12
+	BNE	.checkIfNight
+	LDR	R3, .colorTransitionData+12
 	VLDR.32	S15, [R3]
 	VCVT.f64.f32	d7, S15
-	VLDR.64	d6, .L207
+	VLDR.64	d6, .colorTransitionData
 	vcmpe.f64	d7, d6
 	vmrs	APSR_nzcv, FPSCR
-	BPL	.L202
+	BPL	.checkIfNight
 	MOV	R3, #1
-	B	.L204
+	B	.returnIsNight
 
-.L207:
+.colorTransitionData:
 	.word	-1717986918
 	.word	1071225241
 	.word	currentColorIndex
@@ -91,9 +92,9 @@ IsNight:
 	.section	.rodata
 	.align	2
 
-.L202:
+.checkIfNight:
 	MOV	R3, #0
-.L204:
+.returnIsNight:
 	and	R3, R3, #1
 	UXTB	R3, R3
 	MOV	R0, R3
@@ -106,20 +107,20 @@ PlayBgm:
 	ADD	FP, SP, #8
 	SUB	SP, SP, #36
 	STR	R0, [FP, #-16]
-	LDR	R3, .L580+4
+	LDR	R3, .PlayBgmConstants_Start+4
 	LDR	R3, [R3]
 	LDR	R2, [FP, #-16]
 	CMP	R2, R3
-	BNE	.L576
-	LDR	R3, .L580+8
+	BNE	.PlayBgmIfStopped_Continue
+	LDR	R3, .PlayBgmConstants_Start+8
 	LDRB	R3, [R3]
 	CMP	R3, #0
-	BEQ	.L579
-	LDR	R3, .L580+12
+	BEQ	.PlayBgmIfStopped_End
+	LDR	R3, .PlayBgmConstants_Start+12
 	LDR	R3, [R3]
 	LDRB	R3, [R3, #22]	
 	CMP	R3, #0
-	BEQ	.L579
+	BEQ	.PlayBgmIfStopped_End
 	LDR	R4, [FP, #-16]
 	MOV	LR, SP
 	ADD	IP, R4, #16
@@ -132,12 +133,12 @@ PlayBgm:
 	LDR	R3, [FP, #-16]
 	MOV	R2, #1
 	STRB	R2, [R3, #24]
-	LDR	R3, .L580+8
+	LDR	R3, .PlayBgmConstants_Start+8
 	MOV	R2, #0
 	STRB	R2, [R3]
-	B	.L579
+	B	.PlayBgmIfStopped_End
 
-.L580:
+.PlayBgmConstants_Start:
 	.word	1048576000
 	.word	currentBgm
 	.word	isCurrentBgmPaused
@@ -150,11 +151,11 @@ PlayBgm:
 	.fpu vfp
 	.type	PlayBgmIfStopped, %function
 
-.L576:
-	LDR	R2, .L580+4
+.PlayBgmIfStopped_Continue:
+	LDR	R2, .PlayBgmConstants_Start+4
 	LDR	R3, [FP, #-16]
 	STR	R3, [R2]
-	LDR	R3, .L580+4
+	LDR	R3, .PlayBgmConstants_Start+4
 	LDR	R4, [R3]
 	MOV	LR, SP
 	ADD	IP, R4, #16
@@ -164,7 +165,7 @@ PlayBgm:
 	STR	R3, [LR]
 	LDM	R4, {R0, R1, R2, R3}
 	BL	StopMusicStream
-	LDR	R3, .L580+4
+	LDR	R3, .PlayBgmConstants_Start+4
 	LDR	R4, [R3]
 	MOV	LR, SP
 	ADD	IP, R4, #16
@@ -174,9 +175,9 @@ PlayBgm:
 	STR	R3, [LR]
 	LDM	R4, {R0, R1, R2, R3}
 	BL	PlayMusicStream
-	LDR	R3, .L580+4
+	LDR	R3, .PlayBgmConstants_Start+4
 	LDR	R4, [R3]
-	VLDR.32	S15, .L580
+	VLDR.32	S15, .PlayBgmConstants_Start
 	MOV	LR, SP
 	ADD	IP, R4, #16
 	LDMIA	IP!, {R0, R1, R2, R3}
@@ -189,35 +190,36 @@ PlayBgm:
 	LDR	R3, [FP, #-16]
 	MOV	R2, #1
 	STRB	R2, [R3, #24]
-	LDR	R3, .L580+8
+	LDR	R3, .PlayBgmConstants_Start+8
 	MOV	R2, #0
 	STRB	R2, [R3]
-	B	.L575
-.L579:
+	B	.PlayBgmIfStopped_Start
+.PlayBgmIfStopped_End:
 	NOP
-.L575:
+.PlayBgmIfStopped_Start:
 	SUB	SP, FP, #8
 	POP	{R4, FP, PC}
 
+@ PlayBgmIfStopped
 PlayBgmIfStopped:
 	PUSH	{R4, FP, LR}
 	ADD	FP, SP, #8
 	SUB	SP, SP, #36
 	STR	R0, [FP, #-16]
-	LDR	R3, .L587+4
+	LDR	R3, .CheckBgmStopped+4
 	LDR	R3, [R3]
 	LDR	R2, [FP, #-16]
 	CMP	R2, R3
-	BNE	.L583
-	LDR	R3, .L587+8
+	BNE	.BgmStoppedHandler
+	LDR	R3, .CheckBgmStopped+8
 	LDRB	R3, [R3]	
 	CMP	R3, #0
-	BEQ	.L586
-	LDR	R3, .L587+12
+	BEQ	.BgmNotStoppedHandler
+	LDR	R3, .CheckBgmStopped+12
 	LDR	R3, [R3]
 	LDRB	R3, [R3, #22]	
 	CMP	R3, #0
-	BEQ	.L586
+	BEQ	.BgmNotStoppedHandler
 	LDR	R4, [FP, #-16]
 	MOV	LR, SP
 	ADD	IP, R4, #16
@@ -227,7 +229,7 @@ PlayBgmIfStopped:
 	STR	R3, [LR]
 	LDM	R4, {R0, R1, R2, R3}
 	BL	PlayMusicStream
-	VLDR.32	S15, .L587
+	VLDR.32	S15, .CheckBgmStopped
 	LDR	R4, [FP, #-16]
 	MOV	LR, SP
 	ADD	IP, R4, #16
@@ -241,11 +243,11 @@ PlayBgmIfStopped:
 	LDR	R3, [FP, #-16]
 	MOV	R2, #1
 	STRB	R2, [R3, #24]
-	LDR	R3, .L587+8
+	LDR	R3, .CheckBgmStopped+8
 	MOV	R2, #0
 	STRB	R2, [R3]
-	B	.L586
-.L587:
+	B	.BgmNotStoppedHandler
+.CheckBgmStopped:
 	.word	1048576000
 	.word	currentBgm
 	.word	isCurrentBgmPaused
@@ -257,11 +259,11 @@ PlayBgmIfStopped:
 	.arm
 	.fpu vfp
 	.type	PauseBgm, %function
-.L583:
-	LDR	R2, .L587+4
+.BgmStoppedHandler:
+	LDR	R2, .CheckBgmStopped+4
 	LDR	R3, [FP, #-16]
 	STR	R3, [R2]
-	LDR	R3, .L587+4
+	LDR	R3, .CheckBgmStopped+4
 	LDR	R4, [R3]
 	MOV	LR, SP
 	ADD	IP, R4, #16
@@ -271,9 +273,9 @@ PlayBgmIfStopped:
 	STR	R3, [LR]
 	LDM	R4, {R0, R1, R2, R3}
 	BL	PlayMusicStream
-	LDR	R3, .L587+4
+	LDR	R3, .CheckBgmStopped+4
 	LDR	R4, [R3]
-	VLDR.32	S15, .L587
+	VLDR.32	S15, .CheckBgmStopped
 	MOV	LR, SP
 	ADD	IP, R4, #16
 	LDMIA	IP!, {R0, R1, R2, R3}
@@ -286,16 +288,17 @@ PlayBgmIfStopped:
 	LDR	R3, [FP, #-16]
 	MOV	R2, #1
 	STRB	R2, [R3, #24]
-	LDR	R3, .L587+8
+	LDR	R3, .CheckBgmStopped+8
 	MOV	R2, #0
 	STRB	R2, [R3]
-	B	.L582
-.L586:
+	B	.BgmCleanupAndExit
+.BgmNotStoppedHandler:
 	NOP
-.L582:
+.BgmCleanupAndExit:
 	SUB	SP, FP, #8
 	POP	{R4, FP, PC}
 
+@ Pause BGM
 PauseBgm:
 	PUSH	{R4, FP, LR}
 	ADD	FP, SP, #8
@@ -344,6 +347,7 @@ PauseBgm:
 	SUB	SP, FP, #8
 	POP	{R4, FP, PC}
 
+@ Square the number
 square:
         PUSH    {R7}
         SUB     SP, SP, #12
@@ -357,15 +361,6 @@ square:
         LDR     R7, [SP], #4
         BX      LR
 
-FTStrcmp:
-        PUSH    {R7}
-        SUB     SP, SP, #20
-        ADD     R7, SP, #0
-        STR     R0, [R7, #4]
-        STR     R1, [R7]
-        MOVS    R3, #0
-        STR     R3, [R7, #12]
-        B       .CmpStart
 .CmpContinue:
         LDR     R3, [R7, #12]
         ADDS    R3, R3, #1
@@ -410,7 +405,7 @@ FTStrcmp:
         LDR     R7, [SP], #4
         BX      LR
 
-
+@ strcat
 FTStrcat:
         PUSH    {R7}
         SUB     SP, SP, #20
@@ -471,75 +466,47 @@ FTStrcat:
         LDR     R7, [SP], #4
         BX      LR		
 
-FTStrcpy:
-        PUSH    {R7}
-        SUB     SP, SP, #20
-        ADD     R7, SP, #0
-        STR     R0, [R7, #4]
-        STR     R1, [R7]
-        MOVS    R3, #0
-        STR     R3, [R7, #12]
-        B       .CpyStart
-.CpyLoop:
-        LDR     R3, [R7, #12]
-        LDR     R2, [R7]
-        ADD     R2, R2, R3
-        LDR     R3, [R7, #12]
-        LDR     R1, [R7, #4]
-        ADD     R3, R3, R1
-        LDRB    R2, [R2]
-        STRB    R2, [R3]
-        LDR     R3, [R7, #12]
-        ADDS    R3, R3, #1
-        STR     R3, [R7, #12]
-.CpyStart:
-        LDR     R3, [R7, #12]
-        LDR     R2, [R7]
-        ADD     R3, R3, R2
-        LDRB    R3, [R3]
-        CMP     R3, #0
-        BNE     .CpyLoop
-        LDR     R3, [R7, #12]
-        LDR     R2, [R7, #4]
-        ADD     R3, R3, R2
-        MOVS    R2, #0
-        STRB    R2, [R3]
-        LDR     R3, [R7, #4]
-        MOV     R0, R3
-        ADDS    R7, R7, #20
-        MOV     SP, R7
-        LDR     R7, [SP], #4
-        BX      LR
-
+@ Random Int
 GetRandomIntValue:
+        @ Function start
         PUSH    {R7, lr}
         SUB     SP, SP, #24
         add     R7, SP, #0
         STR     R0, [R7, #4]
         STR     R1, [R7]
+
+        @ Initialize some variables
         MOVS    R3, #0
         STR     R3, [R7, #12]
         MOVS    R3, #0
         STR     R3, [R7, #20]
         MOVS    R3, #0
         STR     R3, [R7, #16]
+
+        @ Compare two values
         LDR     R2, [R7, #4]
         LDR     R3, [R7]
         CMP     R2, R3
         bge     .calculateRandomIntSwap
+
+        @ Swap values if needed
         LDR     R3, [R7, #4]
         STR     R3, [R7, #20]
         LDR     R3, [R7]
         ADDS    R3, R3, #1
         STR     R3, [R7, #16]
         B       .calculateRandomInt
+
 .calculateRandomIntSwap:
+        @ Adjust values for swapping
         LDR     R3, [R7]
         ADDS    R3, R3, #1
         STR     R3, [R7, #20]
         LDR     R3, [R7, #4]
         STR     R3, [R7, #16]
+
 .calculateRandomInt:
+        @ Generate a random integer
         BL      rand
         LDR     R2, [R7, #16]
         LDR     R3, [R7, #20]
@@ -553,12 +520,13 @@ GetRandomIntValue:
         STR     R3, [R7, #12]
         LDR     R3, [R7, #12]
         MOV     R0, R3
+
+        @ Function end
         ADDS    R7, R7, #24
         MOV     SP, R7
         POP     {R7, PC}
 
-// Validiator
-
+@ Validiator
 validiator:
     PUSH    {FP, LR}
     ADD     FP, SP, #4
@@ -593,7 +561,7 @@ validiator:
     B       .DebugLogHandlerEnd
 
 .LogDebugHandler:
-    .word   .LogMsgFormat   @ Renamed .LC70
+    .word   .LogMsgFormat 
     .size   validiator, .-validiator
     .align  2
     .global render_customers
@@ -610,7 +578,7 @@ validiator:
     POP     {FP, PC}
 
 .LogMsgFormat:
-    .ascii  "Validating order: %s against %s\000"   @ Renamed .LC70
+    .ascii  "Validating order: %s against %s\000" 
     .text
     .align  2
     .global validiator
@@ -619,8 +587,7 @@ validiator:
     .fpu vfp
     .type   validiator, %function
 
-// Boil water
-
+@ Boil water
 boilWater:
     PUSH    {FP, LR}      @ Push FP and LR onto the stack
     ADD     FP, SP, #4    @ Set up the frame pointer
@@ -660,3 +627,82 @@ boilWater:
     .word   boilingTime     @ Define a word with the address of boilingTime
     .size   boilWater, .-boilWater  @ Calculate the size of the boilWater function
 
+@ strcmp
+FTStrcmp:
+	@ Save the value of R7 on the stack
+	PUSH    {R7}
+
+	@ Allocate 20 bytes of space on the stack for local variables
+	SUB     SP, SP, #20
+	ADD     R7, SP, #0
+
+	@ Store the value of R0 (parameter 1) at a specific location in memory
+	STR     R0, [R7, #4]
+
+	@ Store the value of R1 (parameter 2) at a specific location in memory
+	STR     R1, [R7]
+
+	@ Initialize R3 to 0
+	MOVS    R3, #0
+	STR     R3, [R7, #12]
+
+	@ Branch to the .CmpStart label to begin comparison (not shown in the provided code)
+	B       .CmpStart
+
+@strcpy
+FTStrcpy:
+    @ Initialize stack frame
+    PUSH    {R7}
+    SUB     SP, SP, #20
+    ADD     R7, SP, #0
+    STR     R0, [R7, #4]    
+    STR     R1, [R7]        
+    MOVS    R3, #0          
+    STR     R3, [R7, #12]   
+    B       .CpyStart       @ Jump to the start of the copy process
+
+.CpyLoop:
+    LDR     R3, [R7, #12]   
+    LDR     R2, [R7]  
+
+	@ Calculate the destination address with offset      
+    ADD     R2, R2, R3
+    LDR     R3, [R7, #12]  
+    LDR     R1, [R7, #4]   
+
+	@ Calculate the source address with offset
+    ADD     R3, R3, R1  
+
+	@ Load a byte from source and store in destination   
+    LDRB    R2, [R2]        
+    STRB    R2, [R3]
+    LDR     R3, [R7, #12]   
+    ADDS    R3, R3, #1      
+    STR     R3, [R7, #12]   
+
+.CpyStart:
+    LDR     R3, [R7, #12]   
+    LDR     R2, [R7]        
+    ADD     R3, R3, R2      @ Calculate the current destination address
+    LDRB    R3, [R3]        @ Load a byte from the current destination
+
+	@ Compare it with null terminator (end of string)
+    CMP     R3, #0      
+	@ If not the end, continue the copy loop    
+    BNE     .CpyLoop       
+
+    LDR     R3, [R7, #12]   
+    LDR     R2, [R7, #4]    
+
+	@ Calculate the final source address
+    ADD     R3, R3, R2     
+
+	@ Set a null terminator at the end
+    MOVS    R2, #0          
+    STRB    R2, [R3]
+    LDR     R3, [R7, #4]    
+    MOV     R0, R3          
+    ADDS    R7, R7, #20     
+    MOV     SP, R7
+    LDR     R7, [SP], #4
+    BX      LR    
