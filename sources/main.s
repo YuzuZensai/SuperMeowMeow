@@ -5,7 +5,7 @@
 .align 2
 
 .global ADD
-.global SUB
+.global Ran
 .global boilWater
 .global IsNight
 .global PlayBgm
@@ -111,16 +111,16 @@ RandomGenerateOrder:
 	mov	r3, r0
 	cmp	r3, #0
 	beq	.RandomOrderGenerated
-	ldr	r1, FunctionConstants
+	ldr	r1, .FunctionConstants
 	ldr	r0, [fp, #-16]
 	bl	FTStrcat
 	b	.GenerateCP
 .RandomOrderGenerated:
-	ldr	r1, FunctionConstants+4
+	ldr	r1, .FunctionConstants+4
 	ldr	r0, [fp, #-16]
 	bl	FTStrcat
 .GenerateCP:
-	ldr	r1, FunctionConstants+8
+	ldr	r1, .FunctionConstants+8
 	ldr	r0, [fp, #-16]
 	bl	FTStrcat
 	mov	r1, #100
@@ -135,12 +135,12 @@ RandomGenerateOrder:
 	mov	r3, r0
 	cmp	r3, #0
 	beq	.GenerateGP
-	ldr	r1, FunctionConstants+12
+	ldr	r1, .FunctionConstants+12
 	ldr	r0, [fp, #-16]
 	bl	FTStrcat
 	b	.AddYToOrder
 .GenerateGP:
-	ldr	r1, FunctionConstants+16
+	ldr	r1, .FunctionConstants+16
 	ldr	r0, [fp, #-16]
 	bl	FTStrcat
 .AddYToOrder:
@@ -163,12 +163,12 @@ RandomGenerateOrder:
 	mov	r3, r0
 	cmp	r3, #0
 	beq	.GenerateTeaWithoutCreamer
-	ldr	r1, FunctionConstants+20
+	ldr	r1, .FunctionConstants+20
 	ldr	r0, [fp, #-16]
 	bl	FTStrcat
 	b	.GenerateCM
 .GenerateTeaWithoutCreamer:
-	ldr	r1, FunctionConstants+24
+	ldr	r1, .FunctionConstants+24
 	ldr	r0, [fp, #-16]
 	bl	FTStrcat
 .GenerateCM:
@@ -190,17 +190,17 @@ RandomGenerateOrder:
 	mov	r3, r0
 	cmp	r3, #0
 	beq	.GenerateMI
-	ldr	r1, FunctionConstants+28
+	ldr	r1, .FunctionConstants+28
 	ldr	r0, [fp, #-16]
 	bl	FTStrcat
 	b	.CheckForTopping
 .GenerateMI:
-	ldr	r1, FunctionConstants+32
+	ldr	r1, .FunctionConstants+32
 	ldr	r0, [fp, #-16]
 	bl	FTStrcat
 .CheckForTopping:
 	ldr	r1, [fp, #-16]
-	ldr	r0, FunctionConstants+36
+	ldr	r0, .FunctionConstants+36
 	bl	TextFormat
 	mov	r3, r0
 	mov	r0, r3
@@ -249,7 +249,7 @@ LogOrder:
 	.arm
 	.fpu vfp
 	.type	RandomGenerateOrder, %function
-FunctionConstants:
+.FunctionConstants:
 	.word	.OrderCP
 	.word	.OrderGP
 	.word	.OrderY
