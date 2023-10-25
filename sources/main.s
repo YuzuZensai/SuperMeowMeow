@@ -46,15 +46,15 @@ GetRandomDoubleValue:
 	VSTR.64	d1, [FP, #-20]
 	BL	rand
 	VMOV	S15, R0	@ int
-	vcvt.f64.s32	d7, S15
+	VCVT.f64.s32	d7, S15
 	VLDR.64	d5, .DOUBLE_CONST
-	vdiv.f64	d6, d7, d5
+	VDIV.f64	d6, d7, d5
 	VLDR.64	d5, [FP, #-20]
 	VLDR.64	d7, [FP, #-12]
-	vsub.f64	d7, d5, d7
-	vmul.f64	d6, d6, d7
+	VSUB.f64	d7, d5, d7
+	VMUL.f64	d6, d6, d7
 	VLDR.64	d7, [FP, #-12]
-	vadd.f64	d7, d6, d7
+	VADD.f64	d7, d6, d7
 	VMOV.f64	d0, d7
 	SUB	SP, FP, #4
 	@ SP needed
@@ -111,10 +111,10 @@ boilWater:
 	STR	R0, [FP, #-8]
 	LDR	R3, [FP, #-8]
 	LDRB	R3, [R3, #20]	@ zero_extendqisi2
-	eor	R3, R3, #1
-	uxtb	R3, R3
+	EOR	R3, R3, #1
+	UXTB	R3, R3
 	CMP	R3, #0
-	beq	.L21
+	BEQ	.L21
 	LDR	R3, .L22
 	MOV	R2, #1
 	STRB	R2, [R3]
@@ -148,11 +148,11 @@ IsNight:
 	BNE	.L202
 	LDR	R3, .L207+12
 	VLDR.32	S15, [R3]
-	vcvt.f64.f32	d7, S15
+	VCVT.f64.f32	d7, S15
 	VLDR.64	d6, .L207
 	vcmpe.f64	d7, d6
 	vmrs	APSR_nzcv, FPSCR
-	bpl	.L202
+	BPL	.L202
 	MOV	R3, #1
 	B	.L204
 
@@ -169,12 +169,12 @@ IsNight:
 	MOV	R3, #0
 .L204:
 	and	R3, R3, #1
-	uxtb	R3, R3
+	UXTB	R3, R3
 	MOV	R0, R3
 	ADD	SP, FP, #0
 	@ SP needed
 	LDR	FP, [SP], #4
-	bx	LR
+	BX	LR
 
 PlayBgm:
 	@ args = 0, pretend = 0, frame = 8
@@ -191,12 +191,12 @@ PlayBgm:
 	LDR	R3, .L580+8
 	LDRB	R3, [R3]	@ zero_extendqisi2
 	CMP	R3, #0
-	beq	.L579
+	BEQ	.L579
 	LDR	R3, .L580+12
 	LDR	R3, [R3]
 	LDRB	R3, [R3, #22]	@ zero_extendqisi2
 	CMP	R3, #0
-	beq	.L579
+	BEQ	.L579
 	LDR	R4, [FP, #-16]
 	MOV	LR, SP
 	ADD	IP, R4, #16
@@ -292,12 +292,12 @@ PlayBgmIfStopped:
 	LDR	R3, .L587+8
 	LDRB	R3, [R3]	@ zero_extendqisi2
 	CMP	R3, #0
-	beq	.L586
+	BEQ	.L586
 	LDR	R3, .L587+12
 	LDR	R3, [R3]
 	LDRB	R3, [R3, #22]	@ zero_extendqisi2
 	CMP	R3, #0
-	beq	.L586
+	BEQ	.L586
 	LDR	R4, [FP, #-16]
 	MOV	LR, SP
 	ADD	IP, R4, #16
@@ -481,66 +481,126 @@ PauseBgm:
 	POP	{R4, FP, PC}
 
 square:
-        push    {r7}
-        sub     sp, sp, #12
-        add     r7, sp, #0
-        str     r0, [r7, #4]
-        ldr     r3, [r7, #4]
-        mul     r3, r3, r3
-        mov     r0, r3
-        adds    r7, r7, #12
-        mov     sp, r7
-        ldr     r7, [sp], #4
-        bx      lr
+        push    {R7}
+        sub     SP, SP, #12
+        ADD     R7, SP, #0
+        STR     r0, [R7, #4]
+        LDR     R3, [R7, #4]
+        mul     R3, R3, R3
+        MOV     r0, R3
+        ADDS    R7, R7, #12
+        MOV     SP, R7
+        LDR     R7, [SP], #4
+        BX      LR
 FTStrcmp:
-        push    {r7}
-        sub     sp, sp, #20
-        add     r7, sp, #0
-        str     r0, [r7, #4]
-        str     r1, [r7]
-        movs    r3, #0
-        str     r3, [r7, #12]
-        b       .L4
+        push    {R7}
+        sub     SP, SP, #20
+        ADD     R7, SP, #0
+        STR     r0, [R7, #4]
+        STR     R1, [R7]
+        MOVS    R3, #0
+        STR     R3, [R7, #12]
+        B       .L4
 .L6:
-        ldr     r3, [r7, #12]
-        adds    r3, r3, #1
-        str     r3, [r7, #12]
+        LDR     R3, [R7, #12]
+        ADDS    R3, R3, #1
+        STR     R3, [R7, #12]
 .L4:
-        ldr     r3, [r7, #12]
-        ldr     r2, [r7, #4]
-        add     r3, r3, r2
-        ldrb    r2, [r3]        @ zero_extendqisi2
-        ldr     r3, [r7, #12]
-        ldr     r1, [r7]
-        add     r3, r3, r1
-        ldrb    r3, [r3]        @ zero_extendqisi2
-        cmp     r2, r3
-        bne     .L5
-        ldr     r3, [r7, #12]
-        ldr     r2, [r7, #4]
-        add     r3, r3, r2
-        ldrb    r3, [r3]        @ zero_extendqisi2
-        cmp     r3, #0
-        beq     .L5
-        ldr     r3, [r7, #12]
-        ldr     r2, [r7]
-        add     r3, r3, r2
-        ldrb    r3, [r3]        @ zero_extendqisi2
-        cmp     r3, #0
-        bne     .L6
+        LDR     R3, [R7, #12]
+        LDR     R2, [R7, #4]
+        ADD     R3, R3, R2
+        LDRB    R2, [R3]        
+        LDR     R3, [R7, #12]
+        LDR     R1, [R7]
+        ADD     R3, R3, R1
+        LDRB    R3, [R3]        
+        CMP     R2, R3
+        BNE     .L5
+        LDR     R3, [R7, #12]
+        LDR     R2, [R7, #4]
+        ADD     R3, R3, R2
+        LDRB    R3, [R3]        
+        CMP     R3, #0
+        BEQ     .L5
+        LDR     R3, [R7, #12]
+        LDR     R2, [R7]
+        ADD     R3, R3, R2
+        LDRB    R3, [R3]        
+        CMP     R3, #0
+        BNE     .L6
 .L5:
-        ldr     r3, [r7, #12]
-        ldr     r2, [r7, #4]
-        add     r3, r3, r2
-        ldrb    r3, [r3]        @ zero_extendqisi2
-        mov     r1, r3
-        ldr     r3, [r7, #12]
-        ldr     r2, [r7]
-        add     r3, r3, r2
-        ldrb    r3, [r3]        @ zero_extendqisi2
-        subs    r3, r1, r3
-        mov     r0, r3
-        adds    r7, r7, #20
-        mov     sp, r7
-        ldr     r7, [sp], #4
-        bx      lr
+        LDR     R3, [R7, #12]
+        LDR     R2, [R7, #4]
+        ADD     R3, R3, R2
+        LDRB    R3, [R3]        
+        MOV     R1, R3
+        LDR     R3, [R7, #12]
+        LDR     R2, [R7]
+        ADD     R3, R3, R2
+        LDRB    R3, [R3]        
+        subs    R3, R1, R3
+        MOV     r0, R3
+        ADDS    R7, R7, #20
+        MOV     SP, R7
+        LDR     R7, [SP], #4
+        BX      LR
+
+ft_strcat:
+        push    {R7}
+        sub     SP, SP, #20
+        ADD     R7, SP, #0
+        STR     r0, [R7, #4]
+        STR     R1, [R7]
+        MOVS    R3, #0
+        STR     R3, [R7, #12]
+        B       .L2
+.L3:
+        LDR     R3, [R7, #12]
+        ADDS    R3, R3, #1
+        STR     R3, [R7, #12]
+.L2:
+        LDR     R3, [R7, #12]
+        LDR     R2, [R7, #4]
+        ADD     R3, R3, R2
+        LDRB    R3, [R3]
+        CMP     R3, #0
+        BNE     .L3
+        MOVS    R3, #0
+        STR     R3, [R7, #8]
+        B       .L4
+.L5:
+        LDR     R3, [R7, #8]
+        LDR     R2, [R7]
+        ADD     R2, R2, R3
+        LDR     R1, [R7, #12]
+        LDR     R3, [R7, #8]
+        ADD     R3, R3, R1
+        MOV     R1, R3
+        LDR     R3, [R7, #4]
+        ADD     R3, R3, R1
+        LDRB    R2, [R2]
+        STRB    R2, [R3]
+        LDR     R3, [R7, #8]
+        ADDS    R3, R3, #1
+        STR     R3, [R7, #8]
+.L4:
+        LDR     R3, [R7, #8]
+        LDR     R2, [R7]
+        ADD     R3, R3, R2
+        LDRB    R3, [R3]
+        CMP     R3, #0
+        BNE     .L5
+        LDR     R2, [R7, #12]
+        LDR     R3, [R7, #8]
+        ADD     R3, R3, R2
+        MOV     R2, R3
+        LDR     R3, [R7, #4]
+        ADD     R3, R3, R2
+        MOVS    R2, #0
+        STRB    R2, [R3]
+        LDR     R3, [R7, #4]
+        MOV     r0, R3
+        ADDS    R7, R7, #20
+        MOV     SP, R7
+        LDR     R7, [SP], #4
+        BX      LR		
