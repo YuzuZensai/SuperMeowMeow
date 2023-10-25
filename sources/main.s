@@ -388,7 +388,7 @@ validiator:
 	ADD	R3, R3, #34
 	MOV	R2, R3
 	LDR	R1, [FP, #-12]
-	LDR	R0, .L500
+	LDR	R0, .LogDebugHandler
 	BL	LogDebug
 	LDR	R3, [FP, #-8]
 	ADD	R3, R3, #34
@@ -397,11 +397,11 @@ validiator:
 	BL	strcmp
 	MOV	R3, R0
 	CMP	R3, #0
-	BNE	.L498
+	BNE	.DebugLogHandlerCheck
 	MOV	R3, #1
-	B	.L499
+	B	.DebugLogHandlerEnd
 
-.L500:
+.LogDebugHandler:
 	.word	.LC70
 	.size	validiator, .-validiator
 	.align	2
@@ -410,9 +410,9 @@ validiator:
 	.arm
 	.fpu vfp
 	.type	render_customers, %function
-.L498:
+.DebugLogHandlerCheck:
 	MOV	R3, #0
-.L499:
+.DebugLogHandlerEnd:
 	MOV	R0, R3
 	SUB	SP, FP, #4
 	@ SP needed
