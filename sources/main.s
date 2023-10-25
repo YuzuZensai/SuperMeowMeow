@@ -67,35 +67,47 @@ RandomCustomerBlinkTime:
 
 
 boilWater:
-	PUSH	{FP, LR}
-	ADD	FP, SP, #4
-	SUB	SP, SP, #8
-	STR	R0, [FP, #-8]
-	LDR	R3, [FP, #-8]
-	LDRB	R3, [R3, #20]
-	EOR	R3, R3, #1
-	UXTB	R3, R3
-	CMP	R3, #0
-	BEQ	.L21
-	LDR	R3, .L22
-	MOV	R2, #1
-	STRB	R2, [R3]
-	BL	GetTime
-	VMOV.f64	d7, d0
-	LDR	R3, .L22+4
-	VSTR.64	d7, [R3]
+    PUSH    {FP, LR}      @ Push FP and LR onto the stack
+    ADD     FP, SP, #4    @ Set up the frame pointer
+    SUB     SP, SP, #8    @ Allocate space for local variables
+    STR     R0, [FP, #-8] @ Store the argument in the stack frame
 
-.L21:
-	NOP
-	SUB	SP, FP, #4
-	POP	{FP, PC}
+    @ Load a byte from the address stored in R3 and toggle its bits
+    LDR     R3, [FP, #-8]
+    LDRB    R3, [R3, #20]
+    EOR     R3, R3, #1
+    UXTB    R3, R3
 
-.L22:
-	.word	triggerHotWater
-	.word	boilingTime
-	.size	boilWater, .-boilWater
-	.section	.rodata
-	.align	2
+    @ Compare R3 with 0 and branch to LabelZero if equal
+    CMP     R3, #0
+    BEQ     .LabelZero
+
+    @ Store 1 in the address pointed by R3
+    LDR     R3, .LabelNonZero
+    MOV     R2, #1
+    STRB    R2, [R3]
+
+    @ Call the GetTime function and store the result in a double-precision float register
+    BL      GetTime
+    VMOV.f64 d7, d0
+
+    @ Store the result in the address pointed by R3
+    LDR     R3, .LabelNonZero+4
+    VSTR.64 d7, [R3]
+
+.LabelZero:  @ Label for the branch target when R3 is equal to 0
+    NOP
+
+    @ Clean up the stack frame and return
+    SUB     SP, FP, #4
+    POP     {FP, PC}
+
+.LabelNonZero:  @ Label for some specific functionality, please specify the actual purpose
+
+    .word   triggerHotWater  @ Define a word with the address of triggerHotWater
+    .word   boilingTime     @ Define a word with the address of boilingTime
+    .size   boilWater, .-boilWater  @ Calculate the size of the boilWater function
+
 
 IsNight:
 	STR	FP, [SP, #-4]!
