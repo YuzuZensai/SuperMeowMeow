@@ -32,7 +32,10 @@ else()
     target_link_libraries(${PROJECT_NAME} PRIVATE raylib ${EXTRA_LIBS}) 
 endif()
 # Setting ASSETS_PATH
-target_compile_definitions(${PROJECT_NAME} PUBLIC ASSETS_PATH="${CMAKE_CURRENT_SOURCE_DIR}/assets/") # Set the asset path macro to the absolute path on the dev machine
+# target_compile_definitions(${PROJECT_NAME} PUBLIC ASSETS_PATH="${CMAKE_CURRENT_SOURCE_DIR}/assets/") # Set the asset path macro to the absolute path on the dev machine
+# use relative path
+target_compile_definitions(${PROJECT_NAME} PUBLIC ASSETS_PATH="assets/") # Set the asset path macro to the absolute path on the dev machine
+
 #target_compile_definitions(${PROJECT_NAME} PUBLIC ASSETS_PATH="./assets") # Set the asset path macro in release mode to a relative path that assumes the assets folder is in the same directory as the game executable
 
 # Print CMAKE_C_COMPILER_ID
@@ -55,3 +58,6 @@ if ((${CMAKE_SYSTEM_PROCESSOR} STREQUAL "armv7l" OR ${CMAKE_SYSTEM_PROCESSOR} ST
     target_compile_definitions(${PROJECT_NAME} PUBLIC ) # Set GLSL version to 330
     target_compile_definitions(${PROJECT_NAME} PUBLIC ) # Set GL version to 3.3
 endif()
+
+message(STATUS "COPY ASSETS")
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/assets DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
