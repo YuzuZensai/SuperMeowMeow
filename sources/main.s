@@ -607,3 +607,35 @@ FTStrcpy:
         MOV     SP, R7
         LDR     R7, [SP], #4
         BX      LR
+
+
+.global GetRandomIntValue
+.GetRandomIntValue:
+	CMP R0, R1
+	BGT .calculateRandomIntSwap
+	B .calculateRandomInt
+
+.calculateRandomIntSwap:
+	MOV R2,R1
+	MOV R1,R0
+	MOV R0,R2
+	B .calculateRandomInt
+
+.calculateRandomInt:
+	@R0 IS MIN NUM
+	ADD R1, R1, #1
+
+	MOV R3, R1
+	MOV R2, R0
+	BL rand
+	SUB R4, R3, R2
+	@UMOD r0, r0, R4
+	
+	MOV R1, R4
+	MOV R7, LR
+	BL __aeabi_idivmod
+	MOV LR, R7
+
+	ADD R0, R0, R2
+
+	BX LR
