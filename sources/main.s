@@ -111,7 +111,7 @@ boilWater:
 	SUB	SP, SP, #8
 	STR	R0, [FP, #-8]
 	LDR	R3, [FP, #-8]
-	LDRB	R3, [R3, #20]	@ zero_extendqisi2
+	LDRB	R3, [R3, #20]	
 	EOR	R3, R3, #1
 	UXTB	R3, R3
 	CMP	R3, #0
@@ -189,12 +189,12 @@ PlayBgm:
 	CMP	R2, R3
 	BNE	.L576
 	LDR	R3, .L580+8
-	LDRB	R3, [R3]	@ zero_extendqisi2
+	LDRB	R3, [R3]	
 	CMP	R3, #0
 	BEQ	.L579
 	LDR	R3, .L580+12
 	LDR	R3, [R3]
-	LDRB	R3, [R3, #22]	@ zero_extendqisi2
+	LDRB	R3, [R3, #22]	
 	CMP	R3, #0
 	BEQ	.L579
 	LDR	R4, [FP, #-16]
@@ -290,12 +290,12 @@ PlayBgmIfStopped:
 	CMP	R2, R3
 	BNE	.L583
 	LDR	R3, .L587+8
-	LDRB	R3, [R3]	@ zero_extendqisi2
+	LDRB	R3, [R3]	
 	CMP	R3, #0
 	BEQ	.L586
 	LDR	R3, .L587+12
 	LDR	R3, [R3]
-	LDRB	R3, [R3, #22]	@ zero_extendqisi2
+	LDRB	R3, [R3, #22]	
 	CMP	R3, #0
 	BEQ	.L586
 	LDR	R4, [FP, #-16]
@@ -442,7 +442,7 @@ PauseBgm:
 	CMP	R2, R3
 	BNE	.PauseBgmCheck
 	LDR	R3, .PauseBgmHandler+4
-	LDRB	R3, [R3]	@ zero_extendqisi2
+	LDRB	R3, [R3]	
 	CMP	R3, #0
 	BNE	.PauseBgmCheckB
 	LDR	R4, [FP, #-16]
@@ -641,6 +641,83 @@ FTStrcpy:
         MOVS    R2, #0
         STRB    R2, [R3]
         LDR     R3, [R7, #4]
+        MOV     R0, R3
+        ADDS    R7, R7, #20
+        MOV     SP, R7
+        LDR     R7, [SP], #4
+        BX      LR
+
+FTStrstr:
+        PUSH    {R7}
+        SUB     SP, SP, #20
+        ADD     R7, SP, #0
+        str     R0, [R7, #4]
+        str     R1, [R7]
+        MOVS    R3, #0
+        str     R3, [R7, #12]
+        LDR     R3, [R7]
+        LDRB    R3, [R3]        
+        CMP     R3, #0
+        BNE     .StrStrLoop
+        LDR     R3, [R7, #4]
+        B       .StrStrEnd
+.StrStrRe:
+        MOVS    R3, #0
+        str     R3, [R7, #8]
+        B       .StrStrContinue
+.StrStrLoop2:
+        LDR     R3, [R7, #8]
+        ADDS    R3, R3, #1
+        LDR     R2, [R7]
+        ADD     R3, R3, R2
+        LDRB    R3, [R3]
+        CMP     R3, #0
+        BNE     .StrStrLoopHandle
+        LDR     R3, [R7, #12]
+        LDR     R2, [R7, #4]
+        ADD     R3, R3, R2
+        B       .StrStrEnd
+.StrStrLoopHandle:
+        LDR     R3, [R7, #8]
+        ADDS    R3, R3, #1
+        str     R3, [R7, #8]
+
+.StrStrContinue:
+        LDR     R2, [R7, #12]
+        LDR     R3, [R7, #8]
+        ADD     R3, R3, R2
+        MOV     R2, R3
+        LDR     R3, [R7, #4]
+        ADD     R3, R3, R2
+        LDRB    R3, [R3]
+        CMP     R3, #0
+        BEQ     .StrStrRe2
+        LDR     R2, [R7, #12]
+        LDR     R3, [R7, #8]
+        ADD     R3, R3, R2
+        MOV     R2, R3
+        LDR     R3, [R7, #4]
+        ADD     R3, R3, R2
+        LDRB    R2, [R3]        
+        LDR     R3, [R7, #8]
+        LDR     R1, [R7]
+        ADD     R3, R3, R1
+        LDRB    R3, [R3]        
+        CMP     R2, R3
+        BEQ     .StrStrLoop2
+.StrStrRe2:
+        LDR     R3, [R7, #12]
+        ADDS    R3, R3, #1
+        str     R3, [R7, #12]
+.StrStrLoop:
+        LDR     R3, [R7, #12]
+        LDR     R2, [R7, #4]
+        ADD     R3, R3, R2
+        LDRB    R3, [R3]        
+        CMP     R3, #0
+        BNE     .StrStrRe
+        MOVS    R3, #0
+.StrStrEnd:
         MOV     R0, R3
         ADDS    R7, R7, #20
         MOV     SP, R7

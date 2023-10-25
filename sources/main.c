@@ -1325,29 +1325,29 @@ void DrawCustomer(Customer* customer)
     {
         DrawTextureEx(bubbles, (Vector2) { pos.x + 350, pos.y + 100 }, 0.0f, 1.0f / 2.0f, WHITE);
 
-        if (strstr(customer->order, "CPY") != NULL)
+        if (FTStrstr(customer->order, "CPY") != NULL)
             DrawTextureEx(cocoaChon.texture, (Vector2) { pos.x + 375, pos.y + 100 }, 0.0f, 1.0f / 2.0f, WHITE);
-        else if (strstr(customer->order, "GPY") != NULL)
+        else if (FTStrstr(customer->order, "GPY") != NULL)
             DrawTextureEx(greenChon.texture, (Vector2) { pos.x + 375, pos.y + 100 }, 0.0f, 1.0f / 2.0f, WHITE);
 
-        if (strstr(customer->order, "CM") != NULL)
+        if (FTStrstr(customer->order, "CM") != NULL)
             // DrawTextureEx(condensedMilk.texture, (Vector2) {pos.x + 425, pos.y + 100}, 0.0f, 1.0f / 2.0f, WHITE);
             DrawTextureRec(condensedMilk.texture, condensedMilk.frameRectangle, (Vector2) { pos.x + 425, pos.y + 100 }, RAYWHITE);
-        else if (strstr(customer->order, "MI") != NULL)
+        else if (FTStrstr(customer->order, "MI") != NULL)
             // DrawTextureEx(normalMilk.texture, (Vector2) {pos.x + 425, pos.y + 100}, 0.0f, 1.0f / 2.0f, WHITE);
             DrawTextureRec(normalMilk.texture, normalMilk.frameRectangle, (Vector2) { pos.x + 425, pos.y + 100 }, RAYWHITE);
 
-        if (strstr(customer->order, "MA") != NULL)
+        if (FTStrstr(customer->order, "MA") != NULL)
             // DrawTextureEx(marshMellow.texture, (Vector2) {pos.x + 375, pos.y + 150}, 0.0f, 1.0f / 2.0f, WHITE);
             DrawTextureRec(marshMellow.texture, marshMellow.frameRectangle, (Vector2) { pos.x + 375, pos.y + 150 }, RAYWHITE);
-        else if (strstr(customer->order, "WC") != NULL)
+        else if (FTStrstr(customer->order, "WC") != NULL)
             // DrawTextureEx(whippedCream.texture, (Vector2) {pos.x + 375, pos.y + 150}, 0.0f, 1.0f / 2.0f, WHITE);
             DrawTextureRec(whippedCream.texture, whippedCream.frameRectangle, (Vector2) { pos.x + 375, pos.y + 150 }, RAYWHITE);
 
-        if (strstr(customer->order, "CA") != NULL)
+        if (FTStrstr(customer->order, "CA") != NULL)
             // DrawTextureEx(caramelSauce.texture, (Vector2) {pos.x + 425, pos.y + 150}, 0.0f, 1.0f / 2.0f, WHITE);
             DrawTextureRec(caramelSauce.texture, caramelSauce.frameRectangle, (Vector2) { pos.x + 425, pos.y + 150 }, RAYWHITE);
-        else if (strstr(customer->order, "CH") != NULL)
+        else if (FTStrstr(customer->order, "CH") != NULL)
             // DrawTextureEx(chocolateSauce.texture, (Vector2) {pos.x + 425, pos.y + 150}, 0.0f, 1.0f / 2.0f, WHITE);
             DrawTextureRec(chocolateSauce.texture, chocolateSauce.frameRectangle, (Vector2) { pos.x + 425, pos.y + 150 }, RAYWHITE);
     }
@@ -2012,6 +2012,8 @@ extern int FTStrcmp(const char* str1, const char* str2);
 extern int FTStrcat(char* dst, const char* src);
 
 extern int FTStrcpy(char* dst, const char* src);
+
+extern int FTStrstr(const char* str1, const char* str2);
 
 void StopBgm(Music *bgm)
 {
