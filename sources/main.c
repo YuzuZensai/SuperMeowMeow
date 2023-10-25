@@ -1783,19 +1783,19 @@ void PlaySoundFx(SoundFxType type) {
     switch (type) {
     case FX_ANGRY: {
         Sound angrySounds[] = { angry1Fx, angry2Fx, angry3Fx, angry4Fx };
-        randomIndex = rand() % (sizeof(angrySounds) / sizeof(angrySounds[0]));
+        randomIndex = GetRandomIntValue(0, (sizeof(angrySounds) / sizeof(angrySounds[0]) - 1));
         PlaySound(angrySounds[randomIndex]);
         break;
     }
     case FX_BOTTLE: {
         Sound bottleSounds[] = { bottle1Fx, bottle2Fx, bottle3Fx };
-        randomIndex = rand() % (sizeof(bottleSounds) / sizeof(bottleSounds[0]));
+        randomIndex = GetRandomIntValue(0, (sizeof(bottleSounds) / sizeof(bottleSounds[0]) - 1));
         PlaySound(bottleSounds[randomIndex]);
         break;
     }
     case FX_CONFUSED: {
         Sound confusedSounds[] = { confused1Fx, confused2Fx, confused3Fx, confused4Fx };
-        randomIndex = rand() % (sizeof(confusedSounds) / sizeof(confusedSounds[0]));
+        randomIndex = GetRandomIntValue(0, (sizeof(confusedSounds) / sizeof(confusedSounds[0]) - 1));
         PlaySound(confusedSounds[randomIndex]);
         break;
     }
@@ -1804,25 +1804,25 @@ void PlaySoundFx(SoundFxType type) {
         break;
     case FX_DROP: {
         Sound dropSounds[] = { drop1Fx, drop2Fx, drop3Fx };
-        randomIndex = rand() % (sizeof(dropSounds) / sizeof(dropSounds[0]));
+        randomIndex = GetRandomIntValue(0, (sizeof(dropSounds) / sizeof(dropSounds[0]) - 1));
         PlaySound(dropSounds[randomIndex]);
         break;
     }
     case FX_PICKUP: {
         Sound pickupSounds[] = { pickup1Fx, pickup2Fx, pickup3Fx };
-        randomIndex = rand() % (sizeof(pickupSounds) / sizeof(pickupSounds[0]));
+        randomIndex = GetRandomIntValue(0, (sizeof(pickupSounds) / sizeof(pickupSounds[0]) - 1));
         PlaySound(pickupSounds[randomIndex]);
         break;
     }
     case FX_POUR: {
         Sound pourSounds[] = { pour1Fx, pour2Fx, pour3Fx };
-        randomIndex = rand() % (sizeof(pourSounds) / sizeof(pourSounds[0]));
+        randomIndex = GetRandomIntValue(0, (sizeof(pourSounds) / sizeof(pourSounds[0]) - 1));
         PlaySound(pourSounds[randomIndex]);
         break;
     }
     case FX_STIR: {
         Sound stirSounds[] = { stir1Fx, stir2Fx, stir3Fx };
-        randomIndex = rand() % (sizeof(stirSounds) / sizeof(stirSounds[0]));
+        randomIndex = GetRandomIntValue(0, (sizeof(stirSounds) / sizeof(stirSounds[0]) - 1));
         PlaySound(stirSounds[randomIndex]);
         break;
     }
