@@ -14,6 +14,7 @@ max: .double 1.0
 .global PlayBgmIfStopped
 .global validiator
 .global PauseBgm
+.global FTStrcmp
 
 .ADD:
 	ADD R0, R0, R1
@@ -479,3 +480,67 @@ PauseBgm:
 	@ SP needed
 	POP	{R4, FP, PC}
 
+square:
+        push    {r7}
+        sub     sp, sp, #12
+        add     r7, sp, #0
+        str     r0, [r7, #4]
+        ldr     r3, [r7, #4]
+        mul     r3, r3, r3
+        mov     r0, r3
+        adds    r7, r7, #12
+        mov     sp, r7
+        ldr     r7, [sp], #4
+        bx      lr
+FTStrcmp:
+        push    {r7}
+        sub     sp, sp, #20
+        add     r7, sp, #0
+        str     r0, [r7, #4]
+        str     r1, [r7]
+        movs    r3, #0
+        str     r3, [r7, #12]
+        b       .L4
+.L6:
+        ldr     r3, [r7, #12]
+        adds    r3, r3, #1
+        str     r3, [r7, #12]
+.L4:
+        ldr     r3, [r7, #12]
+        ldr     r2, [r7, #4]
+        add     r3, r3, r2
+        ldrb    r2, [r3]        @ zero_extendqisi2
+        ldr     r3, [r7, #12]
+        ldr     r1, [r7]
+        add     r3, r3, r1
+        ldrb    r3, [r3]        @ zero_extendqisi2
+        cmp     r2, r3
+        bne     .L5
+        ldr     r3, [r7, #12]
+        ldr     r2, [r7, #4]
+        add     r3, r3, r2
+        ldrb    r3, [r3]        @ zero_extendqisi2
+        cmp     r3, #0
+        beq     .L5
+        ldr     r3, [r7, #12]
+        ldr     r2, [r7]
+        add     r3, r3, r2
+        ldrb    r3, [r3]        @ zero_extendqisi2
+        cmp     r3, #0
+        bne     .L6
+.L5:
+        ldr     r3, [r7, #12]
+        ldr     r2, [r7, #4]
+        add     r3, r3, r2
+        ldrb    r3, [r3]        @ zero_extendqisi2
+        mov     r1, r3
+        ldr     r3, [r7, #12]
+        ldr     r2, [r7]
+        add     r3, r3, r2
+        ldrb    r3, [r3]        @ zero_extendqisi2
+        subs    r3, r1, r3
+        mov     r0, r3
+        adds    r7, r7, #20
+        mov     sp, r7
+        ldr     r7, [sp], #4
+        bx      lr

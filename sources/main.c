@@ -2007,6 +2007,8 @@ extern void PlayBgmIfStopped(Music* bgm);
 
 extern void PauseBgm(Music *bgm);
 
+extern int FTStrcmp(const char* str1, const char* str2);
+
 void StopBgm(Music *bgm)
 {
 	StopMusicStream(*bgm);
