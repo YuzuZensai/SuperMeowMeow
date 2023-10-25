@@ -15,7 +15,6 @@
 .global FTStrcmp
 .global FTStrcat
 .global GetRandomIntValue
-.global GetRandomDoubleValue
 .global RandomGenerateOrder
 .global RandomCustomerBlinkTime
 .global RandomCustomerResetBasedOnDifficulty
@@ -29,6 +28,96 @@
 .SUB:
 	SUB R0, R0, R1
 	BX LR
+
+@tickBoil
+tickBoil:
+	push	{fp, lr}
+	vpush.64	{d8}
+	add	fp, sp, #12
+	sub	sp, sp, #24
+	str	r0, [fp, #-24]
+	ldr	r3, .tickBoilData+16
+	ldrb	r3, [r3]	@ zero_extendqisi2
+	cmp	r3, #0
+	beq	.tickBoilDataTick2
+	ldr	r3, .tickBoilData+20
+	vldr.64	d7, [r3]
+	vldr.64	d6, .tickBoilData
+	vadd.f64	d8, d7, d6
+	bl	GetTime
+	vmov.f64	d7, d0
+	vcmpe.f64	d8, d7
+	vmrs	APSR_nzcv, FPSCR
+	ble	.tickBoilDataTick1
+	ldr	r3, [fp, #-24]
+	ldr	r2, [r3, #56]
+	ldr	r3, [fp, #-24]
+	str	r2, [r3, #60]
+	b	.tickBoilDataTick2
+.tickBoilDataTick1:
+	ldr	r3, .tickBoilData+24
+	vldr.64	d7, [r3]
+	vldr.64	d6, .tickBoilData+8
+	vadd.f64	d8, d7, d6
+	bl	GetTime
+	vmov.f64	d7, d0
+	vcmpe.f64	d8, d7
+	vmrs	APSR_nzcv, FPSCR
+	bpl	.tickBoilDataTick2
+	ldr	r3, .tickBoilData+28
+	mov	ip, sp
+	add	r2, r3, #16
+	ldm	r2, {r0, r1}
+	stm	ip, {r0, r1}
+	ldm	r3, {r0, r1, r2, r3}
+	bl	StopSound
+	mov	r0, #10
+	bl	PlaySoundFx
+	ldr	r3, [fp, #-24]
+	mov	r2, #1
+	strb	r2, [r3, #20]
+	bl	GetTime
+	vmov.f64	d7, d0
+	ldr	r3, .tickBoilData+24
+	vstr.64	d7, [r3]
+	ldr	r3, [fp, #-24]
+	ldr	r3, [r3, #60]
+	add	r3, r3, #2
+	str	r3, [fp, #-16]
+	ldr	r3, [fp, #-24]
+	ldr	r3, [r3, #56]
+	ldr	r2, [fp, #-16]
+	cmp	r2, r3
+	ble	.tickBoilDataTick3
+	mov	r3, #1
+	str	r3, [fp, #-16]
+.tickBoilDataTick3:
+	ldr	r3, [fp, #-24]
+	ldr	r2, [fp, #-16]
+	str	r2, [r3, #60]
+.tickBoilDataTick2:
+	sub	sp, fp, #12
+	@ sp needed
+	vldm	sp!, {d8}
+	pop	{fp, pc}
+.tickBoilAlign:
+	.align	3
+.tickBoilData:
+	.word	0
+	.word	1074266112
+	.word	0
+	.word	1071644672
+	.word	triggerHotWater
+	.word	boilingTime
+	.word	lastBoongBoongBoongTime
+	.word	boongFx
+	.size	tickBoil, .-tickBoil
+	.align	2
+	.global	highlightItem
+	.syntax unified
+	.arm
+	.fpu vfp
+	.type	highlightItem, %function
 
 @ RandomCustomerResetBasedOnDifficulty
 RandomCustomerResetBasedOnDifficulty:
@@ -796,46 +885,6 @@ FTStrcat:
         MOV     SP, R7
         LDR     R7, [SP], #4
         BX      LR		
-
-@ Random float
-GetRandomDoubleValue:
-	push	{fp, lr}
-	add	fp, sp, #4
-	sub	sp, sp, #40
-	vstr.64	d0, [fp, #-36]
-	vstr.64	d1, [fp, #-44]
-	vldr.64	d6, [fp, #-44]
-	vldr.64	d7, [fp, #-36]
-	vsub.f64	d7, d6, d7
-	vstr.64	d7, [fp, #-12]
-	vldr.64	d5, .GetRandomDoubleValueData
-	vldr.64	d6, [fp, #-12]
-	vdiv.f64	d7, d5, d6
-	vstr.64	d7, [fp, #-20]
-	bl	rand
-	vmov	s15, r0	@ int
-	vcvt.f64.s32	d5, s15
-	vldr.64	d6, [fp, #-20]
-	vdiv.f64	d7, d5, d6
-	vldr.64	d6, [fp, #-36]
-	vadd.f64	d7, d6, d7
-	vstr.64	d7, [fp, #-28]
-	nop
-	vmov.f64	d0, d7
-	sub	sp, fp, #4
-	@ sp needed
-	pop	{fp, pc}
-.GetRandomDoubleValueAlign:
-	.align	3
-.GetRandomDoubleValueData:
-	.word	-4194304
-	.word	1105199103
-	.size	GetRandomDoubleValue, .-GetRandomDoubleValue
-	.global	oricupPosition
-	.section	.rodata
-	.align	2
-	.type	oricupPosition, %object
-	.size	oricupPosition, 8
 
 @ Random Int
 GetRandomIntValue:

@@ -372,7 +372,13 @@ typedef struct {
 
 DropArea plate;
 
-double GetRandomDoubleValue(double min, double max);
+double GetRandomDoubleValue(double min, double max)
+{
+    double range = (max - min);
+    double div = RAND_MAX / range;
+    double randomDouble = min + (rand() / div);
+}
+
 extern void RandomCustomerBlinkTime(Customer* customer);
 extern void boilWater(Ingredient* item);
 
