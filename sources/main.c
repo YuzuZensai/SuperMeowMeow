@@ -372,16 +372,7 @@ typedef struct {
 
 DropArea plate;
 
-double GetRandomDoubleValue(double min, double max)
-{
-    double range = (max - min);
-    double div = RAND_MAX / range;
-    double randomDouble = min + (rand() / div);
-}
-
-
-
-
+double GetRandomDoubleValue(double min, double max);
 extern void RandomCustomerBlinkTime(Customer* customer);
 extern void boilWater(Ingredient* item);
 
@@ -885,27 +876,7 @@ Rectangle frameRectCup(Cup i, int frameNum, int frameToShow) {
     return frameRect;
 }
 
-void tickBoil(Ingredient* boiler) {
-
-    if (triggerHotWater) {
-        if (boilingTime + 3 > GetTime()) {
-            boiler->currentFrame = boiler->totalFrames;
-            return;
-        }
-        if (lastBoongBoongBoongTime + 0.5 < GetTime()) {
-            StopSound(boongFx);
-            PlaySoundFx(FX_BOONG);
-            boiler->canChangeCupTexture = true;
-            lastBoongBoongBoongTime = GetTime();
-            int nextFrame = boiler->currentFrame + 2;
-            if (nextFrame > boiler->totalFrames) {
-                nextFrame = 1;
-            }
-            boiler->currentFrame = nextFrame;
-        }
-    }
-}
-
+extern void tickBoil(Ingredient *boiler);
 
 bool highlightItem(Ingredient* item, Camera2D* camera) {
     Vector2 mousePos = GetScreenToWorld2D(GetMousePosition(), *camera);
@@ -1215,78 +1186,8 @@ void RandomCustomerInitialResetBasedOnDifficulty(double *values) {
 
 }
 
-
-double RandomCustomerResetBasedOnDifficulty()
-{
-    switch (options->difficulty)
-    {
-    case FREEPLAY_EASY:
-    case EASY:
-        return GetRandomDoubleValue(30, 50);
-        break;
-    case FREEPLAY_MEDIUM:
-    case MEDIUM:
-        return GetRandomDoubleValue(15, 30);
-        break;
-    case FREEPLAY_HARD:
-    case HARD:
-        return GetRandomDoubleValue(1, 10);
-        break;
-    default:
-        return GetRandomDoubleValue(30, 50);
-        break;
-    }
-}
-
-void RandomGenerateOrder(char *order)
-{
-    int random = GetRandomValue(0, 2);
-    order[0] = '\0'; // Initialize the string
-
-    //base case, either CP or GP
-    if (GetRandomValue(0, 1))
-        FTStrcat(order, "CP");
-    else
-        FTStrcat(order, "GP");
-
-    FTStrcat(order, "Y");
-
-    // Very very small chance just to order tea without any creamer lol
-    if (GetRandomValue(0, 100) == 0)
-		return;
-
-    // another base case, either CM or MI
-    if (GetRandomValue(0, 1))
-        FTStrcat(order, "CM");
-    else
-        FTStrcat(order, "MI");
-
-    bool hasTopping = false;
-    if (random >= 1)
-    {
-        if (GetRandomValue(0, 1))
-        {
-            hasTopping = true;
-            if (GetRandomValue(0, 1))
-                FTStrcat(order, "MA");
-            else
-                FTStrcat(order, "WC");
-        }
-    }
-    if (hasTopping && random >= 2)
-    {
-        if (GetRandomValue(0, 1))
-        {
-            if (GetRandomValue(0, 1))
-                FTStrcat(order, "CA");
-            else
-                FTStrcat(order, "CH");
-        }
-    }
-    // Log the order
-    LogDebug(TextFormat("New order: %s", order));
-}
-
+extern double RandomCustomerResetBasedOnDifficulty();
+extern void RandomGenerateOrder(char *order);
 
 void DrawCustomer(Customer* customer)
 {

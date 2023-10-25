@@ -16,7 +16,9 @@
 .global FTStrcat
 .global GetRandomIntValue
 .global GetRandomDoubleValue
+.global RandomGenerateOrder
 .global RandomCustomerBlinkTime
+.global RandomCustomerResetBasedOnDifficulty
 .global RandomCustomerTimeoutBasedOnDifficulty
 @ Adds two values
 .ADD:
@@ -28,6 +30,264 @@
 	SUB R0, R0, R1
 	BX LR
 
+@ RandomCustomerResetBasedOnDifficulty
+RandomCustomerResetBasedOnDifficulty:
+	push	{fp, lr}
+	add	fp, sp, #4
+	ldr	r3, .RandomCustomerResetBasedOnDifficultyVars2+40
+	ldr	r3, [r3]
+	ldr	r3, [r3, #16]
+	cmp	r3, #5
+	ldrls	pc, [pc, r3, asl #2]
+	b	.RandomCustomerResetBasedOnDifficultyDefault
+.RandomCustomerResetBasedOnDifficultyVars:
+	.word	.RandomCustomerResetBasedOnDifficultyDefaultEasy
+	.word	.RandomCustomerResetBasedOnDifficultyDefaultMedium
+	.word	.RandomCustomerResetBasedOnDifficultyDefaultHard
+	.word	.RandomCustomerResetBasedOnDifficultyDefaultEasy
+	.word	.RandomCustomerResetBasedOnDifficultyDefaultMedium
+	.word	.RandomCustomerResetBasedOnDifficultyDefaultHard
+.RandomCustomerResetBasedOnDifficultyDefaultEasy:
+	vldr.64	d1, .RandomCustomerResetBasedOnDifficultyVars2
+	vldr.64	d0, .RandomCustomerResetBasedOnDifficultyVars2+8
+	bl	GetRandomDoubleValue
+	vmov.f64	d7, d0
+	b	.RandomCustomerResetBasedOnDifficultyReturn
+.RandomCustomerResetBasedOnDifficultyDefaultMedium:
+	vldr.64	d1, .RandomCustomerResetBasedOnDifficultyVars2+8
+	vldr.64	d0, .RandomCustomerResetBasedOnDifficultyVars2+16
+	bl	GetRandomDoubleValue
+	vmov.f64	d7, d0
+	b	.RandomCustomerResetBasedOnDifficultyReturn
+.RandomCustomerResetBasedOnDifficultyDefaultHard:
+	vldr.64	d1, .RandomCustomerResetBasedOnDifficultyVars2+24
+	vldr.64	d0, .RandomCustomerResetBasedOnDifficultyVars2+32
+	bl	GetRandomDoubleValue
+	vmov.f64	d7, d0
+	b	.RandomCustomerResetBasedOnDifficultyReturn
+.RandomCustomerResetBasedOnDifficultyDefault:
+	vldr.64	d1, .RandomCustomerResetBasedOnDifficultyVars2
+	vldr.64	d0, .RandomCustomerResetBasedOnDifficultyVars2+8
+	bl	GetRandomDoubleValue
+	vmov.f64	d7, d0
+.RandomCustomerResetBasedOnDifficultyReturn:
+	vmov.f64	d0, d7
+	pop	{fp, pc}
+.RandomCustomerResetBasedOnDifficultyAlign:
+	.align	3
+.RandomCustomerResetBasedOnDifficultyVars2:
+	.word	0
+	.word	1078525952
+	.word	0
+	.word	1077805056
+	.word	0
+	.word	1076756480
+	.word	0
+	.word	1076101120
+	.word	0
+	.word	1072693248
+	.word	options
+	.size	RandomCustomerResetBasedOnDifficulty, .-RandomCustomerResetBasedOnDifficulty
+	.section	.rodata
+	.align	2
+
+
+@RandomGenerateOrder
+RandomGenerateOrder:
+	push	{fp, lr}
+	add	fp, sp, #4
+	sub	sp, sp, #16
+	str	r0, [fp, #-16]
+	mov	r1, #2
+	mov	r0, #0
+	bl	GetRandomValue
+	str	r0, [fp, #-12]
+	ldr	r3, [fp, #-16]
+	mov	r2, #0
+	strb	r2, [r3]
+	mov	r1, #1
+	mov	r0, #0
+	bl	GetRandomValue
+	mov	r3, r0
+	cmp	r3, #0
+	beq	.RandomOrderGenerated
+	ldr	r1, FunctionConstants
+	ldr	r0, [fp, #-16]
+	bl	FTStrcat
+	b	.GenerateCP
+.RandomOrderGenerated:
+	ldr	r1, FunctionConstants+4
+	ldr	r0, [fp, #-16]
+	bl	FTStrcat
+.GenerateCP:
+	ldr	r1, FunctionConstants+8
+	ldr	r0, [fp, #-16]
+	bl	FTStrcat
+	mov	r1, #100
+	mov	r0, #0
+	bl	GetRandomValue
+	mov	r3, r0
+	cmp	r3, #0
+	beq	GenerateMA
+	mov	r1, #1
+	mov	r0, #0
+	bl	GetRandomValue
+	mov	r3, r0
+	cmp	r3, #0
+	beq	.GenerateGP
+	ldr	r1, FunctionConstants+12
+	ldr	r0, [fp, #-16]
+	bl	FTStrcat
+	b	.AddYToOrder
+.GenerateGP:
+	ldr	r1, FunctionConstants+16
+	ldr	r0, [fp, #-16]
+	bl	FTStrcat
+.AddYToOrder:
+	mov	r3, #0
+	strb	r3, [fp, #-5]
+	ldr	r3, [fp, #-12]
+	cmp	r3, #0
+	ble	.GenerateCM
+	mov	r1, #1
+	mov	r0, #0
+	bl	GetRandomValue
+	mov	r3, r0
+	cmp	r3, #0
+	beq	.GenerateCM
+	mov	r3, #1
+	strb	r3, [fp, #-5]
+	mov	r1, #1
+	mov	r0, #0
+	bl	GetRandomValue
+	mov	r3, r0
+	cmp	r3, #0
+	beq	.GenerateTeaWithoutCreamer
+	ldr	r1, FunctionConstants+20
+	ldr	r0, [fp, #-16]
+	bl	FTStrcat
+	b	.GenerateCM
+.GenerateTeaWithoutCreamer:
+	ldr	r1, FunctionConstants+24
+	ldr	r0, [fp, #-16]
+	bl	FTStrcat
+.GenerateCM:
+	ldrb	r3, [fp, #-5]
+	cmp	r3, #0
+	beq	.CheckForTopping
+	ldr	r3, [fp, #-12]
+	cmp	r3, #1
+	ble	.CheckForTopping
+	mov	r1, #1
+	mov	r0, #0
+	bl	GetRandomValue
+	mov	r3, r0
+	cmp	r3, #0
+	beq	.CheckForTopping
+	mov	r1, #1
+	mov	r0, #0
+	bl	GetRandomValue
+	mov	r3, r0
+	cmp	r3, #0
+	beq	.GenerateMI
+	ldr	r1, FunctionConstants+28
+	ldr	r0, [fp, #-16]
+	bl	FTStrcat
+	b	.CheckForTopping
+.GenerateMI:
+	ldr	r1, FunctionConstants+32
+	ldr	r0, [fp, #-16]
+	bl	FTStrcat
+.CheckForTopping:
+	ldr	r1, [fp, #-16]
+	ldr	r0, FunctionConstants+36
+	bl	TextFormat
+	mov	r3, r0
+	mov	r0, r3
+	bl	LogDebug
+	b	LogOrder
+GenerateMA:
+	nop
+LogOrder:
+	sub	sp, fp, #4
+	pop	{fp, pc}
+.RandRandomGenerateOrderAlign:
+	.align	2
+.OrderCP:
+	.ascii	"CP\000"
+	.align	2
+.OrderGP:
+	.ascii	"GP\000"
+	.align	2
+.OrderY:
+	.ascii	"Y\000"
+	.align	2
+.OrderCM:
+	.ascii	"CM\000"
+	.align	2
+.OrderMI:
+	.ascii	"MI\000"
+	.align	2
+.OrderMA:
+	.ascii	"MA\000"
+	.align	2
+.OrderWC:
+	.ascii	"WC\000"
+	.align	2
+.OrderCA:
+	.ascii	"CA\000"
+	.align	2
+.OrderCH:
+	.ascii	"CH\000"
+	.align	2
+.NewOrderDebugString:
+	.ascii	"New order: %s\000"
+	.text
+	.align	2
+	.global	RandomGenerateOrder
+	.syntax unified
+	.arm
+	.fpu vfp
+	.type	RandomGenerateOrder, %function
+FunctionConstants:
+	.word	.OrderCP
+	.word	.OrderGP
+	.word	.OrderY
+	.word	.OrderCM
+	.word	.OrderMI
+	.word	.OrderMA
+	.word	.OrderWC
+	.word	.OrderCA
+	.word	.OrderCH
+	.word	.NewOrderDebugString
+	.size	RandomGenerateOrder, .-RandomGenerateOrder
+	.section	.rodata
+	.align	2
+StringConstantCPY:
+	.ascii	"CPY\000"
+	.align	2
+StringConstantGPY:
+	.ascii	"GPY\000"
+	.align	2
+StringConstantDebugFormat:
+	.ascii	"%s | Blink %s (%.2f) %.2f/%.2f\000"
+	.align	2
+StringConstantTimeoutFormat:
+	.ascii	"Timeout %.2f/%.2f\000"
+	.align	2
+StringConstantResetFormat:
+	.ascii	"Reset %.2f/%.2f\000"
+	.align	2
+StringConstantVisibleOrderFormat:
+	.ascii	"Visible %s | Order %s\000"
+	.text
+	.align	2
+	.global	DrawCustomer
+	.syntax unified
+	.arm
+	.fpu vfp
+	.type	DrawCustomer, %function
+
 @ RandomCustomerTimeoutBasedOnDifficulty
 RandomCustomerTimeoutBasedOnDifficulty:
 	push	{fp, lr}
@@ -38,7 +298,7 @@ RandomCustomerTimeoutBasedOnDifficulty:
 	cmp	r3, #5
 	ldrls	pc, [pc, r3, asl #2]
 	b	RandomCustomerTimeoutBasedOnDifficultyDefault
-.L244:
+.RandomCustomerTimeoutBasedOnDifficultyT:
 	.word	RandomCustomerTimeoutBasedOnDifficultyEasy
 	.word	.RandomCustomerTimeoutBasedOnDifficultyMedium
 	.word	.RandomCustomerTimeoutBasedOnDifficultyHard
@@ -536,6 +796,46 @@ FTStrcat:
         MOV     SP, R7
         LDR     R7, [SP], #4
         BX      LR		
+
+@ Random float
+GetRandomDoubleValue:
+	push	{fp, lr}
+	add	fp, sp, #4
+	sub	sp, sp, #40
+	vstr.64	d0, [fp, #-36]
+	vstr.64	d1, [fp, #-44]
+	vldr.64	d6, [fp, #-44]
+	vldr.64	d7, [fp, #-36]
+	vsub.f64	d7, d6, d7
+	vstr.64	d7, [fp, #-12]
+	vldr.64	d5, .GetRandomDoubleValueData
+	vldr.64	d6, [fp, #-12]
+	vdiv.f64	d7, d5, d6
+	vstr.64	d7, [fp, #-20]
+	bl	rand
+	vmov	s15, r0	@ int
+	vcvt.f64.s32	d5, s15
+	vldr.64	d6, [fp, #-20]
+	vdiv.f64	d7, d5, d6
+	vldr.64	d6, [fp, #-36]
+	vadd.f64	d7, d6, d7
+	vstr.64	d7, [fp, #-28]
+	nop
+	vmov.f64	d0, d7
+	sub	sp, fp, #4
+	@ sp needed
+	pop	{fp, pc}
+.GetRandomDoubleValueAlign:
+	.align	3
+.GetRandomDoubleValueData:
+	.word	-4194304
+	.word	1105199103
+	.size	GetRandomDoubleValue, .-GetRandomDoubleValue
+	.global	oricupPosition
+	.section	.rodata
+	.align	2
+	.type	oricupPosition, %object
+	.size	oricupPosition, 8
 
 @ Random Int
 GetRandomIntValue:
