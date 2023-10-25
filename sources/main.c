@@ -757,6 +757,7 @@ Texture2D* DragAndDropIngredient(Ingredient* object, Cup* cup, Camera2D* camera)
                 object->canChangeCupTexture = false;
                 PlaySoundFx(FX_FLICK);
                 boilWater(object);
+                return &object->texture;
             }
 
             else
