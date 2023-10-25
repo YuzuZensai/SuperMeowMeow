@@ -596,7 +596,7 @@ void UpdateCupImage(Cup* cup, Ingredient* ingredient) {
     char filename[100];
 
     // Initialize filename to empty string
-    FTStrcpy(filename, "");
+    strcpy(filename, "");
 
     switch (cup->powderType)
     {
@@ -672,11 +672,11 @@ void UpdateCupImage(Cup* cup, Ingredient* ingredient) {
     }
 
     // Save filename to cup->order
-    FTStrcpy(cup->order, filename);
+    strcpy(cup->order, filename);
 
     FTStrcat(filename, ".png");
     char path[1000];
-    FTStrcpy(path, ASSETS_PATH"combination/");
+    strcpy(path, ASSETS_PATH"combination/");
     FTStrcat(path, filename);
     // set cup texture to the filename
     LogDebug("Powder type: %d, Water: %d, Creamer: %d, Topping: %d, Sauce: %d\n", cup->powderType, cup->hasWater, cup->creamerType, cup->toppingType, cup->sauceType);
@@ -1325,29 +1325,29 @@ void DrawCustomer(Customer* customer)
     {
         DrawTextureEx(bubbles, (Vector2) { pos.x + 350, pos.y + 100 }, 0.0f, 1.0f / 2.0f, WHITE);
 
-        if (FTStrstr(customer->order, "CPY") != NULL)
+        if (strstr(customer->order, "CPY") != NULL)
             DrawTextureEx(cocoaChon.texture, (Vector2) { pos.x + 375, pos.y + 100 }, 0.0f, 1.0f / 2.0f, WHITE);
-        else if (FTStrstr(customer->order, "GPY") != NULL)
+        else if (strstr(customer->order, "GPY") != NULL)
             DrawTextureEx(greenChon.texture, (Vector2) { pos.x + 375, pos.y + 100 }, 0.0f, 1.0f / 2.0f, WHITE);
 
-        if (FTStrstr(customer->order, "CM") != NULL)
+        if (strstr(customer->order, "CM") != NULL)
             // DrawTextureEx(condensedMilk.texture, (Vector2) {pos.x + 425, pos.y + 100}, 0.0f, 1.0f / 2.0f, WHITE);
             DrawTextureRec(condensedMilk.texture, condensedMilk.frameRectangle, (Vector2) { pos.x + 425, pos.y + 100 }, RAYWHITE);
-        else if (FTStrstr(customer->order, "MI") != NULL)
+        else if (strstr(customer->order, "MI") != NULL)
             // DrawTextureEx(normalMilk.texture, (Vector2) {pos.x + 425, pos.y + 100}, 0.0f, 1.0f / 2.0f, WHITE);
             DrawTextureRec(normalMilk.texture, normalMilk.frameRectangle, (Vector2) { pos.x + 425, pos.y + 100 }, RAYWHITE);
 
-        if (FTStrstr(customer->order, "MA") != NULL)
+        if (strstr(customer->order, "MA") != NULL)
             // DrawTextureEx(marshMellow.texture, (Vector2) {pos.x + 375, pos.y + 150}, 0.0f, 1.0f / 2.0f, WHITE);
             DrawTextureRec(marshMellow.texture, marshMellow.frameRectangle, (Vector2) { pos.x + 375, pos.y + 150 }, RAYWHITE);
-        else if (FTStrstr(customer->order, "WC") != NULL)
+        else if (strstr(customer->order, "WC") != NULL)
             // DrawTextureEx(whippedCream.texture, (Vector2) {pos.x + 375, pos.y + 150}, 0.0f, 1.0f / 2.0f, WHITE);
             DrawTextureRec(whippedCream.texture, whippedCream.frameRectangle, (Vector2) { pos.x + 375, pos.y + 150 }, RAYWHITE);
 
-        if (FTStrstr(customer->order, "CA") != NULL)
+        if (strstr(customer->order, "CA") != NULL)
             // DrawTextureEx(caramelSauce.texture, (Vector2) {pos.x + 425, pos.y + 150}, 0.0f, 1.0f / 2.0f, WHITE);
             DrawTextureRec(caramelSauce.texture, caramelSauce.frameRectangle, (Vector2) { pos.x + 425, pos.y + 150 }, RAYWHITE);
-        else if (FTStrstr(customer->order, "CH") != NULL)
+        else if (strstr(customer->order, "CH") != NULL)
             // DrawTextureEx(chocolateSauce.texture, (Vector2) {pos.x + 425, pos.y + 150}, 0.0f, 1.0f / 2.0f, WHITE);
             DrawTextureRec(chocolateSauce.texture, chocolateSauce.frameRectangle, (Vector2) { pos.x + 425, pos.y + 150 }, RAYWHITE);
     }
@@ -1654,7 +1654,7 @@ Customer CreateCustomerWithOrder(int patience, double currentTime, int orderEnd,
 
     newCustomer.currentTime = currentTime;
     newCustomer.orderEnd = orderEnd * patience;
-	FTStrcpy(newCustomer.order, "");
+	strcpy(newCustomer.order, "");
 	RandomGenerateOrder(newCustomer.order);
     return newCustomer;
 }
@@ -1741,7 +1741,7 @@ void UpdateCustomerState(Customer* customer, float deltaTime) {
             customer->currentTime = 0;
             customer->orderEnd = RandomCustomerTimeoutBasedOnDifficulty();
             customer->visible = true;
-            FTStrcpy(customer->order, "");
+            strcpy(customer->order, "");
             RandomGenerateOrder(customer->order);
         }
     }
@@ -2010,10 +2010,6 @@ extern void PauseBgm(Music *bgm);
 extern int FTStrcmp(const char* str1, const char* str2);
 
 extern int FTStrcat(char* dst, const char* src);
-
-extern int FTStrcpy(char* dst, const char* src);
-
-extern int FTStrstr(const char* str1, const char* str2);
 
 void StopBgm(Music *bgm)
 {
