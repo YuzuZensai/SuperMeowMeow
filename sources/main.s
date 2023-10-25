@@ -17,6 +17,7 @@ max: .double 1.0
 .global FTStrcmp
 .global FTStrcat
 .global FTStrcpy
+.global FTStrstr
 
 .ADD:
 	ADD R0, R0, R1
