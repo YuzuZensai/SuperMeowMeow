@@ -61,7 +61,7 @@ GetRandomDoubleValue:
 	@ SP needed
 	POP	{FP, PC}
 
-.L14:
+.BlinkTimeConstants: @L14
 	.word	0
 	.word	1071644672
 	.word	-1717986918
@@ -86,14 +86,14 @@ RandomCustomerBlinkTime:
 	ADD	FP, SP, #4
 	SUB	SP, SP, #8
 	STR	R0, [FP, #-8]
-	VLDR.64	d1, .L14
-	VLDR.64	d0, .L14+8
+	VLDR.64	d1, .BlinkTimeConstants
+	VLDR.64	d0, .BlinkTimeConstants+8
 	BL	GetRandomDoubleValue
 	VMOV.f64	d7, d0
 	LDR	R3, [FP, #-8]
 	VSTR.64	d7, [R3, #24]
-	VLDR.64	d1, .L14+16
-	VLDR.64	d0, .L14+24
+	VLDR.64	d1, .BlinkTimeConstants+16
+	VLDR.64	d0, .BlinkTimeConstants+24
 	BL	GetRandomDoubleValue
 	VMOV.f64	d7, d0
 	LDR	R3, [FP, #-8]
@@ -115,22 +115,22 @@ boilWater:
 	EOR	R3, R3, #1
 	UXTB	R3, R3
 	CMP	R3, #0
-	BEQ	.L21
-	LDR	R3, .L22
+	BEQ	.BoilingNotRequired
+	LDR	R3, .BoilWaterData
 	MOV	R2, #1
 	STRB	R2, [R3]
 	BL	GetTime
 	VMOV.f64	d7, d0
-	LDR	R3, .L22+4
+	LDR	R3, .BoilWaterData+4
 	VSTR.64	d7, [R3]
 
-.L21:
+.BoilingNotRequired: @L21
 	NOP
 	SUB	SP, FP, #4
 	@ SP needed
 	POP	{FP, PC}
 
-.L22:
+.BoilWaterData: @L22
 	.word	triggerHotWater
 	.word	boilingTime
 	.size	boilWater, .-boilWater
@@ -143,21 +143,21 @@ IsNight:
 	@ link register save eliminated.
 	STR	FP, [SP, #-4]!
 	ADD	FP, SP, #0
-	LDR	R3, .L207+8
+	LDR	R3, .IsNightData+8
 	LDR	R3, [R3]
 	CMP	R3, #3
-	BNE	.L202
-	LDR	R3, .L207+12
+	BNE	.NotNight
+	LDR	R3, .IsNightData+12
 	VLDR.32	S15, [R3]
 	VCVT.f64.f32	d7, S15
-	VLDR.64	d6, .L207
+	VLDR.64	d6, .IsNightData
 	vcmpe.f64	d7, d6
 	vmrs	APSR_nzcv, FPSCR
-	BPL	.L202
+	BPL	.NotNight
 	MOV	R3, #1
-	B	.L204
+	B	.IsNight
 
-.L207:
+.IsNightData: @L207
 	.word	-1717986918
 	.word	1071225241
 	.word	currentColorIndex
@@ -166,9 +166,9 @@ IsNight:
 	.section	.rodata
 	.align	2
 
-.L202:
+.NotNight: @L202
 	MOV	R3, #0
-.L204:
+.IsNight: @L204
 	and	R3, R3, #1
 	UXTB	R3, R3
 	MOV	R0, R3
@@ -184,20 +184,20 @@ PlayBgm:
 	ADD	FP, SP, #8
 	SUB	SP, SP, #36
 	STR	R0, [FP, #-16]
-	LDR	R3, .L580+4
+	LDR	R3, .PlayBgmData+4
 	LDR	R3, [R3]
 	LDR	R2, [FP, #-16]
 	CMP	R2, R3
-	BNE	.L576
-	LDR	R3, .L580+8
+	BNE	.MusicOperations
+	LDR	R3, .PlayBgmData+8
 	LDRB	R3, [R3]	@ zero_extendqisi2
 	CMP	R3, #0
-	BEQ	.L579
-	LDR	R3, .L580+12
+	BEQ	.NOPSection
+	LDR	R3, .PlayBgmData+12
 	LDR	R3, [R3]
 	LDRB	R3, [R3, #22]	@ zero_extendqisi2
 	CMP	R3, #0
-	BEQ	.L579
+	BEQ	.NOPSection
 	LDR	R4, [FP, #-16]
 	MOV	LR, SP
 	ADD	IP, R4, #16
@@ -210,12 +210,12 @@ PlayBgm:
 	LDR	R3, [FP, #-16]
 	MOV	R2, #1
 	STRB	R2, [R3, #24]
-	LDR	R3, .L580+8
+	LDR	R3, .PlayBgmData+8
 	MOV	R2, #0
 	STRB	R2, [R3]
-	B	.L579
+	B	.NOPSection
 
-.L580:
+.PlayBgmData:
 	.word	1048576000
 	.word	currentBgm
 	.word	isCurrentBgmPaused
@@ -228,11 +228,11 @@ PlayBgm:
 	.fpu vfp
 	.type	PlayBgmIfStopped, %function
 
-.L576:
-	LDR	R2, .L580+4
+.MusicOperations: @L576
+	LDR	R2, .PlayBgmData+4
 	LDR	R3, [FP, #-16]
 	STR	R3, [R2]
-	LDR	R3, .L580+4
+	LDR	R3, .PlayBgmData+4
 	LDR	R4, [R3]
 	MOV	LR, SP
 	ADD	IP, R4, #16
@@ -242,7 +242,7 @@ PlayBgm:
 	STR	R3, [LR]
 	LDM	R4, {R0, R1, R2, R3}
 	BL	StopMusicStream
-	LDR	R3, .L580+4
+	LDR	R3, .PlayBgmData+4
 	LDR	R4, [R3]
 	MOV	LR, SP
 	ADD	IP, R4, #16
@@ -252,9 +252,9 @@ PlayBgm:
 	STR	R3, [LR]
 	LDM	R4, {R0, R1, R2, R3}
 	BL	PlayMusicStream
-	LDR	R3, .L580+4
+	LDR	R3, .PlayBgmData+4
 	LDR	R4, [R3]
-	VLDR.32	S15, .L580
+	VLDR.32	S15, .PlayBgmData
 	MOV	LR, SP
 	ADD	IP, R4, #16
 	LDMIA	IP!, {R0, R1, R2, R3}
@@ -270,10 +270,10 @@ PlayBgm:
 	LDR	R3, .L580+8
 	MOV	R2, #0
 	STRB	R2, [R3]
-	B	.L575
-.L579:
+	B	.CleanupSection
+.NOPSection:
 	NOP
-.L575:
+.CleanupSection:
 	SUB	SP, FP, #8
 	@ SP needed
 	POP	{R4, FP, PC}
@@ -285,20 +285,20 @@ PlayBgmIfStopped:
 	ADD	FP, SP, #8
 	SUB	SP, SP, #36
 	STR	R0, [FP, #-16]
-	LDR	R3, .L587+4
+	LDR	R3, .BgmData+4
 	LDR	R3, [R3]
 	LDR	R2, [FP, #-16]
 	CMP	R2, R3
-	BNE	.L583
-	LDR	R3, .L587+8
+	BNE	.CheckCurrentBgm
+	LDR	R3, .BgmData+8
 	LDRB	R3, [R3]	@ zero_extendqisi2
 	CMP	R3, #0
-	BEQ	.L586
-	LDR	R3, .L587+12
+	BEQ	.SkipPauseBgm
+	LDR	R3, .BgmData+12
 	LDR	R3, [R3]
 	LDRB	R3, [R3, #22]	@ zero_extendqisi2
 	CMP	R3, #0
-	BEQ	.L586
+	BEQ	.SkipPauseBgm
 	LDR	R4, [FP, #-16]
 	MOV	LR, SP
 	ADD	IP, R4, #16
@@ -308,7 +308,7 @@ PlayBgmIfStopped:
 	STR	R3, [LR]
 	LDM	R4, {R0, R1, R2, R3}
 	BL	PlayMusicStream
-	VLDR.32	S15, .L587
+	VLDR.32	S15, .BgmData
 	LDR	R4, [FP, #-16]
 	MOV	LR, SP
 	ADD	IP, R4, #16
@@ -322,11 +322,11 @@ PlayBgmIfStopped:
 	LDR	R3, [FP, #-16]
 	MOV	R2, #1
 	STRB	R2, [R3, #24]
-	LDR	R3, .L587+8
+	LDR	R3, .BgmData+8
 	MOV	R2, #0
 	STRB	R2, [R3]
-	B	.L586
-.L587:
+	B	.SkipPauseBgm
+.BgmData:
 	.word	1048576000
 	.word	currentBgm
 	.word	isCurrentBgmPaused
@@ -338,7 +338,7 @@ PlayBgmIfStopped:
 	.arm
 	.fpu vfp
 	.type	PauseBgm, %function
-.L583:
+.CheckCurrentBgm:
 	LDR	R2, .L587+4
 	LDR	R3, [FP, #-16]
 	STR	R3, [R2]
@@ -370,10 +370,10 @@ PlayBgmIfStopped:
 	LDR	R3, .L587+8
 	MOV	R2, #0
 	STRB	R2, [R3]
-	B	.L582
-.L586:
+	B	.SetCurrentBgmPaused
+.SkipPauseBgm:
 	NOP
-.L582:
+.SetCurrentBgmPaused:
 	SUB	SP, FP, #8
 	@ SP needed
 	POP	{R4, FP, PC}
@@ -404,7 +404,7 @@ validiator:
 	B	.DebugLogHandlerEnd
 
 .LogDebugHandler:
-	.word	.LC70
+	.word	.LogDebugHandlerData
 	.size	validiator, .-validiator
 	.align	2
 	.global	render_customers
@@ -420,7 +420,7 @@ validiator:
 	@ SP needed
 	POP	{FP, PC}
 
-.LC70:
+.LogDebugHandlerData:
 	.ascii	"Validating order: %s against %s\000"
 	.text
 	.align	2
