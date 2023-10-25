@@ -368,6 +368,23 @@ typedef struct {
 
 DropArea plate;
 
+int GetRandomIntValue(int min_num, int max_num)
+{
+    int result = 0, low_num = 0, hi_num = 0;
+    if (min_num < max_num)
+    {
+        low_num = min_num;
+        hi_num = max_num + 1;
+    }
+    else
+    {
+        low_num = max_num + 1;
+        hi_num = min_num;
+    }
+    result = (rand() % (hi_num - low_num)) + low_num;
+    return result;
+}
+
 extern double GetRandomDoubleValue(double min, double max);
 extern void RandomCustomerBlinkTime(Customer* customer);
 extern void boilWater(Ingredient* item);
@@ -2544,12 +2561,11 @@ void OptionsUpdate(Camera2D* camera)
 
 int RandomCustomerTexture()
 {
-    // Seed the random number generator with the current time
-    srand(time(NULL));
-
-    int randomIndex = rand() % (sizeof(customersImageData) / sizeof(customersImageData[0]));
+    int randomIndex = GetRandomIntValue(0, CUSTOMERS_COUNT - 1);
+    LogDebug("New random customer texture: %d", randomIndex);
     return randomIndex;
 }
+
 void GameUpdate(Camera2D *camera)
 {
     double lastFrameTime = GetTime();

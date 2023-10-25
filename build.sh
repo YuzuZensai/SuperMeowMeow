@@ -6,4 +6,6 @@ export GRAPHICS=GRAPHICS_API_OPENGL_21
 
 cmake -S . -B build
 cd build
+rm -rf my_raylib_game
 make
+./my_raylib_game
